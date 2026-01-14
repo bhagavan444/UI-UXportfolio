@@ -1,883 +1,336 @@
-import React, { useEffect, useState, useCallback, useMemo, useRef } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from 'framer-motion';
-import { FaExternalLinkAlt, FaTrophy } from 'react-icons/fa';
-import {
-  SiMongodb,
-  SiExpress,
-  SiReact,
-  SiNodedotjs,
-  SiFlask,
-  SiPython,
-  SiFirebase,
-  SiHtml5,
-  SiCss3,
-  SiScikitlearn,
-  SiTensorflow,
-  SiPandas,
-  SiOpenai,
-  SiSocketdotio,
-  SiCloudinary,
-  SiNumpy,
-} from 'react-icons/si';
+import { Trophy, Award, ExternalLink, X, Code, Database, Shield, Rocket, Crown, Clock, Users, Sparkles, Zap } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
 
-// Starfield Component (from EducationEnhanced.jsx, adapted to Hackathons colors)
-const Starfield = ({ starCount = 120 }) => {
-  return (
-    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}>
-      {[...Array(starCount)].map((_, i) => {
-        const size = Math.random() * 2 + 1;
-        const duration = Math.random() * 2 + 1;
-        return (
-          <motion.div
-            key={`star-${i}`}
-            style={{
-              position: 'absolute',
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: size,
-              height: size,
-              background: 'white',
-              borderRadius: '50%',
-              boxShadow: '0 0 5px rgba(59, 130, 246, 0.3)',
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0, 0.5] }}
-            transition={{
-              duration: duration,
-              repeat: Infinity,
-              repeatType: 'loop',
-              delay: Math.random() * 3,
-            }}
-          />
-        );
-      })}
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={`comet-${i}`}
-          style={{
-            position: 'absolute',
-            width: 2,
-            height: 2,
-            background: 'rgba(59, 130, 246, 0.8)',
-            borderRadius: '50%',
-            boxShadow: '0 0 10px rgba(59, 130, 246, 0.5)',
-          }}
-          initial={{ x: '100%', y: `${Math.random() * 100}%`, opacity: 0 }}
-          animate={{
-            x: '-100%',
-            opacity: [0, 1, 0],
-            transition: { duration: 3 + i * 0.5, repeat: Infinity, ease: 'linear' },
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Tech Icon Component with carousel effect
-const TechIcon = React.memo(({ tech, index }) => {
-  const iconMap = {
-    MongoDB: { icon: <SiMongodb />, label: 'MongoDB' },
-    Express: { icon: <SiExpress />, label: 'Express' },
-    'Express.js': { icon: <SiExpress />, label: 'Express.js' },
-    React: { icon: <SiReact />, label: 'React' },
-    'React.js': { icon: <SiReact />, label: 'React.js' },
-    Node: { icon: <SiNodedotjs />, label: 'Node.js' },
-    'Node.js': { icon: <SiNodedotjs />, label: 'Node.js' },
-    Flask: { icon: <SiFlask />, label: 'Flask' },
-    Python: { icon: <SiPython />, label: 'Python' },
-    Firebase: { icon: <SiFirebase />, label: 'Firebase' },
-    'Firebase Auth': { icon: <SiFirebase />, label: 'Firebase Auth' },
-    HTML: { icon: <SiHtml5 />, label: 'HTML' },
-    CSS: { icon: <SiCss3 />, label: 'CSS' },
-    CSS3: { icon: <SiCss3 />, label: 'CSS3' },
-    'HTML/CSS': { icon: (<><SiHtml5 /><SiCss3 /></>), label: 'HTML/CSS' },
-    'Scikit-learn': { icon: <SiScikitlearn />, label: 'Scikit-learn' },
-    TensorFlow: { icon: <SiTensorflow />, label: 'TensorFlow' },
-    Pandas: { icon: <SiPandas />, label: 'Pandas' },
-    Numpy: { icon: <SiNumpy />, label: 'Numpy' },
-    Numpys: { icon: <SiNumpy />, label: 'Numpy' },
-    OpenAI: { icon: <SiOpenai />, label: 'OpenAI' },
-    'OpenAI API': { icon: <SiOpenai />, label: 'OpenAI API' },
-    Socket: { icon: <SiSocketdotio />, label: 'Socket.io' },
-    'Socket.io': { icon: <SiSocketdotio />, label: 'Socket.io' },
-    Cloudinary: { icon: <SiCloudinary />, label: 'Cloudinary' },
-    TFIDF: { icon: null, label: 'TF-IDF' },
-    'TF-IDF': { icon: null, label: 'TF-IDF' },
-    NLTK: { icon: null, label: 'NLTK' },
-    Keras: { icon: null, label: 'Keras' },
-    LangChain: { icon: null, label: 'LangChain' },
-  };
-
-  const techData = iconMap[tech] || { icon: null, label: tech };
-  return (
-    <motion.span
-      style={{
-        display: 'inline-flex',
-        alignItems: 'center',
-        gap: 'clamp(8px,1.2vw,10px)',
-        margin: 'clamp(6px,1vw,8px)',
-        padding: 'clamp(6px,1vw,8px) clamp(10px,1.8vw,12px)',
-        background: 'linear-gradient(45deg, rgba(192,38,211,0.3), rgba(76,29,149,0.3))',
-        borderRadius: 'clamp(10px,1.5vw,12px)',
-        border: '2px solid rgba(255,51,255,0.4)',
-        boxShadow: '0 0 15px rgba(192,38,211,0.5)',
-      }}
-      initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
-      animate={{ opacity: 1, scale: 1, rotate: 0 }}
-      transition={{ delay: index * 0.08, type: 'spring', stiffness: 180, damping: 14 }}
-    >
-      {techData.icon && (
-        <motion.span
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: index * 0.08 }}
-          style={{ color: '#ff33ff', textShadow: '0 0 15px rgba(192,38,211,0.7)' }}
-        >
-          {techData.icon}
-        </motion.span>
-      )}
-      <span style={{ color: '#f0faff', fontSize: 'clamp(0.9rem,2vw,1.1rem)', fontWeight: 600 }}>
-        {techData.label}
-      </span>
-    </motion.span>
-  );
-});
-
-// Hackathon Data
-const hackathons = [
-  {
-    type: 'hackathon',
-    title: '🚀 Hackathon - Brainovision x RCE 2025',
-    description:
-      'Led a high-performing team to victory in a 24-hour Hackathon hosted by Brainovision & RCE, developing a scalable MERN full-stack application for a second-hand electronics marketplace, outperforming 15+ teams with innovative UI/UX and robust backend optimization.',
-    tech: 'MongoDB, Express.js, React.js, Node.js, Cloudinary, Socket.io',
-    certLink: 'https://drive.google.com/file/d/1CQaoA9V93Lg4XS1FmcG-0gVUaKvw2zUq/view?usp=sharing',
-    projLink: 'https://github.com/bhagavan444/hacakthon-project',
-    tag: '#MERN #Hackathon #Leadership #FullStack #Innovation',
-    icon: FaTrophy,
-  },
-];
-
-// Inline Styles
-const styles = {
-  container: {
-    minHeight: '100vh',
-    padding: 'clamp(3rem, 7vw, 6rem) clamp(1.5rem, 3vw, 2.5rem)',
-    background: 'linear-gradient(155deg, #0d0026, #1a0033, #2a0055, #3b0088)',
-    backgroundSize: '600% 600%',
-    color: '#f5f7fa',
-    overflow: 'hidden',
-    position: 'relative',
-    perspective: '2000px',
-    fontFamily: "'Inter', 'Montserrat', sans-serif",
-    willChange: 'background, transform',
-  },
-  overlay: {
-    position: 'absolute',
-    inset: 0,
-    background: `
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.4), transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(192, 38, 211, 0.4), transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.3), transparent 70%)
-    `,
-    zIndex: -1,
-    pointerEvents: 'none',
-  },
-  holographicGlow: {
-    position: 'absolute',
-    width: 'clamp(500px, 65vw, 800px)',
-    height: 'clamp(500px, 65vw, 800px)',
-    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.45), transparent 60%)',
-    top: '-20%',
-    left: '-20%',
-    filter: 'blur(150px)',
-    zIndex: -1,
-  },
-  header: {
-    textAlign: 'center',
-    padding: 'clamp(2rem, 4vw, 3.5rem)',
-    background: 'rgba(10, 0, 30, 0.85)',
-    border: '1px solid rgba(59, 130, 246, 0.4)',
-    borderRadius: 'clamp(16px, 2.2vw, 20px)',
-    boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(59, 130, 246, 0.3)',
-    backdropFilter: 'blur(16px)',
-    maxWidth: 'clamp(700px, 90vw, 1100px)',
-    margin: '0 auto clamp(3rem, 6vw, 5rem)',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  headerGlow: {
-    position: 'absolute',
-    inset: 0,
-    background: 'conic-gradient(from 45deg, rgba(59, 130, 246, 0.35), rgba(192, 38, 211, 0.35), transparent)',
-    opacity: 0.45,
-    zIndex: -1,
-  },
-  title: {
-    fontSize: 'clamp(2rem, 5.5vw, 4rem)',
-    fontWeight: 900,
-    color: 'transparent',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3, #4c1d95)',
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    textShadow: '0 0 35px rgba(59, 130, 246, 0.7), 0 0 60px rgba(192, 38, 211, 0.5)',
-    marginBottom: 'clamp(0.6rem, 1.8vw, 1.2rem)',
-    letterSpacing: '0.12em',
-  },
-  titleUnderline: {
-    width: 'clamp(160px, 30vw, 240px)',
-    height: '5px',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    borderRadius: '5px',
-    margin: '0.6rem auto',
-    boxShadow: '0 0 20px rgba(59, 130, 246, 0.7)',
-  },
-  introText: {
-    fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)',
-    color: '#e0e7ff',
-    maxWidth: 'clamp(500px, 80vw, 800px)',
-    margin: '0 auto clamp(1rem, 2vw, 1.5rem)',
-    lineHeight: '1.7',
-    textShadow: '0 0 10px rgba(59, 130, 246, 0.4)',
-  },
-  filterBar: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    marginBottom: 'clamp(2rem, 4vw, 3rem)',
-    flexWrap: 'wrap',
-  },
-  filterBtn: {
-    padding: 'clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)',
-    background: 'rgba(59, 130, 246, 0.2)',
-    border: '1px solid rgba(59, 130, 246, 0.4)',
-    borderRadius: 'clamp(12px, 1.8vw, 16px)',
-    color: '#e0e7ff',
-    cursor: 'pointer',
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    fontWeight: '600',
-    boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
-  },
-  activeFilter: {
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    color: '#f0faff',
-    boxShadow: '0 0 20px rgba(59, 130, 246, 0.7)',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(300px, 45vw, 380px), 1fr))',
-    gap: 'clamp(1.8rem, 3.5vw, 3rem)',
-    maxWidth: 'clamp(800px, 95vw, 1600px)',
-    margin: '0 auto',
-    perspective: '2000px',
-  },
-  tile: {
-    background: 'rgba(10, 0, 30, 0.9)',
-    borderRadius: 'clamp(14px, 2.5vw, 20px)',
-    padding: 'clamp(2rem, 3.5vw, 2.8rem)',
-    textAlign: 'left',
-    backdropFilter: 'blur(18px)',
-    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), inset 0 0 12px rgba(59, 130, 246, 0.25)',
-    transformStyle: 'preserve-3d',
-    position: 'relative',
-    overflow: 'hidden',
-    cursor: 'pointer',
-  },
-  tileOverlay: {
-    position: 'absolute',
-    inset: 0,
-    borderRadius: 'inherit',
-    background: 'conic-gradient(from 45deg, rgba(59, 130, 246, 0.35), rgba(192, 38, 211, 0.35), transparent)',
-    zIndex: -1,
-    opacity: 0.45,
-  },
-  tileTitle: {
-    fontSize: 'clamp(1.5rem, 3.2vw, 2rem)',
-    color: '#3b82f6',
-    textShadow: '0 0 18px rgba(59, 130, 246, 0.6)',
-    marginBottom: 'clamp(0.8rem, 2vw, 1.2rem)',
-    fontWeight: '800',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  tileDescription: {
-    fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)',
-    color: '#e0e7ff',
-    marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)',
-    lineHeight: '1.7',
-    textShadow: '0 0 10px rgba(59, 130, 246, 0.4)',
-  },
-  techLabel: {
-    fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-    color: '#c026d3',
-    fontWeight: 'bold',
-    marginTop: 'clamp(1rem, 2.5vw, 1.5rem)',
-    textShadow: '0 0 10px rgba(59, 130, 246, 0.4)',
-  },
-  techContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 'clamp(10px, 2vw, 12px)',
-    marginTop: 'clamp(0.8rem, 2vw, 1rem)',
-    marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)',
-    overflow: 'hidden',
-  },
-  linkContainer: {
-    display: 'flex',
-    gap: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    flexWrap: 'wrap',
-    marginTop: 'clamp(1rem, 2.5vw, 1.5rem)',
-  },
-  link: {
-    display: 'inline-flex',
-    padding: 'clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    color: '#f0faff',
-    borderRadius: 'clamp(10px, 1.8vw, 14px)',
-    textDecoration: 'none',
-    fontWeight: '600',
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  tag: {
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    color: '#d1d5db',
-    marginTop: 'clamp(0.8rem, 2vw, 1.2rem)',
-    textShadow: '0 0 8px rgba(59, 130, 246, 0.3)',
-  },
-  expandedTile: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 'clamp(500px, 80vw, 800px)',
-    maxHeight: '80vh',
-    background: 'rgba(10, 0, 30, 0.95)',
-    borderRadius: 'clamp(20px, 3vw, 24px)',
-    padding: 'clamp(2.5rem, 5vw, 3.5rem)',
-    boxShadow: '0 30px 60px rgba(0, 0, 0, 0.8), 0 0 60px rgba(59, 130, 246, 0.4)',
-    backdropFilter: 'blur(20px)',
-    zIndex: 1000,
-    overflowY: 'auto',
-  },
-  expandedOverlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0, 0, 0, 0.8)',
-    zIndex: 999,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    right: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    background: 'transparent',
-    border: 'none',
-    color: '#e0e7ff',
-    fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
-    cursor: 'pointer',
-  },
-  responsive: {
-    large: {
-      container: { padding: 'clamp(3rem, 7vw, 6rem) clamp(1.5rem, 3vw, 2.5rem)' },
-      header: { padding: 'clamp(2rem, 4vw, 3.5rem)', maxWidth: 'clamp(700px, 90vw, 1100px)' },
-      title: { fontSize: 'clamp(2rem, 5.5vw, 4rem)' },
-      introText: { fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)', maxWidth: 'clamp(500px, 80vw, 800px)' },
-      grid: { gap: 'clamp(1.8rem, 3.5vw, 3rem)', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(300px, 45vw, 380px), 1fr))' },
-      tile: { padding: 'clamp(2rem, 3.5vw, 2.8rem)' },
-      tileTitle: { fontSize: 'clamp(1.5rem, 3.2vw, 2rem)' },
-      tileDescription: { fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)' },
-      holographicGlow: { width: 'clamp(500px, 65vw, 800px)', height: 'clamp(500px, 65vw, 800px)', top: '-20%', left: '-20%' },
-      expandedTile: { width: 'clamp(500px, 80vw, 800px)', padding: 'clamp(2.5rem, 5vw, 3.5rem)' },
-    },
-    medium: {
-      container: { padding: 'clamp(2.5rem, 6vw, 5rem) clamp(1rem, 2.5vw, 2rem)' },
-      header: { padding: 'clamp(1.8rem, 3.5vw, 3rem)', maxWidth: 'clamp(600px, 85vw, 900px)' },
-      title: { fontSize: 'clamp(1.8rem, 5vw, 3.5rem)' },
-      introText: { fontSize: 'clamp(0.9rem, 2vw, 1.15rem)', maxWidth: 'clamp(400px, 75vw, 600px)' },
-      grid: { gap: 'clamp(1.5rem, 3vw, 2.5rem)', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 40vw, 340px), 1fr))' },
-      tile: { padding: 'clamp(1.8rem, 3vw, 2.5rem)' },
-      tileTitle: { fontSize: 'clamp(1.4rem, 3vw, 1.8rem)' },
-      tileDescription: { fontSize: 'clamp(0.9rem, 2vw, 1.15rem)' },
-      holographicGlow: { width: 'clamp(400px, 55vw, 600px)', height: 'clamp(400px, 55vw, 600px)', top: '-15%', left: '-15%' },
-      expandedTile: { width: 'clamp(400px, 80vw, 600px)', padding: 'clamp(2rem, 4vw, 3rem)' },
-    },
-    small: {
-      container: { padding: 'clamp(2rem, 5vw, 4rem) clamp(0.8rem, 2vw, 1.5rem)' },
-      header: { padding: 'clamp(1.5rem, 3vw, 2.5rem)', maxWidth: 'clamp(500px, 80vw, 700px)' },
-      title: { fontSize: 'clamp(1.6rem, 4.5vw, 3rem)' },
-      introText: { fontSize: 'clamp(0.85rem, 1.8vw, 1.1rem)', maxWidth: 'clamp(300px, 70vw, 500px)' },
-      grid: { gap: 'clamp(1.2rem, 2.5vw, 2rem)', gridTemplateColumns: '1fr' },
-      tile: { padding: 'clamp(1.5rem, 2.5vw, 2rem)' },
-      tileTitle: { fontSize: 'clamp(1.3rem, 2.8vw, 1.6rem)' },
-      tileDescription: { fontSize: 'clamp(0.85rem, 1.8vw, 1.1rem)' },
-      holographicGlow: { width: 'clamp(300px, 45vw, 500px)', height: 'clamp(300px, 45vw, 500px)', top: '-12%', left: '-12%' },
-      expandedTile: { width: 'clamp(300px, 90vw, 500px)', padding: 'clamp(1.8rem, 3.5vw, 2.5rem)' },
-    },
-  },
-};
-
-// Inline Animation Styles
-const animationStyles = `
-  @keyframes holographicPulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-  }
-  @keyframes glowShift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(50px, 50px) scale(1.1); }
-    50% { transform: translate(100px, 0) scale(1.15); }
-    75% { transform: translate(50px, -50px) scale(1.1); }
-  }
-  @keyframes rotateGlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes techCarousel {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-  }
-  @keyframes bgShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 600% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-`;
-
-// Animation Variants
-const containerVariants = {
-  hidden: { opacity: 0, scale: 0.85, rotate: -5 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotate: 0,
-    transition: { duration: 2, ease: 'easeOut', staggerChildren: 0.3 },
-  },
-};
-
-const headerVariants = {
-  hidden: { opacity: 0, y: -100, rotateX: -15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: { duration: 1.5, type: 'spring', stiffness: 150, damping: 18 },
-  },
-};
-
-const filterBtnVariants = {
-  hidden: { opacity: 0, scale: 0.7, y: 40 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { duration: 0.6, type: 'spring', stiffness: 170, damping: 13 },
-  },
-  exit: { opacity: 0, scale: 0.7, y: 40, transition: { duration: 0.5 } },
-  active: {
-    scale: [1, 1.15, 1],
-    boxShadow: ['0 0 10px rgba(59, 130, 246, 0.3)', '0 0 20px rgba(59, 130, 246, 0.7)', '0 0 10px rgba(59, 130, 246, 0.3)'],
-    transition: { duration: 1, repeat: Infinity, repeatType: 'reverse' },
-  },
-};
-
-const tileVariants = {
-  hidden: { opacity: 0, y: 120, scale: 0.8, rotateY: -25 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    rotateY: 0,
-    transition: { duration: 1, type: 'spring', stiffness: 140, damping: 16 },
-  },
-};
-
-const tileChildVariants = {
-  hidden: { opacity: 0, x: -40, rotate: -10 },
-  visible: { opacity: 1, x: 0, rotate: 0, transition: { duration: 0.6 } },
-};
-
-const expandedTileVariants = {
-  hidden: { opacity: 0, scale: 0.5, rotateY: 90, x: '-50%', y: '-50%' },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotateY: 0,
-    transition: { duration: 0.8, type: 'spring', stiffness: 120, damping: 14 },
-  },
-  exit: { opacity: 0, scale: 0.5, rotateY: -90, transition: { duration: 0.6 } },
-};
-
-const Hackathons = () => {
-  const [filter, setFilter] = useState('All');
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  const [selectedHackathon, setSelectedHackathon] = useState(null);
+export default function HackathonShowcase() {
+  const [modal, setModal] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [scrollY, setScrollY] = useState(0);
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({ target: containerRef, offset: ['start end', 'end start'] });
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.4, 1]), { stiffness: 150, damping: 20 });
-  const scale = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.85, 1]), { stiffness: 150, damping: 20 });
-  const rotate = useSpring(useTransform(scrollYProgress, [0, 0.5], [-5, 0]), { stiffness: 150, damping: 20 });
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
 
-  const backgroundGradient = useTransform(
-    [mouseX, mouseY],
-    ([latestX, latestY]) =>
-      `radial-gradient(circle at ${latestX + window.innerWidth / 2}px ${
-        latestY + window.innerHeight / 2
-      }px, rgba(59, 130, 246, 0.25), transparent 40%)`
-  );
-
-  const handleMouseMove = useCallback((e) => {
-    mouseX.set(e.clientX - window.innerWidth / 2);
-    mouseY.set(e.clientY - window.innerHeight / 2);
-  }, [mouseX, mouseY]);
+  const milestones = [
+    { hour: "0-6h", icon: Code, title: "Foundation", desc: "Architecture • Database • Auth System", color: "#22d3ee", glow: "cyan" },
+    { hour: "6-14h", icon: Database, title: "Core Build", desc: "REST APIs • UI Components • State", color: "#a855f7", glow: "purple" },
+    { hour: "14-20h", icon: Shield, title: "Integration", desc: "Real-time Chat • Security Layer", color: "#ec4899", glow: "pink" },
+    { hour: "20-24h", icon: Rocket, title: "Launch", desc: "Testing • Demo • Deploy to Cloud", color: "#10b981", glow: "emerald" }
+  ];
 
   useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    const handleMove = (e) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      setMousePos({
+        x: ((e.clientX - rect.left) / rect.width) * 100,
+        y: ((e.clientY - rect.top) / rect.height) * 100
+      });
+    };
 
-  const typeOptions = useMemo(() => [
-    'All',
-    ...Array.from(new Set(hackathons.map((h) => h.type))).sort(),
-  ], []);
+    const handleScroll = () => setScrollY(window.scrollY);
 
-  const filteredHackathons = useMemo(() =>
-    filter === 'All' ? hackathons : hackathons.filter((h) => h.type === filter),
-    [filter]
-  );
-
-  const getTechIcons = useCallback((tech) => {
-    const techs = tech.split(', ');
-    return (
-      <motion.div
-        style={{ display: 'flex', width: `${techs.length * 100}%`, animation: techs.length > 3 ? 'techCarousel 20s linear infinite' : 'none' }}
-      >
-        {techs.concat(techs).map((t, i) => (
-          <TechIcon key={`${t}-${i}`} tech={t} index={i} />
-        ))}
-      </motion.div>
-    );
-  }, []);
-
-  const handleTileClick = useCallback((hackathon) => {
-    setSelectedHackathon(hackathon);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setSelectedHackathon(null);
+    window.addEventListener("mousemove", handleMove);
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("mousemove", handleMove);
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   return (
-    <motion.section
-      ref={containerRef}
-      style={{
-        ...styles.container,
-        ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].container,
-        opacity,
-        scale,
-        rotate,
-      }}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      onMouseMove={handleMouseMove}
-      role="region"
-      aria-label="Hackathons section"
-    >
-      <style>{animationStyles}</style>
-      <Starfield />
-      <motion.div style={{ position: 'absolute', inset: 0, background: backgroundGradient }} />
-      <motion.div
-        style={{
-          ...styles.holographicGlow,
-          ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].holographicGlow,
-          animation: 'glowShift 12s ease-in-out infinite',
-        }}
-      />
-      <motion.div style={styles.overlay} />
-      <motion.header
-        style={{
-          ...styles.header,
-          ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].header,
-        }}
-        variants={headerVariants}
-      >
-        <motion.div style={styles.headerGlow} />
-        <h2
-          style={{
-            ...styles.title,
-            ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].title,
-            animation: 'holographicPulse 2.5s ease-in-out infinite alternate',
-          }}
-        >
-          ⚡ Hackathon Achievements
-        </h2>
-        <motion.div
-          style={styles.titleUnderline}
-          initial={{ width: 0 }}
-          animate={{ width: 'clamp(160px, 30vw, 240px)' }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
-        />
-        <p
-          style={{
-            ...styles.introText,
-            ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].introText,
-          }}
-        >
-          Showcasing my ability to deliver cutting-edge solutions under pressure, these hackathon successes highlight my technical expertise, teamwork, and innovative mindset.
-        </p>
-      </motion.header>
-      <motion.div
-        style={{
-          ...styles.filterBar,
-          ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].filterBar,
-        }}
-        variants={containerVariants}
-      >
-        <AnimatePresence>
-          {typeOptions.map((type, index) => (
-            <motion.button
-              key={type}
-              style={{
-                ...styles.filterBtn,
-                ...(filter === type ? styles.activeFilter : {}),
-                ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].filterBtn,
-              }}
-              onClick={() => setFilter(type)}
-              variants={filterBtnVariants}
-              initial="hidden"
-              animate={filter === type ? 'active' : 'visible'}
-              exit="exit"
-              whileTap={{ scale: 0.9 }}
-              aria-pressed={filter === type}
-              aria-label={`Filter by ${type}`}
-            >
-              {type}
-            </motion.button>
-          ))}
-        </AnimatePresence>
-      </motion.div>
-      <motion.div
-        style={{
-          ...styles.grid,
-          ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].grid,
-        }}
-        variants={containerVariants}
-      >
-        <AnimatePresence>
-          {filteredHackathons.map((hackathon, index) => {
-            const IconComp = hackathon.icon;
-            return (
-              <motion.article
-                key={hackathon.title}
-                style={{
-                  ...styles.tile,
-                  ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].tile,
-                }}
-                variants={tileVariants}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true, margin: '-100px' }}
-                onClick={() => handleTileClick(hackathon)}
-                tabIndex={0}
-                role="button"
-                aria-label={`View details for ${hackathon.title}`}
-                onKeyDown={(e) => e.key === 'Enter' && handleTileClick(hackathon)}
-              >
-                <motion.div style={{ ...styles.tileOverlay, animation: 'rotateGlow 8s linear infinite' }} />
-                <motion.h3
-                  style={{
-                    ...styles.tileTitle,
-                    ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].tileTitle,
-                  }}
-                  variants={tileChildVariants}
-                  transition={{ delay: index * 0.15 + 0.2 }}
-                >
-                  <IconComp style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)' }} />
-                  {hackathon.title}
-                </motion.h3>
-                <motion.p
-                  style={{
-                    ...styles.tileDescription,
-                    ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].tileDescription,
-                  }}
-                  variants={tileChildVariants}
-                  transition={{ delay: index * 0.15 + 0.3 }}
-                >
-                  {hackathon.description}
-                </motion.p>
-                <motion.p
-                  style={styles.techLabel}
-                  variants={tileChildVariants}
-                  transition={{ delay: index * 0.15 + 0.4 }}
-                >
-                  🔧 Tech Used:
-                </motion.p>
-                <motion.div
-                  style={styles.techContainer}
-                  variants={tileChildVariants}
-                  transition={{ delay: index * 0.15 + 0.5 }}
-                >
-                  {getTechIcons(hackathon.tech)}
-                </motion.div>
-                <motion.div
-                  style={styles.linkContainer}
-                  variants={tileChildVariants}
-                  transition={{ delay: index * 0.15 + 0.6 }}
-                >
-                  {hackathon.projLink && (
-                    <motion.a
-                      href={hackathon.projLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={styles.link}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-                      View Project
-                    </motion.a>
-                  )}
-                  {hackathon.certLink && (
-                    <motion.a
-                      href={hackathon.certLink}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={styles.link}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                    >
-                      <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-                      View Certificate
-                    </motion.a>
-                  )}
-                </motion.div>
-                <motion.p
-                  style={styles.tag}
-                  variants={tileChildVariants}
-                  transition={{ delay: index * 0.15 + 0.7 }}
-                >
-                  {hackathon.tag}
-                </motion.p>
-              </motion.article>
-            );
-          })}
-        </AnimatePresence>
-      </motion.div>
-      <AnimatePresence>
-        {selectedHackathon && (
-          <>
-            <motion.div
-              style={styles.expandedOverlay}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleClose}
-              role="button"
-              tabIndex={0}
-              aria-label="Close expanded view"
-              onKeyDown={(e) => e.key === 'Enter' && handleClose()}
-            />
-            <motion.div
-              style={{
-                ...styles.expandedTile,
-                ...styles.responsive[windowWidth <= 480 ? 'small' : windowWidth <= 768 ? 'medium' : 'large'].expandedTile,
-              }}
-              variants={expandedTileVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-            >
-              <motion.div style={{ ...styles.tileOverlay, animation: 'rotateGlow 8s linear infinite' }} />
-              <button
-                style={styles.closeButton}
-                onClick={handleClose}
-                aria-label="Close expanded view"
-              >
-                ✕
-              </button>
-              <motion.h3
-                style={{
-                  ...styles.tileTitle,
-                  fontSize: 'clamp(1.5rem, 3.5vw, 2rem)',
-                  marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)',
-                }}
-                variants={tileChildVariants}
-              >
-                <selectedHackathon.icon style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)' }} />
-                {selectedHackathon.title}
-              </motion.h3>
-              <motion.p
-                style={{
-                  ...styles.tileDescription,
-                  fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)',
-                  lineHeight: '1.7',
-                }}
-                variants={tileChildVariants}
-              >
-                {selectedHackathon.description}
-              </motion.p>
-              <motion.p
-                style={styles.techLabel}
-                variants={tileChildVariants}
-              >
-                🔧 Tech Used:
-              </motion.p>
-              <motion.div
-                style={styles.techContainer}
-                variants={tileChildVariants}
-              >
-                {getTechIcons(selectedHackathon.tech)}
-              </motion.div>
-              <motion.div
-                style={styles.linkContainer}
-                variants={tileChildVariants}
-              >
-                {selectedHackathon.projLink && (
-                  <motion.a
-                    href={selectedHackathon.projLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={styles.link}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-                    View Project
-                  </motion.a>
-                )}
-                {selectedHackathon.certLink && (
-                  <motion.a
-                    href={selectedHackathon.certLink}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={styles.link}
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-                    View Certificate
-                  </motion.a>
-                )}
-              </motion.div>
-              <motion.p
-                style={styles.tag}
-                variants={tileChildVariants}
-              >
-                {selectedHackathon.tag}
-              </motion.p>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </motion.section>
-  );
-};
+    <div ref={containerRef} style={{ position: "relative", minHeight: "100vh", background: "#000", overflow: "hidden", fontFamily: "system-ui, sans-serif" }}>
+      
+      {/* Dynamic Gradient Background */}
+      <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
+        <div style={{
+          position: "absolute", inset: 0,
+          background: `radial-gradient(circle at ${mousePos.x}% ${mousePos.y}%, rgba(168,85,247,0.15), transparent 50%)`,
+          transition: "all 0.3s ease-out"
+        }} />
+        <div style={{
+          position: "absolute", inset: 0,
+          background: "radial-gradient(ellipse at 20% 80%, rgba(236,72,153,0.12), transparent 60%), radial-gradient(ellipse at 80% 20%, rgba(34,211,238,0.1), transparent 60%)",
+          animation: "pulse 8s ease-in-out infinite"
+        }} />
+        
+        {/* Animated Grid */}
+        <div style={{
+          position: "absolute", inset: 0,
+          backgroundImage: `linear-gradient(rgba(168,85,247,0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.08) 1px, transparent 1px)`,
+          backgroundSize: "60px 60px",
+          transform: `translateY(${scrollY * 0.3}px)`,
+          opacity: 0.4
+        }} />
 
-export default React.memo(Hackathons);
+        {/* Floating Particles */}
+        {[...Array(40)].map((_, i) => (
+          <div key={i} style={{
+            position: "absolute",
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            width: `${2 + Math.random() * 4}px`,
+            height: `${2 + Math.random() * 4}px`,
+            background: `hsl(${260 + Math.random() * 60}, 80%, 65%)`,
+            borderRadius: "50%",
+            boxShadow: `0 0 ${10 + Math.random() * 20}px currentColor`,
+            animation: `float ${10 + Math.random() * 20}s ease-in-out infinite`,
+            animationDelay: `${Math.random() * 5}s`,
+            opacity: 0.6
+          }} />
+        ))}
+      </div>
+
+      <div style={{ position: "relative", zIndex: 10, maxWidth: "1400px", margin: "0 auto", padding: "80px 24px" }}>
+        
+        {/* Hero Section */}
+        <div style={{ textAlign: "center", marginBottom: "100px" }}>
+          
+          {/* Champion Badge */}
+          <div style={{ marginBottom: "48px", animation: "fadeInDown 1s ease-out" }}>
+            <div style={{
+              display: "inline-flex", alignItems: "center", gap: "16px",
+              padding: "16px 36px", borderRadius: "999px",
+              background: "linear-gradient(135deg, rgba(251,191,36,0.2), rgba(249,115,22,0.15))",
+              border: "2px solid rgba(251,191,36,0.5)",
+              boxShadow: "0 8px 32px rgba(251,191,36,0.3), inset 0 1px 0 rgba(255,255,255,0.1)",
+              animation: "glow 3s ease-in-out infinite"
+            }}>
+              <Trophy size={28} color="#fbbf24" style={{ animation: "spin 20s linear infinite" }} />
+              <span style={{
+                fontSize: "1.1rem", fontWeight: 900, letterSpacing: "0.1em",
+                background: "linear-gradient(90deg, #fef08a, #fbbf24, #fef08a)",
+                backgroundClip: "text", WebkitBackgroundClip: "text",
+                color: "transparent", backgroundSize: "200%",
+                animation: "shimmer 3s linear infinite"
+              }}>
+                NATIONAL CHAMPION
+              </span>
+              <Crown size={26} color="#fde047" style={{ animation: "bounce 2s ease-in-out infinite" }} />
+            </div>
+          </div>
+
+          {/* Main Title */}
+          <div style={{ animation: "fadeInUp 1s ease-out 0.2s backwards" }}>
+            <h1 style={{
+              fontSize: "clamp(3rem, 10vw, 6rem)", fontWeight: 900, lineHeight: 1,
+              background: "linear-gradient(135deg, #c084fc, #ec4899, #22d3ee)",
+              backgroundClip: "text", WebkitBackgroundClip: "text",
+              color: "transparent", marginBottom: "16px",
+              filter: "drop-shadow(0 0 40px rgba(168,85,247,0.5))",
+              animation: "titleGlow 4s ease-in-out infinite"
+            }}>
+              Brainovision
+            </h1>
+            <h2 style={{
+              fontSize: "clamp(4rem, 12vw, 8rem)", fontWeight: 900,
+              background: "linear-gradient(120deg, #a855f7, #ec4899, #22d3ee, #a855f7)",
+              backgroundClip: "text", WebkitBackgroundClip: "text",
+              color: "transparent", backgroundSize: "200%",
+              animation: "gradient 8s linear infinite"
+            }}>
+              HACKATHON 2024
+            </h2>
+          </div>
+
+          <p style={{
+            fontSize: "clamp(1.1rem, 2vw, 1.35rem)", color: "#d1d5db",
+            maxWidth: "700px", margin: "32px auto 48px", lineHeight: 1.6,
+            animation: "fadeInUp 1s ease-out 0.4s backwards"
+          }}>
+            Full-stack MERN marketplace with JWT authentication and Socket.io real-time features — built and won in 24 hours
+          </p>
+
+          {/* Stats Grid */}
+          <div style={{
+            display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(160px, 1fr))",
+            gap: "20px", maxWidth: "800px", margin: "0 auto 48px",
+            animation: "fadeInUp 1s ease-out 0.6s backwards"
+          }}>
+            {[
+              { icon: Clock, val: "24", unit: "hours", color: "#22d3ee" },
+              { icon: Users, val: "4", unit: "developers", color: "#a855f7" },
+              { icon: Code, val: "5k+", unit: "lines", color: "#ec4899" },
+              { icon: Trophy, val: "1st", unit: "place", color: "#fbbf24" }
+            ].map((stat, i) => (
+              <div key={i} className="stat-card" style={{
+                padding: "28px 20px", borderRadius: "20px",
+                background: "rgba(15,23,42,0.6)", backdropFilter: "blur(20px)",
+                border: "1px solid rgba(168,85,247,0.2)",
+                transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                cursor: "pointer"
+              }}>
+                <div style={{
+                  width: "64px", height: "64px", margin: "0 auto 16px",
+                  borderRadius: "16px", background: `${stat.color}22`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: `0 0 30px ${stat.color}40`
+                }}>
+                  <stat.icon size={36} color={stat.color} />
+                </div>
+                <div style={{ fontSize: "2.5rem", fontWeight: 900, color: "white" }}>{stat.val}</div>
+                <div style={{ fontSize: "0.9rem", color: "#94a3b8", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>
+                  {stat.unit}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Action Buttons */}
+          <div style={{ display: "flex", gap: "20px", justifyContent: "center", flexWrap: "wrap", animation: "fadeInUp 1s ease-out 0.8s backwards" }}>
+            <a href="https://drive.google.com/file/d/1CQaoA9V93Lg4XS1FmcG-0gVUaKvw2zUq/view" target="_blank" className="primary-btn" style={{
+              padding: "16px 40px", fontSize: "1.1rem", fontWeight: 700,
+              background: "linear-gradient(90deg, #7c3aed, #ec4899)",
+              borderRadius: "999px", color: "white", textDecoration: "none",
+              display: "inline-flex", alignItems: "center", gap: "12px",
+              boxShadow: "0 10px 40px rgba(168,85,247,0.4)",
+              transition: "all 0.3s ease", border: "none", cursor: "pointer"
+            }}>
+              <Award size={20} /> View Certificate <ExternalLink size={18} />
+            </a>
+            <button onClick={() => setModal(true)} className="secondary-btn" style={{
+              padding: "16px 40px", fontSize: "1.1rem", fontWeight: 700,
+              background: "rgba(30,41,59,0.6)", backdropFilter: "blur(20px)",
+              border: "2px solid rgba(168,85,247,0.4)", borderRadius: "999px",
+              color: "white", display: "inline-flex", alignItems: "center", gap: "12px",
+              transition: "all 0.3s ease", cursor: "pointer"
+            }}>
+              <Zap size={20} /> 24h Timeline
+            </button>
+          </div>
+        </div>
+
+        {/* Certificate Display */}
+        <div style={{ maxWidth: "1000px", margin: "0 auto 100px", animation: "fadeInUp 1s ease-out 1s backwards" }}>
+          <div style={{ position: "relative", borderRadius: "24px", overflow: "hidden", boxShadow: "0 40px 100px rgba(0,0,0,0.6), 0 0 80px rgba(168,85,247,0.3)" }} className="cert-hover">
+            <div style={{
+              position: "absolute", inset: -2,
+              background: "linear-gradient(135deg, #a855f7, #ec4899, #22d3ee, #a855f7)",
+              backgroundSize: "300%", animation: "gradient 6s linear infinite",
+              opacity: 0.5, filter: "blur(20px)"
+            }} />
+            <div style={{ position: "relative", background: "#000", padding: "4px", borderRadius: "24px" }}>
+              <img src="/images/rainovision-certificate.jpg" alt="Champion Certificate" style={{ width: "100%", display: "block", borderRadius: "20px" }} />
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline Section */}
+        <div style={{ animation: "fadeInUp 1s ease-out 1.2s backwards" }}>
+          <h3 style={{
+            fontSize: "clamp(2.5rem, 6vw, 4rem)", fontWeight: 900, textAlign: "center",
+            background: "linear-gradient(90deg, #22d3ee, #a855f7, #ec4899)",
+            backgroundClip: "text", WebkitBackgroundClip: "text", color: "transparent",
+            marginBottom: "64px"
+          }}>
+            24-Hour Execution Timeline
+          </h3>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: "24px" }}>
+            {milestones.map((m, i) => (
+              <div key={i} className="milestone-card" style={{
+                padding: "32px 24px", borderRadius: "24px",
+                background: "rgba(15,23,42,0.6)", backdropFilter: "blur(20px)",
+                border: "1px solid rgba(168,85,247,0.2)",
+                transition: "all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                cursor: "pointer", animation: `fadeInUp 1s ease-out ${1.4 + i * 0.2}s backwards`
+              }}>
+                <div style={{
+                  width: "80px", height: "80px", margin: "0 auto 20px",
+                  borderRadius: "20px", background: `${m.color}22`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: `0 0 40px ${m.color}50`
+                }}>
+                  <m.icon size={48} color={m.color} />
+                </div>
+                <div style={{ textAlign: "center" }}>
+                  <div style={{ color: m.color, fontWeight: 900, fontSize: "1rem", marginBottom: "8px", letterSpacing: "0.05em" }}>
+                    {m.hour}
+                  </div>
+                  <div style={{ fontSize: "1.75rem", fontWeight: 900, color: "white", marginBottom: "12px" }}>
+                    {m.title}
+                  </div>
+                  <div style={{ color: "#cbd5e1", lineHeight: 1.6, fontSize: "0.95rem" }}>
+                    {m.desc}
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+      </div>
+
+      {/* Modal */}
+      {modal && (
+        <div onClick={() => setModal(false)} style={{
+          position: "fixed", inset: 0, zIndex: 1000,
+          background: "rgba(0,0,0,0.95)", backdropFilter: "blur(20px)",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          padding: "24px", animation: "fadeIn 0.3s ease-out"
+        }}>
+          <div onClick={e => e.stopPropagation()} style={{
+            maxWidth: "800px", width: "100%",
+            background: "rgba(15,23,42,0.95)", backdropFilter: "blur(40px)",
+            borderRadius: "32px", padding: "48px",
+            border: "2px solid rgba(168,85,247,0.3)",
+            maxHeight: "90vh", overflowY: "auto",
+            position: "relative", animation: "scaleIn 0.3s ease-out"
+          }}>
+            <button onClick={() => setModal(false)} style={{
+              position: "absolute", top: "20px", right: "20px",
+              width: "48px", height: "48px", borderRadius: "12px",
+              background: "rgba(255,255,255,0.1)", border: "1px solid rgba(255,255,255,0.2)",
+              color: "white", display: "flex", alignItems: "center", justifyContent: "center",
+              cursor: "pointer", transition: "all 0.2s"
+            }}>
+              <X size={24} />
+            </button>
+
+            <h2 style={{ fontSize: "2.5rem", fontWeight: 900, color: "white", textAlign: "center", marginBottom: "40px" }}>
+              Complete Timeline
+            </h2>
+
+            {milestones.map((m, i) => (
+              <div key={i} style={{
+                display: "flex", gap: "20px", padding: "24px",
+                background: "rgba(255,255,255,0.05)", borderRadius: "20px",
+                border: "1px solid rgba(168,85,247,0.2)", marginBottom: "20px"
+              }}>
+                <div style={{
+                  width: "70px", height: "70px", flexShrink: 0,
+                  borderRadius: "16px", background: `${m.color}33`,
+                  display: "flex", alignItems: "center", justifyContent: "center",
+                  boxShadow: `0 0 30px ${m.color}60`
+                }}>
+                  <m.icon size={40} color={m.color} />
+                </div>
+                <div>
+                  <div style={{ color: m.color, fontWeight: 900, marginBottom: "8px" }}>{m.hour}</div>
+                  <div style={{ fontSize: "1.5rem", fontWeight: 900, color: "white", marginBottom: "8px" }}>{m.title}</div>
+                  <p style={{ color: "#d1d5db", lineHeight: 1.6 }}>{m.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <style>{`
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg) } 50% { transform: translateY(-20px) rotate(180deg) } }
+        @keyframes pulse { 0%, 100% { opacity: 1 } 50% { opacity: 0.5 } }
+        @keyframes shimmer { 0%, 100% { background-position: 0% } 50% { background-position: 200% } }
+        @keyframes gradient { 0% { background-position: 0% 50% } 100% { background-position: 200% 50% } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 8px 32px rgba(251,191,36,0.3), inset 0 1px 0 rgba(255,255,255,0.1) } 50% { box-shadow: 0 8px 48px rgba(251,191,36,0.5), inset 0 1px 0 rgba(255,255,255,0.2) } }
+        @keyframes spin { from { transform: rotate(0deg) } to { transform: rotate(360deg) } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-10px) } }
+        @keyframes titleGlow { 0%, 100% { filter: drop-shadow(0 0 40px rgba(168,85,247,0.5)) } 50% { filter: drop-shadow(0 0 80px rgba(168,85,247,0.8)) } }
+        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes fadeInDown { from { opacity: 0; transform: translateY(-30px) } to { opacity: 1; transform: translateY(0) } }
+        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9) } to { opacity: 1; transform: scale(1) } }
+        
+        .stat-card:hover, .milestone-card:hover { transform: translateY(-12px) scale(1.05); box-shadow: 0 30px 60px rgba(0,0,0,0.4), 0 0 40px rgba(168,85,247,0.4) !important; }
+        .primary-btn:hover { transform: translateY(-4px) scale(1.05); box-shadow: 0 20px 60px rgba(168,85,247,0.6) !important; }
+        .secondary-btn:hover { transform: translateY(-4px); border-color: rgba(168,85,247,0.8); background: rgba(30,41,59,0.8); }
+        .cert-hover:hover { transform: scale(1.02); box-shadow: 0 50px 120px rgba(0,0,0,0.8), 0 0 100px rgba(168,85,247,0.5) !important; }
+      `}</style>
+    </div>
+  );
+}

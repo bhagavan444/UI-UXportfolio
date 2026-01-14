@@ -23,13 +23,17 @@ import MySkills from "./pages/MySkills";
 import PersonalDetails from "./pages/PersonalDetails";
 import Internships from "./pages/Internships";
 import Hackathons from "./pages/Hackathons";
+import Beyondcoding from "./pages/Beyoundcoding";
+import Achivements from "./pages/Achivements"; // ✅ ADDED
 
 // 🔄 Scroll to top on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
+
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }, [pathname]);
+
   return null;
 };
 
@@ -52,9 +56,13 @@ function App() {
     <Router>
       <ScrollToTop />
       <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
+
       <div className="pt-20">
         <Routes>
-          <Route path="/" element={<Navigate to="/home" />} /> {/* Redirect to /home */}
+          {/* Redirect root */}
+          <Route path="/" element={<Navigate to="/home" />} />
+
+          {/* Main pages */}
           <Route path="/home" element={<Home />} />
           <Route path="/about" element={<About />} />
           <Route path="/projects" element={<Projects />} />
@@ -67,10 +75,20 @@ function App() {
           <Route path="/personaldetails" element={<PersonalDetails />} />
           <Route path="/internships" element={<Internships />} />
           <Route path="/hackathons" element={<Hackathons />} />
-          
+          <Route path="/beyondcoding" element={<Beyondcoding />} />
 
-          {/* Optional fallback route */}
-          <Route path="*" element={<h1 className="text-center text-3xl">404 - Page Not Found</h1>} />
+          {/* ✅ NEW ROUTE */}
+          <Route path="/achivements" element={<Achivements />} />
+
+          {/* 404 */}
+          <Route
+            path="*"
+            element={
+              <h1 className="text-center text-3xl">
+                404 - Page Not Found
+              </h1>
+            }
+          />
         </Routes>
       </div>
     </Router>

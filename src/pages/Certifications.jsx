@@ -1,983 +1,445 @@
-import React, { useEffect, useState, useRef, useCallback, useMemo } from 'react';
-import { motion, useScroll, useTransform, useSpring, AnimatePresence } from 'framer-motion';
-import { FaCertificate, FaStar, FaLink, FaExternalLinkAlt, FaBrain } from 'react-icons/fa';
+import { useState, useEffect, useRef } from 'react';
+import { Award, ExternalLink, Sparkles, Zap, Code, Cloud, Database, Cpu, Filter, TrendingUp } from 'lucide-react';
 
-// Certifications data with concepts
-const certifications = [
-  {
-    name: 'C for Everyone – Coursera',
-    file: 'https://drive.google.com/file/d/1_icpofMdYi5iGjbELOY0VHMBloGJDhAA/view?usp=drive_link',
-    issuer: 'Coursera',
-    category: 'Programming',
-    concepts: 'C Syntax, Pointers, Memory Management, Data Structures, File I/O',
-  },
-  {
-    name: 'Python for Everyone – Coursera',
-    file: 'https://drive.google.com/file/d/1z2DPeFW4YO2Ct3q2DYW3X_4qj_553FMz/view?usp=drive_link',
-    issuer: 'Coursera',
-    category: 'Programming',
-    concepts: 'Python Basics, Functions, OOP, Data Analysis, File Handling',
-  },
-  {
-    name: 'Python Django - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1QdiX2u-ARCZCEdEmlu4l3ChnQT-SmhKc/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Web Development',
-    concepts: 'Django Framework, ORM, REST APIs, Templates, Authentication',
-  },
-  {
-    name: 'JavaScript - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1zrscfW3cyWq59mMYsK399CRjgEjA-zbd/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Web Development',
-    concepts: 'JavaScript ES6, DOM Manipulation, Async Programming, Events, APIs',
-  },
-  {
-    name: 'Skill Up in Java - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1w8hmCAAaP7CFFGMk3GkXfC4IvTAIXuM2/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Programming',
-    concepts: 'Java OOP, Collections, Exception Handling, Multithreading, JDBC',
-  },
-  {
-    name: 'React - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1yy4OpoVRAX2ZGVPUH9VmorLc2kiXalYf/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Web Development',
-    concepts: 'React Components, Hooks, State Management, Routing, Redux',
-  },
-  {
-    name: 'MLOps - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1BmvjGknXs-K5wOfepFcl_CuU8DsFBApP/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Machine Learning',
-    concepts: 'Model Deployment, CI/CD for ML, Monitoring, Data Pipelines, Scalability',
-  },
-  {
-    name: 'ServiceNow - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1DPfQez89EoRKV7zhXhMKevkglMqvRjqI/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Platform Development',
-    concepts: 'ServiceNow Platform, Workflows, Scripting, Integrations, IT Service Management',
-  },
-  {
-    name: 'ML using Python - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1uaTJTnijSpjCsD_ZPHKwen9i3RDYwShK/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Machine Learning',
-    concepts: 'Supervised Learning, Unsupervised Learning, Scikit-learn, Pandas, Model Evaluation',
-  },
-  {
-    name: 'HTML - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1NYtaxfhQUfxaL4n6Vv6gJSEQMySy1gqr/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Web Development',
-    concepts: 'HTML5, Semantic Tags, Forms, Accessibility, DOM Structure',
-  },
-  {
-    name: 'CSS - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1iC65FGw0MSmjeKIivdnrZVm3GfXOKVvE/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Web Development',
-    concepts: 'CSS3, Flexbox, Grid, Animations, Responsive Design',
-  },
-  {
-    name: 'AWS Certified',
-    file: 'https://drive.google.com/file/d/17vu2Vd5QnxAHe4iEYv21ADC-Pfs-90U9/view?usp=drive_link',
-    issuer: 'AWS',
-    category: 'Cloud Computing',
-    concepts: 'EC2, S3, Lambda, CloudFormation, VPC',
-  },
-  {
-    name: 'Mastering Python - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1k402Ba4Azvjj823xlxaridsmMy-jahVu/view?usp=drive_link',
-    issuer: 'Infosys',
-    category: 'Programming',
-    concepts: 'Advanced Python, Decorators, Generators, Modules, Concurrency',
-  },
-  {
-    name: 'R Programming - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/14MnNRgQKwmCXCeZIr1QG0Q9-GhE1jVJJ/view?usp=sharing',
-    issuer: 'Infosys',
-    category: 'Programming',
-    concepts: 'R Syntax, Data Visualization, Statistical Analysis, Data Frames, Packages',
-  },
-  {
-    name: 'Continuous Integration and Continuous Delivery - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1xccQv29hZCWCvr-JnM-nEfE8meESrWIr/view?usp=sharing',
-    issuer: 'Infosys',
-    category: 'DevOps',
-    concepts: 'CI/CD Pipelines, Jenkins, Git, Docker, Automation',
-  },
-  {
-    name: 'Large Language Model - IBM Skills',
-    file: 'https://drive.google.com/file/d/1CyN6_Bm3c68R0NkQWWTOgNAXTv27In_s/view?usp=sharing',
-    issuer: 'IBM',
-    category: 'Machine Learning',
-    concepts: 'LLMs, Transformers, Fine-Tuning, NLP, Prompt Engineering',
-  },
-  {
-    name: 'Mastering the Art of Programming - IBM Skills',
-    file: 'https://drive.google.com/file/d/1SwQGo_zGZIGcTzzlMApXZU0Wt5ScyWXx/view?usp=sharing',
-    issuer: 'IBM',
-    category: 'Programming',
-    concepts: 'Algorithm Design, Problem Solving, Code Optimization, Debugging, Best Practices',
-  },
-  {
-    name: 'Build Your First Chatbot - IBM Skills',
-    file: 'https://drive.google.com/file/d/1HOr1qGDbIZ_t-Uw3KJU9PGYk65xCW41R/view?usp=sharing',
-    issuer: 'IBM',
-    category: 'AI Development',
-    concepts: 'Chatbot Design, NLP, Dialogflow, API Integration, User Interaction',
-  },
-  {
-    name: 'Software Engineering - Infosys Spring Board',
-    file: 'https://drive.google.com/file/d/1siy3p3J8Y9yr8oSzrXMjf0fZ7V7iNKcl/view?usp=sharing',
-    issuer: 'Infosys',
-    category: 'Software Engineering',
-    concepts: 'SDLC, Agile, Design Patterns, Testing, UML',
-  },
+const certificationsData = [
+  { title: "Full Stack Web Development", image: "https://lh3.googleusercontent.com/d/1AfvPfSaXHgVK9lPOsS3MUJimynH6xlog", link: "https://drive.google.com/file/d/1AfvPfSaXHgVK9lPOsS3MUJimynH6xlog/view", category: "Web", desc: "Complete web applications from frontend to backend, including UI design, server-side logic, database integration, and deployment." },
+  { title: "Python Programming", image: "https://lh3.googleusercontent.com/d/1rZNRLvle0r_gUqzDjxR3_k6yApSyMxz6", link: "https://drive.google.com/file/d/1rZNRLvle0r_gUqzDjxR3_k6yApSyMxz6/view", category: "Programming", desc: "Strong fundamentals in Python programming, data types, control structures, functions, and real-world problem-solving." },
+  { title: "Java Programming", image: "https://lh3.googleusercontent.com/d/1esxKzHNp_cuB7G87hs2MDeMpr2LKXucM", link: "https://drive.google.com/file/d/1esxKzHNp_cuB7G87hs2MDeMpr2LKXucM/view", category: "Programming", desc: "Solid foundation in Java OOP concepts, exception handling, multithreading, and building structured applications." },
+  { title: "AWS Cloud", image: "https://lh3.googleusercontent.com/d/17vu2Vd5QnxAHe4iEYv21ADC-Pfs-90U9", link: "https://drive.google.com/file/d/17vu2Vd5QnxAHe4iEYv21ADC-Pfs-90U9/view", category: "Cloud", desc: "Cloud computing fundamentals using AWS, including EC2, storage services, networking, and cloud deployments." },
+  { title: "Azure Fundamentals", image: "https://lh3.googleusercontent.com/d/1ygiQILNjBAfcZse27n_px1_tgupajlWM", link: "https://drive.google.com/file/d/1ygiQILNjBAfcZse27n_px1_tgupajlWM/view", category: "Cloud", desc: "Core Azure cloud concepts: virtual machines, storage, networking, and cloud security for enterprise environments." },
+  { title: "Data Science", image: "https://lh3.googleusercontent.com/d/1JENKEIpZkc1Mvro1mmRVyQr5u8fdUXqv", link: "https://drive.google.com/file/d/1JENKEIpZkc1Mvro1mmRVyQr5u8fdUXqv/view", category: "Data", desc: "Data analysis workflows including cleaning, visualization, exploratory analysis, and drawing insights from datasets." },
+  { title: "Machine Learning", image: "https://lh3.googleusercontent.com/d/19vV6Nyq8A418eDvQ2ezrek4pqyUBb6X6", link: "https://drive.google.com/file/d/19vV6Nyq8A418eDvQ2ezrek4pqyUBb6X6/view", category: "AI/ML", desc: "Core ML algorithms: regression, classification, clustering, with model evaluation and real-world use cases." },
+  { title: "Cloud Computing", image: "https://lh3.googleusercontent.com/d/13gTq6yHm8jCOvqHKRjPpGw4hU4p7kovX", link: "https://drive.google.com/file/d/13gTq6yHm8jCOvqHKRjPpGw4hU4p7kovX/view", category: "Cloud", desc: "Cloud computing concepts: virtualization, scalability, distributed systems, and modern application deployment." },
+  { title: "R Programming", image: "https://lh3.googleusercontent.com/d/1vFclrkOAe3GaA8brE3c5Sjd0k5RMXwr-", link: "https://drive.google.com/file/d/1vFclrkOAe3GaA8brE3c5Sjd0k5RMXwr-/view", category: "Programming", desc: "R programming for statistical analysis, data visualization, and exploratory data analysis in research." },
+  { title: "Art of Programming", image: "https://lh3.googleusercontent.com/d/1SwQGo_zGZIGcTzzlMApXZU0Wt5ScyWXx", link: "https://drive.google.com/file/d/1SwQGo_zGZIGcTzzlMApXZU0Wt5ScyWXx/view", category: "Programming", desc: "Logical thinking, problem-solving, programming best practices, code structure, and algorithmic thinking." },
+  { title: "Machine Learning with Python", image: "https://lh3.googleusercontent.com/d/1uaTJTnijSpjCsD_ZPHKwen9i3RDYwShK", link: "https://drive.google.com/file/d/1uaTJTnijSpjCsD_ZPHKwen9i3RDYwShK/view", category: "AI/ML", desc: "Applied ML using Python libraries like Scikit-learn to build, train, and evaluate predictive models." },
+  { title: "Large Language Models (LLM)", image: "https://lh3.googleusercontent.com/d/1CyN6_Bm3c68R0NkQWWTOgNAXTv27In_s", link: "https://drive.google.com/file/d/1CyN6_Bm3c68R0NkQWWTOgNAXTv27In_s/view", category: "AI/ML", desc: "Fundamentals of large language models, prompt engineering, and real-world generative AI applications." },
+  { title: "React", image: "https://lh3.googleusercontent.com/d/1yy4OpoVRAX2ZGVPUH9VmorLc2kiXalYf", link: "https://drive.google.com/file/d/1yy4OpoVRAX2ZGVPUH9VmorLc2kiXalYf/view", category: "Web", desc: "Dynamic and reusable UI with React, focusing on components, hooks, state management, and modern frontend." },
+  { title: "JavaScript", image: "https://lh3.googleusercontent.com/d/1zrscfW3cyWq59mMYsK399CRjgEjA-zbd", link: "https://drive.google.com/file/d/1zrscfW3cyWq59mMYsK399CRjgEjA-zbd/view", category: "Web", desc: "Core JavaScript concepts: DOM manipulation, async programming, and building interactive web applications." },
+  { title: "MLOps", image: "https://lh3.googleusercontent.com/d/1BmvjGknXs-K5wOfepFcl_CuU8DsFBApP", link: "https://drive.google.com/file/d/1BmvjGknXs-K5wOfepFcl_CuU8DsFBApP/view", category: "DevOps", desc: "MLOps practices: model versioning, deployment, monitoring, and maintaining ML systems in production." },
+  { title: "CI/CD", image: "https://lh3.googleusercontent.com/d/1xccQv29hZCWCvr-JnM-nEfE8meESrWIr", link: "https://drive.google.com/file/d/1xccQv29hZCWCvr-JnM-nEfE8meESrWIr/view", category: "DevOps", desc: "Continuous Integration and Deployment concepts to automate testing, building, and deploying applications." },
+  { title: "Django", image: "https://lh3.googleusercontent.com/d/1QdiX2u-ARCZCEdEmlu4l3ChnQT-SmhKc", link: "https://drive.google.com/file/d/1QdiX2u-ARCZCEdEmlu4l3ChnQT-SmhKc/view", category: "Web", desc: "Backend web applications using Django: MVC architecture, database models, authentication, and RESTful services." },
+  { title: "HTML", image: "https://lh3.googleusercontent.com/d/1NYtaxfhQUfxaL4n6Vv6gJSEQMySy1gqr", link: "https://drive.google.com/file/d/1NYtaxfhQUfxaL4n6Vv6gJSEQMySy1gqr/view", category: "Web", desc: "Fundamentals of HTML for structuring web pages, accessibility, and semantic markup for modern websites." },
+  { title: "CSS", image: "https://lh3.googleusercontent.com/d/1iC65FGw0MSmjeKIivdnrZVm3GfXOKVvE", link: "https://drive.google.com/file/d/1iC65FGw0MSmjeKIivdnrZVm3GfXOKVvE/view", category: "Web", desc: "CSS for styling responsive web pages, layouts, animations, and creating visually appealing interfaces." },
 ];
 
-// Concepts Component with Carousel Effect
-const Concepts = React.memo(({ concepts, index }) => {
-  const conceptList = concepts.split(', ');
+const categoryIcons = { Web: Code, Programming: Cpu, Cloud: Cloud, Data: Database, "AI/ML": Sparkles, DevOps: Zap };
+const categoryColors = {
+  Web: { from: '#3b82f6', to: '#06b6d4', shadow: 'rgba(59,130,246,0.4)' },
+  Programming: { from: '#a855f7', to: '#ec4899', shadow: 'rgba(168,85,247,0.4)' },
+  Cloud: { from: '#6366f1', to: '#3b82f6', shadow: 'rgba(99,102,241,0.4)' },
+  Data: { from: '#10b981', to: '#059669', shadow: 'rgba(16,185,129,0.4)' },
+  "AI/ML": { from: '#f97316', to: '#ef4444', shadow: 'rgba(249,115,22,0.4)' },
+  DevOps: { from: '#eab308', to: '#f97316', shadow: 'rgba(234,179,8,0.4)' }
+};
+
+export default function Certifications() {
+  const [selectedCategory, setSelectedCategory] = useState("All");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [particles, setParticles] = useState([]);
+  const [hoveredCard, setHoveredCard] = useState(null);
+
+  const categories = ["All", ...new Set(certificationsData.map(c => c.category))];
+  const filteredCerts = selectedCategory === "All" ? certificationsData : certificationsData.filter(c => c.category === selectedCategory);
+
+  useEffect(() => {
+    setParticles([...Array(40)].map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 15 + 10,
+      delay: Math.random() * 5,
+    })));
+  }, []);
+
   return (
-    <motion.div
+    <div
+      onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
       style={{
-        display: 'flex',
-        width: `${conceptList.length * 100}%`,
-        animation: conceptList.length > 3 ? 'conceptsCarousel 20s linear infinite' : 'none',
+        minHeight: '100vh',
+        background: 'radial-gradient(ellipse at top, rgba(88,28,135,0.3) 0%, #0a0a0a 50%, #000 100%)',
+        position: 'relative',
+        overflow: 'hidden',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
       }}
     >
-      {conceptList.concat(conceptList).map((concept, i) => (
-        <motion.span
-          key={`${concept}-${i}`}
-          style={{
+      <style>{`
+        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } }
+        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px currentColor; } 50% { box-shadow: 0 0 50px currentColor; } }
+        @keyframes shimmer { 0% { background-position: -200%; } 100% { background-position: 200%; } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes fade-in { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes scale-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+        @keyframes border-flow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
+        .float { animation: float var(--duration, 15s) ease-in-out infinite; }
+        .pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
+        .shimmer { animation: shimmer 3s linear infinite; background-size: 200%; }
+        .bounce { animation: bounce 2s ease-in-out infinite; }
+        .fade-in { animation: fade-in 0.8s ease-out forwards; }
+        .rotate { animation: rotate 20s linear infinite; }
+        .scale-pulse { animation: scale-pulse 2s ease-in-out infinite; }
+        .border-flow { animation: border-flow 3s linear infinite; }
+      `}</style>
+
+      {/* Animated Background */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        {/* Floating Particles */}
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="float"
+            style={{
+              position: 'absolute',
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, ${['#a855f7', '#ec4899', '#3b82f6'][p.id % 3]}, transparent)`,
+              '--duration': `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+            }}
+          />
+        ))}
+
+        {/* Gradient Orbs */}
+        <div className="float" style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(168,85,247,0.2), transparent)',
+          filter: 'blur(100px)',
+          top: '10%',
+          left: '10%',
+          '--duration': '20s',
+        }} />
+        <div className="float" style={{
+          position: 'absolute',
+          width: '500px',
+          height: '500px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(236,72,153,0.2), transparent)',
+          filter: 'blur(100px)',
+          bottom: '10%',
+          right: '10%',
+          '--duration': '15s',
+          animationDelay: '5s',
+        }} />
+
+        {/* Grid Pattern */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: 'linear-gradient(rgba(168,85,247,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.1) 1px, transparent 1px)',
+          backgroundSize: '50px 50px',
+          opacity: 0.2,
+        }} />
+
+        {/* Mouse Glow */}
+        <div style={{
+          position: 'absolute',
+          width: '400px',
+          height: '400px',
+          borderRadius: '50%',
+          background: 'radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%)',
+          left: mousePos.x - 200,
+          top: mousePos.y - 200,
+          filter: 'blur(60px)',
+          transition: 'all 0.3s ease',
+        }} />
+      </div>
+
+      <div style={{ position: 'relative', maxWidth: '1280px', margin: '0 auto', padding: '80px 16px' }}>
+        {/* Header */}
+        <div className="fade-in" style={{ textAlign: 'center', marginBottom: '64px' }}>
+          <div className="bounce" style={{
             display: 'inline-flex',
             alignItems: 'center',
-            gap: 'clamp(8px, 1.2vw, 10px)',
-            margin: 'clamp(6px, 1vw, 8px)',
-            padding: 'clamp(6px, 1vw, 8px) clamp(10px, 1.8vw, 12px)',
-            background: 'linear-gradient(45deg, rgba(192, 38, 211, 0.3), rgba(76, 29, 149, 0.3))',
-            borderRadius: 'clamp(10px, 1.5vw, 12px)',
-            border: '2px solid rgba(59, 130, 246, 0.4)',
-            boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)',
-          }}
-          initial={{ opacity: 0, scale: 0.6, rotate: -10 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ delay: index * 0.05 + i * 0.03, type: 'spring', stiffness: 200, damping: 15 }}
-        >
-          <motion.span
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.05 + i * 0.03 }}
-            style={{ color: '#3b82f6', textShadow: '0 0 10px rgba(59, 130, 246, 0.7)' }}
-          >
-            <FaBrain style={{ fontSize: 'clamp(0.9rem, 2vw, 1.1rem)' }} />
-          </motion.span>
-          <span style={{ color: '#e0e7ff', fontSize: 'clamp(0.9rem, 2vw, 1.1rem)', fontWeight: 600 }}>
-            {concept}
-          </span>
-        </motion.span>
-      ))}
-    </motion.div>
-  );
-});
-
-// Styles adapted from Projects.jsx
-const styles = {
-  container: {
-    minHeight: '100vh',
-    padding: 'clamp(3rem, 7vw, 6rem) clamp(1.5rem, 3vw, 2.5rem)',
-    background: 'linear-gradient(155deg, #0d0026, #1a0033, #2a0055, #3b0088)',
-    backgroundSize: '400% 400%',
-    color: '#f5f7fa',
-    overflow: 'hidden',
-    position: 'relative',
-    perspective: '1000px',
-    fontFamily: "'Inter', 'Montserrat', sans-serif",
-    willChange: 'background, transform',
-  },
-  overlay: {
-    position: 'absolute',
-    inset: 0,
-    background: `
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.3), transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(192, 38, 211, 0.3), transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.2), transparent 70%)
-    `,
-    zIndex: -1,
-    pointerEvents: 'none',
-  },
-  holographicGlow: {
-    position: 'absolute',
-    width: 'clamp(400px, 60vw, 700px)',
-    height: 'clamp(400px, 60vw, 700px)',
-    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4), transparent 60%)',
-    top: '-15%',
-    left: '-15%',
-    filter: 'blur(120px)',
-    zIndex: -1,
-  },
-  header: {
-    textAlign: 'center',
-    padding: 'clamp(2rem, 4vw, 3.5rem)',
-    background: 'rgba(10, 0, 30, 0.9)',
-    border: '1px solid rgba(59, 130, 246, 0.3)',
-    borderRadius: 'clamp(16px, 2.2vw, 20px)',
-    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), 0 0 40px rgba(59, 130, 246, 0.25)',
-    backdropFilter: 'blur(12px)',
-    maxWidth: 'clamp(700px, 90vw, 1100px)',
-    margin: '0 auto clamp(3rem, 6vw, 5rem)',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  headerGlow: {
-    position: 'absolute',
-    inset: 0,
-    background: 'conic-gradient(from 45deg, rgba(59, 130, 246, 0.3), rgba(192, 38, 211, 0.3), transparent)',
-    opacity: 0.4,
-    zIndex: -1,
-  },
-  title: {
-    fontSize: 'clamp(2rem, 5.5vw, 4rem)',
-    fontWeight: 900,
-    color: 'transparent',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3, #4c1d95)',
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    textShadow: '0 0 30px rgba(59, 130, 246, 0.6), 0 0 50px rgba(192, 38, 211, 0.4)',
-    marginBottom: 'clamp(0.6rem, 1.8vw, 1.2rem)',
-    letterSpacing: '0.1em',
-  },
-  titleUnderline: {
-    width: 'clamp(160px, 30vw, 240px)',
-    height: '4px',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    borderRadius: '4px',
-    margin: '0.6rem auto',
-    boxShadow: '0 0 15px rgba(59, 130, 246, 0.6)',
-  },
-  filterBar: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    marginBottom: 'clamp(2rem, 4vw, 3rem)',
-    flexWrap: 'wrap',
-  },
-  filterBtn: {
-    padding: 'clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)',
-    background: 'rgba(59, 130, 246, 0.15)',
-    border: '1px solid rgba(59, 130, 246, 0.3)',
-    borderRadius: 'clamp(12px, 1.8vw, 16px)',
-    color: '#e0e7ff',
-    cursor: 'pointer',
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    fontWeight: '600',
-    boxShadow: '0 0 10px rgba(59, 130, 246, 0.25)',
-  },
-  activeFilter: {
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    color: '#f0faff',
-    boxShadow: '0 0 15px rgba(59, 130, 246, 0.6)',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 40vw, 360px), 1fr))',
-    gap: 'clamp(1.5rem, 3vw, 2.5rem)',
-    maxWidth: 'clamp(800px, 95vw, 1400px)',
-    margin: '0 auto',
-    perspective: '1000px',
-  },
-  card: {
-    background: 'rgba(10, 0, 30, 0.85)',
-    borderRadius: 'clamp(14px, 2vw, 18px)',
-    padding: 'clamp(1.8rem, 3vw, 2.5rem)',
-    textAlign: 'center',
-    backdropFilter: 'blur(10px)',
-    boxShadow: '0 15px 40px rgba(0, 0, 0, 0.6), inset 0 0 10px rgba(59, 130, 246, 0.2)',
-    transformStyle: 'preserve-3d',
-    position: 'relative',
-    overflow: 'hidden',
-    cursor: 'pointer',
-  },
-  cardOverlay: {
-    position: 'absolute',
-    inset: 0,
-    borderRadius: 'inherit',
-    background: 'conic-gradient(from 45deg, rgba(59, 130, 246, 0.25), rgba(192, 38, 211, 0.25), transparent)',
-    zIndex: -1,
-    opacity: 0.4,
-  },
-  certName: {
-    fontSize: 'clamp(1.4rem, 3vw, 1.8rem)',
-    color: '#3b82f6',
-    textShadow: '0 0 15px rgba(59, 130, 246, 0.5)',
-    marginBottom: 'clamp(0.8rem, 2vw, 1.2rem)',
-    fontWeight: '800',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  certIssuer: {
-    fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
-    color: '#e0e7ff',
-    marginBottom: 'clamp(0.8rem, 2vw, 1.2rem)',
-    lineHeight: '1.6',
-    textShadow: '0 0 8px rgba(59, 130, 246, 0.3)',
-  },
-  certCategory: {
-    fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
-    color: '#c026d3',
-    fontWeight: 'bold',
-    marginBottom: 'clamp(0.8rem, 2vw, 1.2rem)',
-    textShadow: '0 0 8px rgba(59, 130, 246, 0.3)',
-  },
-  certConcepts: {
-    fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
-    color: '#c026d3',
-    fontWeight: 'bold',
-    marginTop: 'clamp(0.8rem, 2vw, 1.2rem)',
-    textShadow: '0 0 8px rgba(59, 130, 246, 0.3)',
-  },
-  conceptsContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 'clamp(8px, 1.5vw, 10px)',
-    marginTop: 'clamp(0.6rem, 1.5vw, 1rem)',
-    marginBottom: 'clamp(0.8rem, 2vw, 1.2rem)',
-    overflow: 'hidden',
-  },
-  certButton: {
-    display: 'inline-flex',
-    padding: 'clamp(0.5rem, 1.2vw, 0.8rem) clamp(1rem, 2vw, 1.5rem)',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    color: '#f0faff',
-    borderRadius: 'clamp(10px, 1.5vw, 14px)',
-    textDecoration: 'none',
-    fontWeight: '600',
-    fontSize: 'clamp(0.85rem, 1.6vw, 1rem)',
-    boxShadow: '0 0 12px rgba(59, 130, 246, 0.4)',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  copyButton: {
-    display: 'inline-flex',
-    padding: 'clamp(0.5rem, 1.2vw, 0.8rem) clamp(1rem, 2vw, 1.5rem)',
-    background: 'rgba(59, 130, 246, 0.15)',
-    border: '1px solid rgba(59, 130, 246, 0.3)',
-    borderRadius: 'clamp(10px, 1.5vw, 14px)',
-    color: '#e0e7ff',
-    fontSize: 'clamp(0.85rem, 1.6vw, 1rem)',
-    fontWeight: '600',
-    boxShadow: '0 0 12px rgba(59, 130, 246, 0.4)',
-    cursor: 'pointer',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  loadingButton: {
-    opacity: 0.6,
-    cursor: 'not-allowed',
-  },
-  spinner: {
-    display: 'inline-block',
-    width: 'clamp(0.9rem, 1.8vw, 1.2rem)',
-    height: 'clamp(0.9rem, 1.8vw, 1.2rem)',
-    border: '2px solid rgba(59, 130, 246, 0.3)',
-    borderTop: '2px solid #3b82f6',
-    borderRadius: '50%',
-    animation: 'spin 0.7s linear infinite',
-  },
-  expandedCard: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 'clamp(450px, 75vw, 700px)',
-    maxHeight: '75vh',
-    background: 'rgba(10, 0, 30, 0.9)',
-    borderRadius: 'clamp(16px, 2.5vw, 20px)',
-    padding: 'clamp(2rem, 4vw, 3rem)',
-    boxShadow: '0 25px 50px rgba(0, 0, 0, 0.7), 0 0 50px rgba(59, 130, 246, 0.3)',
-    backdropFilter: 'blur(15px)',
-    zIndex: 1000,
-    overflowY: 'auto',
-  },
-  expandedOverlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0, 0, 0, 0.7)',
-    zIndex: 999,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 'clamp(0.6rem, 1.5vw, 1rem)',
-    right: 'clamp(0.6rem, 1.5vw, 1rem)',
-    background: 'transparent',
-    border: 'none',
-    color: '#e0e7ff',
-    fontSize: 'clamp(1rem, 2vw, 1.5rem)',
-    cursor: 'pointer',
-  },
-  responsive: {
-    large: {
-      container: { padding: 'clamp(3rem, 7vw, 6rem) clamp(1.5rem, 3vw, 2.5rem)' },
-      header: { padding: 'clamp(2rem, 4vw, 3.5rem)', maxWidth: 'clamp(700px, 90vw, 1100px)' },
-      title: { fontSize: 'clamp(2rem, 5.5vw, 4rem)' },
-      grid: { gap: 'clamp(1.5rem, 3vw, 2.5rem)', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 40vw, 360px), 1fr))' },
-      card: { padding: 'clamp(1.8rem, 3vw, 2.5rem)' },
-      certName: { fontSize: 'clamp(1.4rem, 3vw, 1.8rem)' },
-      certButton: { padding: 'clamp(0.5rem, 1.2vw, 0.8rem) clamp(1rem, 2vw, 1.5rem)' },
-      holographicGlow: { width: 'clamp(400px, 60vw, 700px)', height: 'clamp(400px, 60vw, 700px)', top: '-15%', left: '-15%' },
-      expandedCard: { width: 'clamp(450px, 75vw, 700px)', padding: 'clamp(2rem, 4vw, 3rem)' },
-    },
-    medium: {
-      container: { padding: 'clamp(2.5rem, 6vw, 5rem) clamp(1rem, 2.5vw, 2rem)' },
-      header: { padding: 'clamp(1.8rem, 3.5vw, 3rem)', maxWidth: 'clamp(600px, 85vw, 900px)' },
-      title: { fontSize: 'clamp(1.8rem, 5vw, 3.5rem)' },
-      grid: { gap: 'clamp(1.2rem, 2.5vw, 2rem)', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(260px, 35vw, 320px), 1fr))' },
-      card: { padding: 'clamp(1.5rem, 2.5vw, 2rem)' },
-      certName: { fontSize: 'clamp(1.3rem, 2.8vw, 1.6rem)' },
-      certButton: { padding: 'clamp(0.4rem, 1vw, 0.6rem) clamp(0.8rem, 1.8vw, 1.2rem)' },
-      holographicGlow: { width: 'clamp(350px, 50vw, 600px)', height: 'clamp(350px, 50vw, 600px)', top: '-12%', left: '-12%' },
-      expandedCard: { width: 'clamp(400px, 75vw, 600px)', padding: 'clamp(1.8rem, 3.5vw, 2.5rem)' },
-    },
-    small: {
-      container: { padding: 'clamp(2rem, 5vw, 4rem) clamp(0.8rem, 2vw, 1.5rem)' },
-      header: { padding: 'clamp(1.5rem, 3vw, 2.5rem)', maxWidth: 'clamp(500px, 80vw, 700px)' },
-      title: { fontSize: 'clamp(1.6rem, 4.5vw, 3rem)' },
-      grid: { gap: 'clamp(1rem, 2vw, 1.5rem)', gridTemplateColumns: '1fr' },
-      card: { padding: 'clamp(1.2rem, 2vw, 1.8rem)' },
-      certName: { fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)' },
-      certButton: { padding: 'clamp(0.4rem, 0.8vw, 0.6rem) clamp(0.8rem, 1.5vw, 1rem)' },
-      holographicGlow: { width: 'clamp(300px, 45vw, 500px)', height: 'clamp(300px, 45vw, 500px)', top: '-10%', left: '-10%' },
-      expandedCard: { width: 'clamp(300px, 85vw, 500px)', padding: 'clamp(1.5rem, 3vw, 2rem)' },
-    },
-  },
-};
-
-// Animation styles optimized for performance
-const animationStyles = `
-  @keyframes holographicPulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 0.9; }
-  }
-  @keyframes glowShift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    50% { transform: translate(30px, 30px) scale(1.1); }
-  }
-  @keyframes rotateGlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes conceptsCarousel {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes aurora {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 400% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  @keyframes sparkle {
-    0%, 100% { opacity: 0.3; transform: scale(0.6); }
-    50% { opacity: 0.9; transform: scale(1.1); }
-  }
-  @keyframes orbit {
-    0% { transform: rotate(0deg) translateX(80px) rotate(0deg); }
-    100% { transform: rotate(360deg) translateX(80px) rotate(360deg); }
-  }
-`;
-
-// Animation variants optimized for performance
-const containerVariants = {
-  hidden: { opacity: 0, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 1.2, ease: 'easeOut', staggerChildren: 0.15 },
-  },
-};
-
-const headerVariants = {
-  hidden: { opacity: 0, y: -50 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 1, type: 'spring', stiffness: 120, damping: 15 },
-  },
-};
-
-const filterBtnVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 0.4, type: 'spring', stiffness: 150, damping: 12 },
-  },
-  exit: { opacity: 0, scale: 0.8, transition: { duration: 0.3 } },
-  active: {
-    scale: [1, 1.1, 1],
-    transition: { duration: 0.8, repeat: Infinity, repeatType: 'reverse' },
-  },
-};
-
-const cardVariants = {
-  hidden: { opacity: 0, y: 50, scale: 0.9 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    transition: { duration: 0.6, type: 'spring', stiffness: 120, damping: 14 },
-  },
-};
-
-const cardChildVariants = {
-  hidden: { opacity: 0, x: -20 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.4 } },
-};
-
-const expandedCardVariants = {
-  hidden: { opacity: 0, scale: 0.7, y: '-50%' },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: '-50%',
-    transition: { duration: 0.5, type: 'spring', stiffness: 100, damping: 12 },
-  },
-  exit: { opacity: 0, scale: 0.7, transition: { duration: 0.4 } },
-};
-
-const Certifications = () => {
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  const [filter, setFilter] = useState('All');
-  const [selectedCert, setSelectedCert] = useState(null);
-  const [isCopying, setIsCopying] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.5, 1]), { stiffness: 120, damping: 15 });
-  const scale = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.9, 1]), { stiffness: 120, damping: 15 });
-  const modalRef = useRef(null);
-
-  useEffect(() => {
-    document.body.style.overflow = selectedCert ? 'hidden' : 'auto';
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => {
-      document.body.style.overflow = 'auto';
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [selectedCert]);
-
-  useEffect(() => {
-    if (selectedCert && modalRef.current) {
-      modalRef.current.focus();
-    }
-  }, [selectedCert]);
-
-  const categories = useMemo(() =>
-    ['All', ...new Set(certifications.map(cert => cert.category))].sort(),
-    []
-  );
-
-  const filteredCerts = useMemo(() =>
-    filter === 'All' ? certifications : certifications.filter(cert => cert.category === filter),
-    [filter]
-  );
-
-  const responsiveStyles = useMemo(() =>
-    windowWidth <= 480 ? styles.responsive.small :
-    windowWidth <= 768 ? styles.responsive.medium :
-    styles.responsive.large,
-    [windowWidth]
-  );
-
-  const handleCardClick = useCallback((cert) => {
-    setSelectedCert(cert);
-  }, []);
-
-  const handleClose = useCallback(() => {
-    setSelectedCert(null);
-  }, []);
-
-  const handleCopyLink = useCallback((link) => {
-    setIsCopying(true);
-    navigator.clipboard.writeText(link).then(() => {
-      alert('Link copied to clipboard!');
-      setIsCopying(false);
-    }).catch(() => {
-      alert('Failed to copy link.');
-      setIsCopying(false);
-    });
-  }, []);
-
-  return (
-    <motion.section
-      style={{
-        ...styles.container,
-        ...responsiveStyles.container,
-        opacity,
-        scale,
-        animation: 'aurora 12s ease infinite',
-      }}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      role="region"
-      aria-label="Certifications section"
-    >
-      <style>{animationStyles}</style>
-      {/* Background Particles */}
-      {[...Array(15)].map((_, i) => (
-        <motion.div
-          key={`particle-${i}`}
-          style={{
-            position: 'absolute',
-            width: `clamp(0.4rem, calc(0.1vw + ${0.4 + i * 0.08}rem), ${0.8 + i * 0.1}rem)`,
-            height: `clamp(0.4rem, calc(0.1vw + ${0.4 + i * 0.08}rem), ${0.8 + i * 0.1}rem)`,
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.4), rgba(192, 38, 211, 0.3))',
+            justifyContent: 'center',
+            width: '80px',
+            height: '80px',
             borderRadius: '50%',
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            pointerEvents: 'none',
-            zIndex: -2,
-          }}
-          animate={{
-            y: [0, -20, 0],
-            opacity: [0.3, 0.8, 0.3],
-            scale: [0.8, 1.2, 0.8],
-          }}
-          transition={{ duration: 3 + i * 0.2, repeat: Infinity, ease: 'easeInOut', delay: i * 0.1 }}
-        />
-      ))}
-      {/* Sparkling Stars */}
-      {[...Array(10)].map((_, i) => (
-        <motion.div
-          key={`star-${i}`}
-          style={{
-            position: 'absolute',
-            width: `clamp(0.3rem, calc(0.08vw + ${0.2 + i * 0.05}rem), ${0.5 + i * 0.08}rem)`,
-            height: `clamp(0.3rem, calc(0.08vw + ${0.2 + i * 0.05}rem), ${0.5 + i * 0.08}rem)`,
-            background: 'radial-gradient(circle, rgba(255, 255, 255, 0.8), transparent)',
-            borderRadius: '50%',
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            pointerEvents: 'none',
-            zIndex: -2,
-          }}
-          animate={{
-            opacity: [0.3, 0.9, 0.3],
-            scale: [0.6, 1.1, 0.6],
-          }}
-          transition={{ duration: 2 + i * 0.2, repeat: Infinity, ease: 'easeInOut', delay: i * 0.15 }}
-        />
-      ))}
-      {/* Orbiting Particles */}
-      {[...Array(5)].map((_, i) => (
-        <motion.div
-          key={`orbit-${i}`}
-          style={{
-            position: 'absolute',
-            width: 'clamp(6px, 0.8vw, 10px)',
-            height: 'clamp(6px, 0.8vw, 10px)',
-            background: 'rgba(192, 38, 211, 0.6)',
-            borderRadius: '50%',
-            top: '50%',
-            left: '50%',
-            pointerEvents: 'none',
-            zIndex: -2,
-          }}
-          animate={{ x: [0, 80 * Math.cos(i * 1.256), 0], y: [0, 80 * Math.sin(i * 1.256), 0] }}
-          transition={{ duration: 4 + i * 0.4, repeat: Infinity, ease: 'linear', delay: i * 0.2 }}
-        />
-      ))}
-      {/* Holographic Glow */}
-      <motion.div
-        style={{
-          ...styles.holographicGlow,
-          ...responsiveStyles.holographicGlow,
-          animation: 'glowShift 10s ease-in-out infinite',
-        }}
-      />
-      {/* Header Section */}
-      <motion.header
-        style={{
-          ...styles.header,
-          ...responsiveStyles.header,
-        }}
-        variants={headerVariants}
-      >
-        <motion.div style={styles.headerGlow} />
-        <h2
-          style={{
-            ...styles.title,
-            ...responsiveStyles.title,
-            animation: 'holographicPulse 2s ease-in-out infinite alternate',
-          }}
-        >
-          <FaStar style={{ marginRight: 'clamp(0.3rem, 0.8vw, 0.5rem)', fontSize: 'clamp(1.4rem, 2.8vw, 1.8rem)' }} />
-          Certifications Showcase
-        </h2>
-        <motion.div
-          style={styles.titleUnderline}
-          initial={{ width: 0 }}
-          animate={{ width: 'clamp(160px, 30vw, 240px)' }}
-          transition={{ duration: 1.2, ease: 'easeOut' }}
-        />
-      </motion.header>
-      {/* Filter Bar */}
-      <motion.div
-        style={{
-          ...styles.filterBar,
-          ...responsiveStyles.filterBar,
-        }}
-        variants={containerVariants}
-      >
-        <AnimatePresence>
-          {categories.map((category, index) => (
-            <motion.button
-              key={category}
+            background: 'linear-gradient(135deg, #a855f7, #ec4899)',
+            marginBottom: '24px',
+            boxShadow: '0 20px 60px rgba(168,85,247,0.4)',
+          }}>
+            <Award style={{ width: '40px', height: '40px', color: '#fff' }} />
+          </div>
+
+          <h1 className="shimmer" style={{
+            fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+            fontWeight: '900',
+            marginBottom: '16px',
+            background: 'linear-gradient(90deg, #a855f7, #ec4899, #3b82f6, #a855f7)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>
+            Certifications
+          </h1>
+          <p style={{ fontSize: '18px', color: '#9ca3af', maxWidth: '700px', margin: '0 auto', lineHeight: 1.7 }}>
+            Showcasing achievements across <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>web development</span>, <span style={{ color: '#a855f7', fontWeight: 'bold' }}>programming</span>, <span style={{ color: '#ec4899', fontWeight: 'bold' }}>cloud computing</span>, and <span style={{ color: '#f97316', fontWeight: 'bold' }}>AI/ML</span>
+          </p>
+
+          {/* Stats */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', marginTop: '32px', flexWrap: 'wrap' }}>
+            {[
+              { icon: Award, value: '19+', label: 'Certificates', color: '#a855f7' },
+              { icon: TrendingUp, value: '6', label: 'Categories', color: '#3b82f6' },
+              { icon: Sparkles, value: '100%', label: 'Verified', color: '#ec4899' },
+            ].map((stat, i) => (
+              <div key={i} className="scale-pulse" style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                gap: '8px',
+                animationDelay: `${i * 0.2}s`,
+              }}>
+                <stat.icon style={{ width: '24px', height: '24px', color: stat.color }} />
+                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff' }}>{stat.value}</div>
+                <div style={{ fontSize: '14px', color: '#9ca3af' }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Category Filters */}
+        <div className="fade-in" style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          gap: '12px', 
+          marginBottom: '48px', 
+          flexWrap: 'wrap',
+          animationDelay: '0.2s',
+        }}>
+          <Filter className="bounce" style={{ width: '24px', height: '24px', color: '#a855f7', marginRight: '8px' }} />
+          {categories.map((cat) => (
+            <button
+              key={cat}
+              onClick={() => setSelectedCategory(cat)}
               style={{
-                ...styles.filterBtn,
-                ...(filter === category ? styles.activeFilter : {}),
-                ...responsiveStyles.certButton,
+                padding: '12px 24px',
+                borderRadius: '9999px',
+                border: 'none',
+                background: selectedCategory === cat ? 'linear-gradient(90deg, #a855f7, #ec4899)' : 'rgba(255,255,255,0.05)',
+                color: selectedCategory === cat ? '#fff' : '#9ca3af',
+                fontWeight: 'bold',
+                fontSize: '14px',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                transform: selectedCategory === cat ? 'scale(1.05)' : 'scale(1)',
+                boxShadow: selectedCategory === cat ? '0 10px 30px rgba(168,85,247,0.4)' : 'none',
               }}
-              onClick={() => setFilter(category)}
-              variants={filterBtnVariants}
-              initial="hidden"
-              animate={filter === category ? 'active' : 'visible'}
-              exit="exit"
-              whileTap={{ scale: 0.95 }}
-              aria-pressed={filter === category}
-              aria-label={`Filter by ${category}`}
+              onMouseEnter={(e) => {
+                if (selectedCategory !== cat) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (selectedCategory !== cat) {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }
+              }}
             >
-              {category}
-            </motion.button>
+              {cat}
+            </button>
           ))}
-        </AnimatePresence>
-      </motion.div>
-      {/* Certifications Grid */}
-      <motion.div
-        style={{
-          ...styles.grid,
-          ...responsiveStyles.grid,
-        }}
-        variants={containerVariants}
-      >
-        <AnimatePresence>
-          {filteredCerts.map((cert, index) => (
-            <motion.article
-              key={cert.name}
-              style={{
-                ...styles.card,
-                ...responsiveStyles.card,
-              }}
-              variants={cardVariants}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true, margin: '-80px' }}
-              onClick={() => handleCardClick(cert)}
-              tabIndex={0}
-              role="button"
-              aria-label={`View details for ${cert.name}`}
-              onKeyDown={(e) => e.key === 'Enter' && handleCardClick(cert)}
-              whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59, 130, 246, 0.5)' }}
-            >
-              <motion.div style={{ ...styles.cardOverlay, animation: 'rotateGlow 6s linear infinite' }} />
-              <motion.h3
+        </div>
+
+        {/* Certificates Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
+          gap: '32px',
+        }}>
+          {filteredCerts.map((cert, i) => {
+            const Icon = categoryIcons[cert.category];
+            const colors = categoryColors[cert.category];
+            const isHovered = hoveredCard === i;
+
+            return (
+              <div
+                key={i}
+                className="fade-in"
+                onMouseEnter={() => setHoveredCard(i)}
+                onMouseLeave={() => setHoveredCard(null)}
                 style={{
-                  ...styles.certName,
-                  ...responsiveStyles.certName,
+                  position: 'relative',
+                  borderRadius: '24px',
+                  overflow: 'hidden',
+                  background: 'rgba(15,23,42,0.8)',
+                  backdropFilter: 'blur(20px)',
+                  border: `1px solid ${isHovered ? colors.from : 'rgba(255,255,255,0.1)'}`,
+                  transition: 'all 0.5s cubic-bezier(0.4,0,0.2,1)',
+                  transform: isHovered ? 'translateY(-12px) scale(1.02)' : 'translateY(0) scale(1)',
+                  boxShadow: isHovered ? `0 30px 80px ${colors.shadow}` : '0 10px 30px rgba(0,0,0,0.3)',
+                  cursor: 'pointer',
+                  animationDelay: `${i * 0.1}s`,
                 }}
-                variants={cardChildVariants}
-                transition={{ delay: index * 0.1 }}
               >
-                <FaCertificate style={{ fontSize: 'clamp(1.2rem, 2.2vw, 1.5rem)' }} />
-                #{index + 1} • {cert.name}
-              </motion.h3>
-              <motion.p
-                style={styles.certIssuer}
-                variants={cardChildVariants}
-                transition={{ delay: index * 0.1 + 0.1 }}
-              >
-                Issued by: {cert.issuer}
-              </motion.p>
-              <motion.p
-                style={styles.certCategory}
-                variants={cardChildVariants}
-                transition={{ delay: index * 0.1 + 0.2 }}
-              >
-                Category: {cert.category}
-              </motion.p>
-              <motion.p
-                style={styles.certConcepts}
-                variants={cardChildVariants}
-                transition={{ delay: index * 0.1 + 0.3 }}
-              >
-                Concepts Learned:
-              </motion.p>
-              <motion.div
-                style={styles.conceptsContainer}
-                variants={cardChildVariants}
-                transition={{ delay: index * 0.1 + 0.4 }}
-              >
-                <Concepts concepts={cert.concepts} index={index} />
-              </motion.div>
-              <motion.a
-                href={cert.file}
-                style={{
-                  ...styles.certButton,
-                  ...responsiveStyles.certButton,
-                }}
-                target="_blank"
-                rel="noreferrer"
-                variants={cardChildVariants}
-                transition={{ delay: index * 0.1 + 0.5 }}
-                onClick={(e) => e.stopPropagation()}
-                whileHover={{ scale: 1.1 }}
-              >
-                <FaExternalLinkAlt style={{ marginRight: 'clamp(0.3rem, 0.8vw, 0.5rem)' }} />
-                View Certificate
-              </motion.a>
-            </motion.article>
-          ))}
-        </AnimatePresence>
-      </motion.div>
-      {/* Expanded Card Modal */}
-      <AnimatePresence>
-        {selectedCert && (
-          <>
-            <motion.div
-              style={styles.expandedOverlay}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleClose}
-              role="button"
-              tabIndex={0}
-              aria-label="Close certification details"
-              onKeyDown={(e) => e.key === 'Enter' && handleClose()}
-            />
-            <motion.div
-              ref={modalRef}
-              style={{
-                ...styles.expandedCard,
-                ...responsiveStyles.expandedCard,
-              }}
-              variants={expandedCardVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              tabIndex={-1}
-              role="dialog"
-              aria-label={`${selectedCert.name} details`}
-            >
-              <motion.div style={{ ...styles.cardOverlay, animation: 'rotateGlow 6s linear infinite' }} />
-              <motion.button
-                style={styles.closeButton}
-                onClick={handleClose}
-                aria-label="Close certification details"
-                whileHover={{ scale: 1.2, rotate: 90, color: '#3b82f6' }}
-                whileTap={{ scale: 0.9 }}
-              >
-                ✕
-              </motion.button>
-              <motion.h3
-                style={{
-                  ...styles.certName,
-                  fontSize: 'clamp(1.4rem, 3vw, 1.8rem)',
-                  marginBottom: 'clamp(0.8rem, 2vw, 1.2rem)',
-                }}
-                variants={cardChildVariants}
-              >
-                <FaCertificate style={{ fontSize: 'clamp(1.2rem, 2.2vw, 1.5rem)' }} />
-                #{certifications.indexOf(selectedCert) + 1} • {selectedCert.name}
-              </motion.h3>
-              <motion.p
-                style={{
-                  ...styles.certIssuer,
-                  fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
-                  lineHeight: '1.6',
-                }}
-                variants={cardChildVariants}
-              >
-                Issued by: {selectedCert.issuer}
-              </motion.p>
-              <motion.p
-                style={{
-                  ...styles.certCategory,
-                  fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
-                  lineHeight: '1.6',
-                }}
-                variants={cardChildVariants}
-              >
-                Category: {selectedCert.category}
-              </motion.p>
-              <motion.p
-                style={styles.certConcepts}
-                variants={cardChildVariants}
-              >
-                Concepts Learned:
-              </motion.p>
-              <motion.div
-                style={styles.conceptsContainer}
-                variants={cardChildVariants}
-              >
-                <Concepts concepts={selectedCert.concepts} index={0} />
-              </motion.div>
-              <motion.div
-                style={{ display: 'flex', gap: 'clamp(0.6rem, 1.5vw, 1rem)', marginTop: 'clamp(0.8rem, 2vw, 1.2rem)' }}
-                variants={cardChildVariants}
-              >
-                <motion.a
-                  href={selectedCert.file}
-                  style={styles.certButton}
-                  target="_blank"
-                  rel="noreferrer"
-                  whileHover={{
-                    scale: 1.1,
-                    boxShadow: '0 0 15px rgba(59, 130, 246, 0.6)',
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <FaExternalLinkAlt style={{ marginRight: 'clamp(0.3rem, 0.8vw, 0.5rem)' }} />
-                  View Certificate
-                </motion.a>
-                <motion.button
-                  style={{
-                    ...styles.copyButton,
-                    ...(isCopying ? styles.loadingButton : {}),
-                  }}
-                  onClick={() => handleCopyLink(selectedCert.file)}
-                  disabled={isCopying}
-                  whileHover={{
-                    scale: 1.1,
-                    boxShadow: '0 0 15px rgba(59, 130, 246, 0.6)',
-                  }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <FaLink style={{ marginRight: 'clamp(0.3rem, 0.8vw, 0.5rem)' }} />
-                  {isCopying ? (
+                {/* Animated Border */}
+                <div className="border-flow" style={{
+                  position: 'absolute',
+                  inset: 0,
+                  borderRadius: '24px',
+                  padding: '2px',
+                  background: `linear-gradient(90deg, ${colors.from}, transparent, ${colors.to})`,
+                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                  WebkitMaskComposite: 'xor',
+                  maskComposite: 'exclude',
+                  opacity: isHovered ? 1 : 0,
+                  transition: 'opacity 0.5s ease',
+                }} />
+
+                {/* Image Container */}
+                <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
+                  <img
+                    src={cert.image}
+                    alt={cert.title}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.7s ease',
+                      transform: isHovered ? 'scale(1.15)' : 'scale(1)',
+                    }}
+                  />
+                  
+                  {/* Gradient Overlay */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(180deg, transparent 0%, rgba(15,23,42,0.9) 100%)',
+                  }} />
+
+                  {/* Category Badge */}
+                  <div className="bounce" style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    padding: '8px 16px',
+                    borderRadius: '9999px',
+                    background: `linear-gradient(90deg, ${colors.from}, ${colors.to})`,
+                    color: '#fff',
+                    fontSize: '12px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: `0 10px 30px ${colors.shadow}`,
+                  }}>
+                    <Icon style={{ width: '14px', height: '14px' }} />
+                    {cert.category}
+                  </div>
+
+                  {/* Hover Icon */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    background: `linear-gradient(135deg, ${colors.from}95, ${colors.to}95)`,
+                    opacity: isHovered ? 1 : 0,
+                    transition: 'opacity 0.5s ease',
+                  }}>
+                    <ExternalLink className="scale-pulse" style={{
+                      width: '48px',
+                      height: '48px',
+                      color: '#fff',
+                    }} />
+                  </div>
+
+                  {/* Sparkles */}
+                  {isHovered && (
                     <>
-                      <span style={styles.spinner} />
-                      Copying...
+                      <Sparkles className="bounce" style={{
+                        position: 'absolute',
+                        top: '32px',
+                        left: '32px',
+                        width: '24px',
+                        height: '24px',
+                        color: '#fbbf24',
+                      }} />
+                      <Sparkles className="bounce" style={{
+                        position: 'absolute',
+                        bottom: '32px',
+                        right: '32px',
+                        width: '20px',
+                        height: '20px',
+                        color: '#ec4899',
+                        animationDelay: '0.2s',
+                      }} />
                     </>
-                  ) : (
-                    'Copy Link'
                   )}
-                </motion.button>
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </motion.section>
-  );
-};
+                </div>
 
-export default React.memo(Certifications);
+                {/* Content */}
+                <div style={{ padding: '24px' }}>
+                  <h3 style={{
+                    fontSize: '20px',
+                    fontWeight: '900',
+                    marginBottom: '12px',
+                    color: '#fff',
+                    transition: 'all 0.3s ease',
+                    background: isHovered ? `linear-gradient(90deg, ${colors.from}, ${colors.to})` : 'none',
+                    WebkitBackgroundClip: isHovered ? 'text' : 'unset',
+                    WebkitTextFillColor: isHovered ? 'transparent' : '#fff',
+                  }}>
+                    {cert.title}
+                  </h3>
+
+                  <p style={{
+                    color: '#9ca3af',
+                    fontSize: '14px',
+                    lineHeight: 1.6,
+                    marginBottom: '16px',
+                  }}>
+                    {cert.desc}
+                  </p>
+
+                  {/* View Button */}
+                  <a
+                    href={cert.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '8px',
+                      padding: '12px 24px',
+                      borderRadius: '12px',
+                      background: `linear-gradient(90deg, ${colors.from}, ${colors.to})`,
+                      color: '#fff',
+                      fontWeight: 'bold',
+                      fontSize: '14px',
+                      textDecoration: 'none',
+                      boxShadow: `0 10px 30px ${colors.shadow}`,
+                      transition: 'all 0.3s ease',
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                      e.currentTarget.style.boxShadow = `0 15px 40px ${colors.shadow}`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = `0 10px 30px ${colors.shadow}`;
+                    }}
+                  >
+                    View Certificate
+                    <ExternalLink style={{ width: '16px', height: '16px' }} />
+                  </a>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}

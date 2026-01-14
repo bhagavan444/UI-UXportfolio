@@ -1,238 +1,137 @@
-/* === 🔄 Reset === */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+/* Education.css - Premium Advanced Version */
 
-body {
-  font-family: "Inter", system-ui, -apple-system, sans-serif;
-  background: #0f0f0f;
-  color: #e5e7eb;
-  overflow-x: hidden;
-  line-height: 1.5;
-}
-
-/* === 📚 Container === */
-.education-beast-container {
-  min-height: 100vh;
-  padding: 5rem 1.5rem;
+.education-card {
   position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: linear-gradient(45deg, #1e1e2e, #2a2a3b, #1e1e2e);
-  background-size: 400% 400%;
-  animation: gradientFlow 20s ease-in-out infinite;
-  z-index: 1;
-  overflow: hidden;
-}
-
-@keyframes gradientFlow {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-.education-beast-container::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  background:
-    radial-gradient(circle at 30% 20%, rgba(59, 130, 246, 0.15), transparent 50%),
-    radial-gradient(circle at 70% 70%, rgba(168, 85, 247, 0.12), transparent 50%),
-    radial-gradient(circle at 50% 90%, rgba(234, 179, 8, 0.1), transparent 60%);
-  opacity: 0.8;
-  pointer-events: none;
-}
-
-/* === 🫧 Floating Blobs === */
-.floating-object {
-  position: absolute;
-  border-radius: 50%;
-  opacity: 0.08;
-  z-index: 0;
-  pointer-events: none;
-  animation: float 14s ease-in-out infinite;
-  will-change: transform;
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0) translateX(0) scale(1); }
-  50% { transform: translateY(-20px) translateX(15px) scale(1.05); }
-}
-
-.floating-object.one {
-  width: clamp(150px, 15vw, 200px);
-  height: clamp(150px, 15vw, 200px);
-  background: radial-gradient(circle, #facc15, #f43f5e);
-  top: 15%;
-  left: 8%;
-  animation-delay: 0s;
-}
-
-.floating-object.two {
-  width: clamp(180px, 18vw, 240px);
-  height: clamp(180px, 18vw, 240px);
-  background: radial-gradient(circle, #9333ea, #3b82f6);
-  bottom: 12%;
-  right: 8%;
-  animation-delay: 3s;
-}
-
-/* === 📝 Title === */
-.education-beast-title {
-  font-size: clamp(2.5rem, 6vw, 3.5rem);
-  font-weight: 800;
-  background: linear-gradient(90deg, #facc15, #2dd4bf, #3b82f6, #a855f7);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  text-shadow: 0 0 12px rgba(255, 255, 255, 0.1);
-  margin-bottom: 3.5rem;
-  z-index: 2;
-  position: relative;
-  text-align: center;
-}
-
-.education-beast-title::after {
-  content: "";
-  position: absolute;
-  bottom: -12px;
-  left: 50%;
-  transform: translateX(-50%);
-  height: 4px;
-  width: 100px;
-  background: linear-gradient(90deg, #facc15, #2dd4bf, #3b82f6);
-  border-radius: 12px;
-}
-
-/* === 🔲 Grid === */
-.education-grid-wrapper {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2.5rem;
-  width: 100%;
-  max-width: 1280px;
-  z-index: 2;
-  perspective: 1000px;
-}
-
-/* === 🧊 Cards === */
-.education-beast-card {
-  position: relative;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(20, 20, 40, 0.45);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border: 1px solid rgba(120, 100, 255, 0.18);
   border-radius: 1.5rem;
-  padding: 2.5rem;
-  transition: transform 0.4s ease, box-shadow 0.4s ease;
-  will-change: transform;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
-  backdrop-filter: blur(16px);
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   transform: translateZ(0);
 }
 
-.education-beast-card:hover {
-  transform: translateY(-5px) translateZ(20px) scale(1.04);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
-}
-
-.education-beast-card::before {
-  content: "";
+/* === 1. Animated Holographic Shine + Glass === */
+.education-card::before {
+  content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  background: conic-gradient(from 0deg, #22d3ee4d, #9333ea4d, #facc154d, transparent);
-  animation: rotateGlow 12s linear infinite;
-  z-index: -1;
-  opacity: 0.3;
+  background: linear-gradient(
+    135deg,
+    transparent 0%,
+    rgba(180, 140, 255, 0.12) 20%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(180, 140, 255, 0.12) 80%,
+    transparent 100%
+  );
+  background-size: 300% 300%;
+  opacity: 0.7;
+  animation: holographic 12s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
-@keyframes rotateGlow {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+@keyframes holographic {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
 }
 
-.education-beast-card:focus-within {
-  outline: 2px solid #3b82f6;
-  outline-offset: 4px;
+/* === 2. Strong Neon Pulse Border on hover === */
+.education-card:hover {
+  border-color: rgba(168, 85, 247, 0.6);
+  box-shadow: 
+    0 0 30px -5px rgba(168, 85, 247, 0.45),
+    0 0 60px -10px rgba(236, 72, 153, 0.35),
+    inset 0 0 40px -15px rgba(168, 85, 247, 0.25);
+  transform: translateY(-12px) scale(1.015);
 }
 
-/* === 🔤 Content === */
-.education-beast-card h2 {
-  font-size: 1.75rem;
-  font-weight: 700;
-  color: #f1f5f9;
-  margin-bottom: 1.25rem;
+/* === 3. Floating feel + very subtle depth === */
+.education-card {
+  transform-style: preserve-3d;
+  perspective: 1200px;
+}
+
+.card-inner {
+  transform: translateZ(20px);
+  transition: transform 0.6s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.education-card:hover .card-inner {
+  transform: translateZ(60px) rotateX(4deg) rotateY(6deg);
+}
+
+/* === 4. Liquid gradient background accent (behind all cards) === */
+.education-bg-mesh {
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 20% 30%, rgba(168,85,247,0.18) 0%, transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(236,72,153,0.16) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(59,130,246,0.09) 0%, transparent 60%);
+  background-size: 180% 180%;
+  animation: liquidMesh 24s ease-in-out infinite alternate;
+  opacity: 0.6;
+  z-index: -2;
+}
+
+@keyframes liquidMesh {
+  0%   { background-position: 0% 0%;   transform: scale(1); }
+  100% { background-position: 100% 100%; transform: scale(1.15); }
+}
+
+/* === 5. Chrome metallic shine on main title === */
+.gradient-title {
+  background: linear-gradient(
+    90deg,
+    #c084fc 0%, #ec4899 30%, #a78bfa 50%, #ec4899 70%, #c084fc 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: metalShine 4s linear infinite;
+}
+
+@keyframes metalShine {
+  to { background-position: 200% center; }
+}
+
+/* === 6. Timeline line - animated flowing energy === */
+.timeline-line {
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 3px;
+  background: linear-gradient(to bottom, transparent, #a78bfa, #ec4899, #7c3aed, #a78bfa);
+  background-size: 100% 400%;
+  animation: flowEnergy 8s linear infinite;
+}
+
+@keyframes flowEnergy {
+  0%   { background-position: 0% 0%; }
+  100% { background-position: 0% 100%; }
+}
+
+/* === 7. Node pulse + outer aura === */
+.timeline-node {
   position: relative;
-  z-index: 1;
 }
 
-.education-beast-card p {
-  font-size: 1.1rem;
-  line-height: 1.7;
-  color: #d1d5db;
-  position: relative;
-  z-index: 1;
+.timeline-node::after {
+  content: '';
+  position: absolute;
+  inset: -12px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(168,85,247,0.6) 10%, transparent 70%);
+  animation: nodeAura 3.5s ease-in-out infinite;
+  opacity: 0.6;
 }
 
-.certificate-link {
-  color: #3b82f6;
-  text-decoration: none;
-  font-weight: 600;
-  transition: color 0.3s ease;
-}
-
-.certificate-link:hover {
-  color: #60a5fa;
-  text-decoration: underline;
-}
-
-.education-label {
-  font-weight: 600;
-  color: #f43f5e;
-}
-
-/* === 📱 Responsive === */
-@media (max-width: 768px) {
-  .education-beast-container {
-    padding: 3rem 1rem;
-  }
-
-  .education-beast-title {
-    font-size: clamp(1.8rem, 5vw, 2.5rem);
-    margin-bottom: 2.5rem;
-  }
-
-  .education-beast-title::after {
-    width: 80px;
-  }
-
-  .education-grid-wrapper {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-  }
-
-  .education-beast-card {
-    padding: 1.75rem;
-    margin-right: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .floating-object {
-    display: none; /* Hide blobs on very small screens for performance */
-  }
-
-  .education-beast-card {
-    padding: 1.5rem;
-  }
-
-  .education-beast-card h2 {
-    font-size: 1.5rem;
-  }
-
-  .education-beast-card p {
-    font-size: 1rem;
-  }
+@keyframes nodeAura {
+  0%,100% { transform: scale(0.9); opacity: 0.4; }
+  50%     { transform: scale(1.4); opacity: 0.9; }
 }

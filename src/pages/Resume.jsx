@@ -1,399 +1,567 @@
-import React, { useState, useEffect } from "react";
-import {
-  motion,
-  AnimatePresence,
-  useTransform,
-  useMotionValue,
-} from "framer-motion";
-import { FiEye, FiDownload, FiX } from "react-icons/fi";
-import resumePDF from "../assets/bhagavanresume.pdf";
+import { useState, useEffect } from 'react';
+import { Download, Eye, FileText, Award, Code, Rocket, Star, Sparkles, ExternalLink, CheckCircle, TrendingUp } from 'lucide-react';
 
-// --- COMPONENT: Enhanced Animated Starfield Background ---
-const Starfield = ({ starCount = 120 }) => {
-  return (
-    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}>
-      {[...Array(starCount)].map((_, i) => {
-        const size = Math.random() * 2 + 1;
-        const duration = Math.random() * 2 + 1;
-        return (
-          <motion.div
-            key={`star-${i}`}
-            style={{
-              position: "absolute",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: size,
-              height: size,
-              background: "white",
-              borderRadius: "50%",
-              boxShadow: "0 0 5px rgba(255, 255, 255, 0.3)",
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0, 0.5] }}
-            transition={{
-              duration: duration,
-              repeat: Infinity,
-              repeatType: "loop",
-              delay: Math.random() * 3,
-            }}
-          />
-        );
-      })}
-      {/* Comet Trail Effect */}
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={`comet-${i}`}
-          style={{
-            position: "absolute",
-            width: 2,
-            height: 2,
-            background: "rgba(255, 255, 255, 0.8)",
-            borderRadius: "50%",
-            boxShadow: "0 0 10px rgba(255, 255, 255, 0.5)",
-          }}
-          initial={{ x: "100%", y: `${Math.random() * 100}%`, opacity: 0 }}
-          animate={{
-            x: "-100%",
-            opacity: [0, 1, 0],
-            transition: { duration: 3 + i * 0.5, repeat: Infinity, ease: "linear" },
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+const RESUME_URL = "https://drive.google.com/file/d/1BfrC-GloabR5mOXuPb8mjkKQmya5luDE/preview";
+const RESUME_DOWNLOAD = "https://drive.google.com/uc?export=download&id=1BfrC-GloabR5mOXuPb8mjkKQmya5luDE";
 
-// Custom styles object for cleaner JSX
-const styles = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "clamp(2rem, 5vw, 5rem) clamp(1rem, 2vw, 3rem)",
-    background: "linear-gradient(135deg, #050214, #1a0033, #2a0055)",
-    backgroundSize: "200% 200%",
-    animation: "bgShift 10s ease infinite",
-    color: "#e0e7ff",
-    overflow: "hidden",
-    position: "relative",
-    perspective: "1200px",
-  },
-  card: {
-    background: "rgba(12, 5, 32, 0.6)",
-    backdropFilter: "blur(20px) saturate(180%)",
-    width: "clamp(300px, 90vw, 900px)",
-    borderRadius: "24px",
-    padding: "clamp(2rem, 4vw, 4rem)",
-    textAlign: "center",
-    position: "relative",
-    transformStyle: "preserve-3d",
-    border: "1px solid rgba(124, 58, 237, 0.2)",
-    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.4)",
-  },
-  cardGlow: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: "24px",
-    padding: "2px",
-    background: "linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(91, 33, 182, 0.2))",
-    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-    WebkitMaskComposite: "xor",
-    maskComposite: "exclude",
-    pointerEvents: "none",
-    animation: "holographicPulse 2s infinite alternate",
-  },
-  title: {
-    fontSize: "clamp(2.2rem, 4.5vw, 3.8rem)",
-    fontWeight: "900",
-    marginBottom: "clamp(1rem, 2vw, 1.5rem)",
-    color: "transparent",
-    background: "linear-gradient(90deg, #a78bfa, #c4b5fd, #ffffff)",
-    backgroundClip: "text",
-    WebkitBackgroundClip: "text",
-    textShadow: "0 0 30px rgba(167, 139, 250, 0.6)",
-  },
-  description: {
-    fontSize: "clamp(1.1rem, 2vw, 1.3rem)",
-    color: "#d1d5db",
-    maxWidth: "700px",
-    margin: "0 auto clamp(2rem, 4vw, 3rem)",
-    lineHeight: 1.8,
-    textShadow: "0 0 10px rgba(167, 139, 250, 0.3)",
-  },
-  buttonGroup: {
-    display: "flex",
-    gap: "clamp(1rem, 3vw, 2rem)",
-    justifyContent: "center",
-    flexWrap: "wrap",
-  },
-  button: {
-    padding: "clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.5rem, 2.5vw, 2.5rem)",
-    border: "none",
-    borderRadius: "50px",
-    fontSize: "clamp(1rem, 2vw, 1.2rem)",
-    fontWeight: "600",
-    color: "#fff",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    position: "relative",
-    overflow: "hidden",
-    boxShadow: "0 0 10px rgba(124, 58, 237, 0.4)",
-  },
-  buttonGlow: {
-    position: "absolute",
-    top: 0,
-    left: "-100%",
-    width: "200%",
-    height: "100%",
-    background: "linear-gradient(90deg, rgba(0, 198, 255, 0.3), rgba(124, 58, 237, 0.3), transparent)",
-    transform: "skewX(-30deg)",
-    animation: "shinePulse 1.5s infinite",
-  },
-  modalOverlay: {
-    position: "fixed",
-    inset: 0,
-    background: "rgba(5, 2, 20, 0.85)",
-    backdropFilter: "blur(10px)",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    zIndex: 5000,
-  },
-  modalContent: {
-    background: "rgba(12, 5, 32, 0.95)",
-    border: "1px solid rgba(124, 58, 237, 0.4)",
-    borderRadius: "16px",
-    padding: "clamp(1rem, 2vw, 2rem)",
-    width: "clamp(300px, 95vw, 1000px)",
-    height: "90vh",
-    position: "relative",
-    display: "flex",
-    flexDirection: "column",
-    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 40px rgba(124, 58, 237, 0.4)",
-    animation: "zoomIn 0.6s ease-out",
-  },
-  closeButton: {
-    position: "absolute",
-    top: "1rem",
-    right: "1rem",
-    background: "rgba(255, 255, 255, 0.1)",
-    border: "none",
-    borderRadius: "50%",
-    width: "40px",
-    height: "40px",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    color: "#c4b5fd",
-    cursor: "pointer",
-    zIndex: 10,
-    transition: "transform 0.3s ease",
-  },
-};
-
-const Resume = () => {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-
-  const backgroundGradient = useTransform(
-    [mouseX, mouseY],
-    ([latestX, latestY]) =>
-      `radial-gradient(circle at ${latestX + window.innerWidth / 2}px ${
-        latestY + window.innerHeight / 2
-      }px, rgba(0, 198, 255, 0.25), transparent 40%)`
-  );
-
-  const handleMouseMove = (e) => {
-    mouseX.set(e.clientX - window.innerWidth / 2);
-    mouseY.set(e.clientY - window.innerHeight / 2);
-  };
+export default function Resume() {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [showModal, setShowModal] = useState(false);
+  const [particles, setParticles] = useState([]);
 
   useEffect(() => {
-    if (isModalOpen) {
-      setIsLoading(true);
-      const timer = setTimeout(() => setIsLoading(false), 1200);
-      document.body.style.overflow = "hidden";
-      return () => {
-        clearTimeout(timer);
-        document.body.style.overflow = "auto";
-      };
-    }
-  }, [isModalOpen]);
-
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Escape") setIsModalOpen(false);
-    };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    const newParticles = [...Array(30)].map((_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 4 + 2,
+      duration: Math.random() * 10 + 15,
+      delay: Math.random() * 5,
+    }));
+    setParticles(newParticles);
   }, []);
 
-  const cardVariants = {
-    hidden: { opacity: 0, scale: 0.8, y: 100 },
-    visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, type: "spring", stiffness: 100, damping: 15 } },
-    //hover: { rotateX: 5, rotateY: -5, transition: { duration: 0.3, ease: "easeOut" } },
-  };
-
-  const modalVariants = {
-    hidden: { opacity: 0 },
-    visible: { opacity: 1, transition: { staggerChildren: 0.2 } },
-    exit: { opacity: 0, transition: { duration: 0.3 } },
-  };
-
-  const modalContentVariants = {
-    hidden: { scale: 0.8, y: 50, opacity: 0 },
-    visible: { scale: 1, y: 0, opacity: 1, transition: { duration: 0.6, type: "spring" } },
-    exit: { scale: 0.8, opacity: 0, transition: { duration: 0.4 } },
-  };
-
-  const LoadingIndicator = () => (
-    <motion.div
-      style={{ display: "flex", gap: "10px", justifyContent: "center", alignItems: "center", height: "100%" }}
-      transition={{ staggerChildren: 0.15 }}
-      initial="start"
-      animate="end"
-    >
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={i}
-          style={{ width: "15px", height: "60px", background: `linear-gradient(to top, #7c3aed, #00c6ff)`, borderRadius: "5px", boxShadow: "0 0 5px #00c6ff" }}
-          variants={{ start: { y: "0%" }, end: { y: "100%" } }}
-          transition={{ duration: 0.6, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-        />
-      ))}
-    </motion.div>
-  );
-
-  const ButtonShine = ({ isActive }) => (
-    <motion.div
-      style={{
-        position: "absolute",
-        top: 0,
-        left: "-150%",
-        width: "200%",
-        height: "100%",
-        background: "linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.5) 50%, transparent 80%)",
-        transform: "skewX(-25deg)",
-      }}
-      animate={{ left: isActive ? "150%" : "-150%" }}
-      transition={{ duration: 1.2, ease: "easeInOut" }}
-    />
-  );
-
   return (
-    <motion.section
-      style={styles.container}
-      onMouseMove={handleMouseMove}
-      initial="hidden"
-      animate="visible"
-      transition={{ duration: 1.0 }}
+    <div
+      onMouseMove={(e) => setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight })}
+      style={{
+        minHeight: '100vh',
+        background: '#000',
+        color: '#fff',
+        overflow: 'hidden',
+        position: 'relative',
+        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+      }}
     >
-      <Starfield />
+      <style>{`
+        @keyframes float {
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50% { transform: translateY(-30px) rotate(180deg); }
+        }
+        @keyframes pulse-scale {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        @keyframes glow-pulse {
+          0%, 100% { 
+            box-shadow: 0 0 20px rgba(59,130,246,0.5),
+                        0 0 40px rgba(139,92,246,0.3); 
+          }
+          50% { 
+            box-shadow: 0 0 60px rgba(139,92,246,0.9),
+                        0 0 100px rgba(236,72,153,0.6),
+                        0 0 150px rgba(59,130,246,0.4); 
+          }
+        }
+        @keyframes rotate-slow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes shimmer-bg {
+          0% { background-position: -200% center; }
+          100% { background-position: 200% center; }
+        }
+        @keyframes bounce-smooth {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-20px); }
+        }
+        @keyframes fade-in-up {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes orbit {
+          from { 
+            transform: rotate(0deg) translateX(130px) rotate(0deg);
+          }
+          to { 
+            transform: rotate(360deg) translateX(130px) rotate(-360deg);
+          }
+        }
+        .animate-float {
+          animation: float var(--duration, 15s) ease-in-out infinite;
+        }
+        .animate-pulse-scale {
+          animation: pulse-scale 2s ease-in-out infinite;
+        }
+        .animate-glow {
+          animation: glow-pulse 3s ease-in-out infinite;
+        }
+        .animate-rotate {
+          animation: rotate-slow var(--duration, 20s) linear infinite;
+        }
+        .animate-shimmer {
+          background-size: 200% auto;
+          animation: shimmer-bg 3s linear infinite;
+        }
+        .animate-bounce {
+          animation: bounce-smooth 2s ease-in-out infinite;
+        }
+        .animate-fade-in {
+          animation: fade-in-up 0.8s ease-out forwards;
+        }
+        .animate-orbit {
+          animation: orbit var(--duration, 15s) linear infinite;
+        }
+        
+        /* Glassmorphism */
+        .glass {
+          background: rgba(255, 255, 255, 0.05);
+          backdrop-filter: blur(20px);
+          -webkit-backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        .glass-strong {
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(30px);
+          -webkit-backdrop-filter: blur(30px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Hover Effects */
+        .hover-lift {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .hover-lift:hover {
+          transform: translateY(-8px) scale(1.02);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+        .hover-scale {
+          transition: all 0.3s ease;
+        }
+        .hover-scale:hover {
+          transform: scale(1.05);
+        }
+        .hover-glow {
+          transition: all 0.3s ease;
+        }
+        .hover-glow:hover {
+          box-shadow: 0 0 40px currentColor;
+        }
+      `}</style>
 
-      <motion.div style={{ position: "absolute", inset: 0, background: backgroundGradient }} />
+      {/* Animated Background Layer */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
+        {/* Gradient Orbs */}
+        <div
+          className="animate-float"
+          style={{
+            position: 'absolute',
+            width: '800px',
+            height: '800px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(59,130,246,0.4), transparent)',
+            filter: 'blur(150px)',
+            top: '-20%',
+            left: '-10%',
+            transform: `translate(${mousePos.x * 50}px, ${mousePos.y * 50}px)`,
+            transition: 'transform 0.3s ease-out',
+            '--duration': '10s',
+          }}
+        />
+        <div
+          className="animate-float"
+          style={{
+            position: 'absolute',
+            width: '700px',
+            height: '700px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(139,92,246,0.4), transparent)',
+            filter: 'blur(130px)',
+            bottom: '-15%',
+            right: '-10%',
+            transform: `translate(${-mousePos.x * 40}px, ${-mousePos.y * 40}px)`,
+            transition: 'transform 0.3s ease-out',
+            animationDelay: '2s',
+            '--duration': '12s',
+          }}
+        />
+        <div
+          className="animate-float"
+          style={{
+            position: 'absolute',
+            width: '600px',
+            height: '600px',
+            borderRadius: '50%',
+            background: 'radial-gradient(circle, rgba(236,72,153,0.3), transparent)',
+            filter: 'blur(120px)',
+            top: '40%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            animationDelay: '4s',
+            '--duration': '14s',
+          }}
+        />
 
-      <motion.article
-        style={styles.card}
-        variants={cardVariants}
-        whileHover="hover"
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
-      >
-        <div style={styles.cardGlow} />
-        <motion.h2 style={styles.title} variants={{ hidden: { opacity: 0, y: 30 }, visible: { opacity: 1, y: 0, transition: { delay: 0.2, type: "spring" } } }}>
-          My Digital Résumé
-        </motion.h2>
+        {/* Floating Particles */}
+        {particles.map((p) => (
+          <div
+            key={p.id}
+            className="animate-float"
+            style={{
+              position: 'absolute',
+              left: `${p.x}%`,
+              top: `${p.y}%`,
+              width: `${p.size}px`,
+              height: `${p.size}px`,
+              borderRadius: '50%',
+              background: `radial-gradient(circle, ${['#3b82f6', '#8b5cf6', '#ec4899'][p.id % 3]}, transparent)`,
+              '--duration': `${p.duration}s`,
+              animationDelay: `${p.delay}s`,
+            }}
+          />
+        ))}
 
-        <motion.p style={styles.description} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.4, duration: 0.8 } } }}>
-          This is a curated look at my professional journey, showcasing key projects, technical skills, and the collaborative spirit I bring to every challenge.
-        </motion.p>
+        {/* Grid Pattern */}
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            opacity: 0.1,
+            backgroundImage: 'linear-gradient(rgba(59,130,246,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.3) 1px, transparent 1px)',
+            backgroundSize: '100px 100px',
+            transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)`,
+            transition: 'transform 0.3s ease-out',
+          }}
+        />
+      </div>
 
-        <motion.div style={styles.buttonGroup} variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0, transition: { delay: 0.6, duration: 0.8 } } }}>
-          <motion.button
-            style={{ ...styles.button, background: "linear-gradient(90deg, #7c3aed, #00c6ff)" }}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00c6ff" }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => setIsModalOpen(true)}
-            aria-label="Preview Resume"
-          >
-            <motion.span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <FiEye /> Preview
-            </motion.span>
-            <div style={styles.buttonGlow} />
-            <ButtonShine isActive={true} />
-          </motion.button>
+      <div style={{ position: 'relative', maxWidth: '1280px', margin: '0 auto', padding: '80px 16px' }}>
+        {/* Header */}
+        <div className="animate-fade-in" style={{ textAlign: 'center', marginBottom: '64px' }}>
+          <div className="glass" style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            padding: '12px 32px',
+            borderRadius: '9999px',
+            marginBottom: '32px',
+          }}>
+            <FileText className="animate-bounce" style={{ width: '24px', height: '24px', color: '#3b82f6' }} />
+            <span style={{
+              fontSize: '14px',
+              fontWeight: '900',
+              letterSpacing: '0.1em',
+              background: 'linear-gradient(90deg, #3b82f6, #a78bfa)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+            }}>
+              PROFESSIONAL RESUME
+            </span>
+            <Sparkles className="animate-pulse-scale" style={{ width: '20px', height: '20px', color: '#ec4899' }} />
+          </div>
 
-          <motion.a
-            href={resumePDF}
-            download="Bhagavan-Resume.pdf"
-            style={{ ...styles.button, background: "rgba(255, 255, 255, 0.1)", textDecoration: "none" }}
-            whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00c6ff" }}
-            whileTap={{ scale: 0.98 }}
-            aria-label="Download Resume"
-          >
-            <motion.span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "0.75rem" }}>
-              <FiDownload /> Download
-            </motion.span>
-            <div style={styles.buttonGlow} />
-            <ButtonShine isActive={true} />
-          </motion.a>
-        </motion.div>
-      </motion.article>
+          <h1 className="animate-shimmer" style={{
+            fontSize: 'clamp(3rem, 10vw, 7rem)',
+            fontWeight: '900',
+            marginBottom: '24px',
+            background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+          }}>
+            Resume
+          </h1>
+          <p style={{ fontSize: '20px', color: '#9ca3af', maxWidth: '672px', margin: '0 auto' }}>
+            Production-grade engineer with <span style={{ color: '#06b6d4', fontWeight: 'bold' }}>AI/ML</span> & <span style={{ color: '#a78bfa', fontWeight: 'bold' }}>Full-Stack</span> expertise
+          </p>
+        </div>
 
-      <AnimatePresence>
-        {isModalOpen && (
-          <motion.div
-            style={styles.modalOverlay}
-            variants={modalVariants}
-            initial="hidden"
-            animate="visible"
-            exit="exit"
-            onClick={() => setIsModalOpen(false)}
-          >
-            <motion.div
-              style={styles.modalContent}
-              variants={modalContentVariants}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <motion.button
-                style={styles.closeButton}
-                onClick={() => setIsModalOpen(false)}
-                whileHover={{ scale: 1.1, background: "rgba(0, 198, 255, 0.3)", transform: "rotate(90deg)", color: "#00c6ff" }}
-                whileTap={{ scale: 0.9 }}
+        {/* Main Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: window.innerWidth >= 1024 ? '7fr 5fr' : '1fr',
+          gap: '32px',
+          alignItems: 'start',
+        }}>
+          {/* Left Content */}
+          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', animationDelay: '0.2s' }}>
+            {/* Description Card */}
+            <div className="glass hover-lift" style={{ padding: '32px', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
+              <h3 style={{ fontSize: '30px', fontWeight: '900', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <Award className="animate-bounce" style={{ width: '32px', height: '32px', color: '#fbbf24' }} />
+                ATS-Optimized Resume
+              </h3>
+              
+              <p style={{ color: '#d1d5db', lineHeight: '1.75', fontSize: '18px', marginBottom: '24px' }}>
+                Professionally crafted resume highlighting <span style={{ color: '#06b6d4', fontWeight: '600' }}>MERN Stack</span>, <span style={{ color: '#a78bfa', fontWeight: '600' }}>Machine Learning</span>, and <span style={{ color: '#ec4899', fontWeight: '600' }}>production engineering</span>.
+              </p>
+
+              {/* Highlights Grid */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
+                {[
+                  { icon: Award, text: '8.5+ CGPA', color: '#fbbf24' },
+                  { icon: Code, text: '30+ Tech Stack', color: '#06b6d4' },
+                  { icon: Rocket, text: '6 Projects', color: '#a78bfa' },
+                  { icon: Star, text: '13+ Certificates', color: '#ec4899' },
+                ].map((item, i) => (
+                  <div key={i} className="glass hover-scale" style={{ padding: '16px', borderRadius: '12px', cursor: 'pointer' }}>
+                    <item.icon className="hover-glow" style={{ width: '24px', height: '24px', color: item.color, marginBottom: '8px' }} />
+                    <div style={{ color: '#fff', fontWeight: 'bold' }}>{item.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Tech Stack */}
+            <div className="glass hover-lift" style={{ padding: '32px', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
+              <h3 style={{ fontSize: '24px', fontWeight: '900', marginBottom: '32px', textAlign: 'center' }}>
+                Technology Stack
+              </h3>
+              
+              {/* Orbiting Icons */}
+              <div style={{ position: 'relative', height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div className="animate-pulse-scale" style={{
+                  position: 'relative',
+                  zIndex: 10,
+                  width: '96px',
+                  height: '96px',
+                  borderRadius: '50%',
+                  background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '48px',
+                }}>
+                  🚀
+                </div>
+
+                {[
+                  { icon: '⚛️', name: 'React', grad: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
+                  { icon: '🟢', name: 'Node.js', grad: 'linear-gradient(135deg, #34d399, #10b981)' },
+                  { icon: '🍃', name: 'MongoDB', grad: 'linear-gradient(135deg, #10b981, #14b8a6)' },
+                  { icon: '🐍', name: 'Python', grad: 'linear-gradient(135deg, #fbbf24, #f97316)' },
+                  { icon: '🤖', name: 'AI/ML', grad: 'linear-gradient(135deg, #a78bfa, #ec4899)' },
+                  { icon: '📘', name: 'TypeScript', grad: 'linear-gradient(135deg, #3b82f6, #4f46e5)' },
+                ].map((tech, i) => (
+                  <div
+                    key={i}
+                    className="animate-orbit"
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      '--duration': `${15 + i * 2}s`,
+                      animationDelay: `${-i * 2.5}s`,
+                    }}
+                  >
+                    <div className="hover-scale" style={{
+                      width: '64px',
+                      height: '64px',
+                      borderRadius: '16px',
+                      background: tech.grad,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '32px',
+                      cursor: 'pointer',
+                      boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+                    }} title={tech.name}>
+                      {tech.icon}
+                    </div>
+                  </div>
+                ))}
+
+                <div className="animate-rotate" style={{
+                  position: 'absolute',
+                  inset: 0,
+                  border: '2px dashed rgba(255,255,255,0.1)',
+                  borderRadius: '50%',
+                  '--duration': '30s',
+                }} />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+              <a
+                href={RESUME_DOWNLOAD}
+                className="animate-glow hover-lift"
+                style={{
+                  flex: 1,
+                  minWidth: '200px',
+                  padding: '16px 32px',
+                  borderRadius: '16px',
+                  background: 'linear-gradient(90deg, #2563eb, #7c3aed, #db2777)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  fontSize: '18px',
+                  textDecoration: 'none',
+                }}
               >
-                <FiX size={24} />
-              </motion.button>
+                <Download style={{ width: '24px', height: '24px' }} />
+                Download Resume
+              </a>
 
-              <div style={{ position: "absolute", top: "1.5rem", left: "1.5rem", color: "#9ca3af", fontSize: "0.9rem", zIndex: 5 }}>
-                Press 'Esc' to close
-              </div>
+              <button
+                onClick={() => setShowModal(true)}
+                className="glass-strong hover-lift"
+                style={{
+                  flex: 1,
+                  minWidth: '200px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '12px',
+                  padding: '16px 32px',
+                  borderRadius: '16px',
+                  fontWeight: 'bold',
+                  fontSize: '18px',
+                  color: '#fff',
+                  cursor: 'pointer',
+                }}
+              >
+                <Eye className="animate-pulse-scale" style={{ width: '24px', height: '24px' }} />
+                View Full Size
+              </button>
+            </div>
+          </div>
 
-              <div style={{ flex: 1, marginTop: "3.5rem", borderRadius: "8px", overflow: "hidden" }}>
-                {isLoading ? (
-                  <LoadingIndicator />
-                ) : (
-                  <motion.iframe
-                    src={`${resumePDF}#toolbar=0&navpanes=0&scrollbar=0`}
-                    title="Bhagavan's Resume Viewer"
-                    frameBorder="0"
-                    style={{ width: "100%", height: "100%", border: "none" }}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0, transition: { duration: 0.5, delay: 0.2 } }}
-                  />
-                )}
+          {/* Right Preview */}
+          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div style={{ position: 'sticky', top: '96px' }}>
+              <div style={{ position: 'relative' }}>
+                {/* Rotating Glow */}
+                <div className="animate-rotate" style={{
+                  position: 'absolute',
+                  inset: '-8px',
+                  borderRadius: '24px',
+                  background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
+                  filter: 'blur(40px)',
+                  opacity: 0.75,
+                  '--duration': '4s',
+                }} />
+
+                {/* Card */}
+                <div style={{ position: 'relative', borderRadius: '24px', background: '#000', border: '2px solid rgba(255,255,255,0.2)', overflow: 'hidden' }}>
+                  {/* Badges */}
+                  <div className="animate-glow" style={{
+                    position: 'absolute',
+                    top: '16px',
+                    left: '16px',
+                    zIndex: 20,
+                    padding: '8px 16px',
+                    borderRadius: '9999px',
+                    background: 'linear-gradient(90deg, #10b981, #059669)',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}>
+                    <CheckCircle style={{ width: '16px', height: '16px' }} />
+                    ATS Score: 87%
+                  </div>
+
+                  <div style={{
+                    position: 'absolute',
+                    top: '16px',
+                    right: '16px',
+                    zIndex: 20,
+                    padding: '8px 16px',
+                    borderRadius: '9999px',
+                    background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
+                    color: '#fff',
+                    fontSize: '14px',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                  }}>
+                    <div className="animate-pulse-scale" style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399' }} />
+                    Live Preview
+                  </div>
+
+                  {/* Resume Preview */}
+                  <div style={{ position: 'relative', aspectRatio: '8.5/11', background: 'linear-gradient(135deg, #111827, #000)' }}>
+                    <iframe
+                      src={RESUME_URL}
+                      style={{ width: '100%', height: '100%', border: 'none' }}
+                      title="Resume Preview"
+                    />
+                  </div>
+
+                  {/* Stats */}
+                  <div className="glass" style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', textAlign: 'center' }}>
+                      {[
+                        { icon: TrendingUp, value: '100+', label: 'Problems', color: '#34d399' },
+                        { icon: Star, value: '4★', label: 'Rating', color: '#fbbf24' },
+                        { icon: Rocket, value: '6+', label: 'Projects', color: '#a78bfa' },
+                      ].map((stat, i) => (
+                        <div key={i} className="hover-scale" style={{ cursor: 'pointer' }}>
+                          <stat.icon className="animate-bounce" style={{ width: '20px', height: '20px', color: stat.color, margin: '0 auto 4px' }} />
+                          <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{stat.value}</div>
+                          <div style={{ fontSize: '12px', color: '#9ca3af' }}>{stat.label}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </motion.section>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Fullscreen Modal */}
+      {showModal && (
+        <div
+          onClick={() => setShowModal(false)}
+          className="animate-fade-in"
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 50,
+            background: 'rgba(0,0,0,0.95)',
+            backdropFilter: 'blur(24px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              maxWidth: '1152px',
+              width: '100%',
+              borderRadius: '24px',
+              overflow: 'hidden',
+              border: '4px solid rgba(255,255,255,0.2)',
+              boxShadow: '0 50px 100px rgba(0,0,0,0.5)',
+            }}
+          >
+            <iframe
+              src={RESUME_URL}
+              style={{ width: '100%', height: '85vh', border: 'none' }}
+              title="Resume Fullscreen"
+            />
+            
+            <button
+              onClick={() => setShowModal(false)}
+              className="hover-scale"
+              style={{
+                position: 'absolute',
+                top: '16px',
+                right: '16px',
+                padding: '16px',
+                background: 'linear-gradient(90deg, #ef4444, #ec4899)',
+                borderRadius: '50%',
+                color: '#fff',
+                border: 'none',
+                cursor: 'pointer',
+              }}
+            >
+              <ExternalLink style={{ width: '24px', height: '24px', transform: 'rotate(45deg)' }} />
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
   );
-};
-
-export default Resume;
-
+}

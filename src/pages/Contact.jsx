@@ -1,673 +1,961 @@
-import React, { useRef, useState, useEffect, useCallback, useMemo } from "react";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
-import emailjs from "@emailjs/browser";
-import { FaLinkedin, FaGithub, FaEnvelope, FaTwitter, FaStar } from "react-icons/fa";
-import { FiX, FiSend } from "react-icons/fi";
+// Contact.jsx
+import { useState, useEffect } from "react";
+import {
+  Mail,
+  Phone,
+  Send,
+  Check,
+  Linkedin,
+  Github,
+  Twitter,
+  Code,
+  Zap,
+  MessageCircle,
+  User,
+  ArrowRight,
+  Sparkles,
+  Award,
+  Target,
+} from "lucide-react";
 
-// Custom Debounce Function
-const debounce = (func, wait) => {
-  let timeout;
-  return (...args) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-};
-
-// Starfield Component (from Resume.jsx)
-const Starfield = ({ starCount = 120 }) => {
-  return (
-    <div style={{ position: "absolute", top: 0, left: 0, right: 0, bottom: 0, zIndex: -1 }}>
-      {[...Array(starCount)].map((_, i) => {
-        const size = Math.random() * 2 + 1;
-        const duration = Math.random() * 2 + 1;
-        return (
-          <motion.div
-            key={`star-${i}`}
-            style={{
-              position: "absolute",
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: size,
-              height: size,
-              background: "white",
-              borderRadius: "50%",
-              boxShadow: "0 0 5px rgba(255, 255, 255, 0.3)",
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0, 0.5] }}
-            transition={{
-              duration: duration,
-              repeat: Infinity,
-              repeatType: "loop",
-              delay: Math.random() * 3,
-            }}
-          />
-        );
-      })}
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={`comet-${i}`}
-          style={{
-            position: "absolute",
-            width: 2,
-            height: 2,
-            background: "rgba(255, 255, 255, 0.8)",
-            borderRadius: "50%",
-            boxShadow: "0 0 10px rgba(255, 255, 255, 0.5)",
-          }}
-          initial={{ x: "100%", y: `${Math.random() * 100}%`, opacity: 0 }}
-          animate={{
-            x: "-100%",
-            opacity: [0, 1, 0],
-            transition: { duration: 3 + i * 0.5, repeat: Infinity, ease: "linear" },
-          }}
-        />
-      ))}
-    </div>
-  );
-};
-
-// Button Shine Component (from Resume.jsx)
-const ButtonShine = ({ isActive }) => (
-  <motion.div
-    style={{
-      position: "absolute",
-      top: 0,
-      left: "-150%",
-      width: "200%",
-      height: "100%",
-      background: "linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.5) 50%, transparent 80%)",
-      transform: "skewX(-25deg)",
-    }}
-    animate={{ left: isActive ? "150%" : "-150%" }}
-    transition={{ duration: 1.2, ease: "easeInOut" }}
-  />
-);
-
-// Styles (aligned with Resume.jsx)
-const styles = {
-  container: {
-    minHeight: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "clamp(2rem, 5vw, 5rem) clamp(1rem, 2vw, 3rem)",
-    background: "linear-gradient(135deg, #050214, #1a0033, #2a0055)",
-    backgroundSize: "200% 200%",
-    animation: "bgShift 10s ease infinite",
-    color: "#e0e7ff",
-    overflow: "hidden",
-    position: "relative",
-    perspective: "1200px",
-  },
-  card: {
-    background: "rgba(12, 5, 32, 0.6)",
-    backdropFilter: "blur(20px) saturate(180%)",
-    width: "clamp(300px, 90vw, 900px)",
-    borderRadius: "24px",
-    padding: "clamp(2rem, 4vw, 4rem)",
-    textAlign: "center",
-    position: "relative",
-    transformStyle: "preserve-3d",
-    border: "1px solid rgba(124, 58, 237, 0.2)",
-    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.4)",
-  },
-  cardGlow: {
-    position: "absolute",
-    inset: 0,
-    borderRadius: "24px",
-    padding: "2px",
-    background: "linear-gradient(135deg, rgba(124, 58, 237, 0.5), rgba(91, 33, 182, 0.2))",
-    WebkitMask: "linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)",
-    WebkitMaskComposite: "xor",
-    maskComposite: "exclude",
-    pointerEvents: "none",
-    animation: "holographicPulse 2s infinite alternate",
-  },
-  title: {
-    fontSize: "clamp(2.2rem, 4.5vw, 3.8rem)",
-    fontWeight: "900",
-    marginBottom: "clamp(1rem, 2vw, 1.5rem)",
-    color: "transparent",
-    background: "linear-gradient(90deg, #a78bfa, #c4b5fd, #ffffff)",
-    backgroundClip: "text",
-    WebkitBackgroundClip: "text",
-    textShadow: "0 0 30px rgba(167, 139, 250, 0.6)",
-  },
-  description: {
-    fontSize: "clamp(1.1rem, 2vw, 1.3rem)",
-    color: "#d1d5db",
-    maxWidth: "700px",
-    margin: "0 auto clamp(2rem, 4vw, 3rem)",
-    lineHeight: 1.8,
-    textShadow: "0 0 10px rgba(167, 139, 250, 0.3)",
-  },
-  form: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "clamp(0.8rem, 1.8vw, 1.2rem)",
-    width: "100%",
-    maxWidth: "clamp(400px, 75vw, 500px)",
-    margin: "0 auto",
-  },
-  input: {
-    padding: "clamp(0.8rem, 1.5vw, 1.2rem)",
-    fontSize: "clamp(0.9rem, 1.8vw, 1.1rem)",
-    border: "1px solid rgba(124, 58, 237, 0.4)",
-    borderRadius: "clamp(12px, 1.8vw, 16px)",
-    background: "rgba(255, 255, 255, 0.05)",
-    color: "#e0e7ff",
-    outline: "none",
-    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
-    boxShadow: "inset 0 0 5px rgba(124, 58, 237, 0.2)",
-  },
-  textarea: {
-    padding: "clamp(0.8rem, 1.5vw, 1.2rem)",
-    fontSize: "clamp(0.9rem, 1.8vw, 1.1rem)",
-    border: "1px solid rgba(124, 58, 237, 0.4)",
-    borderRadius: "clamp(12px, 1.8vw, 16px)",
-    background: "rgba(255, 255, 255, 0.05)",
-    color: "#e0e7ff",
-    outline: "none",
-    minHeight: "clamp(100px, 20vw, 140px)",
-    transition: "border-color 0.3s ease, box-shadow 0.3s ease",
-    boxShadow: "inset 0 0 5px rgba(124, 58, 237, 0.2)",
-  },
-  button: {
-    padding: "clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.5rem, 2.5vw, 2.5rem)",
-    border: "none",
-    borderRadius: "50px",
-    fontSize: "clamp(1rem, 2vw, 1.2rem)",
-    fontWeight: "600",
-    color: "#fff",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    position: "relative",
-    overflow: "hidden",
-    background: "linear-gradient(90deg, #7c3aed, #00c6ff)",
-    boxShadow: "0 0 10px rgba(124, 58, 237, 0.4)",
-  },
-  buttonDisabled: {
-    opacity: 0.6,
-    cursor: "not-allowed",
-  },
-  resetButton: {
-    padding: "clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.5rem, 2.5vw, 2.5rem)",
-    border: "none",
-    borderRadius: "50px",
-    fontSize: "clamp(1rem, 2vw, 1.2rem)",
-    fontWeight: "600",
-    color: "#fff",
-    cursor: "pointer",
-    display: "flex",
-    alignItems: "center",
-    gap: "0.75rem",
-    position: "relative",
-    overflow: "hidden",
-    background: "rgba(255, 255, 255, 0.1)",
-    boxShadow: "0 0 10px rgba(124, 58, 237, 0.4)",
-  },
-  buttonGlow: {
-    position: "absolute",
-    top: 0,
-    left: "-100%",
-    width: "200%",
-    height: "100%",
-    background: "linear-gradient(90deg, rgba(0, 198, 255, 0.3), rgba(124, 58, 237, 0.3), transparent)",
-    transform: "skewX(-30deg)",
-    animation: "shinePulse 1.5s infinite",
-  },
-  socialContainer: {
-    display: "flex",
-    gap: "clamp(1rem, 3vw, 2rem)",
-    justifyContent: "center",
-    marginTop: "clamp(1rem, 2.5vw, 1.5rem)",
-  },
-  socialIcon: {
-    fontSize: "clamp(1.5rem, 3vw, 2rem)",
-    color: "#fff",
-    transition: "transform 0.3s ease, color 0.3s ease",
-    position: "relative",
-  },
-  tooltip: {
-    position: "absolute",
-    top: "-clamp(2rem, 4vw, 2.5rem)",
-    background: "rgba(12, 5, 32, 0.95)",
-    color: "#e0e7ff",
-    padding: "clamp(0.3rem, 0.8vw, 0.5rem) clamp(0.6rem, 1.2vw, 0.8rem)",
-    borderRadius: "clamp(6px, 1vw, 8px)",
-    fontSize: "clamp(0.8rem, 1.5vw, 0.9rem)",
-    boxShadow: "0 0 10px rgba(124, 58, 237, 0.4)",
-    zIndex: 10,
-    whiteSpace: "nowrap",
-  },
-  feedback: {
-    marginTop: "clamp(0.8rem, 1.8vw, 1.2rem)",
-    padding: "clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)",
-    background: "rgba(124, 58, 237, 0.2)",
-    border: "1px solid rgba(124, 58, 237, 0.4)",
-    borderRadius: "clamp(12px, 1.8vw, 16px)",
-    color: "#e0e7ff",
-    fontSize: "clamp(0.9rem, 1.8vw, 1.1rem)",
-    textAlign: "center",
-  },
-  error: {
-    marginTop: "clamp(0.8rem, 1.8vw, 1.2rem)",
-    padding: "clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)",
-    background: "rgba(255, 85, 85, 0.2)",
-    border: "1px solid rgba(255, 85, 85, 0.4)",
-    borderRadius: "clamp(12px, 1.8vw, 16px)",
-    color: "#ff5555",
-    fontSize: "clamp(0.9rem, 1.8vw, 1.1rem)",
-    textAlign: "center",
-  },
-  charCounter: {
-    fontSize: "clamp(0.8rem, 1.5vw, 0.9rem)",
-    color: "#e0e7ff",
-    textAlign: "right",
-    marginTop: "clamp(0.3rem, 0.8vw, 0.5rem)",
-    textShadow: "0 0 10px rgba(124, 58, 237, 0.4)",
-  },
-  spinner: {
-    display: "inline-block",
-    width: "clamp(1rem, 2vw, 1.2rem)",
-    height: "clamp(1rem, 2vw, 1.2rem)",
-    border: "2px solid rgba(124, 58, 237, 0.3)",
-    borderTop: "2px solid #7c3aed",
-    borderRadius: "50%",
-    animation: "spin 0.7s linear infinite",
-    marginRight: "clamp(0.3rem, 0.8vw, 0.5rem)",
-  },
-  responsive: {
-    large: {
-      container: { padding: "clamp(2rem, 5vw, 5rem) clamp(1rem, 2vw, 3rem)" },
-      card: { padding: "clamp(2rem, 4vw, 4rem)", width: "clamp(300px, 90vw, 900px)" },
-      title: { fontSize: "clamp(2.2rem, 4.5vw, 3.8rem)" },
-      description: { fontSize: "clamp(1.1rem, 2vw, 1.3rem)", maxWidth: "700px" },
-      input: { padding: "clamp(0.8rem, 1.5vw, 1.2rem)" },
-      button: { padding: "clamp(0.8rem, 1.5vw, 1.2rem) clamp(1.5rem, 2.5vw, 2.5rem)" },
-    },
-    medium: {
-      container: { padding: "clamp(1.5rem, 4vw, 4rem) clamp(0.8rem, 1.8vw, 2rem)" },
-      card: { padding: "clamp(1.8rem, 3vw, 3rem)", width: "clamp(280px, 85vw, 700px)" },
-      title: { fontSize: "clamp(1.8rem, 4vw, 3rem)" },
-      description: { fontSize: "clamp(1rem, 1.8vw, 1.2rem)", maxWidth: "600px" },
-      input: { padding: "clamp(0.6rem, 1.2vw, 1rem)" },
-      button: { padding: "clamp(0.6rem, 1.2vw, 1rem) clamp(1.2rem, 2vw, 2rem)" },
-    },
-    small: {
-      container: { padding: "clamp(1rem, 3vw, 3rem) clamp(0.6rem, 1.5vw, 1.5rem)" },
-      card: { padding: "clamp(1.5rem, 2.5vw, 2.5rem)", width: "clamp(260px, 90vw, 500px)" },
-      title: { fontSize: "clamp(1.6rem, 3.5vw, 2.5rem)" },
-      description: { fontSize: "clamp(0.9rem, 1.6vw, 1.1rem)", maxWidth: "500px" },
-      input: { padding: "clamp(0.5rem, 1vw, 0.8rem)" },
-      button: { padding: "clamp(0.5rem, 1vw, 0.8rem) clamp(1rem, 1.8vw, 1.5rem)" },
-    },
-  },
-};
-
-// Animation Styles (aligned with Resume.jsx)
-const animationStyles = `
-  @keyframes bgShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 200% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-  @keyframes holographicPulse {
-    0%, 100% { opacity: 0.5; }
-    50% { opacity: 0.9; }
-  }
-  @keyframes shinePulse {
-    0% { left: -150%; }
-    100% { left: 150%; }
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-`;
-
-// Animation Variants (aligned with Resume.jsx)
-const cardVariants = {
-  hidden: { opacity: 0, scale: 0.8, y: 100 },
-  visible: { opacity: 1, scale: 1, y: 0, transition: { duration: 0.8, type: "spring", stiffness: 100, damping: 15 } },
-  //hover: { rotateX: 5, rotateY: -5, transition: { duration: 0.3, ease: "easeOut" } },
-};
-
-const formChildVariants = {
-  hidden: { opacity: 0, y: 20 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.8, delay: 0.2 } },
-};
-
-const socialVariants = {
-  hidden: { opacity: 0, scale: 0.8 },
-  visible: { opacity: 1, scale: 1, transition: { duration: 0.4, delay: 0.4 } },
-};
-
-const feedbackVariants = {
-  hidden: { opacity: 0, y: 10 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.3 } },
-};
-
-// Social Links Data
-const socialLinks = [
-  { icon: <FaEnvelope />, link: "mailto:g.sivasatyasaibhagavan@gmail.com", label: "Email", key: "email" },
-  { icon: <FaLinkedin />, link: "https://www.linkedin.com/in/siva-satya-sai-bhagavan-gopalajosyula-1624a027b/", label: "LinkedIn", key: "linkedin" },
-  { icon: <FaGithub />, link: "https://github.com/bhagavan444", label: "GitHub", key: "github" },
-  { icon: <FaTwitter />, link: "https://twitter.com/", label: "Twitter", key: "twitter" },
-];
-
-const Contact = () => {
-  const form = useRef();
-  const [isSent, setIsSent] = useState(false);
+export default function Contact() {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
-  const [emailError, setEmailError] = useState("");
-  const [formError, setFormError] = useState("");
-  const [messageLength, setMessageLength] = useState(0);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const maxMessageLength = 500;
+  const [submitStatus, setSubmitStatus] = useState("idle");
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [focusedField, setFocusedField] = useState(null);
 
-  const backgroundGradient = useTransform(
-    [mouseX, mouseY],
-    ([latestX, latestY]) =>
-      `radial-gradient(circle at ${latestX + window.innerWidth / 2}px ${
-        latestY + window.innerHeight / 2
-      }px, rgba(0, 198, 255, 0.25), transparent 40%)`
-  );
+  // Typing animation
+  const [currentText, setCurrentText] = useState("");
+  const [charIndex, setCharIndex] = useState(0);
+  const [textIndex, setTextIndex] = useState(0);
 
-  const handleMouseMove = useCallback((e) => {
-    mouseX.set(e.clientX - window.innerWidth / 2);
-    mouseY.set(e.clientY - window.innerHeight / 2);
-  }, [mouseX, mouseY]);
-
-  const handleResize = useCallback(
-    debounce(() => setWindowWidth(window.innerWidth), 100),
-    []
-  );
+  const texts = [
+    "Let's build something amazing together!",
+    "Ready to collaborate on your next project?",
+    "Share your ideas - I'm all ears!",
+    "Connect and let's create magic 🚀",
+  ];
 
   useEffect(() => {
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [handleResize]);
-
-  const isValidGmail = useCallback((email) => {
-    const gmailRegex = /^[a-zA-Z0-9._%+-]+@gmail\.com$/;
-    return gmailRegex.test(email);
-  }, []);
-
-  const handleMessageChange = useCallback((e) => {
-    setMessageLength(e.target.value.length);
-  }, []);
-
-  const resetForm = useCallback(() => {
-    form.current.reset();
-    setIsSent(false);
-    setEmailError("");
-    setFormError("");
-    setMessageLength(0);
-  }, []);
-
-  const sendEmail = useCallback(
-    (e) => {
-      e.preventDefault();
-      const emailInput = form.current.user_email.value;
-      const messageInput = form.current.message.value;
-
-      if (!isValidGmail(emailInput)) {
-        setEmailError("Please use a valid Gmail address (e.g., example@gmail.com)");
-        return;
+    const timer = setTimeout(() => {
+      if (charIndex < texts[textIndex].length) {
+        setCharIndex(charIndex + 1);
+      } else {
+        setTimeout(() => {
+          setCharIndex(0);
+          setTextIndex((textIndex + 1) % texts.length);
+        }, 3000);
       }
-      if (messageInput.length > maxMessageLength) {
-        setFormError(`Message exceeds ${maxMessageLength} character limit`);
-        return;
-      }
-      setEmailError("");
-      setFormError("");
-      setIsSubmitting(true);
+    }, 100);
 
-      emailjs
-        .sendForm("service_8pg8cek", "template_1ys1isn", form.current, "GOTwySQukEpQEuRa5")
-        .then(() => {
-          setIsSent(true);
-          setIsSubmitting(false);
-          resetForm();
-        }, (error) => {
-          setFormError(`Failed to send message: ${error.text || "Unknown error"}`);
-          setIsSubmitting(false);
-        });
+    setCurrentText(texts[textIndex].slice(0, charIndex));
+
+    return () => clearTimeout(timer);
+  }, [charIndex, textIndex]);
+
+  const handleMouseMove = (e) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+    });
+  };
+
+  const handleSubmit = async () => {
+    setIsSubmitting(true);
+    await new Promise((resolve) => setTimeout(resolve, 2000));
+    setSubmitStatus("success");
+    setFormData({ name: "", email: "", subject: "", message: "" });
+    setTimeout(() => setSubmitStatus("idle"), 4000);
+    setIsSubmitting(false);
+  };
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({
+      ...prev,
+      [e.target.name]: e.target.value,
+    }));
+  };
+
+  const techStack = [
+    { icon: Code, label: "React", color: "#60a5fa" },
+    { icon: Zap, label: "JavaScript", color: "#fbbf24" },
+    { icon: Target, label: "Node.js", color: "#34d399" },
+    { icon: Award, label: "Tailwind", color: "#22d3ee" },
+    { icon: Sparkles, label: "Next.js", color: "#c084fc" },
+  ];
+
+  const socialLinks = [
+    {
+      icon: Github,
+      label: "GitHub",
+      href: "https://github.com/bhagavan444",
+      color: "#6b7280",
+      stats: "8+ Repos",
     },
-    [isValidGmail, resetForm]
-  );
-
-  const responsiveStyles = useMemo(
-    () =>
-      windowWidth <= 480
-        ? styles.responsive.small
-        : windowWidth <= 768
-        ? styles.responsive.medium
-        : styles.responsive.large,
-    [windowWidth]
-  );
+    {
+      icon: Linkedin,
+      label: "LinkedIn",
+      href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/",
+      color: "#3b82f6",
+      stats: "Connect",
+    },
+    {
+      icon: Twitter,
+      label: "Twitter",
+      href: "https://twitter.com/bhagavan444",
+      color: "#60a5fa",
+      stats: "Follow",
+    },
+    {
+      icon: Mail,
+      label: "Email",
+      href: "mailto:g.sivasatyasaibhagavan@gmail.com",
+      color: "#ef4444",
+      stats: "Direct",
+    },
+  ];
 
   return (
-    <motion.section
-      style={{ ...styles.container, ...responsiveStyles.container }}
-      onMouseMove={handleMouseMove}
-      initial="hidden"
-      animate="visible"
-      transition={{ duration: 1.0 }}
-      role="region"
-      aria-label="Contact section"
+    <section
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        padding: "80px 24px",
+        background: "linear-gradient(135deg, #020617, #0f172a, #020617)",
+        overflow: "hidden",
+      }}
     >
-      <style>{animationStyles}</style>
-      <Starfield />
-      <motion.div style={{ position: "absolute", inset: 0, background: backgroundGradient }} />
-      <motion.article
-        style={{ ...styles.card, ...responsiveStyles.card }}
-        variants={cardVariants}
-        
-      >
-        <div style={styles.cardGlow} />
-        <motion.h2
-          style={{ ...styles.title, ...responsiveStyles.title }}
-          variants={formChildVariants}
-        >
-          <FaStar style={{ fontSize: "clamp(1.8rem, 3vw, 2.2rem)" }} />
-          Connect With Me
-        </motion.h2>
-        <motion.p
-          style={{ ...styles.description, ...responsiveStyles.description }}
-          variants={formChildVariants}
-        >
-          I'm thrilled to connect with you! Whether it's a project idea, a question, or just a friendly chat, I'm all ears. Let's create something amazing together.
-        </motion.p>
-        <motion.form
-          ref={form}
-          onSubmit={sendEmail}
-          style={styles.form}
-          variants={formChildVariants}
-          role="form"
-          aria-label="Contact form"
-        >
-          {[
-            { type: "text", name: "user_name", placeholder: "Full Name", label: "Full Name" },
-            { type: "email", name: "user_email", placeholder: "Email Address", label: "Email Address" },
-          ].map((input) => (
-            <motion.input
-              key={input.name}
-              type={input.type}
-              name={input.name}
-              placeholder={input.placeholder}
-              required
-              style={{
-                ...styles.input,
-                ...responsiveStyles.input,
-                borderColor: emailError && input.name === "user_email" ? "#ff5555" : undefined,
-              }}
-              whileFocus={{
-                scale: 1.02,
-                boxShadow: "0 0 15px rgba(124, 58, 237, 0.6)",
-                borderColor: "#7c3aed",
-              }}
-              variants={formChildVariants}
-              aria-label={input.label}
-            />
-          ))}
-          {emailError && (
-            <motion.p
-              style={styles.error}
-              variants={formChildVariants}
-              role="alert"
-            >
-              {emailError}
-            </motion.p>
-          )}
-          <motion.textarea
-            name="message"
-            placeholder="Your Message"
-            required
-            style={{
-              ...styles.textarea,
-              borderColor: messageLength > maxMessageLength ? "#ff5555" : undefined,
-            }}
-            whileFocus={{
-              scale: 1.01,
-              boxShadow: "0 0 15px rgba(124, 58, 237, 0.6)",
-              borderColor: "#7c3aed",
-            }}
-            variants={formChildVariants}
-            onChange={handleMessageChange}
-            maxLength={maxMessageLength}
-            aria-label="Message"
-          />
-          <motion.p
-            style={{
-              ...styles.charCounter,
-              color: messageLength > maxMessageLength ? "#ff5555" : "#e0e7ff",
-            }}
-            variants={formChildVariants}
-          >
-            {messageLength}/{maxMessageLength} characters
-          </motion.p>
-          {formError && (
-            <motion.p
-              style={styles.error}
-              variants={formChildVariants}
-              role="alert"
-            >
-              {formError}
-            </motion.p>
-          )}
-          <motion.div
-            style={{ display: "flex", gap: "clamp(1rem, 3vw, 2rem)", flexWrap: "wrap", justifyContent: "center" }}
-            variants={formChildVariants}
-          >
-            <motion.button
-              type="submit"
-              style={{
-                ...styles.button,
-                ...responsiveStyles.button,
-                ...(isSubmitting ? styles.buttonDisabled : {}),
-              }}
-              whileHover={!isSubmitting ? { scale: 1.05, boxShadow: "0 0 15px #00c6ff" } : {}}
-              whileTap={!isSubmitting ? { scale: 0.98 } : {}}
-              variants={formChildVariants}
-              disabled={isSubmitting}
-              aria-label="Send message"
-            >
-              <motion.span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                {isSubmitting ? (
-                  <>
-                    <span style={styles.spinner} />
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <FiSend style={{ marginRight: "clamp(0.3rem, 0.8vw, 0.5rem)" }} />
-                    Send Message
-                  </>
-                )}
-              </motion.span>
-              <div style={styles.buttonGlow} />
-              <ButtonShine isActive={!isSubmitting} />
-            </motion.button>
-            <motion.button
-              type="button"
-              style={{
-                ...styles.resetButton,
-                ...responsiveStyles.button,
-              }}
-              whileHover={{ scale: 1.05, boxShadow: "0 0 15px #00c6ff" }}
-              whileTap={{ scale: 0.98 }}
-              variants={formChildVariants}
-              onClick={resetForm}
-              aria-label="Reset form"
-            >
-              <motion.span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "0.75rem" }}>
-                <FiX style={{ marginRight: "clamp(0.3rem, 0.8vw, 0.5rem)" }} />
-                Reset Form
-              </motion.span>
-              <div style={styles.buttonGlow} />
-              <ButtonShine isActive={true} />
-            </motion.button>
-          </motion.div>
-        </motion.form>
-        <motion.div
-          style={{ ...styles.socialContainer, ...responsiveStyles.socialContainer }}
-          variants={socialVariants}
-        >
-          {socialLinks.map((social) => (
-            <motion.a
-              key={social.key}
-              href={social.link}
-              target="_blank"
-              rel="noreferrer"
-              style={styles.socialIcon}
-              whileHover={{ scale: 1.2, boxShadow: "0 0 15px #00c6ff" }}
-              whileTap={{ scale: 0.95 }}
-              variants={socialVariants}
-              aria-label={`Visit my ${social.label} profile`}
-            >
-              {social.icon}
-              <motion.span
-                style={styles.tooltip}
-                initial={{ opacity: 0, y: 10 }}
-                whileHover={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-              >
-                {social.label}
-              </motion.span>
-            </motion.a>
-          ))}
-        </motion.div>
-        <motion.p
-          style={{ ...styles.description, ...responsiveStyles.description, marginTop: "clamp(1rem, 2.5vw, 1.5rem)" }}
-          variants={formChildVariants}
-        >
-          Thanks for reaching out! I’m always eager to explore new opportunities and collaborations. Expect a reply soon!
-        </motion.p>
-        <AnimatePresence>
-          {isSent && (
-            <motion.div
-              style={styles.feedback}
-              variants={feedbackVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              role="alert"
-            >
-              ✅ Message sent successfully!
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.article>
-    </motion.section>
-  );
-};
+      {/* Animated Background Orbs */}
+      <div
+        style={{
+          position: "absolute",
+          top: "25%",
+          left: "25%",
+          width: "384px",
+          height: "384px",
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, rgba(99,102,241,0.2), rgba(168,85,247,0.2))",
+          filter: "blur(64px)",
+          animation: "floatSlow 20s ease-in-out infinite",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          top: "33%",
+          right: "25%",
+          width: "384px",
+          height: "384px",
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, rgba(34,211,238,0.2), rgba(59,130,246,0.2))",
+          filter: "blur(64px)",
+          animation: "floatSlower 25s ease-in-out infinite",
+        }}
+      />
+      <div
+        style={{
+          position: "absolute",
+          bottom: "25%",
+          left: "33%",
+          width: "384px",
+          height: "384px",
+          borderRadius: "50%",
+          background: "linear-gradient(135deg, rgba(236,72,153,0.15), rgba(244,63,94,0.15))",
+          filter: "blur(64px)",
+          animation: "floatMedium 22s ease-in-out infinite",
+        }}
+      />
 
-export default React.memo(Contact);
+      {/* Subtle Grid Pattern */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          opacity: 0.1,
+          backgroundImage: `
+            linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px)
+          `,
+          backgroundSize: "60px 60px",
+        }}
+      />
+
+      {/* Floating Particles */}
+      <div style={{ position: "absolute", inset: 0, pointerEvents: "none" }}>
+        {[...Array(20)].map((_, i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              width: "4px",
+              height: "4px",
+              borderRadius: "50%",
+              background: "linear-gradient(90deg, #6366f1, #a855f7)",
+              opacity: 0.4,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              animation: `floatParticle ${10 + i * 2}s ease-in-out infinite`,
+              animationDelay: `${i * 0.5}s`,
+            }}
+          />
+        ))}
+      </div>
+
+      <div style={{ position: "relative", zIndex: 10, maxWidth: "1400px", margin: "0 auto" }}>
+        {/* Header */}
+        <div
+          style={{
+            textAlign: "center",
+            marginBottom: "80px",
+            opacity: 0,
+            transform: "translateY(60px)",
+            animation: "fadeInUp 1s ease-out 0.4s forwards",
+          }}
+        >
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "12px",
+              padding: "12px 24px",
+              borderRadius: "9999px",
+              background: "linear-gradient(90deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1), rgba(236,72,153,0.1))",
+              border: "2px solid rgba(99,102,241,0.2)",
+              backdropFilter: "blur(24px)",
+              marginBottom: "32px",
+              boxShadow: "0 0 40px rgba(99,102,241,0.2)",
+              animation: "glow 3s ease-in-out infinite",
+            }}
+          >
+            <Zap size={20} color="#6366f1" />
+            <span
+              style={{
+                fontSize: "14px",
+                fontWeight: "bold",
+                background: "linear-gradient(90deg, #a5f3fc, #e9d5ff, #fecaca)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                letterSpacing: "0.1em",
+              }}
+            >
+              OPEN TO COLLABORATE
+            </span>
+            <div style={{ position: "relative", width: "8px", height: "8px" }}>
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "50%",
+                  backgroundColor: "#6366f1",
+                  animation: "pingSmooth 2s cubic-bezier(0,0,0.2,1) infinite",
+                }}
+              />
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "50%",
+                  backgroundColor: "#6366f1",
+                }}
+              />
+            </div>
+          </div>
+
+          <h1
+            style={{
+              fontSize: "clamp(3.5rem, 10vw, 7rem)",
+              fontWeight: "900",
+              lineHeight: 1.1,
+              marginBottom: "24px",
+              animation: "titleReveal 1.2s cubic-bezier(0.16,1,0.3,1) forwards",
+            }}
+          >
+            <span style={{ display: "block", color: "white", textShadow: "0 0 20px rgba(255,255,255,0.3)" }}>
+              GET IN
+            </span>
+            <span
+              style={{
+                display: "block",
+                background: "linear-gradient(90deg, #6366f1, #a855f7, #ec4899)",
+                WebkitBackgroundClip: "text",
+                WebkitTextFillColor: "transparent",
+                backgroundSize: "200%",
+                animation: "bgAnimate 6s ease infinite",
+              }}
+            >
+              TOUCH
+            </span>
+          </h1>
+
+          <div style={{ maxWidth: "672px", margin: "0 auto" }}>
+            <p
+              style={{
+                fontSize: "clamp(1.25rem, 4vw, 1.75rem)",
+                color: "#cbd5e1",
+                fontWeight: "500",
+              }}
+            >
+              {currentText}
+              <span
+                style={{
+                  display: "inline-block",
+                  width: "3px",
+                  height: "1.4em",
+                  background: "linear-gradient(to bottom, #6366f1, #a855f7)",
+                  animation: "cursorBlink 1s step-end infinite",
+                  marginLeft: "4px",
+                  verticalAlign: "middle",
+                }}
+              />
+            </p>
+          </div>
+        </div>
+
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr",
+            gap: "64px",
+            "@media (min-width: 1024px)": { gridTemplateColumns: "1fr 1fr" },
+            alignItems: "start",
+          }}
+        >
+          {/* Form Section */}
+          <div
+            style={{
+              opacity: 0,
+              transform: "translateX(-60px)",
+              animation: "slideInLeft 1s ease-out 0.6s forwards",
+            }}
+          >
+            {submitStatus === "success" ? (
+              <div
+                style={{
+                  padding: "48px",
+                  borderRadius: "24px",
+                  background: "linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1))",
+                  border: "2px solid rgba(16,185,129,0.3)",
+                  backdropFilter: "blur(24px)",
+                  textAlign: "center",
+                  animation: "successBounce 2s ease-in-out infinite",
+                }}
+              >
+                <div
+                  style={{
+                    width: "96px",
+                    height: "96px",
+                    margin: "0 auto 24px",
+                    borderRadius: "16px",
+                    background: "linear-gradient(135deg, #10b981, #059669)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 0 40px rgba(16,185,129,0.5)",
+                    animation: "rotateSlow 20s linear infinite",
+                  }}
+                >
+                  <Check size={48} color="white" />
+                </div>
+                <h3 style={{ fontSize: "2.25rem", fontWeight: "900", color: "white", marginBottom: "12px" }}>
+                  Message Sent!
+                </h3>
+                <p style={{ fontSize: "1.25rem", color: "#6ee7b7" }}>
+                  I'll get back to you within 24 hours 🚀
+                </p>
+              </div>
+            ) : (
+              <div
+                onMouseMove={handleMouseMove}
+                style={{
+                  position: "relative",
+                  padding: "40px",
+                  backgroundColor: "rgba(15,23,42,0.5)",
+                  backdropFilter: "blur(24px)",
+                  borderRadius: "24px",
+                  border: "1px solid rgba(255,255,255,0.1)",
+                  boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+                  overflow: "hidden",
+                }}
+              >
+                {/* Mouse-follow gradient */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    opacity: 0,
+                    transition: "opacity 0.5s",
+                    background: `radial-gradient(600px circle at ${mousePos.x}px ${mousePos.y}px, rgba(99,102,241,0.12), transparent 40%)`,
+                    pointerEvents: "none",
+                  }}
+                />
+
+                <div style={{ display: "grid", gap: "24px", "@media (min-width: 640px)": { gridTemplateColumns: "1fr 1fr" } }}>
+                  {/* Name */}
+                  <div style={{ position: "relative" }}>
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        color: "#cbd5e1",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <User size={16} color="#6366f1" />
+                      Name
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      onFocus={() => setFocusedField("name")}
+                      onBlur={() => setFocusedField(null)}
+                      placeholder="Your name"
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "2px solid rgba(255,255,255,0.1)",
+                        backgroundColor: "rgba(255,255,255,0.05)",
+                        backdropFilter: "blur(8px)",
+                        color: "white",
+                        fontSize: "16px",
+                        transition: "all 0.3s",
+                        outline: "none",
+                        ":focus": {
+                          borderColor: "#6366f1",
+                          backgroundColor: "rgba(255,255,255,0.1)",
+                        },
+                      }}
+                    />
+                    {focusedField === "name" && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: "-1px",
+                          left: 0,
+                          width: "0%",
+                          height: "2px",
+                          background: "linear-gradient(to right, #6366f1, #a855f7)",
+                          animation: "expand 0.3s ease forwards",
+                        }}
+                      />
+                    )}
+                  </div>
+
+                  {/* Email */}
+                  <div style={{ position: "relative" }}>
+                    <label
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                        fontSize: "14px",
+                        fontWeight: "bold",
+                        color: "#cbd5e1",
+                        marginBottom: "12px",
+                      }}
+                    >
+                      <Mail size={16} color="#6366f1" />
+                      Email
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="your@email.com"
+                      style={{
+                        width: "100%",
+                        padding: "16px 20px",
+                        borderRadius: "16px",
+                        border: "2px solid rgba(255,255,255,0.1)",
+                        backgroundColor: "rgba(255,255,255,0.05)",
+                        backdropFilter: "blur(8px)",
+                        color: "white",
+                        fontSize: "16px",
+                        transition: "all 0.3s",
+                        outline: "none",
+                        ":focus": {
+                          borderColor: "#6366f1",
+                          backgroundColor: "rgba(255,255,255,0.1)",
+                        },
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* Subject */}
+                <div style={{ position: "relative" }}>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "#cbd5e1",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <MessageCircle size={16} color="#6366f1" />
+                    Subject
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleChange}
+                    placeholder="Project collaboration, job opportunity, etc."
+                    style={{
+                      width: "100%",
+                      padding: "16px 20px",
+                      borderRadius: "16px",
+                      border: "2px solid rgba(255,255,255,0.1)",
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                      backdropFilter: "blur(8px)",
+                      color: "white",
+                      fontSize: "16px",
+                      transition: "all 0.3s",
+                      outline: "none",
+                      ":focus": {
+                        borderColor: "#6366f1",
+                        backgroundColor: "rgba(255,255,255,0.1)",
+                      },
+                    }}
+                  />
+                </div>
+
+                {/* Message */}
+                <div style={{ position: "relative" }}>
+                  <label
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "8px",
+                      fontSize: "14px",
+                      fontWeight: "bold",
+                      color: "#cbd5e1",
+                      marginBottom: "12px",
+                    }}
+                  >
+                    <Code size={16} color="#6366f1" />
+                    Message
+                  </label>
+                  <textarea
+                    name="message"
+                    value={formData.message}
+                    onChange={handleChange}
+                    rows={5}
+                    placeholder="Tell me about your project, idea, or how we can work together..."
+                    style={{
+                      width: "100%",
+                      padding: "16px 20px",
+                      borderRadius: "16px",
+                      border: "2px solid rgba(255,255,255,0.1)",
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                      backdropFilter: "blur(8px)",
+                      color: "white",
+                      fontSize: "16px",
+                      resize: "none",
+                      outline: "none",
+                      transition: "all 0.3s",
+                      ":focus": {
+                        borderColor: "#6366f1",
+                        backgroundColor: "rgba(255,255,255,0.1)",
+                      },
+                    }}
+                  />
+                </div>
+
+                {/* Submit Button */}
+                <button
+                  onClick={handleSubmit}
+                  disabled={isSubmitting}
+                  style={{
+                    position: "relative",
+                    width: "100%",
+                    padding: "20px 32px",
+                    borderRadius: "16px",
+                    background: "linear-gradient(135deg, #4f46e5, #a855f7, #ec4899)",
+                    color: "white",
+                    fontWeight: "bold",
+                    fontSize: "18px",
+                    border: "none",
+                    overflow: "hidden",
+                    boxShadow: "0 10px 40px rgba(99,102,241,0.4)",
+                    transition: "all 0.3s",
+                    cursor: isSubmitting ? "not-allowed" : "pointer",
+                    opacity: isSubmitting ? 0.6 : 1,
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(135deg, #7c3aed, #ec4899)",
+                      opacity: 0,
+                      transition: "opacity 0.3s",
+                    }}
+                  />
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                      transform: "translateX(-100%)",
+                      transition: "transform 0.7s",
+                    }}
+                    className="hover-slide"
+                  />
+                  <span style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", gap: "12px" }}>
+                    {isSubmitting ? (
+                      <>
+                        <div
+                          style={{
+                            width: "24px",
+                            height: "24px",
+                            border: "3px solid rgba(255,255,255,0.3)",
+                            borderTopColor: "white",
+                            borderRadius: "50%",
+                            animation: "spin 1s linear infinite",
+                          }}
+                        />
+                        Sending...
+                      </>
+                    ) : (
+                      <>
+                        <Send size={20} style={{ transition: "transform 0.3s" }} />
+                        Send Message
+                        <ArrowRight
+                          size={20}
+                          style={{
+                            opacity: 0,
+                            transition: "all 0.3s",
+                          }}
+                          className="group-hover:opacity-100 group-hover:translate-x-1"
+                        />
+                      </>
+                    )}
+                  </span>
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Right Side - Info & Social */}
+          <div
+            style={{
+              opacity: 0,
+              transform: "translateX(60px)",
+              animation: "slideInRight 1s ease-out 0.8s forwards",
+            }}
+          >
+            {/* Tech Stack */}
+            <div
+              style={{
+                padding: "32px",
+                borderRadius: "24px",
+                backgroundColor: "rgba(15,23,42,0.5)",
+                backdropFilter: "blur(24px)",
+                border: "1px solid rgba(255,255,255,0.1)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.6)",
+                transition: "all 0.5s",
+                ":hover": { borderColor: "rgba(255,255,255,0.2)" },
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+                <Sparkles size={28} color="#6366f1" style={{ animation: "pulseSlow 3s infinite" }} />
+                <h3 style={{ fontSize: "1.75rem", fontWeight: "900", color: "white" }}>Tech I'm Loving</h3>
+              </div>
+
+              <div style={{ display: "grid", gap: "16px", "@media (min-width: 640px)": { gridTemplateColumns: "1fr 1fr" } }}>
+                {techStack.map((tech, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      position: "relative",
+                      padding: "20px",
+                      borderRadius: "16px",
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "16px",
+                      transition: "all 0.4s",
+                      overflow: "hidden",
+                      animation: `fadeInStagger 0.5s ease ${i * 0.1 + 0.5}s backwards`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        position: "absolute",
+                        inset: 0,
+                        background: "linear-gradient(90deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1))",
+                        opacity: 0,
+                        transition: "opacity 0.4s",
+                      }}
+                    />
+                    <div
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "12px",
+                        background: `linear-gradient(135deg, ${tech.color})`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 0 20px rgba(0,0,0,0.4)",
+                        transition: "all 0.4s",
+                      }}
+                    >
+                      <tech.icon size={24} color="white" />
+                    </div>
+                    <p style={{ fontWeight: "bold", fontSize: "1.125rem", color: "white" }}>{tech.label}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Contact Info */}
+            <div
+              style={{
+                padding: "32px",
+                borderRadius: "24px",
+                background: "linear-gradient(135deg, rgba(99,102,241,0.1), rgba(168,85,247,0.1))",
+                backdropFilter: "blur(24px)",
+                border: "1px solid rgba(99,102,241,0.2)",
+                boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+              }}
+            >
+              <h3 style={{ fontSize: "1.75rem", fontWeight: "900", color: "white", marginBottom: "24px" }}>
+                Connect With Me
+              </h3>
+
+              {/* Phone Numbers */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginBottom: "32px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "16px",
+                    padding: "20px",
+                    borderRadius: "16px",
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    transition: "all 0.4s",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "56px",
+                      height: "56px",
+                      borderRadius: "12px",
+                      background: "linear-gradient(135deg, #10b981, #059669)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 0 20px rgba(0,0,0,0.4)",
+                      transition: "all 0.4s",
+                    }}
+                  >
+                    <Phone size={24} color="white" />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: "13px", color: "#94a3b8" }}>Primary</p>
+                    <a
+                      href="tel:+917569205626"
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "1.125rem",
+                        color: "white",
+                        textDecoration: "none",
+                        transition: "color 0.3s",
+                      }}
+                    >
+                      +91 75692 05626
+                    </a>
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "16px",
+                    padding: "20px",
+                    borderRadius: "16px",
+                    backgroundColor: "rgba(255,255,255,0.05)",
+                    border: "1px solid rgba(255,255,255,0.1)",
+                    transition: "all 0.4s",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "56px",
+                      height: "56px",
+                      borderRadius: "12px",
+                      background: "linear-gradient(135deg, #3b82f6, #60a5fa)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      boxShadow: "0 0 20px rgba(0,0,0,0.4)",
+                      transition: "all 0.4s",
+                    }}
+                  >
+                    <Phone size={24} color="white" />
+                  </div>
+                  <div>
+                    <p style={{ fontSize: "13px", color: "#94a3b8" }}>Secondary</p>
+                    <a
+                      href="tel:+919032230626"
+                      style={{
+                        fontWeight: "bold",
+                        fontSize: "1.125rem",
+                        color: "white",
+                        textDecoration: "none",
+                        transition: "color 0.3s",
+                      }}
+                    >
+                      +91 90322 30626
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              {/* Social Links */}
+              <div style={{ display: "grid", gap: "16px", "@media (min-width: 640px)": { gridTemplateColumns: "1fr 1fr" } }}>
+                {socialLinks.map((social, i) => (
+                  <a
+                    key={i}
+                    href={social.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "16px",
+                      padding: "20px",
+                      borderRadius: "16px",
+                      backgroundColor: "rgba(255,255,255,0.05)",
+                      border: "1px solid rgba(255,255,255,0.1)",
+                      transition: "all 0.4s",
+                      animation: `fadeInStagger 0.5s ease ${i * 0.1 + 0.5}s backwards`,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "48px",
+                        height: "48px",
+                        borderRadius: "12px",
+                        background: `linear-gradient(135deg, ${social.color}, #4b5563)`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        boxShadow: "0 0 20px rgba(0,0,0,0.4)",
+                        transition: "all 0.4s",
+                      }}
+                    >
+                      <social.icon size={24} color="white" />
+                    </div>
+                    <div>
+                      <p style={{ fontWeight: "bold", fontSize: "1.125rem", color: "white" }}>{social.label}</p>
+                      <p style={{ fontSize: "13px", color: "#94a3b8" }}>{social.stats}</p>
+                    </div>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(60px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideInLeft {
+          from { opacity: 0; transform: translateX(-60px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(60px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        @keyframes titleReveal {
+          from { opacity: 0; transform: scale(0.92) translateY(30px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 30px rgba(99,102,241,0.3); }
+          50% { box-shadow: 0 0 60px rgba(99,102,241,0.6); }
+        }
+        @keyframes pingSmooth {
+          0% { opacity: 1; transform: scale(1); }
+          75%, 100% { opacity: 0; transform: scale(2.5); }
+        }
+        @keyframes cursorBlink {
+          from, to { opacity: 1; }
+          50% { opacity: 0; }
+        }
+        @keyframes bgAnimate {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 200% 50%; }
+        }
+        @keyframes floatSlow {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(40px, -40px) rotate(3deg); }
+          66% { transform: translate(-30px, 30px) rotate(-3deg); }
+        }
+        @keyframes floatSlower {
+          0%, 100% { transform: translate(0, 0) rotate(0deg); }
+          33% { transform: translate(-40px, 40px) rotate(-3deg); }
+          66% { transform: translate(35px, -25px) rotate(3deg); }
+        }
+        @keyframes floatMedium {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(30px, -30px); }
+        }
+        @keyframes floatParticle {
+          0%, 100% { transform: translate(0, 0) scale(1); opacity: 0.4; }
+          50% { transform: translate(60px, -60px) scale(1.6); opacity: 0.9; }
+        }
+        @keyframes pulseSlow {
+          0%, 100% { opacity: 0.6; }
+          50% { opacity: 1; }
+        }
+        @keyframes expand {
+          from { width: 0%; }
+          to { width: 100%; }
+        }
+        @keyframes rotateSlow {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes successBounce {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.06); }
+        }
+        @keyframes fadeInStagger {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes sparkleBurst {
+          0%, 100% { opacity: 0.6; transform: scale(0.9); }
+          50% { opacity: 1; transform: scale(1.3); }
+        }
+      `}</style>
+    </section>
+  );
+}

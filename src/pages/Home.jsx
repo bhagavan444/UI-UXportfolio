@@ -1,511 +1,250 @@
-import React, { useEffect, useState, useRef, useCallback, memo, useMemo } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useInView, useSpring, useMotionValue } from 'framer-motion';
-import { useNavigate } from 'react-router-dom';
-import { FaStar, FaFacebookF, FaTwitter, FaInstagram, FaLinkedin, FaYoutube, FaGithub, FaHtml5, FaCss3Alt, FaJs, FaReact, FaNodeJs, FaDatabase, FaGitAlt, FaPython } from 'react-icons/fa';
-import { SiMongodb, SiTailwindcss, SiExpress, SiFlask, SiTensorflow } from 'react-icons/si';
-import profile from '../assets/profile.jpg';
-import './Home.css';
+import { useState, useEffect } from "react";
+import profileImg from "../assets/profile.jpeg";
+import { Mail, Phone, Linkedin, Github, ExternalLink, Code2, Brain, Database, Server, Zap, Award, Briefcase, Terminal, Globe, Rocket, Flame, Box, Cloud, GitBranch, Layers, Sparkles, Star, Crown } from "lucide-react";
 
-// Custom Debounce Function
-const debounce = (func, wait) => {
-  let timeout;
-  return (...args) => {
-    clearTimeout(timeout);
-    timeout = setTimeout(() => func(...args), wait);
-  };
-};
+export default function ProHero() {
+  const [v, setV] = useState(false);
+  const [txt, setTxt] = useState("");
+  const [idx, setIdx] = useState(0);
+  const [del, setDel] = useState(false);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
 
-// Starfield Component
-const Starfield = ({ starCount = 120 }) => {
-  return (
-    <div className="starfield">
-      {[...Array(starCount)].map((_, i) => {
-        const size = Math.random() * 2 + 1;
-        const duration = Math.random() * 2 + 1;
-        return (
-          <motion.div
-            key={`star-${i}`}
-            className="star"
-            style={{
-              top: `${Math.random() * 100}%`,
-              left: `${Math.random() * 100}%`,
-              width: size,
-              height: size,
-            }}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: [0, 1, 0, 0.5] }}
-            transition={{
-              duration: duration,
-              repeat: Infinity,
-              repeatType: 'loop',
-              delay: Math.random() * 3,
-            }}
-          />
-        );
-      })}
-      {[...Array(3)].map((_, i) => (
-        <motion.div
-          key={`comet-${i}`}
-          className="comet"
-          initial={{ x: '100%', y: `${Math.random() * 100}%`, opacity: 0 }}
-          animate={{
-            x: '-100%',
-            opacity: [0, 1, 0],
-            transition: { duration: 3 + i * 0.5, repeat: Infinity, ease: 'linear' },
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+  const roles = ["AI Engineer", "Full-Stack Dev", "ML Specialist", "MERN Expert"];
+  const icons = [
+    { I: Code2, l: "React", c: "#61DAFB" }, { I: Terminal, l: "Python", c: "#3776AB" },
+    { I: Zap, l: "JS", c: "#F7DF1E" }, { I: Flame, l: "Java", c: "#E76F00" },
+    { I: Layers, l: "C++", c: "#00599C" }, { I: Database, l: "Mongo", c: "#47A248" },
+    { I: Server, l: "Node", c: "#339933" }, { I: Brain, l: "AI/ML", c: "#FF6F00" },
+    { I: Box, l: "Docker", c: "#2496ED" }, { I: GitBranch, l: "Git", c: "#F05032" },
+    { I: Cloud, l: "AWS", c: "#FF9900" }, { I: Globe, l: "SQL", c: "#4479A1" }
+  ];
 
-// Button Shine Component
-const ButtonShine = ({ isActive }) => (
-  <motion.div
-    className="button-shine"
-    animate={{ left: isActive ? '150%' : '-150%' }}
-    transition={{ duration: 1.2, ease: 'easeInOut' }}
-  />
-);
-
-// Context for Responsive Styles
-const ResponsiveContext = React.createContext({});
-
-const useResponsiveStyles = () => {
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  const handleResize = useCallback(debounce(() => setWindowWidth(window.innerWidth), 100), []);
+  useEffect(() => { setTimeout(() => setV(true), 100); }, []);
 
   useEffect(() => {
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [handleResize]);
+    const spd = del ? 30 : 70;
+    const t = roles[idx];
+    const timer = setTimeout(() => {
+      if (!del) {
+        if (txt.length < t.length) setTxt(t.substring(0, txt.length + 1));
+        else setTimeout(() => setDel(true), 1500);
+      } else {
+        if (txt.length > 0) setTxt(t.substring(0, txt.length - 1));
+        else { setDel(false); setIdx((idx + 1) % roles.length); }
+      }
+    }, spd);
+    return () => clearTimeout(timer);
+  }, [txt, del, idx]);
 
-  return useMemo(() => windowWidth <= 480 ? 'small' :
-                        windowWidth <= 768 ? 'medium' : 'large', [windowWidth]);
-};
-
-// Tech Icon Component
-const TechIcon = memo(({ tech, index }) => {
-  const iconMap = {
-    HTML5: { icon: <FaHtml5 />, label: 'HTML5', tooltip: 'Markup language for web structure' },
-    CSS3: { icon: <FaCss3Alt />, label: 'CSS3', tooltip: 'Advanced styling for web design' },
-    JavaScript: { icon: <FaJs />, label: 'JavaScript', tooltip: 'Dynamic scripting for web interactivity' },
-    React: { icon: <FaReact />, label: 'React', tooltip: 'UI library for building interactive apps' },
-    'Node.js': { icon: <FaNodeJs />, label: 'Node.js', tooltip: 'Server-side JavaScript runtime' },
-    Express: { icon: <SiExpress />, label: 'Express', tooltip: 'Node.js web framework' },
-    MongoDB: { icon: <SiMongodb />, label: 'MongoDB', tooltip: 'NoSQL database' },
-    'Tailwind CSS': { icon: <SiTailwindcss />, label: 'Tailwind CSS', tooltip: 'Utility-first CSS framework' },
-    Python: { icon: <FaPython />, label: 'Python', tooltip: 'Versatile programming language' },
-    Flask: { icon: <SiFlask />, label: 'Flask', tooltip: 'Python web framework' },
-    TensorFlow: { icon: <SiTensorflow />, label: 'TensorFlow', tooltip: 'Machine learning framework' },
-    Git: { icon: <FaGitAlt />, label: 'Git', tooltip: 'Version control system' },
-    GitHub: { icon: <FaGithub />, label: 'GitHub', tooltip: 'Code hosting platform' },
-    Database: { icon: <FaDatabase />, label: 'Database', tooltip: 'Data management systems' },
+  const handleMove = (e) => {
+    const x = (e.clientX / window.innerWidth - 0.5) * 2;
+    const y = (e.clientY / window.innerHeight - 0.5) * 2;
+    setMouse({ x, y });
   };
 
-  const techData = iconMap[tech] || { icon: null, label: tech, tooltip: tech };
+  const stats = [
+    { i: Briefcase, v: "3", l: "Internships", d: "Production" },
+    { i: Rocket, v: "5+", l: "Projects", d: "Live Apps" },
+    { i: Award, v: "13+", l: "Certifications", d: "Google, IBM" }
+  ];
+
+  const tech = [
+    { i: Code2, l: "MERN", c: "#60a5fa" }, { i: Brain, l: "TensorFlow", c: "#c084fc" },
+    { i: Database, l: "MongoDB", c: "#34d399" }, { i: Server, l: "AWS", c: "#fb923c" }
+  ];
+
+  const links = [
+    { i: Github, l: "GitHub", h: "#", c: "#c084fc" },
+    { i: Linkedin, l: "LinkedIn", h: "#", c: "#60a5fa" },
+    { i: Mail, l: "Email", h: "mailto:example@gmail.com", c: "#22d3ee" }
+  ];
 
   return (
-    <motion.span
-      className="tech-icon"
-      whileHover={{
-        scale: 1.15,
-        rotate: 5,
-        boxShadow: '0 0 20px rgba(0, 191, 255, 0.7)',
-        background: 'rgba(0, 191, 255, 0.3)',
-      }}
-      whileTap={{ scale: 0.95 }}
-      transition={{ type: 'spring', stiffness: 400 }}
-      role="img"
-      aria-label={techData.label}
-      tabIndex={0}
-    >
-      {techData.icon ? (
-        <>
-          <motion.span
-            initial={{ opacity: 0, scale: 0.7 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ delay: index * 0.08 }}
-            className="tech-icon-inner"
-          >
-            {techData.icon}
-          </motion.span>
-          <span>{techData.label}</span>
-          <motion.span
-            className="tooltip"
-            initial={{ opacity: 0, y: 10 }}
-            whileHover={{ opacity: 1, y: 0 }}
-          >
-            {techData.tooltip}
-          </motion.span>
-        </>
-      ) : (
-        <span>{techData.label}</span>
-      )}
-    </motion.span>
-  );
-});
+    <div onMouseMove={handleMove} style={{ position: 'relative', minHeight: '100vh', background: 'linear-gradient(135deg, #0a0118, #0f0a1e, #1a0b2e)', overflow: 'hidden', display: 'flex', alignItems: 'center', padding: '2rem 1rem' }}>
+      
+      {/* Animated Background Orbs */}
+      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
+        <div style={{ position: 'absolute', top: '15%', left: '10%', width: '500px', height: '500px', background: 'radial-gradient(circle, rgba(59,130,246,0.3), transparent 70%)', filter: 'blur(90px)', animation: 'float1 15s ease-in-out infinite', transform: `translate(${mouse.x * 40}px, ${mouse.y * 30}px)`, transition: 'transform 0.3s' }} />
+        <div style={{ position: 'absolute', top: '20%', right: '10%', width: '550px', height: '550px', background: 'radial-gradient(circle, rgba(168,85,247,0.25), transparent 70%)', filter: 'blur(100px)', animation: 'float2 18s ease-in-out infinite', transform: `translate(${-mouse.x * 50}px, ${mouse.y * 40}px)`, transition: 'transform 0.3s' }} />
+        <div style={{ position: 'absolute', bottom: '10%', left: '30%', width: '480px', height: '480px', background: 'radial-gradient(circle, rgba(236,72,153,0.22), transparent 70%)', filter: 'blur(95px)', animation: 'float3 20s ease-in-out infinite', transform: `translate(${mouse.x * 35}px, ${-mouse.y * 35}px)`, transition: 'transform 0.3s' }} />
+      </div>
 
-// Data
-const homeData = [
-  {
-    title: 'About Me',
-    items: [
-      'Final Year B.Tech AI&DS Student with expertise in Full Stack Development, Data Science, and Python.',
-      'Driven by a passion for crafting innovative, scalable solutions to real-world challenges.',
-    ],
-    button: { text: 'Discover More →', path: '/about' },
-    icon: FaStar,
-  },
-  {
-    title: 'Work Experience',
-    items: [
-      'Interned at Blackbucks Paid Online, focusing on AIML and Data Science projects.',
-      'Interned at Smart Bridge Online, focusing on AIML and Data Science projects.',
-      'Built full-stack applications during 24-hour hackathons, including an e-commerce platform for second-hand electronics.',
-      'Developed a Resume Builder with 90%+ ATS compatibility using React and Node.js.',
-      'Created an AI Chatbot and Career Recommendation System using the MERN stack.',
-    ],
-    skills: 'Python, TensorFlow, React, Node.js, MongoDB, Express, HTML5, CSS3, JavaScript, Git',
-    button: { text: 'View Internships →', path: '/Internships' },
-    icon: FaStar,
-  },
-  {
-    title: 'My Skills',
-    items: [
-      'Mastery in JavaScript, Python, React, Node.js, MongoDB, TensorFlow, and more.',
-      'Skilled in developing AI-driven applications and scalable web architectures.',
-    ],
-    skills: 'JavaScript, Python, React, Node.js, MongoDB, TensorFlow, HTML5, CSS3, Express, Tailwind CSS, Flask, Git',
-    button: { text: 'Explore Skills →', path: '/MySkills' },
-    icon: FaStar,
-  },
-  {
-    title: 'Achievements',
-    items: [
-      '🏆 Developed a Resume Builder with 90%+ ATS compatibility.',
-      '📜 Completed advanced workshops in AI, Web, and Mobile App Development.',
-      '💡 Created an AI Chatbot and Career Recommendation System using MERN Stack.',
-    ],
-    icon: FaStar,
-  },
-  {
-    title: 'Connect With Me',
-    items: [
-      'Open to freelance projects, internships, and collaborative ventures.',
-      'Reach out via the platforms below to connect!',
-    ],
-    button: { text: 'Let’s Connect →', path: '/contact' },
-    icon: FaStar,
-    socials: [
-      //{ icon: FaLinkedin, href: 'https://www.linkedin.com/in/siva-satya-sai-bhagavan-gopalajosyula-1624a027b/', label: 'LinkedIn' },
-      //{ icon: FaGithub, href: 'https://github.com/bhagavan444', label: 'GitHub' },
-    ],
-  },
-];
+      {/* Grid Pattern */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(rgba(96,165,250,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(96,165,250,0.1) 1px, transparent 1px)', backgroundSize: '50px 50px', opacity: 0.3, animation: 'gridMove 20s linear infinite' }} />
 
-// Animation Variants
-const containerVariants = {
-  hidden: { opacity: 0, scale: 0.85 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    transition: { duration: 1.5, ease: 'easeOut', staggerChildren: 0.3 },
-  },
-};
+      <div style={{ position: 'relative', zIndex: 10, width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+        <div style={{ display: 'flex', flexDirection: window.innerWidth < 768 ? 'column' : 'row', gap: '3rem', alignItems: 'center' }}>
+          
+          {/* Profile Image Section */}
+          <div style={{ position: 'relative', flexShrink: 0, width: window.innerWidth < 768 ? '300px' : '400px', height: window.innerWidth < 768 ? '300px' : '400px', opacity: v ? 1 : 0, transform: v ? 'scale(1)' : 'scale(0.8)', transition: 'all 1.2s cubic-bezier(0.34,1.56,0.64,1)' }}>
+            
+            {/* Mega Glow */}
+            <div style={{ position: 'absolute', inset: '-60px', background: 'radial-gradient(circle, rgba(34,211,238,0.4), rgba(168,85,247,0.35), rgba(236,72,153,0.3), transparent 65%)', filter: 'blur(80px)', animation: 'pulseGlow 4s ease-in-out infinite' }} />
 
-const headerVariants = {
-  hidden: { opacity: 0, y: -100, rotateX: -15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: { duration: 1.2, type: 'spring', stiffness: 150, damping: 18 },
-  },
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, y: 120, scale: 0.8, rotateY: -25 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    rotateY: 0,
-    transition: { duration: 1, type: 'spring', stiffness: 140, damping: 16 },
-  },
-};
-
-const contentChildVariants = {
-  hidden: { opacity: 0, x: -40 },
-  visible: { opacity: 1, x: 0, transition: { duration: 0.6 } },
-};
-
-const profilePicVariants = {
-  hidden: { opacity: 0, scale: 0.4, rotate: -30 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotate: 0,
-    transition: { duration: 1.5, type: 'spring', stiffness: 140, damping: 16 },
-  },
-};
-
-// Timeline Item Component
-const TimelineItem = memo(({ section, index, navigate, responsiveClass }) => {
-  const IconComp = section.icon;
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-
-  const handleKeyDown = useCallback((e, action) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      action();
-    }
-  }, []);
-
-  return (
-    <motion.div
-      ref={ref}
-      className="timeline-item"
-      variants={itemVariants}
-      initial="hidden"
-      animate={isInView ? 'visible' : 'hidden'}
-      viewport={{ once: true, margin: '-50px' }}
-      role="article"
-      aria-labelledby={`section-title-${index}`}
-    >
-      <motion.div
-        className={`timeline-content ${index % 2 === 0 ? 'content-left' : 'content-right'} ${responsiveClass}`}
-        whileHover={{
-          scale: 1.05,
-          rotateY: 5,
-          boxShadow: '0 20px 60px rgba(0, 0, 0, 0.4), 0 0 50px rgba(0, 191, 255, 0.3)',
-        }}
-        whileTap={{ scale: 0.98 }}
-        tabIndex={0}
-        onKeyDown={(e) => handleKeyDown(e, () => section.button && navigate(section.button.path))}
-      >
-        <motion.div className="content-overlay" />
-        <motion.h3
-          id={`section-title-${index}`}
-          className="card-title"
-          variants={contentChildVariants}
-          transition={{ delay: index * 0.15 + 0.2 }}
-        >
-          <IconComp className="card-icon" />
-          {section.title}
-        </motion.h3>
-        {section.items.length > 0 && (
-          <motion.ul
-            className="achievement-list"
-            variants={contentChildVariants}
-            transition={{ delay: index * 0.15 + 0.3 }}
-          >
-            {section.items.map((item, i) => (
-              <motion.li
-                key={i}
-                className="achievement-item"
-                variants={contentChildVariants}
-                transition={{ delay: index * 0.15 + 0.4 + i * 0.1 }}
-              >
-                <FaStar className="star-icon" />
-                {item}
-              </motion.li>
+            {/* Multi-Ring System */}
+            {[0, 1, 2, 3].map(i => (
+              <div key={i} style={{ position: 'absolute', inset: `${-20 - i * 15}px`, border: `${3 - i * 0.5}px solid`, borderColor: i % 2 ? 'transparent rgba(34,211,238,0.6) transparent rgba(168,85,247,0.5)' : 'transparent rgba(236,72,153,0.5) transparent rgba(96,165,250,0.6)', borderRadius: '50%', animation: `${i % 2 ? 'spin' : 'spinRev'} ${12 + i * 2}s linear infinite`, opacity: 0.7 - i * 0.15 }} />
             ))}
-          </motion.ul>
-        )}
-        {section.skills && (
-          <>
-            <motion.p
-              className="tech-label"
-              variants={contentChildVariants}
-              transition={{ delay: index * 0.15 + 0.7 }}
-            >
-              🔧 Skills & Technologies:
-            </motion.p>
-            <motion.div
-              className="tech-container"
-              variants={contentChildVariants}
-              transition={{ delay: index * 0.15 + 0.8 }}
-            >
-              {section.skills.split(', ').map((tech, i) => (
-                <TechIcon key={i} tech={tech} index={i} />
+
+            {/* Particle Ring */}
+            <div style={{ position: 'absolute', inset: '-80px' }}>
+              {[...Array(24)].map((_, i) => (
+                <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', width: '8px', height: '8px', borderRadius: '50%', background: ['#22d3ee', '#a855f7', '#ec4899'][i % 3], animation: `orbit ${15 + (i % 3) * 2}s linear infinite`, animationDelay: `${-i * 0.6}s`, boxShadow: `0 0 15px ${['#22d3ee', '#a855f7', '#ec4899'][i % 3]}` }} />
               ))}
-            </motion.div>
-          </>
-        )}
-        {section.button && (
-          <motion.button
-            className="timeline-button"
-            variants={contentChildVariants}
-            transition={{ delay: index * 0.15 + 0.9 }}
-            whileHover={{ scale: 1.1, boxShadow: '0 0 15px rgba(0, 191, 255, 0.7)' }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => navigate(section.button.path)}
-            onKeyDown={(e) => handleKeyDown(e, () => navigate(section.button.path))}
-            aria-label={`Navigate to ${section.button.text}`}
-          >
-            <motion.span className="button-content">
-              {section.button.text}
-              <FaStar size={14} />
-            </motion.span>
-            <ButtonShine isActive={true} />
-          </motion.button>
-        )}
-        {section.socials && (
-          <motion.div
-            className="socials"
-            variants={contentChildVariants}
-            transition={{ delay: index * 0.15 + 1.0 }}
-          >
-            {section.socials.map((social, i) => (
-              <motion.a
-                key={i}
-                href={social.href}
-                target='_blank'
-                rel='noopener noreferrer'
-                className="social-icon"
-                whileHover={{
-                  scale: 1.2,
-                  boxShadow: '0 0 15px rgba(0, 191, 255, 0.7)',
+            </div>
+
+            {/* Floating Tech Icons on Corners */}
+            <div style={{ position: 'absolute', inset: '-50px' }}>
+              {icons.slice(0, 8).map((icon, i) => {
+                const angle = (i / 8) * Math.PI * 2;
+                const radius = 220;
+                return (
+                  <div key={i} style={{ position: 'absolute', top: '50%', left: '50%', transform: `translate(-50%, -50%) translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`, animation: `iconFloat ${3 + i * 0.3}s ease-in-out infinite ${i * 0.2}s` }}>
+                    <div style={{ width: '55px', height: '55px', borderRadius: '12px', background: 'rgba(10,1,24,0.95)', backdropFilter: 'blur(20px)', border: `2px solid ${icon.c}60`, boxShadow: `0 10px 35px ${icon.c}50, 0 0 25px ${icon.c}40`, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '4px', padding: '6px', animation: `iconPulse 2s ease-in-out infinite ${i * 0.15}s` }}>
+                      <icon.I size={24} color={icon.c} strokeWidth={2.5} style={{ filter: `drop-shadow(0 0 10px ${icon.c})` }} />
+                      <span style={{ fontSize: '9px', color: '#e2e8f0', fontWeight: '800', textAlign: 'center' }}>{icon.l}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Profile Image Container */}
+            <div style={{ position: 'relative', width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', border: '4px solid rgba(34,211,238,0.5)', boxShadow: '0 30px 90px rgba(34,211,238,0.6), 0 0 70px rgba(168,85,247,0.5), inset 0 0 50px rgba(34,211,238,0.15)', animation: 'imageFloat 6s ease-in-out infinite', background: 'linear-gradient(135deg, rgba(34,211,238,0.2), rgba(168,85,247,0.2))' }}>
+              
+              {/* Shimmer Effect */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)', backgroundSize: '200% 100%', animation: 'shimmer 2.5s linear infinite', zIndex: 2 }} />
+              
+              {/* Profile Image */}
+              <img 
+                src={profileImg}
+                alt="Siva Satya Sai Bhagavan"
+                style={{ 
+                  width: '100%', 
+                  height: '100%', 
+                  objectFit: 'cover',
+                  objectPosition: 'center'
                 }}
-                whileTap={{ scale: 0.9 }}
-                transition={{ type: 'spring', stiffness: 350 }}
-                aria-label={`Visit ${social.label}`}
-                tabIndex={0}
-                onKeyDown={(e) => handleKeyDown(e, () => window.open(social.href, '_blank'))}
-              >
-                <social.icon />
-                <motion.span className="tooltip">{social.label}</motion.span>
-              </motion.a>
-            ))}
-          </motion.div>
-        )}
-      </motion.div>
-      <motion.div
-        className="icon-wrapper"
-        variants={contentChildVariants}
-        transition={{ delay: index * 0.15 + 1.1 }}
-      >
-        <IconComp size="clamp(18px, 2.2vw, 28px)" />
-      </motion.div>
-    </motion.div>
-  );
-});
-
-// Main Home Component
-const Home = () => {
-  const navigate = useNavigate();
-  const ref = useRef(null);
-  const isInView = useInView(ref, { once: true, margin: '-100px' });
-  const responsiveClass = useResponsiveStyles();
-  const { scrollYProgress } = useScroll({ target: ref });
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.4, 1]), { stiffness: 150, damping: 20 });
-  const scale = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.85, 1]), { stiffness: 150, damping: 20 });
-
-  const backgroundGradient = useTransform(
-    [mouseX, mouseY],
-    ([latestX, latestY]) =>
-      `radial-gradient(circle at ${latestX + window.innerWidth / 2}px ${
-        latestY + window.innerHeight / 2
-      }px, rgba(0, 198, 255, 0.25), transparent 40%)`
-  );
-
-  const handleMouseMove = useCallback((e) => {
-    mouseX.set(e.clientX - window.innerWidth / 2);
-    mouseY.set(e.clientY - window.innerHeight / 2);
-  }, [mouseX, mouseY]);
-
-  return (
-    <ResponsiveContext.Provider value={responsiveClass}>
-      <motion.section
-        ref={ref}
-        className={`home-container ${responsiveClass}`}
-        style={{ opacity, scale, background: backgroundGradient }}
-        variants={containerVariants}
-        initial="hidden"
-        animate={isInView ? 'visible' : 'hidden'}
-        onMouseMove={handleMouseMove}
-        role="region"
-        aria-label="Portfolio Home Section"
-      >
-        <Starfield />
-        <motion.div
-          className="header"
-          variants={headerVariants}
-        >
-          <div className="header-glow" />
-          <motion.img
-            src={profile}
-            alt="Siva Satya Sai Bhagavan Profile"
-            className="profile-pic"
-            variants={profilePicVariants}
-            whileHover={{ scale: 1.1, boxShadow: '0 0 50px rgba(0, 191, 255, 0.7)', rotate: 5 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 220 }}
-            tabIndex={0}
-          />
-          <motion.h2 className="title">
-            👋 Hi, I'm <span>Siva Satya Sai Bhagavan</span>
-          </motion.h2>
-          <motion.div
-            className="title-underline"
-            initial={{ width: 0 }}
-            animate={{ width: 'clamp(160px, 30vw, 240px)' }}
-            transition={{ duration: 1.5, ease: 'easeOut' }}
-          />
-          <motion.p
-            className="intro-text"
-            variants={contentChildVariants}
-            transition={{ delay: 0.3 }}
-          >
-            🚀 Creative Technologist | Full-Stack Engineer | Data Science Enthusiast | AI&ML Developer
-          </motion.p>
-          <motion.button
-            className="header-button"
-            variants={contentChildVariants}
-            transition={{ delay: 0.4 }}
-            whileHover={{ scale: 1.1, boxShadow: '0 0 15px rgba(0, 191, 255, 0.7)' }}
-            whileTap={{ scale: 0.9 }}
-            onClick={() => navigate('/Projects')}
-            onKeyDown={(e) => e.key === 'Enter' && navigate('/Projects')}
-            aria-label="View My Experience"
-            tabIndex={0}
-          >
-            <motion.span className="button-content">
-              View My Experience →
-              <FaStar size={14} />
-            </motion.span>
-            <ButtonShine isActive={true} />
-          </motion.button>
-        </motion.div>
-        <motion.div
-          className="timeline"
-          variants={containerVariants}
-        >
-          <motion.div
-            className="timeline-line"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: '100%', opacity: 1 }}
-            transition={{ duration: 2, delay: 0.8 }}
-          />
-          <AnimatePresence>
-            {homeData.map((section, index) => (
-              <TimelineItem
-                key={section.title}
-                section={section}
-                index={index}
-                navigate={navigate}
-                responsiveClass={responsiveClass}
               />
-            ))}
-          </AnimatePresence>
-        </motion.div>
-      </motion.section>
-    </ResponsiveContext.Provider>
-  );
-};
 
-export default memo(Home);
+              {/* Overlay gradient */}
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, transparent 40%, rgba(10,1,24,0.8) 100%)', zIndex: 1 }} />
+            </div>
+
+            {/* Corner Stars */}
+            {[0, 1, 2, 3].map(i => (
+              <Star key={i} size={20} color="#fbbf24" style={{ position: 'absolute', [i < 2 ? 'top' : 'bottom']: '10px', [i % 2 ? 'right' : 'left']: '10px', animation: `starTwinkle 2s ease-in-out infinite ${i * 0.3}s`, filter: 'drop-shadow(0 0 10px #fbbf24)' }} />
+            ))}
+          </div>
+
+          {/* Content Section */}
+          <div style={{ flex: 1, opacity: v ? 1 : 0, transform: v ? 'translateY(0)' : 'translateY(40px)', transition: 'all 1s cubic-bezier(0.4,0,0.2,1) 0.3s' }}>
+            
+            {/* Available Badge */}
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: '10px', padding: '12px 24px', borderRadius: '9999px', background: 'rgba(16,185,129,0.15)', border: '2px solid rgba(16,185,129,0.5)', backdropFilter: 'blur(20px)', marginBottom: '1.5rem', animation: 'badgePulse 3s ease-in-out infinite' }}>
+              <div style={{ position: 'relative', width: '12px', height: '12px' }}>
+                <div style={{ position: 'absolute', inset: 0, borderRadius: '50%', background: '#10b981', animation: 'ping 2s ease-in-out infinite' }} />
+                <div style={{ position: 'absolute', inset: '2px', borderRadius: '50%', background: '#10b981' }} />
+              </div>
+              <Sparkles size={16} color="#6ee7b7" style={{ animation: 'sparkleRotate 3s linear infinite' }} />
+              <span style={{ color: '#6ee7b7', fontSize: '13px', fontWeight: '800', letterSpacing: '0.5px' }}>AVAILABLE FOR OPPORTUNITIES</span>
+            </div>
+
+            {/* Name */}
+            <h1 style={{ fontSize: 'clamp(2rem, 8vw, 4.5rem)', fontWeight: '900', lineHeight: 1.1, marginBottom: '1.5rem' }}>
+              <div style={{ background: 'linear-gradient(90deg, #60a5fa, #22d3ee, #60a5fa)', backgroundSize: '200%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'gradFlow 4s ease infinite', filter: 'drop-shadow(0 0 25px rgba(34,211,238,0.6))', display: 'inline-block' }}>
+                Siva Satya Sai
+              </div>
+              <div style={{ background: 'linear-gradient(90deg, #c084fc, #ec4899, #c084fc)', backgroundSize: '200%', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', animation: 'gradFlow 4.5s ease infinite', filter: 'drop-shadow(0 0 25px rgba(236,72,153,0.6))', display: 'inline-block' }}>
+                Bhagavan
+              </div>
+              <Rocket size={window.innerWidth < 768 ? 30 : 40} color="#fbbf24" style={{ display: 'inline-block', marginLeft: '1rem', animation: 'rocketLaunch 2s ease-in-out infinite', filter: 'drop-shadow(0 0 15px #fbbf24)' }} />
+            </h1>
+
+            {/* Typing Effect */}
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', fontSize: 'clamp(1rem, 4vw, 1.6rem)', fontWeight: '700', color: 'white', minHeight: '2.5rem', marginBottom: '2rem' }}>
+              <span style={{ color: '#22d3ee', fontWeight: '900', textShadow: '0 0 20px #22d3ee' }}>&gt;</span>
+              <span>{txt}</span>
+              <span style={{ display: 'inline-block', width: '4px', height: '1.5em', background: '#22d3ee', animation: 'blink 0.8s step-end infinite', boxShadow: '0 0 15px #22d3ee' }} />
+            </div>
+
+            {/* Bio */}
+            <p style={{ fontSize: 'clamp(0.95rem, 2vw, 1.05rem)', color: '#cbd5e1', lineHeight: '1.8', marginBottom: '2rem' }}>
+              <strong style={{ color: 'white' }}>AI & Data Science undergraduate</strong> with expertise in{' '}
+              <strong style={{ color: '#22d3ee' }}>machine learning</strong> and{' '}
+              <strong style={{ color: '#c084fc' }}>full-stack development</strong>. Building intelligent, scalable solutions.
+            </p>
+
+            {/* Tech Stack Pills */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '2rem' }}>
+              {tech.map((t, i) => (
+                <div key={i} style={{ padding: '10px 18px', borderRadius: '12px', background: 'rgba(10,1,24,0.8)', backdropFilter: 'blur(20px)', border: '1px solid rgba(255,255,255,0.2)', display: 'flex', alignItems: 'center', gap: '8px', color: '#cbd5e1', fontSize: '13px', fontWeight: '600', boxShadow: `0 5px 20px ${t.c}30`, animation: `slideUp 0.6s ease ${i * 0.1}s backwards` }}>
+                  <t.i size={16} color={t.c} style={{ filter: `drop-shadow(0 0 8px ${t.c})` }} />
+                  {t.l}
+                </div>
+              ))}
+            </div>
+
+            {/* Stats Grid */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', gap: '1rem', marginBottom: '2rem' }}>
+              {stats.map((s, i) => (
+                <div key={i} style={{ padding: '1.5rem 1rem', borderRadius: '16px', background: 'rgba(10,1,24,0.7)', backdropFilter: 'blur(20px)', border: '2px solid rgba(34,211,238,0.3)', textAlign: 'center', boxShadow: '0 10px 40px rgba(34,211,238,0.2)', animation: `scaleIn 0.8s ease ${i * 0.15}s backwards` }}>
+                  <s.i size={28} color="#22d3ee" style={{ marginBottom: '0.5rem', filter: 'drop-shadow(0 0 10px #22d3ee)', animation: 'iconBounce 2s ease-in-out infinite' }} />
+                  <div style={{ fontSize: '2rem', fontWeight: '900', color: 'white', textShadow: '0 0 25px rgba(34,211,238,0.6)' }}>{s.v}</div>
+                  <div style={{ fontSize: '12px', fontWeight: '700', color: '#94a3b8', marginTop: '4px' }}>{s.l}</div>
+                  <div style={{ fontSize: '10px', color: '#64748b', marginTop: '2px' }}>{s.d}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Buttons */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px', marginBottom: '2rem' }}>
+              <button style={{ padding: '14px 32px', borderRadius: '14px', background: 'linear-gradient(135deg, #2563eb, #06b6d4)', color: 'white', fontWeight: '700', fontSize: '1rem', border: 'none', cursor: 'pointer', boxShadow: '0 15px 50px rgba(34,211,238,0.5)', transition: 'all 0.3s', display: 'flex', alignItems: 'center', gap: '8px' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-5px) scale(1.05)'; e.currentTarget.style.boxShadow = '0 20px 60px rgba(34,211,238,0.6)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0) scale(1)'; e.currentTarget.style.boxShadow = '0 15px 50px rgba(34,211,238,0.5)'; }}>
+                View Projects <ExternalLink size={18} />
+              </button>
+              <button style={{ padding: '14px 32px', borderRadius: '14px', border: '2px solid rgba(34,211,238,0.6)', background: 'rgba(10,1,24,0.8)', backdropFilter: 'blur(20px)', color: 'white', fontWeight: '700', fontSize: '1rem', cursor: 'pointer', transition: 'all 0.3s' }} onMouseEnter={e => { e.currentTarget.style.background = 'rgba(34,211,238,0.15)'; e.currentTarget.style.transform = 'translateY(-5px)'; }} onMouseLeave={e => { e.currentTarget.style.background = 'rgba(10,1,24,0.8)'; e.currentTarget.style.transform = 'translateY(0)'; }}>
+                Resume
+              </button>
+            </div>
+
+            {/* Links */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.5rem' }}>
+              {links.map((l, i) => (
+                <a key={i} href={l.h} style={{ display: 'flex', alignItems: 'center', gap: '8px', color: l.c, fontSize: '0.95rem', fontWeight: '600', textDecoration: 'none', filter: `drop-shadow(0 0 8px ${l.c})`, animation: `fadeIn 0.6s ease ${i * 0.1 + 0.5}s backwards` }}>
+                  <l.i size={18} />
+                  {l.l}
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <style>{`
+        @keyframes float1{0%,100%{transform:translate(0,0)}50%{transform:translate(30px,-30px)}}
+        @keyframes float2{0%,100%{transform:translate(0,0)}50%{transform:translate(-40px,40px)}}
+        @keyframes float3{0%,100%{transform:translate(0,0)}50%{transform:translate(25px,-25px)}}
+        @keyframes gridMove{0%{background-position:0 0}100%{background-position:50px 50px}}
+        @keyframes pulseGlow{0%,100%{opacity:0.5;transform:scale(1)}50%{opacity:0.9;transform:scale(1.1)}}
+        @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        @keyframes spinRev{0%{transform:rotate(0deg)}100%{transform:rotate(-360deg)}}
+        @keyframes orbit{0%{transform:translate(-50%,-50%) rotate(0deg) translateX(180px) rotate(0deg)}100%{transform:translate(-50%,-50%) rotate(360deg) translateX(180px) rotate(-360deg)}}
+        @keyframes iconFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+        @keyframes iconPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+        @keyframes imageFloat{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-15px) scale(1.02)}}
+        @keyframes shimmer{0%{background-position:-200% center}100%{background-position:200% center}}
+        @keyframes starTwinkle{0%,100%{opacity:0.5;transform:scale(0.8) rotate(0deg)}50%{opacity:1;transform:scale(1.3) rotate(180deg)}}
+        @keyframes badgePulse{0%,100%{box-shadow:0 0 30px rgba(16,185,129,0.3)}50%{box-shadow:0 0 60px rgba(16,185,129,0.6)}}
+        @keyframes sparkleRotate{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+        @keyframes ping{0%{transform:scale(1);opacity:1}75%,100%{transform:scale(3);opacity:0}}
+        @keyframes gradFlow{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+        @keyframes rocketLaunch{0%,100%{transform:translateY(0) rotate(-45deg)}50%{transform:translateY(-10px) rotate(-35deg)}}
+        @keyframes blink{0%,50%{opacity:1}51%,100%{opacity:0}}
+        @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+        @keyframes scaleIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
+        @keyframes iconBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+        @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+      `}</style>
+    </div>
+  );
+}

@@ -1,984 +1,556 @@
-import React, { useState, useEffect, useCallback, useMemo, useRef, Suspense, Component } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring } from 'framer-motion';
-import { FaCode, FaLink, FaExternalLinkAlt } from 'react-icons/fa';
-import {
-  SiMongodb,
-  SiExpress,
-  SiReact,
-  SiNodedotjs,
-  SiFlask,
-  SiPython,
-  SiFirebase,
-  SiHtml5,
-  SiCss3,
-  SiScikitlearn,
-  SiTensorflow,
-  SiPandas,
-  SiNumpy,
-  SiAmazon,
-  SiDjango,
-  SiTailwindcss,
-} from 'react-icons/si';
+import { useState, useEffect } from "react";
+import { Eye, Github, ExternalLink, X, Star, Zap, Code, Rocket } from "lucide-react";
 
-// Error Boundary Component
-class ProjectCardErrorBoundary extends Component {
-  state = { hasError: false };
-
-  static getDerivedStateFromError() {
-    return { hasError: true };
-  }
-
-  render() {
-    if (this.state.hasError) {
-      return (
-        <div style={{ textAlign: 'center', color: '#e0e7ff', padding: '2rem', background: 'rgba(10, 0, 30, 0.9)', borderRadius: '12px' }}>
-          Error loading project card. Please try again.
-        </div>
-      );
-    }
-    return this.props.children;
-  }
-}
-
-// Tech Icon Component
-const TechIcon = React.memo(({ tech, index }) => {
-  const iconMap = useMemo(() => ({
-    MongoDB: { icon: <SiMongodb />, label: 'MongoDB' },
-    Express: { icon: <SiExpress />, label: 'Express.js' },
-    'Express.js': { icon: <SiExpress />, label: 'Express.js' },
-    React: { icon: <SiReact />, label: 'React.js' },
-    'React.js': { icon: <SiReact />, label: 'React.js' },
-    Node: { icon: <SiNodedotjs />, label: 'Node.js' },
-    'Node.js': { icon: <SiNodedotjs />, label: 'Node.js' },
-    Flask: { icon: <SiFlask />, label: 'Flask' },
-    Python: { icon: <SiPython />, label: 'Python' },
-    Firebase: { icon: <SiFirebase />, label: 'Firebase' },
-    'Firebase Auth': { icon: <SiFirebase />, label: 'Firebase Auth' },
-    HTML: { icon: <SiHtml5 />, label: 'HTML' },
-    CSS: { icon: <SiCss3 />, label: 'CSS3' },
-    CSS3: { icon: <SiCss3 />, label: 'CSS3' },
-    'HTML/CSS': { icon: [<SiHtml5 key="html" />, <SiCss3 key="css" />], label: 'HTML/CSS' },
-    'Scikit-learn': { icon: <SiScikitlearn />, label: 'Scikit-learn' },
-    TensorFlow: { icon: <SiTensorflow />, label: 'TensorFlow' },
-    Pandas: { icon: <SiPandas />, label: 'Pandas' },
-    Numpy: { icon: <SiNumpy />, label: 'Numpy' },
-    Numpys: { icon: <SiNumpy />, label: 'Numpy' },
-    'TF-IDF': { icon: <FaCode />, label: 'TF-IDF' },
-    NLTK: { icon: <FaCode />, label: 'NLTK' },
-    Keras: { icon: <FaCode />, label: 'Keras' },
-    LangChain: { icon: <FaCode />, label: 'LangChain' },
-    'Cloud Computing': { icon: <SiAmazon />, label: 'Cloud Computing' },
-    Django: { icon: <SiDjango />, label: 'Django' },
-    'Tailwind CSS': { icon: <SiTailwindcss />, label: 'Tailwind CSS' },
-  }), []);
-
-  const techs = tech.split(', ');
-  return (
-    <motion.div
-      style={{ display: 'flex', width: `${techs.length * 100}%`, animation: techs.length > 3 ? 'techCarousel 20s linear infinite' : 'none' }}
-    >
-      {techs.concat(techs).map((t, i) => (
-        <motion.span
-          key={`${t}-${i}`}
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 'clamp(8px,1.2vw,10px)',
-            margin: 'clamp(6px,1vw,8px)',
-            padding: 'clamp(6px,1vw,8px) clamp(10px,1.8vw,12px)',
-            background: 'linear-gradient(45deg, rgba(192,38,211,0.3), rgba(76,29,149,0.3))',
-            borderRadius: 'clamp(10px,1.5vw,12px)',
-            border: '2px solid rgba(255,51,255,0.4)',
-            boxShadow: '0 0 15px rgba(192,38,211,0.5)',
-          }}
-          initial={{ opacity: 0, scale: 0.6, rotate: -20 }}
-          animate={{ opacity: 1, scale: 1, rotate: 0 }}
-          transition={{ delay: index * 0.08 + i * 0.06, type: 'spring', stiffness: 180, damping: 14 }}
-        >
-          {iconMap[t]?.icon && (
-            <motion.span
-              initial={{ opacity: 0, scale: 0.6 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: index * 0.08 + i * 0.06 }}
-              style={{ color: '#ff33ff', textShadow: '0 0 15px rgba(192,38,211,0.7)' }}
-            >
-              {Array.isArray(iconMap[t].icon) ? iconMap[t].icon : iconMap[t].icon}
-            </motion.span>
-          )}
-          <span style={{ color: '#f0faff', fontSize: 'clamp(0.9rem,2vw,1.1rem)', fontWeight: 600 }}>
-            {iconMap[t]?.label || t}
-          </span>
-        </motion.span>
-      ))}
-    </motion.div>
-  );
-});
-
-// Project Data
-const projectData = [
-  {
-    title: '🧠 Enhance Resume Builder website ',
-    description: 'An intelligent MERN stack application that allows users to create professional resumes with modern templates, scoring using ATS.',
-    tech: 'MongoDB, Express, React, Node, Firebase Auth, HTML/CSS',
-    link: 'https://github.com/bhagavan444/resumebuilder',
-    video: 'https://drive.google.com/file/d/1Ml9hSjYsHldIIDQQtHvr0gpIn1RTvBhk/view?usp=sharing',
-    category: 'Full Stack',
-  },
-{
-  title: '🍏 Fruit & Vegetable Disease Classifier',
-  description: 'Web application using Flask and MobileNetV2 to classify fruits and vegetables as healthy or diseased. Features real-time predictions with an interactive and animated UI.',
-  tech: 'Python, TensorFlow, Keras, Flask, React, CSS, HTML, JavaScript',
-  link: 'https://github.com/bhagavan444/smartbidgeproject',
-  //video: 'https://drive.google.com/file/d/1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/view?usp=sharing',
-  category: 'Machine Learning',
-},
- {
-  title: '🎯 Career Path Recommendation System',
-  description: "ML-powered web application that recommends personalized career paths based on user data. Provides predictions, suggested roadmaps, and relevant resources.",
-  tech: 'Python, Flask, React, Scikit-learn, Pandas, HTML, CSS, JavaScript',
-  link: 'https://github.com/bhagavan444/career-path-project',
-  video: 'https://drive.google.com/file/d/1cHQUdThz6tm7uvds_g2OfMcg3j9wHuRS/view?usp=sharing',
-  category: 'Machine Learning',
-},
-
-  {
-    title: '💻 2nd Hand Electronics Platform website',
-    description: 'Full-stack app for buying/selling electronics. Built during a hackathon with real-time chat, image uploads, auth.',
-    tech: 'MongoDB, Express, React, Node, Cloud Computing, Django',
-    link: 'https://github.com/bhagavan444/hackathon-project',
-    //video: 'https://drive.google.com/file/d/1xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx/view?usp=sharing',
-    category: 'Full Stack',
-  },
-  {
-  title: '❌ Fake News Detection System',
-  description: 'AI-powered web application that identifies fake news using NLP techniques, TF-IDF vectorization, and machine learning classification models.',
-  tech: 'Python, Flask, Scikit-learn, NLTK, TF-IDF, HTML, CSS, JavaScript',
-  link: 'https://github.com/bhagavan444/fake-news-detector',
-  video: 'https://drive.google.com/file/d/1sBIB10_UrncsuAhfs3ekjSJbE58LxUQO/view?usp=sharing',
-  category: 'Machine Learning',
-},
-  {
-  title: '🤖 Smart Career Chatbot',
-  description: 'AI-powered LangChain chatbot that provides personalized career recommendations through interactive, real-time conversations.',
-  tech: 'Python, Flask, React, LangChain, NLP, AI',
-  link: 'https://github.com/bhagavan444/smart-career-chatbot',
-  video: 'https://drive.google.com/file/d/1pOfpAUaFigPo9w-YB7s4MuIEE3-bdTr0/view?usp=sharing',
-  category: 'Machine Learning',
-},
-  {
-  title: '❤️ Heart Disease Predictor',
-  description: 'A Flask and React web application that predicts heart disease risk using ML models. Features a simple, user-friendly interface for real-time predictions.',
-  tech: 'Python, Flask, React, Scikit-learn, Pandas, HTML/CSS',
-  link: 'https://github.com/bhagavan444/diabetes-predictor-app',
-  video: 'https://drive.google.com/file/d/1UYQasrq1EMuDOcBZiAHF19JyR6F5T7g4/view?usp=sharing',
-  category: 'Machine Learning',
-}
-
+const projects = [
+  { title: 'ATS Resume Builder', github: 'https://github.com/bhagavan444/Resumebuilderwebapp', live: null, desc: 'Full-stack ATS-focused resume builder with templates, scoring, and export', tags: ['React', 'Node.js', 'MongoDB', 'JWT'], icon: '📄', img: 'https://drive.google.com/thumbnail?id=1ngApn37ig05YDXxCbA5mppeva_opwcUs&sz=w1200', color: '#8B5CF6', featured: true },
+  { title: 'AI Chatbot Platform', github: 'https://github.com/bhagavan444/chatbotwebapp', live: 'https://bhagavanai.lovable.app', desc: 'Real-time AI chatbot with streaming responses and session memory', tags: ['AI', 'Python', 'React', 'Flask'], icon: '🤖', img: 'https://drive.google.com/thumbnail?id=10gvXlgHCb__NAWBoLEbj6LglL9dT6Kew&sz=w1200', color: '#06B6D4', featured: true },
+  { title: 'Career Path AI', github: 'https://github.com/bhagavan444/carrer-path-web-', live: null, desc: 'ML-based career recommendation using user skills and interests', tags: ['ML', 'Python', 'Flask'], icon: '🎯', img: 'https://drive.google.com/thumbnail?id=1pTnIysNCQgb3oHPOyofDKVkAe_acI2Bj&sz=w1200', color: '#F59E0B' },
+  { title: 'Fake News Detector', github: 'https://github.com/bhagavan444/News-detector', live: null, desc: 'NLP-based fake news detection with TF-IDF and supervised learning', tags: ['NLP', 'TensorFlow', 'Python'], icon: '📰', img: 'https://drive.google.com/thumbnail?id=1i-qZCMDiOAy677h3y12es5xM_IL-_oOF&sz=w1200', color: '#10B981' },
+  { title: 'AI News Detector Live', github: 'https://github.com/bhagavan444/News-detector', live: 'https://bliss-gala-22285345.figma.site/', desc: 'Live AI news verification platform with interactive UI', tags: ['AI', 'NLP', 'Live'], icon: '🗞️', img: 'https://drive.google.com/thumbnail?id=17XFIpJvdtb-0KXi5cyW37FQyXXc1-iC9&sz=w1200', color: '#22C55E' },
+  { title: 'Heart Disease Predictor', github: 'https://github.com/bhagavan444/Heart-Disease-Web-', live: null, desc: 'Healthcare ML app predicting heart disease risk from medical data', tags: ['ML', 'Healthcare', 'Python'], icon: '❤️', img: 'https://drive.google.com/thumbnail?id=1Uy1JiAFMcAwMD0LZgm0J-bYiWuHpRzqq&sz=w1200', color: '#EC4899' },
+  { title: 'AI Architecture Generator', github: null, live: 'https://archmind-spark.lovable.app', desc: 'AI-driven system architecture generator for software design', tags: ['AI', 'Architecture', 'React'], icon: '🧠', img: 'https://drive.google.com/thumbnail?id=15dAzqZOC60zlje-DevzjWLFH4lIf5L0E&sz=w1200', color: '#8B5CF6', featured: true },
+  { title: 'NeuralLearn Platform', github: null, live: 'https://neurallearn.lovable.app', desc: 'AI EdTech with personalized learning paths and recommendations', tags: ['AI', 'EdTech', 'React'], icon: '📚', img: 'https://drive.google.com/thumbnail?id=1jxmO9h3FbnKDYAiN9mWXpfR--cN8YF2O&sz=w1200', color: '#EC4899', featured: true },
+  { title: 'AI Project Generator', github: null, live: 'https://aiprojecttool.lovable.app', desc: 'Generates complete project ideas with tech stacks and guidance', tags: ['AI', 'React', 'Tools'], icon: '⚡', img: 'https://drive.google.com/thumbnail?id=1X3P5LUi4qynETadfMVPxIhh9WtevWJlZ&sz=w1200', color: '#FBBF24', featured: true },
+  { title: 'Real-Time Chatbot', github: 'https://github.com/bhagavan444', live: 'https://example.com', desc: 'Production-grade chatbot with streaming and session memory', tags: ['AI', 'Real-Time', 'React'], icon: '💬', img: 'https://drive.google.com/thumbnail?id=1rJJNdWtrTUESob0nhQmmOcYymNpj2xmYJ&sz=w1200', color: '#6366F1', featured: true }
 ];
 
-// Inline Styles
-const styles = {
-  container: {
-    minHeight: '100vh',
-    padding: 'clamp(3rem, 7vw, 6rem) clamp(1.5rem, 3vw, 2.5rem)',
-    background: 'linear-gradient(155deg, #0d0026, #1a0033, #2a0055, #3b0088)',
-    backgroundSize: '600% 600%',
-    color: '#f5f7fa',
-    overflow: 'hidden',
-    position: 'relative',
-    perspective: '2000px',
-    fontFamily: "'Inter', 'Montserrat', sans-serif",
-    willChange: 'background, transform',
-  },
-  overlay: {
-    position: 'absolute',
-    inset: 0,
-    background: `
-      radial-gradient(circle at 20% 20%, rgba(59, 130, 246, 0.4), transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(192, 38, 211, 0.4), transparent 50%),
-      radial-gradient(circle at 50% 50%, rgba(76, 29, 149, 0.3), transparent 70%)
-    `,
-    zIndex: -1,
-    pointerEvents: 'none',
-  },
-  holographicGlow: {
-    position: 'absolute',
-    width: 'clamp(500px, 65vw, 800px)',
-    height: 'clamp(500px, 65vw, 800px)',
-    background: 'radial-gradient(circle, rgba(59, 130, 246, 0.45), transparent 60%)',
-    top: '-20%',
-    left: '-20%',
-    filter: 'blur(150px)',
-    zIndex: -1,
-  },
-  header: {
-    textAlign: 'center',
-    padding: 'clamp(2rem, 4vw, 3.5rem)',
-    background: 'rgba(10, 0, 30, 0.85)',
-    border: '1px solid rgba(59, 130, 246, 0.4)',
-    borderRadius: 'clamp(16px, 2.2vw, 20px)',
-    boxShadow: '0 25px 60px rgba(0, 0, 0, 0.8), 0 0 50px rgba(59, 130, 246, 0.3)',
-    backdropFilter: 'blur(16px)',
-    maxWidth: 'clamp(700px, 90vw, 1100px)',
-    margin: '0 auto clamp(3rem, 6vw, 5rem)',
-    position: 'relative',
-    overflow: 'hidden',
-  },
-  headerGlow: {
-    position: 'absolute',
-    inset: 0,
-    background: 'conic-gradient(from 45deg, rgba(59, 130, 246, 0.35), rgba(192, 38, 211, 0.35), transparent)',
-    opacity: 0.45,
-    zIndex: -1,
-  },
-  title: {
-    fontSize: 'clamp(2rem, 5.5vw, 4rem)',
-    fontWeight: 900,
-    color: 'transparent',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3, #4c1d95)',
-    backgroundClip: 'text',
-    WebkitBackgroundClip: 'text',
-    textShadow: '0 0 35px rgba(59, 130, 246, 0.7), 0 0 60px rgba(192, 38, 211, 0.5)',
-    marginBottom: 'clamp(0.6rem, 1.8vw, 1.2rem)',
-    letterSpacing: '0.12em',
-  },
-  titleUnderline: {
-    width: 'clamp(160px, 30vw, 240px)',
-    height: '5px',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    borderRadius: '5px',
-    margin: '0.6rem auto',
-    boxShadow: '0 0 20px rgba(59, 130, 246, 0.7)',
-  },
-  introText: {
-    fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)',
-    color: '#e0e7ff',
-    maxWidth: 'clamp(500px, 80vw, 800px)',
-    margin: '0 auto clamp(1rem, 2vw, 1.5rem)',
-    lineHeight: '1.7',
-    textShadow: '0 0 10px rgba(59, 130, 246, 0.4)',
-  },
-  filterBar: {
-    display: 'flex',
-    justifyContent: 'center',
-    gap: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    marginBottom: 'clamp(2rem, 4vw, 3rem)',
-    flexWrap: 'wrap',
-  },
-  filterBtn: {
-    padding: 'clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)',
-    background: 'rgba(59, 130, 246, 0.2)',
-    border: '1px solid rgba(59, 130, 246, 0.4)',
-    borderRadius: 'clamp(12px, 1.8vw, 16px)',
-    color: '#e0e7ff',
-    cursor: 'pointer',
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    fontWeight: '600',
-    boxShadow: '0 0 10px rgba(59, 130, 246, 0.3)',
-  },
-  activeFilter: {
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    color: '#f0faff',
-    boxShadow: '0 0 20px rgba(59, 130, 246, 0.7)',
-  },
-  grid: {
-    display: 'grid',
-    gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(300px, 45vw, 380px), 1fr))',
-    gap: 'clamp(1.8rem, 3.5vw, 3rem)',
-    maxWidth: 'clamp(800px, 95vw, 1600px)',
-    margin: '0 auto',
-    perspective: '2000px',
-  },
-  tile: {
-    background: 'rgba(10, 0, 30, 0.9)',
-    borderRadius: 'clamp(14px, 2.5vw, 20px)',
-    padding: 'clamp(2rem, 3.5vw, 2.8rem)',
-    textAlign: 'left',
-    backdropFilter: 'blur(18px)',
-    boxShadow: '0 20px 50px rgba(0, 0, 0, 0.7), inset 0 0 12px rgba(59, 130, 246, 0.25)',
-    transformStyle: 'preserve-3d',
-    position: 'relative',
-    overflow: 'hidden',
-    cursor: 'pointer',
-  },
-  tileOverlay: {
-    position: 'absolute',
-    inset: 0,
-    borderRadius: 'inherit',
-    background: 'conic-gradient(from 45deg, rgba(59, 130, 246, 0.35), rgba(192, 38, 211, 0.35), transparent)',
-    zIndex: -1,
-    opacity: 0.45,
-  },
-  tileTitle: {
-    fontSize: 'clamp(1.5rem, 3.2vw, 2rem)',
-    color: '#3b82f6',
-    textShadow: '0 0 18px rgba(59, 130, 246, 0.6)',
-    marginBottom: 'clamp(0.8rem, 2vw, 1.2rem)',
-    fontWeight: '800',
-    display: 'flex',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  tileDescription: {
-    fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)',
-    color: '#e0e7ff',
-    marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)',
-    lineHeight: '1.7',
-    textShadow: '0 0 10px rgba(59, 130, 246, 0.4)',
-  },
-  techLabel: {
-    fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-    color: '#c026d3',
-    fontWeight: 'bold',
-    marginTop: 'clamp(1rem, 2.5vw, 1.5rem)',
-    textShadow: '0 0 10px rgba(59, 130, 246, 0.4)',
-  },
-  techContainer: {
-    display: 'flex',
-    flexWrap: 'wrap',
-    gap: 'clamp(10px, 2vw, 12px)',
-    marginTop: 'clamp(0.8rem, 2vw, 1rem)',
-    marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)',
-    overflow: 'hidden',
-  },
-  linkContainer: {
-    display: 'flex',
-    gap: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    flexWrap: 'wrap',
-    marginTop: 'clamp(1rem, 2.5vw, 1.5rem)',
-  },
-  link: {
-    display: 'inline-flex',
-    padding: 'clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)',
-    background: 'linear-gradient(90deg, #3b82f6, #c026d3)',
-    color: '#f0faff',
-    borderRadius: 'clamp(10px, 1.8vw, 14px)',
-    textDecoration: 'none',
-    fontWeight: '600',
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  copyButton: {
-    display: 'inline-flex',
-    padding: 'clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)',
-    background: 'rgba(59, 130, 246, 0.2)',
-    border: '1px solid rgba(59, 130, 246, 0.4)',
-    borderRadius: 'clamp(12px, 1.8vw, 16px)',
-    color: '#e0e7ff',
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    fontWeight: '600',
-    boxShadow: '0 0 15px rgba(59, 130, 246, 0.5)',
-    cursor: 'pointer',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  demoButton: {
-    display: 'inline-flex',
-    padding: 'clamp(0.6rem, 1.5vw, 1rem) clamp(1.2rem, 2.5vw, 1.8rem)',
-    background: 'linear-gradient(90deg, #c026d3, #3b82f6)',
-    color: '#f0faff',
-    borderRadius: 'clamp(10px, 1.8vw, 14px)',
-    textDecoration: 'none',
-    fontWeight: '600',
-    fontSize: 'clamp(0.9rem, 1.8vw, 1.1rem)',
-    boxShadow: '0 0 15px rgba(192, 38, 211, 0.5)',
-    alignItems: 'center',
-    gap: 'clamp(0.3rem, 0.8vw, 0.5rem)',
-  },
-  loadingButton: {
-    opacity: 0.7,
-    cursor: 'not-allowed',
-  },
-  spinner: {
-    display: 'inline-block',
-    width: 'clamp(1rem, 2vw, 1.5rem)',
-    height: 'clamp(1rem, 2vw, 1.5rem)',
-    border: '3px solid rgba(59, 130, 246, 0.3)',
-    borderTop: '3px solid #3b82f6',
-    borderRadius: '50%',
-    animation: 'spin 0.8s linear infinite',
-  },
-  expandedTile: {
-    position: 'fixed',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: 'clamp(500px, 80vw, 800px)',
-    maxHeight: '80vh',
-    background: 'rgba(10, 0, 30, 0.95)',
-    borderRadius: 'clamp(20px, 3vw, 24px)',
-    padding: 'clamp(2.5rem, 5vw, 3.5rem)',
-    boxShadow: '0 30px 60px rgba(0, 0, 0, 0.8), 0 0 60px rgba(59, 130, 246, 0.4)',
-    backdropFilter: 'blur(20px)',
-    zIndex: 1000,
-    overflowY: 'auto',
-  },
-  expandedOverlay: {
-    position: 'fixed',
-    inset: 0,
-    background: 'rgba(0, 0, 0, 0.8)',
-    zIndex: 999,
-  },
-  closeButton: {
-    position: 'absolute',
-    top: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    right: 'clamp(0.8rem, 1.8vw, 1.2rem)',
-    background: 'transparent',
-    border: 'none',
-    color: '#e0e7ff',
-    fontSize: 'clamp(1.2rem, 2.5vw, 1.8rem)',
-    cursor: 'pointer',
-  },
-  responsive: {
-    large: {
-      container: { padding: 'clamp(3rem, 7vw, 6rem) clamp(1.5rem, 3vw, 2.5rem)' },
-      header: { padding: 'clamp(2rem, 4vw, 3.5rem)', maxWidth: 'clamp(700px, 90vw, 1100px)' },
-      title: { fontSize: 'clamp(2rem, 5.5vw, 4rem)' },
-      introText: { fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)', maxWidth: 'clamp(500px, 80vw, 800px)' },
-      grid: { gap: 'clamp(1.8rem, 3.5vw, 3rem)', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(300px, 45vw, 380px), 1fr))' },
-      tile: { padding: 'clamp(2rem, 3.5vw, 2.8rem)' },
-      tileTitle: { fontSize: 'clamp(1.5rem, 3.2vw, 2rem)' },
-      tileDescription: { fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)' },
-      holographicGlow: { width: 'clamp(500px, 65vw, 800px)', height: 'clamp(500px, 65vw, 800px)', top: '-20%', left: '-20%' },
-      expandedTile: { width: 'clamp(500px, 80vw, 800px)', padding: 'clamp(2.5rem, 5vw, 3.5rem)' },
-    },
-    medium: {
-      container: { padding: 'clamp(2.5rem, 6vw, 5rem) clamp(1rem, 2.5vw, 2rem)' },
-      header: { padding: 'clamp(1.8rem, 3.5vw, 3rem)', maxWidth: 'clamp(600px, 85vw, 900px)' },
-      title: { fontSize: 'clamp(1.8rem, 5vw, 3.5rem)' },
-      introText: { fontSize: 'clamp(0.9rem, 2vw, 1.15rem)', maxWidth: 'clamp(400px, 75vw, 600px)' },
-      grid: { gap: 'clamp(1.5rem, 3vw, 2.5rem)', gridTemplateColumns: 'repeat(auto-fit, minmax(clamp(280px, 40vw, 340px), 1fr))' },
-      tile: { padding: 'clamp(1.8rem, 3vw, 2.5rem)' },
-      tileTitle: { fontSize: 'clamp(1.4rem, 3vw, 1.8rem)' },
-      tileDescription: { fontSize: 'clamp(0.9rem, 2vw, 1.15rem)' },
-      holographicGlow: { width: 'clamp(400px, 55vw, 600px)', height: 'clamp(400px, 55vw, 600px)', top: '-15%', left: '-15%' },
-      expandedTile: { width: 'clamp(400px, 80vw, 600px)', padding: 'clamp(2rem, 4vw, 3rem)' },
-    },
-    small: {
-      container: { padding: 'clamp(2rem, 5vw, 4rem) clamp(0.8rem, 2vw, 1.5rem)' },
-      header: { padding: 'clamp(1.5rem, 3vw, 2.5rem)', maxWidth: 'clamp(500px, 80vw, 700px)' },
-      title: { fontSize: 'clamp(1.6rem, 4.5vw, 3rem)' },
-      introText: { fontSize: 'clamp(0.85rem, 1.8vw, 1.1rem)', maxWidth: 'clamp(300px, 70vw, 500px)' },
-      grid: { gap: 'clamp(1.2rem, 2.5vw, 2rem)', gridTemplateColumns: '1fr' },
-      tile: { padding: 'clamp(1.5rem, 2.5vw, 2rem)' },
-      tileTitle: { fontSize: 'clamp(1.3rem, 2.8vw, 1.6rem)' },
-      tileDescription: { fontSize: 'clamp(0.85rem, 1.8vw, 1.1rem)' },
-      holographicGlow: { width: 'clamp(300px, 45vw, 500px)', height: 'clamp(300px, 45vw, 500px)', top: '-12%', left: '-12%' },
-      expandedTile: { width: 'clamp(300px, 90vw, 500px)', padding: 'clamp(1.8rem, 3.5vw, 2.5rem)' },
-    },
-  },
-};
-
-// Inline Animation Styles
-const animationStyles = `
-  @keyframes holographicPulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-  }
-  @keyframes glowShift {
-    0%, 100% { transform: translate(0, 0) scale(1); }
-    25% { transform: translate(50px, 50px) scale(1.1); }
-    50% { transform: translate(100px, 0) scale(1.15); }
-    75% { transform: translate(50px, -50px) scale(1.1); }
-  }
-  @keyframes rotateGlow {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-  }
-  @keyframes techCarousel {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-100%); }
-  }
-  @keyframes spin {
-    0% { transform: rotate(0deg); border-top-color: #3b82f6; }
-    100% { transform: rotate(360deg); border-top-color: #c026d3; }
-  }
-`;
-
-// Animation Variants
-const containerVariants = {
-  hidden: { opacity: 0, scale: 0.85, rotate: -5 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotate: 0,
-    transition: { duration: 2, ease: 'easeOut', staggerChildren: 0.3 },
-  },
-};
-
-const headerVariants = {
-  hidden: { opacity: 0, y: -100, rotateX: -15 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    rotateX: 0,
-    transition: { duration: 1.5, type: 'spring', stiffness: 150, damping: 18 },
-  },
-};
-
-const filterBtnVariants = {
-  hidden: { opacity: 0, scale: 0.7, y: 40 },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    y: 0,
-    transition: { duration: 0.6, type: 'spring', stiffness: 170, damping: 13 },
-  },
-  exit: { opacity: 0, scale: 0.7, y: 40, transition: { duration: 0.5 } },
-  active: {
-    scale: [1, 1.15, 1],
-    boxShadow: ['0 0 10px rgba(59, 130, 246, 0.3)', '0 0 20px rgba(59, 130, 246, 0.7)', '0 0 10px rgba(59, 130, 246, 0.3)'],
-    transition: { duration: 1, repeat: Infinity, repeatType: 'reverse' },
-  },
-};
-
-const tileVariants = {
-  hidden: { opacity: 0, y: 120, scale: 0.8, rotateY: -25 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    scale: 1,
-    rotateY: 0,
-    transition: { duration: 1, type: 'spring', stiffness: 140, damping: 16 },
-  },
-};
-
-const tileChildVariants = {
-  hidden: { opacity: 0, x: -40, rotate: -10 },
-  visible: { opacity: 1, x: 0, rotate: 0, transition: { duration: 0.6 } },
-};
-
-const expandedTileVariants = {
-  hidden: { opacity: 0, scale: 0.5, rotateY: 90, x: '-50%', y: '-50%' },
-  visible: {
-    opacity: 1,
-    scale: 1,
-    rotateY: 0,
-    transition: { duration: 0.8, type: 'spring', stiffness: 120, damping: 14 },
-  },
-  exit: { opacity: 0, scale: 0.5, rotateY: -90, transition: { duration: 0.6 } },
-};
-
-// Lazy-loaded Project Tile
-const ProjectTile = React.lazy(() => Promise.resolve({
-  default: ({ project, index, handleTileClick, styles, responsiveStyles }) => (
-    <ProjectCardErrorBoundary>
-      <motion.article
-        style={{
-          ...styles.tile,
-          ...responsiveStyles.tile,
-        }}
-        variants={tileVariants}
-        initial="hidden"
-        whileInView="visible"
-        viewport={{ once: true, margin: '-100px' }}
-        onClick={() => handleTileClick(project)}
-        tabIndex={0}
-        role="button"
-        aria-label={`View details for ${project.title}`}
-        onKeyDown={(e) => e.key === 'Enter' && handleTileClick(project)}
-      >
-        <motion.div style={{ ...styles.tileOverlay, animation: 'rotateGlow 8s linear infinite' }} />
-        <motion.h3
-          style={{
-            ...styles.tileTitle,
-            ...responsiveStyles.tileTitle,
-          }}
-          variants={tileChildVariants}
-          transition={{ delay: index * 0.15 + 0.2 }}
-        >
-          <FaCode style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)' }} />
-          #{index + 1} • {project.title}
-        </motion.h3>
-        <motion.p
-          style={{
-            ...styles.tileDescription,
-            ...responsiveStyles.tileDescription,
-          }}
-          variants={tileChildVariants}
-          transition={{ delay: index * 0.15 + 0.3 }}
-        >
-          {project.description}
-        </motion.p>
-        <motion.p
-          style={styles.techLabel}
-          variants={tileChildVariants}
-          transition={{ delay: index * 0.15 + 0.4 }}
-        >
-          🔧 Tech Used:
-        </motion.p>
-        <motion.div
-          style={styles.techContainer}
-          variants={tileChildVariants}
-          transition={{ delay: index * 0.15 + 0.5 }}
-        >
-          <TechIcon tech={project.tech} index={index} />
-        </motion.div>
-        <motion.div
-          style={styles.linkContainer}
-          variants={tileChildVariants}
-          transition={{ delay: index * 0.15 + 0.6 }}
-        >
-          <motion.a
-            href={project.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={styles.link}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-            View Project
-          </motion.a>
-          <motion.a
-            href={project.video}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={styles.demoButton}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={(e) => e.stopPropagation()}
-            aria-label={`View demo video for ${project.title}`}
-          >
-            <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-            Project Demo
-          </motion.a>
-        </motion.div>
-      </motion.article>
-    </ProjectCardErrorBoundary>
-  ),
-}));
-
-const Projects = () => {
-  const [filter, setFilter] = useState('All');
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
-  const [selectedProject, setSelectedProject] = useState(null);
-  const [isCopying, setIsCopying] = useState(false);
-  const { scrollYProgress } = useScroll();
-  const opacity = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.4, 1]), { stiffness: 150, damping: 20 });
-  const scale = useSpring(useTransform(scrollYProgress, [0, 0.5], [0.85, 1]), { stiffness: 150, damping: 20 });
-  const rotate = useSpring(useTransform(scrollYProgress, [0, 0.5], [-5, 0]), { stiffness: 150, damping: 20 });
-  const modalRef = useRef(null);
-  const videoRef = useRef(null);
+export default function Projects() {
+  const [filter, setFilter] = useState('all');
+  const [modal, setModal] = useState(null);
+  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [activeCard, setActiveCard] = useState(null);
 
   useEffect(() => {
-    document.body.style.overflow = selectedProject ? 'hidden' : 'auto';
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    return () => {
-      document.body.style.overflow = 'auto';
-      window.removeEventListener('resize', handleResize);
-    };
-  }, [selectedProject]);
-
-  useEffect(() => {
-    if (selectedProject && modalRef.current) {
-      modalRef.current.focus();
-    }
-  }, [selectedProject]);
-
-  const typeOptions = useMemo(() =>
-    ['All', ...Array.from(new Set(projectData.map((p) => p.category))).sort()],
-    []
-  );
-
-  const filteredProjects = useMemo(() =>
-    filter === 'All' ? projectData : projectData.filter((p) => p.category === filter),
-    [filter]
-  );
-
-  const responsiveStyles = useMemo(() =>
-    windowWidth <= 480 ? styles.responsive.small :
-    windowWidth <= 768 ? styles.responsive.medium :
-    styles.responsive.large,
-    [windowWidth]
-  );
-
-  const handleTileClick = useCallback((project) => {
-    setSelectedProject(project);
+    const handle = (e) => setMouse({ x: e.clientX, y: e.clientY });
+    window.addEventListener('mousemove', handle);
+    return () => window.removeEventListener('mousemove', handle);
   }, []);
 
-  const handleVideoClick = useCallback((video) => {
-    window.open(video, '_blank');
-  }, []);
+  const filters = [
+    { id: 'all', name: 'All', icon: '🚀' },
+    { id: 'featured', name: 'Featured', icon: '⭐' },
+    { id: 'live', name: 'Live', icon: '🌐' },
+    { id: 'ai', name: 'AI/ML', icon: '🤖' }
+  ];
 
-  const handleClose = useCallback(() => {
-    setSelectedProject(null);
-  }, []);
-
-  const handleCopyLink = useCallback((link) => {
-    setIsCopying(true);
-    navigator.clipboard.writeText(link).then(() => {
-      alert('Link copied to clipboard!');
-      setIsCopying(false);
-    }).catch(() => {
-      alert('Failed to copy link.');
-      setIsCopying(false);
-    });
-  }, []);
+  const filtered = projects.filter(p => {
+    if (filter === 'all') return true;
+    if (filter === 'featured') return p.featured;
+    if (filter === 'live') return p.live;
+    if (filter === 'ai') return p.tags.some(t => ['AI', 'ML', 'NLP'].includes(t));
+    return true;
+  });
 
   return (
-    <motion.section
-      style={{
-        ...styles.container,
-        ...responsiveStyles.container,
-        opacity,
-        scale,
-        rotate,
-      }}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-      role="region"
-      aria-label="Projects section"
-    >
-      <style>{animationStyles}</style>
-      {/* Background Particles */}
-      {[...Array(20)].map((_, i) => (
-        <motion.div
-          key={i}
-          style={{
-            position: 'absolute',
-            width: `clamp(0.5rem, calc(0.1vw + ${0.5 + i * 0.1}rem), ${1 + i * 0.15}rem)`,
-            height: `clamp(0.5rem, calc(0.1vw + ${0.5 + i * 0.1}rem), ${1 + i * 0.15}rem)`,
-            background: 'radial-gradient(circle, rgba(59, 130, 246, 0.5), rgba(192, 38, 211, 0.3))',
-            borderRadius: '50%',
-            top: `${Math.random() * 100}%`,
-            left: `${Math.random() * 100}%`,
-            pointerEvents: 'none',
-          }}
-          animate={{
-            y: [0, -30, 0],
-            opacity: [0.2, 0.7, 0.2],
-            scale: [1, 1.4, 1],
-            rotate: [0, 360, 0],
-          }}
-          transition={{ duration: 4 + i * 0.3, repeat: Infinity, ease: 'easeInOut' }}
-        />
+    <div style={{ position: 'relative', minHeight: '100vh', background: '#000', overflow: 'hidden', padding: '60px 20px', fontFamily: 'system-ui' }}>
+      
+      {/* Mega Background */}
+      <div style={{ position: 'absolute', inset: 0, background: 'radial-gradient(circle at 20% 30%, #1a0033 0%, #000 50%)', animation: 'hueRotate 30s infinite' }} />
+      
+      {/* Floating Gradient Orbs */}
+      <div style={{ position: 'absolute', top: '10%', left: '15%', width: '800px', height: '800px', background: 'radial-gradient(circle, #8B5CF680 0%, transparent 70%)', filter: 'blur(120px)', animation: 'float1 25s infinite' }} />
+      <div style={{ position: 'absolute', top: '50%', right: '10%', width: '700px', height: '700px', background: 'radial-gradient(circle, #06B6D480 0%, transparent 70%)', filter: 'blur(120px)', animation: 'float2 30s infinite' }} />
+      <div style={{ position: 'absolute', bottom: '20%', left: '40%', width: '600px', height: '600px', background: 'radial-gradient(circle, #EC489380 0%, transparent 70%)', filter: 'blur(100px)', animation: 'float3 28s infinite' }} />
+      
+      {/* Animated Grid */}
+      <div style={{ position: 'absolute', inset: 0, backgroundImage: 'linear-gradient(#8B5CF620 2px, transparent 2px), linear-gradient(90deg, #8B5CF620 2px, transparent 2px)', backgroundSize: '80px 80px', opacity: 0.15, animation: 'gridMove 40s linear infinite' }} />
+      
+      {/* Particles */}
+      {[...Array(40)].map((_, i) => (
+        <div key={i} style={{
+          position: 'absolute',
+          width: Math.random() * 6 + 3 + 'px',
+          height: Math.random() * 6 + 3 + 'px',
+          background: i % 3 === 0 ? '#8B5CF6' : i % 3 === 1 ? '#06B6D4' : '#EC4899',
+          borderRadius: '50%',
+          left: Math.random() * 100 + '%',
+          top: Math.random() * 100 + '%',
+          opacity: 0.7,
+          boxShadow: `0 0 20px ${i % 3 === 0 ? '#8B5CF6' : i % 3 === 1 ? '#06B6D4' : '#EC4899'}`,
+          animation: `particle ${Math.random() * 20 + 15}s linear infinite`,
+          animationDelay: Math.random() * 5 + 's'
+        }} />
       ))}
-      {/* Holographic Glow */}
-      <motion.div
-        style={{
-          ...styles.holographicGlow,
-          ...responsiveStyles.holographicGlow,
-          animation: 'glowShift 12s ease-in-out infinite',
-        }}
-      />
-      {/* Header Section */}
-      <motion.header
-        style={{
-          ...styles.header,
-          ...responsiveStyles.header,
-        }}
-        variants={headerVariants}
-      >
-        <motion.div style={styles.headerGlow} />
-        <h2
-          style={{
-            ...styles.title,
-            ...responsiveStyles.title,
-            animation: 'holographicPulse 2.5s ease-in-out infinite alternate',
-          }}
-        >
-          🚀 My Project Showcase
-        </h2>
-        <motion.div
-          style={styles.titleUnderline}
-          initial={{ width: 0 }}
-          animate={{ width: 'clamp(160px, 30vw, 240px)' }}
-          transition={{ duration: 1.5, ease: 'easeOut' }}
-        />
-        <p
-          style={{
-            ...styles.introText,
-            ...responsiveStyles.introText,
-          }}
-        >
-          Explore my collection of innovative projects, showcasing expertise in Full Stack development and Machine Learning with cutting-edge technologies.
-        </p>
-      </motion.header>
-      {/* Filter Bar */}
-      <motion.div
-        style={{
-          ...styles.filterBar,
-          ...responsiveStyles.filterBar,
-        }}
-        variants={containerVariants}
-      >
-        <AnimatePresence>
-          {typeOptions.map((type, index) => (
-            <motion.button
-              key={type}
-              style={{
-                ...styles.filterBtn,
-                ...(filter === type ? styles.activeFilter : {}),
-                ...responsiveStyles.filterBtn,
-              }}
-              onClick={() => setFilter(type)}
-              variants={filterBtnVariants}
-              initial="hidden"
-              animate={filter === type ? 'active' : 'visible'}
-              exit="exit"
-              whileTap={{ scale: 0.9 }}
-              aria-pressed={filter === type}
-              aria-label={`Filter by ${type}`}
-            >
-              {type}
-            </motion.button>
-          ))}
-        </AnimatePresence>
-      </motion.div>
-      {/* Projects Grid */}
-      <motion.div
-        style={{
-          ...styles.grid,
-          ...responsiveStyles.grid,
-        }}
-        variants={containerVariants}
-      >
-        <AnimatePresence>
-          <Suspense fallback={
-            <div style={{ textAlign: 'center', color: '#e0e7ff', padding: '2rem' }}>
-              <span style={styles.spinner} /> Loading projects...
-            </div>
-          }>
-            {filteredProjects.map((project, index) => (
-              <ProjectTile
-                key={project.title}
-                project={project}
-                index={index}
-                handleTileClick={handleTileClick}
-                styles={styles}
-                responsiveStyles={responsiveStyles}
-              />
-            ))}
-          </Suspense>
-        </AnimatePresence>
-      </motion.div>
-      {/* Expanded Tile Modal */}
-      <AnimatePresence>
-        {selectedProject && (
-          <>
-            <motion.div
-              style={styles.expandedOverlay}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={handleClose}
-              role="button"
-              tabIndex={0}
-              aria-label="Close project details"
-              onKeyDown={(e) => e.key === 'Enter' && handleClose()}
-            />
-            <motion.div
-              ref={modalRef}
-              style={{
-                ...styles.expandedTile,
-                ...responsiveStyles.expandedTile,
-              }}
-              variants={expandedTileVariants}
-              initial="hidden"
-              animate="visible"
-              exit="exit"
-              tabIndex={-1}
-              role="dialog"
-              aria-label={`${selectedProject.title} details`}
-            >
-              <motion.div style={{ ...styles.tileOverlay, animation: 'rotateGlow 8s linear infinite' }} />
-              <motion.button
-                style={styles.closeButton}
-                onClick={handleClose}
-                aria-label="Close project details"
-                whileHover={{ scale: 1.2, rotate: 90, color: '#3b82f6' }}
-                whileTap={{ scale: 0.9 }}
-              >
-                ✕
-              </motion.button>
-              <motion.h3
-                style={{
-                  ...styles.tileTitle,
-                  fontSize: 'clamp(1.5rem, 3.5vw, 2rem)',
-                  marginBottom: 'clamp(1rem, 2.5vw, 1.5rem)',
-                }}
-                variants={tileChildVariants}
-              >
-                <FaCode style={{ fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)' }} />
-                #{projectData.indexOf(selectedProject) + 1} • {selectedProject.title}
-              </motion.h3>
-              <motion.p
-                style={{
-                  ...styles.tileDescription,
-                  fontSize: 'clamp(0.95rem, 2.2vw, 1.2rem)',
-                  lineHeight: '1.7',
-                }}
-                variants={tileChildVariants}
-              >
-                {selectedProject.description}
-              </motion.p>
-              <motion.p
-                style={styles.techLabel}
-                variants={tileChildVariants}
-              >
-                🔧 Tech Used:
-              </motion.p>
-              <motion.div
-                style={styles.techContainer}
-                variants={tileChildVariants}
-              >
-                <TechIcon tech={selectedProject.tech} index={0} />
-              </motion.div>
-              <motion.div
-                style={styles.linkContainer}
-                variants={tileChildVariants}
-              >
-                <motion.a
-                  href={selectedProject.link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={styles.link}
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59, 130, 246, 0.7)' }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-                  View Project
-                </motion.a>
-                <motion.a
-                  href={selectedProject.video}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={styles.demoButton}
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(192, 38, 211, 0.7)' }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={(e) => e.stopPropagation()}
-                  aria-label={`View demo video for ${selectedProject.title}`}
-                >
-                  <FaExternalLinkAlt style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-                  Project Demo
-                </motion.a>
-                <motion.button
-                  style={{
-                    ...styles.copyButton,
-                    ...(isCopying ? styles.loadingButton : {}),
-                  }}
-                  onClick={() => handleCopyLink(selectedProject.link)}
-                  disabled={isCopying}
-                  whileHover={{ scale: 1.05, boxShadow: '0 0 20px rgba(59, 130, 246, 0.7)' }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <FaLink style={{ fontSize: 'clamp(0.8rem, 1.5vw, 1rem)' }} />
-                  {isCopying ? 'Copying...' : 'Copy Link'}
-                </motion.button>
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </motion.section>
-  );
-};
+      
+      {/* Mouse Spotlight */}
+      <div style={{
+        position: 'fixed',
+        width: '700px',
+        height: '700px',
+        background: 'radial-gradient(circle, rgba(139,92,246,0.3) 0%, transparent 70%)',
+        left: mouse.x - 350,
+        top: mouse.y - 350,
+        pointerEvents: 'none',
+        transition: 'all 0.15s',
+        zIndex: 1
+      }} />
 
-export default React.memo(Projects);
+      <div style={{ position: 'relative', zIndex: 10, maxWidth: '1600px', margin: '0 auto' }}>
+        
+        {/* Header */}
+        <div style={{ textAlign: 'center', marginBottom: '80px', animation: 'fadeDown 1.2s ease' }}>
+          <div style={{ display: 'inline-block', fontSize: '8rem', marginBottom: '20px', filter: 'drop-shadow(0 0 50px #8B5CF6)', animation: 'iconSpin 20s linear infinite' }}>🚀</div>
+          
+          <h1 style={{
+            fontSize: 'clamp(4rem, 12vw, 9rem)',
+            fontWeight: '900',
+            background: 'linear-gradient(90deg, #fff, #8B5CF6, #06B6D4, #EC4899, #fff)',
+            backgroundSize: '300%',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            animation: 'shimmer 6s linear infinite',
+            marginBottom: '30px',
+            lineHeight: 0.9
+          }}>
+            PROJECTS
+          </h1>
+          
+          <p style={{ fontSize: '1.5rem', color: '#aaa', maxWidth: '900px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+            Elite portfolio showcasing AI mastery, full-stack excellence, and production-ready innovations
+          </p>
+
+          {/* Stats */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', flexWrap: 'wrap' }}>
+            {[
+              { label: 'PROJECTS', val: projects.length, icon: '📊', color: '#8B5CF6' },
+              { label: 'FEATURED', val: projects.filter(p => p.featured).length, icon: '⭐', color: '#FBBF24' },
+              { label: 'LIVE APPS', val: projects.filter(p => p.live).length, icon: '🌐', color: '#06B6D4' }
+            ].map((stat, i) => (
+              <div key={i} style={{
+                padding: '25px 40px',
+                background: 'rgba(255,255,255,0.05)',
+                backdropFilter: 'blur(20px)',
+                border: `3px solid ${stat.color}60`,
+                borderRadius: '25px',
+                boxShadow: `0 0 40px ${stat.color}40`,
+                animation: 'float 4s ease-in-out infinite',
+                animationDelay: `${i * 0.3}s`
+              }}>
+                <div style={{ fontSize: '3rem', marginBottom: '10px' }}>{stat.icon}</div>
+                <div style={{ fontSize: '3rem', fontWeight: '900', color: stat.color, textShadow: `0 0 20px ${stat.color}` }}>{stat.val}</div>
+                <div style={{ fontSize: '13px', color: '#999', letterSpacing: '2px' }}>{stat.label}</div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Filters */}
+        <div style={{ display: 'flex', justifyContent: 'center', gap: '20px', marginBottom: '80px', flexWrap: 'wrap', animation: 'fadeUp 1s ease 0.3s backwards' }}>
+          {filters.map(f => (
+            <button key={f.id} onClick={() => setFilter(f.id)} style={{
+              padding: '18px 40px',
+              background: filter === f.id ? 'linear-gradient(135deg, #8B5CF6, #06B6D4)' : 'rgba(255,255,255,0.08)',
+              border: `3px solid ${filter === f.id ? '#8B5CF6' : 'rgba(255,255,255,0.2)'}`,
+              borderRadius: '50px',
+              color: '#fff',
+              fontSize: '16px',
+              fontWeight: '800',
+              cursor: 'pointer',
+              backdropFilter: 'blur(10px)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+              transition: 'all 0.4s',
+              boxShadow: filter === f.id ? '0 0 50px #8B5CF680' : 'none',
+              transform: filter === f.id ? 'scale(1.1)' : 'scale(1)'
+            }}
+            onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05) translateY(-5px)'}
+            onMouseLeave={(e) => e.currentTarget.style.transform = filter === f.id ? 'scale(1.1)' : 'scale(1)'}>
+              <span style={{ fontSize: '22px' }}>{f.icon}</span>
+              {f.name}
+            </button>
+          ))}
+        </div>
+
+        {/* Projects Grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '40px' }}>
+          {filtered.map((p, i) => (
+            <div key={i} onClick={() => setModal(p)} onMouseEnter={() => setActiveCard(i)} onMouseLeave={() => setActiveCard(null)} style={{
+              position: 'relative',
+              cursor: 'pointer',
+              transition: 'all 0.6s cubic-bezier(0.4,0,0.2,1)',
+              transform: activeCard === i ? 'scale(1.05) translateY(-15px)' : 'scale(1)',
+              animation: `cardPop 0.8s ease ${i * 0.15}s backwards`
+            }}>
+              
+              {/* Glow */}
+              <div style={{
+                position: 'absolute',
+                inset: '-25px',
+                background: p.color,
+                filter: 'blur(50px)',
+                opacity: activeCard === i ? 0.7 : 0,
+                transition: 'opacity 0.6s',
+                animation: activeCard === i ? 'breathe 3s infinite' : 'none'
+              }} />
+
+              <div style={{
+                position: 'relative',
+                background: 'rgba(255,255,255,0.03)',
+                backdropFilter: 'blur(25px)',
+                border: activeCard === i ? `3px solid ${p.color}` : '2px solid rgba(255,255,255,0.1)',
+                borderRadius: '35px',
+                overflow: 'hidden',
+                boxShadow: activeCard === i ? `0 30px 80px ${p.color}50` : '0 20px 50px rgba(0,0,0,0.5)'
+              }}>
+                
+                {/* Badge */}
+                {p.featured && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    padding: '10px 25px',
+                    background: 'linear-gradient(135deg, #FBBF24, #F59E0B)',
+                    borderRadius: '50px',
+                    fontSize: '14px',
+                    fontWeight: '900',
+                    color: '#000',
+                    zIndex: 10,
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 0 30px #FBBF2480',
+                    animation: 'pulse 2s infinite'
+                  }}>
+                    <Star size={16} />
+                    FEATURED
+                  </div>
+                )}
+
+                {/* Image */}
+                <div style={{ position: 'relative', height: '280px', overflow: 'hidden' }}>
+                  <img src={p.img} alt={p.title} style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover',
+                    transition: 'transform 0.8s',
+                    transform: activeCard === i ? 'scale(1.15)' : 'scale(1.05)'
+                  }} loading="lazy" />
+                  
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.95), transparent 60%)',
+                    opacity: activeCard === i ? 1 : 0.7,
+                    transition: 'opacity 0.6s'
+                  }} />
+                  
+                  <div style={{
+                    position: 'absolute',
+                    top: '25px',
+                    left: '25px',
+                    fontSize: '6rem',
+                    filter: 'drop-shadow(0 10px 30px rgba(0,0,0,0.8))',
+                    animation: activeCard === i ? 'iconRotate 1s ease' : 'none'
+                  }}>
+                    {p.icon}
+                  </div>
+
+                  {activeCard === i && (
+                    <div style={{
+                      position: 'absolute',
+                      bottom: '30px',
+                      left: '50%',
+                      transform: 'translateX(-50%)',
+                      padding: '12px 30px',
+                      background: 'rgba(255,255,255,0.2)',
+                      backdropFilter: 'blur(15px)',
+                      border: '2px solid rgba(255,255,255,0.4)',
+                      borderRadius: '25px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      color: '#fff',
+                      fontWeight: '700',
+                      animation: 'slideUp 0.5s ease'
+                    }}>
+                      <Eye size={20} color={p.color} />
+                      View Details
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div style={{ padding: '35px' }}>
+                  <h3 style={{
+                    fontSize: '2rem',
+                    fontWeight: '900',
+                    color: '#fff',
+                    marginBottom: '15px',
+                    background: activeCard === i ? `linear-gradient(90deg, ${p.color}, #fff)` : '#fff',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
+                  }}>
+                    {p.title}
+                  </h3>
+
+                  <p style={{ fontSize: '15px', color: '#ccc', lineHeight: 1.7, marginBottom: '25px' }}>{p.desc}</p>
+
+                  {/* Tags */}
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginBottom: '25px' }}>
+                    {p.tags.map((t, idx) => (
+                      <span key={idx} style={{
+                        padding: '8px 18px',
+                        fontSize: '13px',
+                        background: `${p.color}25`,
+                        border: `2px solid ${p.color}60`,
+                        borderRadius: '15px',
+                        color: '#e0e0e0',
+                        fontWeight: '700',
+                        animation: activeCard === i ? `slideIn 0.4s ease ${idx * 0.1}s backwards` : 'none'
+                      }}>
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Buttons */}
+                  <div style={{ display: 'flex', gap: '15px' }}>
+                    {p.live ? (
+                      <a href={p.live} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{
+                        flex: 1,
+                        padding: '16px',
+                        background: `linear-gradient(135deg, ${p.color}, ${p.color}cc)`,
+                        borderRadius: '20px',
+                        color: '#fff',
+                        fontSize: '15px',
+                        fontWeight: '800',
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '10px',
+                        border: `2px solid ${p.color}`,
+                        boxShadow: `0 10px 30px ${p.color}50`,
+                        transition: 'all 0.3s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                        <Rocket size={18} />
+                        LIVE DEMO
+                      </a>
+                    ) : p.github && (
+                      <a href={p.github} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{
+                        flex: 1,
+                        padding: '16px',
+                        background: 'rgba(255,255,255,0.1)',
+                        backdropFilter: 'blur(10px)',
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        borderRadius: '20px',
+                        color: '#fff',
+                        fontSize: '15px',
+                        fontWeight: '800',
+                        textAlign: 'center',
+                        textDecoration: 'none',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '10px',
+                        transition: 'all 0.3s'
+                      }}
+                      onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                      onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                        <Github size={18} />
+                        GITHUB
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Corner Accents */}
+                <div style={{ position: 'absolute', top: '15px', left: '15px', width: '50px', height: '50px', borderTop: `3px solid ${p.color}`, borderLeft: `3px solid ${p.color}`, borderTopLeftRadius: '15px', opacity: activeCard === i ? 1 : 0.3, transition: 'opacity 0.6s' }} />
+                <div style={{ position: 'absolute', bottom: '15px', right: '15px', width: '50px', height: '50px', borderBottom: `3px solid ${p.color}`, borderRight: `3px solid ${p.color}`, borderBottomRightRadius: '15px', opacity: activeCard === i ? 1 : 0.3, transition: 'opacity 0.6s' }} />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* CTA */}
+        <div style={{
+          marginTop: '100px',
+          textAlign: 'center',
+          padding: '60px 40px',
+          background: 'rgba(255,255,255,0.05)',
+          backdropFilter: 'blur(30px)',
+          borderRadius: '40px',
+          border: '3px solid rgba(139,92,246,0.3)',
+          boxShadow: '0 30px 80px rgba(139,92,246,0.3)',
+          animation: 'fadeUp 1s ease 1s backwards'
+        }}>
+          <h2 style={{
+            fontSize: '3.5rem',
+            fontWeight: '900',
+            background: 'linear-gradient(135deg, #8B5CF6, #06B6D4, #EC4899)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            marginBottom: '25px'
+          }}>
+            Ready to Collaborate?
+          </h2>
+          <p style={{ fontSize: '1.3rem', color: '#aaa', maxWidth: '800px', margin: '0 auto 40px', lineHeight: 1.7 }}>
+            Let's build breakthrough solutions together. Reach out for collaborations or custom projects.
+          </p>
+          <button style={{
+            padding: '20px 50px',
+            background: 'linear-gradient(135deg, #8B5CF6, #06B6D4)',
+            border: 'none',
+            borderRadius: '50px',
+            color: '#fff',
+            fontSize: '18px',
+            fontWeight: '900',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '15px',
+            boxShadow: '0 20px 50px rgba(139,92,246,0.5)',
+            transition: 'all 0.3s'
+          }}
+          onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.1) rotate(2deg)'}
+          onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+            <Zap size={24} />
+            GET IN TOUCH
+          </button>
+        </div>
+      </div>
+
+      {/* Modal */}
+      {modal && (
+        <div onClick={() => setModal(null)} style={{
+          position: 'fixed',
+          inset: 0,
+          zIndex: 1000,
+          background: 'rgba(0,0,0,0.97)',
+          backdropFilter: 'blur(30px)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '30px',
+          animation: 'fadeIn 0.3s'
+        }}>
+          <div onClick={(e) => e.stopPropagation()} style={{
+            maxWidth: '1200px',
+            width: '100%',
+            background: 'rgba(20,20,30,0.95)',
+            border: `4px solid ${modal.color}`,
+            borderRadius: '40px',
+            overflow: 'hidden',
+            maxHeight: '90vh',
+            overflowY: 'auto',
+            boxShadow: `0 40px 120px ${modal.color}70`,
+            animation: 'zoomIn 0.4s ease'
+          }}>
+            <div style={{ position: 'relative', height: '400px' }}>
+              <img src={modal.img} alt={modal.title} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.95), transparent 50%)' }} />
+              
+              <button onClick={() => setModal(null)} style={{
+                position: 'absolute',
+                top: '25px',
+                right: '25px',
+                width: '60px',
+                height: '60px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.2)',
+                backdropFilter: 'blur(15px)',
+                border: '3px solid rgba(255,255,255,0.4)',
+                color: '#fff',
+                fontSize: '30px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                transition: 'all 0.3s'
+              }}
+              onMouseEnter={(e) => e.currentTarget.style.transform = 'rotate(90deg) scale(1.1)'}
+              onMouseLeave={(e) => e.currentTarget.style.transform = 'rotate(0) scale(1)'}>
+                <X size={30} />
+              </button>
+            </div>
+
+            <div style={{ padding: '50px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '25px', marginBottom: '30px' }}>
+                <span style={{ fontSize: '5rem' }}>{modal.icon}</span>
+                <h2 style={{ fontSize: '3.5rem', fontWeight: '900', color: '#fff' }}>{modal.title}</h2>
+              </div>
+
+              <p style={{ fontSize: '1.3rem', color: '#ccc', lineHeight: 2, marginBottom: '40px' }}>{modal.desc}</p>
+
+              <div style={{ marginBottom: '40px' }}>
+                <h3 style={{ fontSize: '1.8rem', fontWeight: '900', color: '#fff', marginBottom: '20px' }}>Tech Stack</h3>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '15px' }}>
+                  {modal.tags.map((t, idx) => (
+                    <span key={idx} style={{
+                      padding: '10px 22px',
+                      fontSize: '14px',
+                      background: `${modal.color}25`,
+                      border: `2px solid ${modal.color}60`,
+                      borderRadius: '20px',
+                      color: '#e0e0e0',
+                      fontWeight: '700'
+                    }}>
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '20px' }}>
+                {modal.live && (
+                  <a href={modal.live} target="_blank" rel="noopener noreferrer" style={{ 
+                    flex: 1,
+                    padding: '18px',
+                    background: `linear-gradient(135deg, ${modal.color}, ${modal.color}cc)`,
+                    borderRadius: '25px',
+                    color: '#fff',
+                    fontSize: '16px',
+                    fontWeight: '800',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    boxShadow: `0 10px 30px ${modal.color}50`,
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                    <Rocket size={20} />
+                    LIVE DEMO
+                  </a>
+                )}
+                {modal.github && (
+                  <a href={modal.github
+} target="_blank" rel="noopener noreferrer" style={{ 
+                    flex: 1,
+                    padding: '18px',
+                    background: 'rgba(255,255,255,0.1)',
+                    backdropFilter: 'blur(10px)',
+                    border: '2px solid rgba(255,255,255,0.3)',
+                    borderRadius: '25px',
+                    color: '#fff',
+                    fontSize: '16px',
+                    fontWeight: '800',
+                    textAlign: 'center',
+                    textDecoration: 'none',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '12px',
+                    transition: 'all 0.3s'
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.05)'}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}>
+                    <Github size={20} />
+                    GITHUB
+                  </a>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
