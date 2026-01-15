@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Award, ExternalLink, Sparkles, Zap, Code, Cloud, Database, Cpu, Filter, TrendingUp } from 'lucide-react';
+import { Award, ExternalLink, Sparkles, Zap, Code, Cloud, Database, Cpu, TrendingUp, Star, Hexagon } from 'lucide-react';
 
 const certificationsData = [
   { title: "Full Stack Web Development", image: "https://lh3.googleusercontent.com/d/1AfvPfSaXHgVK9lPOsS3MUJimynH6xlog", link: "https://drive.google.com/file/d/1AfvPfSaXHgVK9lPOsS3MUJimynH6xlog/view", category: "Web", desc: "Complete web applications from frontend to backend, including UI design, server-side logic, database integration, and deployment." },
@@ -25,236 +25,308 @@ const certificationsData = [
 
 const categoryIcons = { Web: Code, Programming: Cpu, Cloud: Cloud, Data: Database, "AI/ML": Sparkles, DevOps: Zap };
 const categoryColors = {
-  Web: { from: '#3b82f6', to: '#06b6d4', shadow: 'rgba(59,130,246,0.4)' },
-  Programming: { from: '#a855f7', to: '#ec4899', shadow: 'rgba(168,85,247,0.4)' },
-  Cloud: { from: '#6366f1', to: '#3b82f6', shadow: 'rgba(99,102,241,0.4)' },
-  Data: { from: '#10b981', to: '#059669', shadow: 'rgba(16,185,129,0.4)' },
-  "AI/ML": { from: '#f97316', to: '#ef4444', shadow: 'rgba(249,115,22,0.4)' },
-  DevOps: { from: '#eab308', to: '#f97316', shadow: 'rgba(234,179,8,0.4)' }
+  Web: { from: '#3b82f6', to: '#06b6d4' },
+  Programming: { from: '#a855f7', to: '#ec4899' },
+  Cloud: { from: '#6366f1', to: '#8b5cf6' },
+  Data: { from: '#10b981', to: '#059669' },
+  "AI/ML": { from: '#f97316', to: '#ef4444' },
+  DevOps: { from: '#eab308', to: '#f59e0b' }
 };
 
 export default function Certifications() {
   const [selectedCategory, setSelectedCategory] = useState("All");
+  const [hoveredCard, setHoveredCard] = useState(null);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [particles, setParticles] = useState([]);
-  const [hoveredCard, setHoveredCard] = useState(null);
+  const canvasRef = useRef(null);
 
   const categories = ["All", ...new Set(certificationsData.map(c => c.category))];
   const filteredCerts = selectedCategory === "All" ? certificationsData : certificationsData.filter(c => c.category === selectedCategory);
 
   useEffect(() => {
-    setParticles([...Array(40)].map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      duration: Math.random() * 15 + 10,
-      delay: Math.random() * 5,
+    setParticles([...Array(100)].map(() => ({
+      x: Math.random() * window.innerWidth,
+      y: Math.random() * window.innerHeight,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      size: Math.random() * 2 + 1,
+      color: ['#a855f7', '#ec4899', '#3b82f6', '#10b981', '#f97316'][Math.floor(Math.random() * 5)],
     })));
   }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    let animationId;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      setParticles(prev => prev.map(p => {
+        let newX = p.x + p.vx;
+        let newY = p.y + p.vy;
+        
+        if (newX < 0 || newX > canvas.width) p.vx *= -1;
+        if (newY < 0 || newY > canvas.height) p.vy *= -1;
+        
+        newX = Math.max(0, Math.min(canvas.width, newX));
+        newY = Math.max(0, Math.min(canvas.height, newY));
+
+        ctx.beginPath();
+        ctx.arc(newX, newY, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+
+        return { ...p, x: newX, y: newY };
+      }));
+
+      particles.forEach((p1, i) => {
+        particles.slice(i + 1).forEach(p2 => {
+          const dx = p1.x - p2.x;
+          const dy = p1.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.moveTo(p1.x, p1.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.strokeStyle = `rgba(168, 85, 247, ${1 - dist / 120})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        });
+      });
+
+      animationId = requestAnimationFrame(animate);
+    };
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, [particles]);
 
   return (
     <div
       onMouseMove={(e) => setMousePos({ x: e.clientX, y: e.clientY })}
       style={{
         minHeight: '100vh',
-        background: 'radial-gradient(ellipse at top, rgba(88,28,135,0.3) 0%, #0a0a0a 50%, #000 100%)',
+        background: 'radial-gradient(ellipse at top, #1e1b4b 0%, #0a0a0a 50%, #000 100%)',
         position: 'relative',
         overflow: 'hidden',
         fontFamily: 'system-ui, -apple-system, sans-serif',
       }}
     >
       <style>{`
-        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-30px) rotate(180deg); } }
-        @keyframes pulse-glow { 0%, 100% { box-shadow: 0 0 20px currentColor; } 50% { box-shadow: 0 0 50px currentColor; } }
-        @keyframes shimmer { 0% { background-position: -200%; } 100% { background-position: 200%; } }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
-        @keyframes fade-in { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes scale-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-        @keyframes border-flow { 0% { background-position: 0% 50%; } 100% { background-position: 200% 50%; } }
-        .float { animation: float var(--duration, 15s) ease-in-out infinite; }
-        .pulse-glow { animation: pulse-glow 3s ease-in-out infinite; }
-        .shimmer { animation: shimmer 3s linear infinite; background-size: 200%; }
+        @keyframes float { 0%, 100% { transform: translateY(0px) rotate(0deg); } 50% { transform: translateY(-25px) rotate(180deg); } }
+        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 0.8; } 50% { transform: scale(1.1); opacity: 1; } }
+        @keyframes glow { 0%, 100% { box-shadow: 0 0 20px var(--glow-color), 0 0 40px var(--glow-color); } 50% { box-shadow: 0 0 40px var(--glow-color), 0 0 80px var(--glow-color); } }
+        @keyframes shimmer { 0% { background-position: -200% center; } 100% { background-position: 200% center; } }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes borderGlow { 0%, 100% { border-color: var(--border-start); box-shadow: 0 0 30px var(--border-start); } 50% { border-color: var(--border-end); box-shadow: 0 0 50px var(--border-end); } }
+        @keyframes ripple { 0% { transform: scale(1); opacity: 1; } 100% { transform: scale(2.5); opacity: 0; } }
+        .float { animation: float 6s ease-in-out infinite; }
+        .pulse { animation: pulse 2s ease-in-out infinite; }
+        .glow { animation: glow 3s ease-in-out infinite; }
+        .shimmer { animation: shimmer 3s linear infinite; background-size: 200% 100%; }
+        .spin { animation: spin 20s linear infinite; }
         .bounce { animation: bounce 2s ease-in-out infinite; }
-        .fade-in { animation: fade-in 0.8s ease-out forwards; }
-        .rotate { animation: rotate 20s linear infinite; }
-        .scale-pulse { animation: scale-pulse 2s ease-in-out infinite; }
-        .border-flow { animation: border-flow 3s linear infinite; }
+        .slideIn { animation: slideIn 0.6s ease-out forwards; }
+        .borderGlow { animation: borderGlow 3s ease-in-out infinite; }
       `}</style>
 
-      {/* Animated Background */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }}>
-        {/* Floating Particles */}
-        {particles.map((p) => (
-          <div
-            key={p.id}
-            className="float"
-            style={{
-              position: 'absolute',
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
-              borderRadius: '50%',
-              background: `radial-gradient(circle, ${['#a855f7', '#ec4899', '#3b82f6'][p.id % 3]}, transparent)`,
-              '--duration': `${p.duration}s`,
-              animationDelay: `${p.delay}s`,
-            }}
-          />
-        ))}
+      {/* Particle Network Canvas */}
+      <canvas ref={canvasRef} style={{ position: 'absolute', inset: 0, pointerEvents: 'none' }} />
 
-        {/* Gradient Orbs */}
-        <div className="float" style={{
-          position: 'absolute',
-          width: '600px',
-          height: '600px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,85,247,0.2), transparent)',
-          filter: 'blur(100px)',
-          top: '10%',
-          left: '10%',
-          '--duration': '20s',
-        }} />
-        <div className="float" style={{
-          position: 'absolute',
-          width: '500px',
-          height: '500px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(236,72,153,0.2), transparent)',
-          filter: 'blur(100px)',
-          bottom: '10%',
-          right: '10%',
-          '--duration': '15s',
-          animationDelay: '5s',
-        }} />
+      {/* Mouse Spotlight */}
+      <div style={{
+        position: 'absolute',
+        width: '600px',
+        height: '600px',
+        borderRadius: '50%',
+        background: 'radial-gradient(circle, rgba(168,85,247,0.2), transparent 70%)',
+        left: mousePos.x - 300,
+        top: mousePos.y - 300,
+        pointerEvents: 'none',
+        filter: 'blur(80px)',
+        transition: 'left 0.3s, top 0.3s',
+      }} />
 
-        {/* Grid Pattern */}
-        <div style={{
+      {/* Rotating Hexagons */}
+      {[...Array(6)].map((_, i) => (
+        <div key={i} className="spin" style={{
           position: 'absolute',
-          inset: 0,
-          backgroundImage: 'linear-gradient(rgba(168,85,247,0.1) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.1) 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
-          opacity: 0.2,
-        }} />
+          left: '50%',
+          top: '50%',
+          width: `${200 + i * 80}px`,
+          height: `${200 + i * 80}px`,
+          transform: 'translate(-50%, -50%)',
+          opacity: 0.1,
+          animationDelay: `${i * -2}s`,
+          animationDuration: `${15 + i * 5}s`,
+        }}>
+          <Hexagon style={{ width: '100%', height: '100%', color: Object.values(categoryColors)[i % 6].from }} />
+        </div>
+      ))}
 
-        {/* Mouse Glow */}
-        <div style={{
-          position: 'absolute',
-          width: '400px',
-          height: '400px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(168,85,247,0.15), transparent 70%)',
-          left: mousePos.x - 200,
-          top: mousePos.y - 200,
-          filter: 'blur(60px)',
-          transition: 'all 0.3s ease',
-        }} />
-      </div>
-
-      <div style={{ position: 'relative', maxWidth: '1280px', margin: '0 auto', padding: '80px 16px' }}>
+      <div style={{ position: 'relative', maxWidth: '1200px', margin: '0 auto', padding: '60px 20px' }}>
         {/* Header */}
-        <div className="fade-in" style={{ textAlign: 'center', marginBottom: '64px' }}>
+        <div className="slideIn" style={{ textAlign: 'center', marginBottom: '60px' }}>
           <div className="bounce" style={{
             display: 'inline-flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '80px',
-            height: '80px',
+            width: '100px',
+            height: '100px',
             borderRadius: '50%',
             background: 'linear-gradient(135deg, #a855f7, #ec4899)',
             marginBottom: '24px',
-            boxShadow: '0 20px 60px rgba(168,85,247,0.4)',
+            position: 'relative',
+            '--glow-color': '#a855f7',
           }}>
-            <Award style={{ width: '40px', height: '40px', color: '#fff' }} />
+            {[...Array(3)].map((_, i) => (
+              <div key={i} style={{
+                position: 'absolute',
+                inset: -2,
+                borderRadius: '50%',
+                border: '2px solid #a855f7',
+                animation: 'ripple 2s ease-out infinite',
+                animationDelay: `${i * 0.6}s`,
+              }} />
+            ))}
+            <Award style={{ width: '50px', height: '50px', color: '#fff', position: 'relative', zIndex: 1 }} />
           </div>
 
           <h1 className="shimmer" style={{
-            fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+            fontSize: 'clamp(2.5rem, 10vw, 5rem)',
             fontWeight: '900',
-            marginBottom: '16px',
-            background: 'linear-gradient(90deg, #a855f7, #ec4899, #3b82f6, #a855f7)',
+            marginBottom: '20px',
+            background: 'linear-gradient(90deg, #a855f7, #ec4899, #3b82f6, #10b981, #a855f7)',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            letterSpacing: '2px',
           }}>
-            Certifications
+            CERTIFICATIONS
           </h1>
-          <p style={{ fontSize: '18px', color: '#9ca3af', maxWidth: '700px', margin: '0 auto', lineHeight: 1.7 }}>
-            Showcasing achievements across <span style={{ color: '#3b82f6', fontWeight: 'bold' }}>web development</span>, <span style={{ color: '#a855f7', fontWeight: 'bold' }}>programming</span>, <span style={{ color: '#ec4899', fontWeight: 'bold' }}>cloud computing</span>, and <span style={{ color: '#f97316', fontWeight: 'bold' }}>AI/ML</span>
-          </p>
 
-          {/* Stats */}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '32px', marginTop: '32px', flexWrap: 'wrap' }}>
+          {/* Animated Stats */}
+          <div style={{ display: 'flex', justifyContent: 'center', gap: '40px', marginTop: '40px', flexWrap: 'wrap' }}>
             {[
-              { icon: Award, value: '19+', label: 'Certificates', color: '#a855f7' },
-              { icon: TrendingUp, value: '6', label: 'Categories', color: '#3b82f6' },
-              { icon: Sparkles, value: '100%', label: 'Verified', color: '#ec4899' },
+              { icon: Award, value: '19+', label: 'Certificates', color: '#a855f7', delay: 0 },
+              { icon: TrendingUp, value: '6', label: 'Categories', color: '#3b82f6', delay: 0.2 },
+              { icon: Sparkles, value: '100%', label: 'Verified', color: '#ec4899', delay: 0.4 },
             ].map((stat, i) => (
-              <div key={i} className="scale-pulse" style={{
+              <div key={i} className="slideIn pulse" style={{
                 display: 'flex',
                 flexDirection: 'column',
                 alignItems: 'center',
-                gap: '8px',
-                animationDelay: `${i * 0.2}s`,
+                gap: '12px',
+                padding: '20px',
+                borderRadius: '20px',
+                background: 'rgba(255,255,255,0.05)',
+                backdropFilter: 'blur(10px)',
+                border: '2px solid rgba(255,255,255,0.1)',
+                animationDelay: `${stat.delay}s`,
               }}>
-                <stat.icon style={{ width: '24px', height: '24px', color: stat.color }} />
-                <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#fff' }}>{stat.value}</div>
-                <div style={{ fontSize: '14px', color: '#9ca3af' }}>{stat.label}</div>
+                <div style={{
+                  width: '60px',
+                  height: '60px',
+                  borderRadius: '50%',
+                  background: `linear-gradient(135deg, ${stat.color}, ${stat.color}80)`,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: `0 10px 30px ${stat.color}60`,
+                }}>
+                  <stat.icon style={{ width: '30px', height: '30px', color: '#fff' }} />
+                </div>
+                <div style={{ fontSize: '32px', fontWeight: 'bold', color: stat.color }}>{stat.value}</div>
+                <div style={{ fontSize: '14px', color: '#9ca3af', fontWeight: '600' }}>{stat.label}</div>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Category Filters */}
-        <div className="fade-in" style={{ 
+        {/* 3D Category Filters */}
+        <div className="slideIn" style={{ 
           display: 'flex', 
           justifyContent: 'center', 
           gap: '12px', 
-          marginBottom: '48px', 
+          marginBottom: '60px', 
           flexWrap: 'wrap',
-          animationDelay: '0.2s',
+          animationDelay: '0.6s',
         }}>
-          <Filter className="bounce" style={{ width: '24px', height: '24px', color: '#a855f7', marginRight: '8px' }} />
-          {categories.map((cat) => (
-            <button
-              key={cat}
-              onClick={() => setSelectedCategory(cat)}
-              style={{
-                padding: '12px 24px',
-                borderRadius: '9999px',
-                border: 'none',
-                background: selectedCategory === cat ? 'linear-gradient(90deg, #a855f7, #ec4899)' : 'rgba(255,255,255,0.05)',
-                color: selectedCategory === cat ? '#fff' : '#9ca3af',
-                fontWeight: 'bold',
-                fontSize: '14px',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease',
-                transform: selectedCategory === cat ? 'scale(1.05)' : 'scale(1)',
-                boxShadow: selectedCategory === cat ? '0 10px 30px rgba(168,85,247,0.4)' : 'none',
-              }}
-              onMouseEnter={(e) => {
-                if (selectedCategory !== cat) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (selectedCategory !== cat) {
-                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }
-              }}
-            >
-              {cat}
-            </button>
-          ))}
+          {categories.map((cat, i) => {
+            const Icon = categoryIcons[cat] || Award;
+            const colors = categoryColors[cat] || categoryColors.Web;
+            const isSelected = selectedCategory === cat;
+            
+            return (
+              <button
+                key={cat}
+                onClick={() => setSelectedCategory(cat)}
+                className={isSelected ? 'glow' : ''}
+                style={{
+                  padding: '14px 26px',
+                  borderRadius: '50px',
+                  border: `3px solid ${isSelected ? colors.from : 'rgba(255,255,255,0.2)'}`,
+                  background: isSelected 
+                    ? `linear-gradient(135deg, ${colors.from}, ${colors.to})`
+                    : 'rgba(255,255,255,0.05)',
+                  backdropFilter: 'blur(10px)',
+                  color: '#fff',
+                  fontWeight: 'bold',
+                  fontSize: '14px',
+                  cursor: 'pointer',
+                  transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: isSelected ? 'scale(1.1) translateY(-4px)' : 'scale(1)',
+                  boxShadow: isSelected ? `0 15px 40px ${colors.from}60` : '0 5px 15px rgba(0,0,0,0.3)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  '--glow-color': colors.from,
+                }}
+                onMouseEnter={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.transform = 'scale(1.05) translateY(-2px)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!isSelected) {
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  }
+                }}
+              >
+                {cat !== "All" && <Icon style={{ width: '18px', height: '18px' }} />}
+                {cat}
+              </button>
+            );
+          })}
         </div>
 
-        {/* Certificates Grid */}
+        {/* Cards Grid */}
         <div style={{
           display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))',
-          gap: '32px',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: '30px',
+          maxWidth: '900px',
+          margin: '0 auto',
         }}>
           {filteredCerts.map((cert, i) => {
             const Icon = categoryIcons[cert.category];
@@ -264,39 +336,58 @@ export default function Certifications() {
             return (
               <div
                 key={i}
-                className="fade-in"
+                className="slideIn"
                 onMouseEnter={() => setHoveredCard(i)}
                 onMouseLeave={() => setHoveredCard(null)}
                 style={{
                   position: 'relative',
                   borderRadius: '24px',
                   overflow: 'hidden',
-                  background: 'rgba(15,23,42,0.8)',
+                  background: 'rgba(15,23,42,0.4)',
                   backdropFilter: 'blur(20px)',
-                  border: `1px solid ${isHovered ? colors.from : 'rgba(255,255,255,0.1)'}`,
-                  transition: 'all 0.5s cubic-bezier(0.4,0,0.2,1)',
-                  transform: isHovered ? 'translateY(-12px) scale(1.02)' : 'translateY(0) scale(1)',
-                  boxShadow: isHovered ? `0 30px 80px ${colors.shadow}` : '0 10px 30px rgba(0,0,0,0.3)',
+                  border: `3px solid ${isHovered ? colors.from : 'rgba(255,255,255,0.1)'}`,
+                  transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)',
+                  transform: isHovered ? 'translateY(-20px) rotateX(5deg) scale(1.03)' : 'translateY(0) rotateX(0deg) scale(1)',
+                  boxShadow: isHovered 
+                    ? `0 30px 80px ${colors.from}60, inset 0 0 60px ${colors.from}20` 
+                    : '0 15px 40px rgba(0,0,0,0.5)',
                   cursor: 'pointer',
-                  animationDelay: `${i * 0.1}s`,
+                  animationDelay: `${0.8 + i * 0.1}s`,
+                  '--border-start': colors.from,
+                  '--border-end': colors.to,
                 }}
               >
-                {/* Animated Border */}
-                <div className="border-flow" style={{
-                  position: 'absolute',
-                  inset: 0,
-                  borderRadius: '24px',
-                  padding: '2px',
-                  background: `linear-gradient(90deg, ${colors.from}, transparent, ${colors.to})`,
-                  WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
-                  WebkitMaskComposite: 'xor',
-                  maskComposite: 'exclude',
-                  opacity: isHovered ? 1 : 0,
-                  transition: 'opacity 0.5s ease',
-                }} />
+                {/* Animated Border Glow */}
+                {isHovered && (
+                  <div className="borderGlow" style={{
+                    position: 'absolute',
+                    inset: -4,
+                    borderRadius: '24px',
+                    padding: '4px',
+                    background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
+                    WebkitMask: 'linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0)',
+                    WebkitMaskComposite: 'xor',
+                    maskComposite: 'exclude',
+                    zIndex: -1,
+                  }} />
+                )}
 
-                {/* Image Container */}
-                <div style={{ position: 'relative', height: '200px', overflow: 'hidden' }}>
+                {/* Floating Stars on Hover */}
+                {isHovered && [...Array(6)].map((_, si) => (
+                  <Star key={si} className="float" style={{
+                    position: 'absolute',
+                    left: `${10 + si * 15}%`,
+                    top: `${10 + (si % 2) * 40}%`,
+                    width: '16px',
+                    height: '16px',
+                    color: colors.from,
+                    animationDelay: `${si * 0.2}s`,
+                    fill: colors.from,
+                  }} />
+                ))}
+
+                {/* Image Section */}
+                <div style={{ position: 'relative', height: '220px', overflow: 'hidden' }}>
                   <img
                     src={cert.image}
                     alt={cert.title}
@@ -304,135 +395,84 @@ export default function Certifications() {
                       width: '100%',
                       height: '100%',
                       objectFit: 'cover',
-                      transition: 'transform 0.7s ease',
-                      transform: isHovered ? 'scale(1.15)' : 'scale(1)',
+                      transition: 'transform 0.8s ease',
+                      transform: isHovered ? 'scale(1.2) rotate(2deg)' : 'scale(1)',
+                      filter: isHovered ? 'brightness(1.2) saturate(1.3)' : 'brightness(1)',
                     }}
                   />
                   
-                  {/* Gradient Overlay */}
                   <div style={{
                     position: 'absolute',
                     inset: 0,
-                    background: 'linear-gradient(180deg, transparent 0%, rgba(15,23,42,0.9) 100%)',
+                    background: `linear-gradient(180deg, transparent 0%, ${colors.from}40 100%)`,
                   }} />
 
-                  {/* Category Badge */}
-                  <div className="bounce" style={{
+                  {/* Glowing Category Badge */}
+                  <div className="pulse" style={{
                     position: 'absolute',
                     top: '16px',
                     right: '16px',
-                    padding: '8px 16px',
-                    borderRadius: '9999px',
-                    background: `linear-gradient(90deg, ${colors.from}, ${colors.to})`,
+                    padding: '10px 18px',
+                    borderRadius: '50px',
+                    background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
                     color: '#fff',
                     fontSize: '12px',
                     fontWeight: 'bold',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '8px',
-                    boxShadow: `0 10px 30px ${colors.shadow}`,
+                    boxShadow: `0 10px 30px ${colors.from}80`,
+                    border: '2px solid rgba(255,255,255,0.3)',
                   }}>
-                    <Icon style={{ width: '14px', height: '14px' }} />
+                    <Icon style={{ width: '16px', height: '16px' }} />
                     {cert.category}
                   </div>
 
-                  {/* Hover Icon */}
+                  {/* Hover Overlay */}
                   <div style={{
                     position: 'absolute',
                     inset: 0,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    background: `linear-gradient(135deg, ${colors.from}95, ${colors.to}95)`,
+                    background: `linear-gradient(135deg, ${colors.from}e0, ${colors.to}e0)`,
                     opacity: isHovered ? 1 : 0,
                     transition: 'opacity 0.5s ease',
                   }}>
-                    <ExternalLink className="scale-pulse" style={{
-                      width: '48px',
-                      height: '48px',
-                      color: '#fff',
-                    }} />
+                    <div className="pulse" style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      background: 'rgba(255,255,255,0.2)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      border: '2px solid #fff',
+                    }}>
+                      <ExternalLink style={{ width: '32px', height: '32px', color: '#fff' }} />
+                    </div>
                   </div>
-
-                  {/* Sparkles */}
-                  {isHovered && (
-                    <>
-                      <Sparkles className="bounce" style={{
-                        position: 'absolute',
-                        top: '32px',
-                        left: '32px',
-                        width: '24px',
-                        height: '24px',
-                        color: '#fbbf24',
-                      }} />
-                      <Sparkles className="bounce" style={{
-                        position: 'absolute',
-                        bottom: '32px',
-                        right: '32px',
-                        width: '20px',
-                        height: '20px',
-                        color: '#ec4899',
-                        animationDelay: '0.2s',
-                      }} />
-                    </>
-                  )}
                 </div>
-
-                {/* Content */}
-                <div style={{ padding: '24px' }}>
-                  <h3 style={{
-                    fontSize: '20px',
-                    fontWeight: '900',
-                    marginBottom: '12px',
-                    color: '#fff',
-                    transition: 'all 0.3s ease',
-                    background: isHovered ? `linear-gradient(90deg, ${colors.from}, ${colors.to})` : 'none',
-                    WebkitBackgroundClip: isHovered ? 'text' : 'unset',
-                    WebkitTextFillColor: isHovered ? 'transparent' : '#fff',
-                  }}>
-                    {cert.title}
-                  </h3>
-
-                  <p style={{
-                    color: '#9ca3af',
-                    fontSize: '14px',
-                    lineHeight: 1.6,
-                    marginBottom: '16px',
-                  }}>
-                    {cert.desc}
-                  </p>
-
-                  {/* View Button */}
+                {/* Content Section */}
+                <div style={{ padding: '20px' }}>
+                  <h3 style={{ fontSize: '20px', fontWeight: '700', marginBottom: '10px', color: '#fff' }}>{cert.title}</h3>
+                  <p style={{ fontSize: '14px', color: '#d1d5db', marginBottom: '16px', minHeight: '48px' }}>{cert.desc}</p>
                   <a
                     href={cert.link}
                     target="_blank"
                     rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
                     style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      padding: '12px 24px',
-                      borderRadius: '12px',
-                      background: `linear-gradient(90deg, ${colors.from}, ${colors.to})`,
+                      display: 'inline-block',
+                      padding: '10px 16px',
+                      borderRadius: '8px',
+                      background: `linear-gradient(135deg, ${colors.from}, ${colors.to})`,
                       color: '#fff',
-                      fontWeight: 'bold',
+                      fontWeight: '600',
                       fontSize: '14px',
                       textDecoration: 'none',
-                      boxShadow: `0 10px 30px ${colors.shadow}`,
-                      transition: 'all 0.3s ease',
-                    }}
-                    onMouseEnter={(e) => {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                      e.currentTarget.style.boxShadow = `0 15px 40px ${colors.shadow}`;
-                    }}
-                    onMouseLeave={(e) => {
-                      e.currentTarget.style.transform = 'scale(1)';
-                      e.currentTarget.style.boxShadow = `0 10px 30px ${colors.shadow}`;
-                    }}
-                  >
+                      boxShadow: `0 10px 30px ${colors.from}80`,
+                    }}>
                     View Certificate
-                    <ExternalLink style={{ width: '16px', height: '16px' }} />
                   </a>
                 </div>
               </div>

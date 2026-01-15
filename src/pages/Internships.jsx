@@ -1,403 +1,715 @@
-import { useState, useEffect } from "react";
-import { Award, Trophy, Zap, Star, CheckCircle2, Eye, X, Sparkles } from "lucide-react";
+import React, { useState, useEffect, useRef } from 'react';
+import { ExternalLink, Sparkles, Award, Zap, Eye, X, CheckCircle2, Calendar, Briefcase, Trophy, Star } from 'lucide-react';
 
 const internships = [
   {
-    title: "MERN Stack",
+    id: 1,
+    title: "MERN Stack Intern",
+    company: "StudyOwl Education Pvt Ltd",
+    period: "May–July 2025",
     badge: "Full-Stack Pro",
     certId: "1bwbNlc9mdPYQOIyUpoiBIOhpyxaMBvbC",
-    color: "#00d4ff",
+    color: "#06b6d4",
+    gradient: "linear-gradient(135deg, #06b6d4, #3b82f6)",
     tech: ["MongoDB", "Express", "React", "Node.js", "JWT"],
-    achievements: ["3+ Apps", "JWT Auth", "REST APIs", "Cloud Deploy"]
+    achievements: ["Built 3+ Apps", "JWT Auth", "REST APIs", "Cloud Deploy"]
   },
   {
-    title: "AI & ML",
+    id: 2,
+    title: "AI/ML Intern",
+    company: "SmartBridge (Remote)",
+    period: "May–June 2025",
     badge: "AI Engineer",
     certId: "1-_8ZI8uZ3DcrFpfZ3pts7VSYrAqPN5Zw",
-    color: "#c026d3",
-    tech: ["Python", "TensorFlow", "Scikit-learn", "Pandas"],
+    color: "#a855f7",
+    gradient: "linear-gradient(135deg, #a855f7, #ec4899)",
+    tech: ["Python", "TensorFlow", "Scikit-learn", "CNN", "Flask"],
     achievements: ["5+ Models", "CNNs", "85%+ Accuracy", "Deployment"]
   },
   {
-    title: "Industry Program",
-    badge: "MNC Ready",
+    id: 3,
+    title: "ML & Data Science Intern",
+    company: "Blackbucks (Remote)",
+    period: "May–June 2024",
+    badge: "Data Specialist",
     certId: "1yQQqBf32o8d3sYlheDCdaLTKj5_hepfY",
     color: "#10b981",
-    tech: ["Agile", "Git", "CI/CD", "Docker"],
-    achievements: ["Agile & Scrum", "Version Control", "Pipelines", "Team Work"]
+    gradient: "linear-gradient(135deg, #10b981, #06b6d4)",
+    tech: ["Python", "Pandas", "Scikit-learn", "Data Analysis"],
+    achievements: ["ML Models", "Data Preprocessing", "Feature Engineering", "Model Evaluation"]
   }
 ];
 
-export default function Internships() {
-  const [active, setActive] = useState(0);
-  const [modal, setModal] = useState(null);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+const Internships = () => {
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [activeCard, setActiveCard] = useState(0);
+  const [modalOpen, setModalOpen] = useState(null);
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
-    const handleMouse = (e) => setMouse({ x: e.clientX, y: e.clientY });
-    window.addEventListener("mousemove", handleMouse);
-    return () => window.removeEventListener("mousemove", handleMouse);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setIsVisible(true);
+      },
+      { threshold: 0.1 }
+    );
+    if (sectionRef.current) observer.observe(sectionRef.current);
+
+    const handleMouseMove = (e) => {
+      if (containerRef.current) {
+        const rect = containerRef.current.getBoundingClientRect();
+        setMousePos({
+          x: e.clientX - rect.left,
+          y: e.clientY - rect.top
+        });
+      }
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
   }, []);
 
   const getDriveThumbnail = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w1000`;
-  const item = internships[active];
 
   return (
-    <div style={{ position: "relative", minHeight: "100vh", background: "#000", overflow: "hidden", color: "#fff", fontFamily: "system-ui", padding: "40px 20px" }}>
-      
-      {/* Animated Background */}
-      <div style={{ position: "absolute", inset: 0, background: "radial-gradient(circle at 30% 40%, #1a0033 0%, #000 60%)", animation: "hueShift 20s infinite" }} />
-      
-      {/* Floating Orbs */}
-      {[...Array(20)].map((_, i) => (
-        <div key={i} style={{
-          position: "absolute",
-          width: Math.random() * 6 + 3 + "px",
-          height: Math.random() * 6 + 3 + "px",
-          background: internships[i % 3].color,
-          borderRadius: "50%",
-          left: Math.random() * 100 + "%",
-          top: Math.random() * 100 + "%",
-          animation: `float ${Math.random() * 15 + 10}s linear infinite`,
-          animationDelay: Math.random() * 5 + "s",
-          opacity: 0.7,
-          boxShadow: `0 0 30px ${internships[i % 3].color}`
-        }} />
-      ))}
+    <div ref={sectionRef} style={{
+      position: 'relative',
+      minHeight: '100vh',
+      width: '100%',
+      background: '#000000',
+      padding: '20px 20px 80px',
+      overflow: 'hidden'
+    }}>
+      <style>{`
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
+        @keyframes morphFloat {
+          0%, 100% { 
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+          }
+          25% { 
+            transform: translate(18px, -18px) rotate(90deg) scale(1.08);
+            border-radius: 58% 42% 75% 25% / 76% 46% 54% 24%;
+          }
+          50% { 
+            transform: translate(0, -35px) rotate(180deg) scale(0.95);
+            border-radius: 50% 50% 33% 67% / 55% 27% 73% 45%;
+          }
+          75% { 
+            transform: translate(-18px, -18px) rotate(270deg) scale(1.08);
+            border-radius: 33% 67% 58% 42% / 63% 68% 32% 37%;
+          }
+        }
+        @keyframes particleFloat {
+          0% { transform: translateY(0) scale(0); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(-110vh) scale(1); opacity: 0; }
+        }
+        @keyframes gridPulse {
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.6; }
+        }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.05); } }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideIn { from { transform: translateX(-50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes ringExpand {
+          0% { transform: scale(0.92); opacity: 0.7; }
+          100% { transform: scale(1.25); opacity: 0; }
+        }
+        @keyframes breathe {
+          0%, 100% { opacity: 0.4; transform: scale(1); }
+          50% { opacity: 0.7; transform: scale(1.08); }
+        }
+      `}</style>
 
-      {/* Mouse Glow */}
+      {/* Background Effects */}
       <div style={{
-        position: "fixed",
-        width: "600px",
-        height: "600px",
-        background: `radial-gradient(circle, ${item.color}50 0%, transparent 70%)`,
-        left: mouse.x - 300,
-        top: mouse.y - 300,
-        pointerEvents: "none",
-        transition: "all 0.2s",
-        zIndex: 1
-      }} />
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        overflow: 'hidden'
+      }}>
+        {/* Dynamic Mesh Gradient */}
+        <div style={{
+          position: 'absolute',
+          top: '-50%',
+          left: '-50%',
+          width: '200%',
+          height: '200%',
+          background: internships[activeCard].gradient,
+          opacity: 0.14,
+          filter: 'blur(110px)',
+          transition: 'all 0.8s ease-out',
+          transform: `translate(${mousePos.x * 0.02}px, ${mousePos.y * 0.02}px)`
+        }} />
 
-      {/* Wave Background */}
-      <svg style={{ position: "absolute", bottom: 0, left: 0, width: "100%", height: "300px", opacity: 0.1 }} viewBox="0 0 1440 320">
-        <path fill={item.color} d="M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z">
-          <animate attributeName="d" dur="10s" repeatCount="indefinite" values="
-            M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;
-            M0,128L48,144C96,160,192,192,288,197.3C384,203,480,181,576,154.7C672,128,768,96,864,101.3C960,107,1056,149,1152,160C1248,171,1344,149,1392,138.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z;
-            M0,160L48,176C96,192,192,224,288,224C384,224,480,192,576,165.3C672,139,768,117,864,128C960,139,1056,181,1152,186.7C1248,192,1344,160,1392,144L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z
-          " />
-        </path>
-      </svg>
+        {/* Floating Morphing Shapes */}
+        {[...Array(12)].map((_, i) => (
+          <div key={`shape-${i}`} style={{
+            position: 'absolute',
+            width: `${70 + i * 12}px`,
+            height: `${70 + i * 12}px`,
+            left: `${(i * 15) % 100}%`,
+            top: `${(i * 22) % 100}%`,
+            background: `linear-gradient(135deg, ${internships[i % 3].color}12, transparent)`,
+            border: `1px solid ${internships[i % 3].color}25`,
+            animation: `morphFloat ${9 + i * 1.2}s ease-in-out ${i * 0.4}s infinite`,
+            backdropFilter: 'blur(8px)'
+          }} />
+        ))}
 
-      <div style={{ position: "relative", zIndex: 10, maxWidth: "1400px", margin: "0 auto" }}>
-        
-        {/* Header */}
-        <div style={{ textAlign: "center", marginBottom: "60px", animation: "slideDown 1s ease" }}>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "12px", padding: "12px 30px", background: "rgba(255,255,255,0.05)", border: "2px solid rgba(255,255,255,0.2)", borderRadius: "50px", marginBottom: "20px", backdropFilter: "blur(10px)" }}>
-            <Trophy size={24} color="#0ff" style={{ animation: "spin 3s linear infinite" }} />
-            <span style={{ fontSize: "14px", fontWeight: "700", color: "#0ff" }}>PROFESSIONAL EXPERIENCE</span>
-            <Sparkles size={24} color="#f0f" style={{ animation: "pulse 2s infinite" }} />
-          </div>
-          
-          <h1 style={{
-            fontSize: "clamp(4rem, 12vw, 8rem)",
-            fontWeight: "900",
-            background: `linear-gradient(90deg, ${item.color}, #fff, ${item.color})`,
-            backgroundSize: "200%",
-            WebkitBackgroundClip: "text",
-            WebkitTextFillColor: "transparent",
-            animation: "shimmer 4s linear infinite",
-            marginBottom: "20px",
-            lineHeight: 0.9
+        {/* Energy Particles */}
+        {[...Array(40)].map((_, i) => (
+          <div key={`particle-${i}`} style={{
+            position: 'absolute',
+            width: `${2 + Math.random() * 4}px`,
+            height: `${2 + Math.random() * 4}px`,
+            borderRadius: '50%',
+            left: `${Math.random() * 100}%`,
+            top: `${Math.random() * 100}%`,
+            background: internships[i % 3].color,
+            boxShadow: `0 0 18px ${internships[i % 3].color}`,
+            animation: `particleFloat ${12 + Math.random() * 12}s linear ${Math.random() * 5}s infinite`,
+            opacity: 0.7
+          }} />
+        ))}
+
+        {/* Animated Grid */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `linear-gradient(${internships[activeCard].color}12 1px, transparent 1px), linear-gradient(90deg, ${internships[activeCard].color}12 1px, transparent 1px)`,
+          backgroundSize: '70px 70px',
+          animation: 'gridPulse 4s ease-in-out infinite',
+          opacity: 0.5,
+          transition: 'background-image 0.8s ease'
+        }} />
+
+        {/* Mouse Glow */}
+        <div style={{
+          position: 'fixed',
+          width: '650px',
+          height: '650px',
+          background: `radial-gradient(circle, ${internships[activeCard].color}35 0%, transparent 70%)`,
+          left: mousePos.x - 325,
+          top: mousePos.y - 325,
+          pointerEvents: 'none',
+          transition: 'all 0.6s ease',
+          filter: 'blur(70px)'
+        }} />
+      </div>
+
+      <div ref={containerRef} style={{
+        position: 'relative',
+        maxWidth: '1400px',
+        margin: '0 auto',
+        zIndex: 2
+      }}>
+        {/* Command Center Header */}
+        <div style={{
+          textAlign: 'center',
+          marginBottom: '80px',
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(-50px)',
+          transition: 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}>
+          {/* Professional Badge */}
+          <div style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '14px',
+            padding: '14px 32px',
+            background: 'rgba(0,0,0,0.6)',
+            backdropFilter: 'blur(25px)',
+            border: '1px solid rgba(255,255,255,0.15)',
+            borderRadius: '9999px',
+            marginBottom: '36px',
+            animation: 'fadeInUp 1s ease-out 0.2s backwards'
           }}>
-            INTERNSHIPS
+            <Trophy style={{width: '22px', height: '22px', color: '#fbbf24'}} />
+            <span style={{
+              fontSize: '12px',
+              fontWeight: '800',
+              letterSpacing: '0.15em',
+              background: 'linear-gradient(90deg, #fbbf24, #a855f7)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text'
+            }}>
+              PROFESSIONAL EXPERIENCE
+            </span>
+            <Sparkles style={{width: '22px', height: '22px', color: '#a855f7'}} />
+          </div>
+
+          {/* Main Title */}
+          <h1 style={{
+            fontSize: 'clamp(3.5rem, 11vw, 8rem)',
+            fontWeight: '900',
+            lineHeight: 0.9,
+            marginBottom: '28px',
+            letterSpacing: '-0.02em'
+          }}>
+            <span style={{
+              display: 'block',
+              color: '#fff',
+              animation: 'fadeInUp 1s ease-out 0.4s backwards'
+            }}>
+              Industry
+            </span>
+            <span style={{
+              display: 'block',
+              background: 'linear-gradient(135deg, #06b6d4, #a855f7, #ec4899)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'fadeInUp 1s ease-out 0.6s backwards'
+            }}>
+              Internships
+            </span>
           </h1>
+
+          <p style={{
+            fontSize: '20px',
+            color: '#9ca3af',
+            maxWidth: '700px',
+            margin: '0 auto',
+            animation: 'fadeInUp 1s ease-out 0.8s backwards'
+          }}>
+            Real-world experience in <span style={{color: internships[activeCard].color, fontWeight: '700', transition: 'color 0.6s ease'}}>cutting-edge technologies</span>
+          </p>
+
+          {/* Decorative Line */}
+          <div style={{
+            width: '150px',
+            height: '3px',
+            background: `linear-gradient(90deg, transparent, ${internships[activeCard].color}, transparent)`,
+            margin: '30px auto 0',
+            borderRadius: '10px',
+            animation: 'fadeInUp 1s ease-out 0.9s backwards',
+            transition: 'background 0.6s ease'
+          }} />
         </div>
 
-        {/* Main Grid */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(350px, 1fr))", gap: "30px", marginBottom: "60px" }}>
-          {internships.map((int, i) => (
-            <div key={i} onClick={() => setActive(i)} style={{
-              position: "relative",
-              cursor: "pointer",
-              transition: "all 0.6s cubic-bezier(0.4, 0, 0.2, 1)",
-              transform: active === i ? "scale(1.05) translateY(-10px)" : "scale(1)",
-              animation: `cardPop 0.8s ease ${i * 0.2}s backwards`
-            }}>
-              
-              {/* Glow */}
+        {/* Internship Cards Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
+          gap: 'clamp(30px, 4vw, 40px)',
+          marginBottom: '80px',
+          padding: '0 10px'
+        }}>
+          {internships.map((internship, index) => (
+            <div
+              key={internship.id}
+              onMouseEnter={() => setHoveredCard(internship.id)}
+              onMouseLeave={() => setHoveredCard(null)}
+              onClick={() => setActiveCard(index)}
+              style={{
+                position: 'relative',
+                cursor: 'pointer',
+                transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                transform: (activeCard === index || hoveredCard === internship.id) ? 'translateY(-12px)' : 'translateY(0)',
+                opacity: isVisible ? 1 : 0,
+                animation: `fadeInUp 1s ease-out ${0.6 + index * 0.15}s backwards`
+              }}
+            >
+              {/* Glow Effect */}
               <div style={{
-                position: "absolute",
-                inset: "-20px",
-                background: active === i ? int.color : "transparent",
-                filter: "blur(40px)",
-                opacity: active === i ? 0.6 : 0,
-                transition: "all 0.6s",
-                animation: active === i ? "breathe 3s infinite" : "none"
+                position: 'absolute',
+                inset: '-35px',
+                borderRadius: '36px',
+                background: internship.gradient,
+                filter: 'blur(50px)',
+                opacity: (activeCard === index || hoveredCard === internship.id) ? 0.6 : 0,
+                transition: 'opacity 0.5s'
               }} />
 
+              {/* Pulse Ring */}
+              {activeCard === index && (
+                <div style={{
+                  position: 'absolute',
+                  inset: '-18px',
+                  borderRadius: '32px',
+                  border: `3px solid ${internship.color}`,
+                  zIndex: 0,
+                  animation: 'ringExpand 2.5s ease-out infinite'
+                }} />
+              )}
+
               <div style={{
-                position: "relative",
-                background: "rgba(255,255,255,0.03)",
-                backdropFilter: "blur(20px)",
-                border: active === i ? `3px solid ${int.color}` : "2px solid rgba(255,255,255,0.1)",
-                borderRadius: "30px",
-                overflow: "hidden",
-                boxShadow: active === i ? `0 30px 80px ${int.color}40` : "0 20px 50px rgba(0,0,0,0.5)"
+                position: 'relative',
+                background: 'rgba(10,10,10,0.95)',
+                borderRadius: '28px',
+                border: `2px solid ${(activeCard === index || hoveredCard === internship.id) ? internship.color : 'rgba(255,255,255,0.1)'}`,
+                backdropFilter: 'blur(30px)',
+                overflow: 'hidden',
+                transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                boxShadow: (activeCard === index || hoveredCard === internship.id) 
+                  ? `0 30px 80px ${internship.color}40` 
+                  : '0 10px 40px rgba(0,0,0,0.5)'
               }}>
-                
+                {/* Card Background */}
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: internship.gradient,
+                  opacity: hoveredCard === internship.id ? 0.12 : 0.06,
+                  transition: 'opacity 0.5s'
+                }} />
+
                 {/* Badge */}
                 <div style={{
-                  position: "absolute",
-                  top: "20px",
-                  right: "20px",
-                  padding: "8px 20px",
-                  background: `linear-gradient(135deg, ${int.color}, ${int.color}aa)`,
-                  borderRadius: "50px",
-                  fontSize: "12px",
-                  fontWeight: "900",
+                  position: 'absolute',
+                  top: '20px',
+                  right: '20px',
+                  padding: '8px 18px',
+                  borderRadius: '9999px',
+                  fontSize: '11px',
+                  fontWeight: '900',
+                  color: '#000',
+                  background: internship.color,
+                  boxShadow: `0 5px 20px ${internship.color}60`,
                   zIndex: 10,
-                  boxShadow: `0 0 20px ${int.color}`,
-                  animation: "badgeFloat 3s infinite"
+                  letterSpacing: '0.05em'
                 }}>
-                  {int.badge}
+                  {internship.badge}
                 </div>
 
                 {/* Certificate Image */}
-                <div onClick={(e) => { e.stopPropagation(); setModal(int); }} style={{
-                  position: "relative",
-                  height: "250px",
-                  overflow: "hidden",
-                  cursor: "pointer"
-                }}>
-                  <img src={getDriveThumbnail(int.certId)} alt={int.title} style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    transition: "transform 0.8s",
-                    transform: active === i ? "scale(1.15)" : "scale(1.05)"
-                  }} loading="lazy" />
-                  
+                <div
+                  onClick={(e) => { e.stopPropagation(); setModalOpen(internship); }}
+                  style={{
+                    position: 'relative',
+                    height: '240px',
+                    overflow: 'hidden',
+                    cursor: 'pointer'
+                  }}
+                >
+                  <img
+                    src={getDriveThumbnail(internship.certId)}
+                    alt={internship.title}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'cover',
+                      transition: 'transform 0.7s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      transform: (activeCard === index || hoveredCard === internship.id) ? 'scale(1.08)' : 'scale(1)'
+                    }}
+                    loading="lazy"
+                  />
+
                   <div style={{
-                    position: "absolute",
+                    position: 'absolute',
                     inset: 0,
-                    background: "linear-gradient(to top, rgba(0,0,0,0.9), transparent 60%)",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    opacity: active === i ? 1 : 0,
-                    transition: "opacity 0.6s"
+                    background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent 60%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    opacity: (activeCard === index || hoveredCard === internship.id) ? 1 : 0,
+                    transition: 'opacity 0.5s'
                   }}>
                     <div style={{
-                      padding: "12px 30px",
-                      background: "rgba(255,255,255,0.2)",
-                      backdropFilter: "blur(10px)",
-                      borderRadius: "20px",
-                      border: "2px solid rgba(255,255,255,0.3)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                      fontWeight: "700"
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      padding: '12px 28px',
+                      background: 'rgba(255,255,255,0.15)',
+                      backdropFilter: 'blur(15px)',
+                      borderRadius: '20px',
+                      border: `2px solid ${internship.color}`,
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#fff'
                     }}>
-                      <Eye size={20} color={int.color} />
-                      View Certificate
+                      <Eye style={{width: '20px', height: '20px', color: internship.color}} />
+                      <span>View Certificate</span>
                     </div>
                   </div>
                 </div>
 
                 {/* Content */}
-                <div style={{ padding: "30px" }}>
+                <div style={{
+                  padding: '32px',
+                  position: 'relative',
+                  zIndex: 1
+                }}>
                   <h3 style={{
-                    fontSize: "2rem",
-                    fontWeight: "900",
-                    marginBottom: "20px",
-                    background: active === i ? `linear-gradient(90deg, ${int.color}, #fff)` : "#fff",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent"
+                    fontSize: '26px',
+                    fontWeight: '800',
+                    color: '#fff',
+                    marginBottom: '8px',
+                    lineHeight: 1.2
                   }}>
-                    {int.title}
+                    {internship.title}
                   </h3>
-
-                  {/* Tech Tags */}
-                  <div style={{ display: "flex", flexWrap: "wrap", gap: "10px", marginBottom: "20px" }}>
-                    {int.tech.map((t, idx) => (
-                      <span key={idx} style={{
-                        padding: "8px 16px",
-                        fontSize: "13px",
-                        background: `${int.color}20`,
-                        border: `1px solid ${int.color}50`,
-                        borderRadius: "12px",
-                        color: "#e0e0e0",
-                        animation: active === i ? `slideIn 0.4s ease ${idx * 0.1}s backwards` : "none"
-                      }}>
-                        {t}
-                      </span>
-                    ))}
+                  
+                  <div style={{
+                    fontSize: '14px',
+                    color: '#9ca3af',
+                    marginBottom: '6px'
+                  }}>
+                    {internship.company}
+                  </div>
+                  
+                  <div style={{
+                    fontSize: '13px',
+                    fontWeight: '600',
+                    color: internship.color,
+                    marginBottom: '20px'
+                  }}>
+                    {internship.period}
                   </div>
 
-                  {/* Achievements */}
-                  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px", marginBottom: "25px" }}>
-                    {int.achievements.map((a, idx) => (
-                      <div key={idx} style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
-                        fontSize: "13px",
-                        color: "#d0d0d0",
-                        padding: "8px",
-                        background: "rgba(255,255,255,0.03)",
-                        borderRadius: "10px",
-                        animation: active === i ? `slideUp 0.5s ease ${idx * 0.1}s backwards` : "none"
-                      }}>
-                        <CheckCircle2 size={16} color={int.color} />
-                        <span>{a}</span>
+                  {/* Tech Tags */}
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '10px',
+                    marginBottom: '24px'
+                  }}>
+                    {internship.tech.map((tech, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          padding: '8px 14px',
+                          fontSize: '12px',
+                          fontWeight: '600',
+                          border: `1px solid ${internship.color}40`,
+                          background: `${internship.color}10`,
+                          borderRadius: '10px',
+                          color: '#e0e0e0',
+                          animation: activeCard === index ? `slideIn 0.4s ease ${i * 0.08}s backwards` : 'none'
+                        }}
+                      >
+                        {tech}
                       </div>
                     ))}
                   </div>
 
-                  {/* Button */}
-                  <a href={`https://drive.google.com/file/d/${int.certId}/view`} target="_blank" rel="noopener noreferrer" onClick={(e) => e.stopPropagation()} style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    gap: "12px",
-                    width: "100%",
-                    padding: "16px",
-                    background: `linear-gradient(135deg, ${int.color}, ${int.color}cc)`,
-                    borderRadius: "16px",
-                    fontWeight: "700",
-                    color: "#fff",
-                    border: `2px solid ${int.color}80`,
-                    boxShadow: `0 10px 30px ${int.color}50`,
-                    transition: "all 0.3s"
+                  {/* Achievements */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: '1fr 1fr',
+                    gap: '10px',
+                    marginBottom: '24px'
                   }}>
-                    <Award size={20} />
-                    View Certificate
+                    {internship.achievements.map((achievement, i) => (
+                      <div
+                        key={i}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          padding: '10px 12px',
+                          background: 'rgba(255,255,255,0.04)',
+                          borderRadius: '12px',
+                          fontSize: '13px',
+                          color: '#d0d0d0',
+                          animation: activeCard === index ? `fadeInUp 0.5s ease ${i * 0.1}s backwards` : 'none'
+                        }}
+                      >
+                        <CheckCircle2 style={{width: '16px', height: '16px', color: internship.color, flexShrink: 0}} />
+                        <span>{achievement}</span>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* View Button */}
+                  <a
+                    href={`https://drive.google.com/file/d/${internship.certId}/view`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '12px',
+                      width: '100%',
+                      padding: '16px',
+                      borderRadius: '16px',
+                      border: 'none',
+                      background: internship.gradient,
+                      fontSize: '14px',
+                      fontWeight: '700',
+                      color: '#fff',
+                      textDecoration: 'none',
+                      transition: 'all 0.3s',
+                      cursor: 'pointer',
+                      boxShadow: `0 10px 35px ${internship.color}40`
+                    }}
+                  >
+                    <Award style={{width: '20px', height: '20px'}} />
+                    <span>View Full Certificate</span>
                   </a>
                 </div>
 
                 {/* Corner Accents */}
                 <div style={{
-                  position: "absolute",
-                  top: "15px",
-                  left: "15px",
-                  width: "50px",
-                  height: "50px",
-                  borderTop: `3px solid ${int.color}`,
-                  borderLeft: `3px solid ${int.color}`,
-                  borderTopLeftRadius: "15px",
-                  opacity: active === i ? 1 : 0.3,
-                  transition: "opacity 0.6s"
+                  position: 'absolute',
+                  top: '15px',
+                  left: '15px',
+                  width: '50px',
+                  height: '50px',
+                  borderTop: `3px solid ${internship.color}`,
+                  borderLeft: `3px solid ${internship.color}`,
+                  borderTopLeftRadius: '15px',
+                  opacity: activeCard === index ? 1 : 0.3,
+                  transition: 'opacity 0.5s'
                 }} />
                 <div style={{
-                  position: "absolute",
-                  bottom: "15px",
-                  right: "15px",
-                  width: "50px",
-                  height: "50px",
-                  borderBottom: `3px solid ${int.color}`,
-                  borderRight: `3px solid ${int.color}`,
-                  borderBottomRightRadius: "15px",
-                  opacity: active === i ? 1 : 0.3,
-                  transition: "opacity 0.6s"
+                  position: 'absolute',
+                  bottom: '15px',
+                  right: '15px',
+                  width: '50px',
+                  height: '50px',
+                  borderBottom: `3px solid ${internship.color}`,
+                  borderRight: `3px solid ${internship.color}`,
+                  borderBottomRightRadius: '15px',
+                  opacity: activeCard === index ? 1 : 0.3,
+                  transition: 'opacity 0.5s'
                 }} />
               </div>
             </div>
           ))}
         </div>
 
-        {/* Stats */}
-        <div style={{ textAlign: "center" }}>
-          <div style={{ display: "inline-flex", gap: "60px", padding: "40px 60px", background: "rgba(255,255,255,0.05)", border: "2px solid rgba(255,255,255,0.15)", borderRadius: "50px", backdropFilter: "blur(20px)" }}>
-            {[
-              { label: "INTERNSHIPS", val: "3", icon: Trophy, color: "#00d4ff" },
-              { label: "MONTHS", val: "8+", icon: Zap, color: "#c026d3" },
-              { label: "COMPLETE", val: "100%", icon: Star, color: "#10b981" }
-            ].map((stat, i) => {
-              const Icon = stat.icon;
-              return (
-                <div key={i} style={{ textAlign: "center", animation: "float 4s ease-in-out infinite", animationDelay: `${i * 0.5}s` }}>
-                  <Icon size={40} color={stat.color} style={{ marginBottom: "15px", filter: `drop-shadow(0 0 15px ${stat.color})` }} />
-                  <div style={{ fontSize: "3.5rem", fontWeight: "900", color: stat.color, textShadow: `0 0 25px ${stat.color}` }}>{stat.val}</div>
-                  <div style={{ fontSize: "13px", color: "#999", letterSpacing: "2px" }}>{stat.label}</div>
-                </div>
-              );
-            })}
-          </div>
+        {/* Stats Bar */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+          gap: '28px',
+          opacity: isVisible ? 1 : 0,
+          transition: 'opacity 1s'
+        }}>
+          {[
+            { icon: Briefcase, label: "Internships", value: "3", color: "#06b6d4" },
+            { icon: Calendar, label: "Total Duration", value: "8+ Months", color: "#a855f7" },
+            { icon: Star, label: "Completion", value: "100%", color: "#10b981" }
+          ].map((stat, i) => (
+            <div key={i} style={{
+              padding: '36px',
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(25px)',
+              border: '1px solid rgba(255,255,255,0.1)',
+              borderRadius: '24px',
+              textAlign: 'center',
+              animation: `fadeInUp 1s ease-out ${1.5 + i * 0.15}s backwards`
+            }}>
+              <stat.icon style={{width: '32px', height: '32px', color: stat.color, marginBottom: '12px'}} />
+              <div style={{
+                fontSize: '40px',
+                fontWeight: '900',
+                color: stat.color,
+                marginBottom: '8px',
+                filter: 'drop-shadow(0 0 18px currentColor)'
+              }}>
+                {stat.value}
+              </div>
+              <div style={{
+                fontSize: '13px',
+                color: '#9ca3af',
+                fontWeight: '600',
+                textTransform: 'uppercase',
+                letterSpacing: '0.08em'
+              }}>
+                {stat.label}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
-      {/* Modal */}
-      {modal && (
-        <div onClick={() => setModal(null)} style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 1000,
-          background: "rgba(0,0,0,0.95)",
-          backdropFilter: "blur(30px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "20px",
-          animation: "fadeIn 0.4s"
-        }}>
-          <div onClick={(e) => e.stopPropagation()} style={{
-            position: "relative",
-            maxWidth: "1200px",
-            width: "100%",
-            borderRadius: "30px",
-            overflow: "hidden",
-            border: `4px solid ${modal.color}`,
-            boxShadow: `0 40px 100px ${modal.color}60`,
-            animation: "zoomIn 0.5s ease"
-          }}>
+      {/* Certificate Modal */}
+      {modalOpen && (
+        <div
+          onClick={() => setModalOpen(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            zIndex: 1000,
+            background: 'rgba(0,0,0,0.96)',
+            backdropFilter: 'blur(30px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '24px',
+            animation: 'fadeInUp 0.4s ease-out'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              position: 'relative',
+              maxWidth: '1200px',
+              width: '100%',
+              borderRadius: '32px',
+              overflow: 'hidden',
+              border: `4px solid ${modalOpen.color}`,
+              boxShadow: `0 50px 120px ${modalOpen.color}50`,
+              animation: 'fadeInUp 0.5s ease-out'
+            }}
+          >
+            {/* Glow */}
             <div style={{
-              position: "absolute",
-              inset: "-80px",
-              background: `radial-gradient(circle, ${modal.color}60, transparent 70%)`,
-              filter: "blur(80px)",
-              animation: "breathe 4s infinite"
+              position: 'absolute',
+              inset: '-90px',
+              background: `radial-gradient(circle, ${modalOpen.color}50, transparent 70%)`,
+              filter: 'blur(90px)',
+              animation: 'breathe 4s ease-in-out infinite'
             }} />
-            
-            <img src={getDriveThumbnail(modal.certId)} alt={modal.title} style={{ width: "100%", display: "block", position: "relative", zIndex: 2 }} loading="eager" />
-            
-            <button onClick={() => setModal(null)} style={{
-              position: "absolute",
-              top: "20px",
-              right: "20px",
-              width: "60px",
-              height: "60px",
-              borderRadius: "50%",
-              background: "rgba(239,68,68,0.9)",
-              border: "3px solid rgba(255,255,255,0.5)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              cursor: "pointer",
-              boxShadow: "0 10px 30px rgba(239,68,68,0.5)",
-              transition: "all 0.3s"
-            }}>
-              <X size={30} color="#fff" />
+
+            <img
+              src={getDriveThumbnail(modalOpen.certId)}
+              alt={modalOpen.title}
+              style={{
+                width: '100%',
+                display: 'block',
+                position: 'relative',
+                zIndex: 2
+              }}
+              loading="eager"
+            />
+
+            <button
+              onClick={() => setModalOpen(null)}
+              style={{
+                position: 'absolute',
+                top: '24px',
+                right: '24px',
+                width: '56px',
+                height: '56px',
+                borderRadius: '50%',
+                background: 'rgba(239,68,68,0.9)',
+                border: '3px solid rgba(255,255,255,0.4)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                boxShadow: '0 12px 35px rgba(239,68,68,0.5)',
+                transition: 'all 0.3s',
+                zIndex: 3
+              }}
+            >
+              <X style={{width: '28px', height: '28px', color: '#fff'}} />
             </button>
           </div>
         </div>
       )}
-
-      <style>{`
-        @keyframes float { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-80vh) rotate(360deg); } }
-        @keyframes shimmer { 0%, 100% { background-position: 0%; } 50% { background-position: 200%; } }
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(1.1); } }
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes breathe { 0%, 100% { opacity: 0.5; transform: scale(1); } 50% { opacity: 0.8; transform: scale(1.1); } }
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-50px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes cardPop { from { opacity: 0; transform: scale(0.8) translateY(50px); } to { opacity: 1; transform: scale(1) translateY(0); } }
-        @keyframes badgeFloat { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        @keyframes zoomIn { from { transform: scale(0.85); } to { transform: scale(1); } }
-        @keyframes hueShift { 0%, 100% { filter: hue-rotate(0deg); } 50% { filter: hue-rotate(60deg); } }
-      `}</style>
     </div>
   );
-}
+};
+
+export default Internships;

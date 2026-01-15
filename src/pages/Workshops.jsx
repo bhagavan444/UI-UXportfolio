@@ -1,309 +1,318 @@
-import { Smartphone, Code, Brain, Cpu, Crown, Zap, ArrowRight, Calendar, Users, X, Sparkles, TrendingUp, Star } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import {
+  Smartphone, Code, Brain, Cpu, Crown, Zap, ArrowRight, Calendar,
+  Users, X, Sparkles, TrendingUp, Star, Rocket, Target, Award
+} from "lucide-react";
 
-export default function WorkshopShowcase() {
+const workshops = [
+  {
+    title: "Mobile App Development",
+    icon: Smartphone,
+    gradient: "linear-gradient(135deg, #22d3ee, #3b82f6)",
+    color: "#22d3ee",
+    desc: "Build production-grade cross-platform apps with React Native & Flutter.",
+    skills: ["React Native", "Flutter", "Firebase", "App Store Deploy"],
+    slots: 25,
+    enrolled: 489,
+    duration: "8 Weeks",
+    level: "Intermediate",
+    featured: true
+  },
+  {
+    title: "Full-Stack Engineering",
+    icon: Code,
+    gradient: "linear-gradient(135deg, #a855f7, #ec4899)",
+    color: "#a855f7",
+    desc: "Master Next.js 14, TypeScript, GraphQL & cloud-native backends.",
+    skills: ["Next.js 14", "TypeScript", "GraphQL", "PostgreSQL"],
+    slots: 30,
+    enrolled: 642,
+    duration: "12 Weeks",
+    level: "Beginner → Expert",
+    featured: false
+  },
+  {
+    title: "Machine Learning Pro",
+    icon: Brain,
+    gradient: "linear-gradient(135deg, #10b981, #14b8a6)",
+    color: "#10b981",
+    desc: "Real-world ML pipelines, MLOps & production model deployment.",
+    skills: ["Python ML", "MLOps", "Feature Eng", "Time Series"],
+    slots: 20,
+    enrolled: 573,
+    duration: "10 Weeks",
+    level: "Intermediate",
+    featured: false
+  },
+  {
+    title: "Deep Learning & Gen AI",
+    icon: Cpu,
+    gradient: "linear-gradient(135deg, #f59e0b, #f97316)",
+    color: "#f59e0b",
+    desc: "Transformers, Diffusion Models, LLM fine-tuning & RAG systems.",
+    skills: ["PyTorch", "Transformers", "Stable Diffusion", "RAG"],
+    slots: 18,
+    enrolled: 521,
+    duration: "12 Weeks",
+    level: "Advanced",
+    featured: true
+  }
+];
+
+export default function EliteWorkshopsShowcase() {
   const [selected, setSelected] = useState(null);
-  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
-  const [time, setTime] = useState(0);
+  const [hovered, setHovered] = useState(null);
+  const mouseX = useMotionValue(0);
+  const mouseY = useMotionValue(0);
+  const springX = useSpring(mouseX, { damping: 50, stiffness: 300 });
+  const springY = useSpring(mouseY, { damping: 50, stiffness: 300 });
   const containerRef = useRef(null);
-
-  const workshops = [
-    {
-      title: "Mobile App Development",
-      icon: Smartphone,
-      gradient: "linear-gradient(135deg, #22d3ee, #3b82f6, #6366f1)",
-      color: "#22d3ee",
-      desc: "Build production-grade cross-platform apps with React Native, Flutter, and native performance optimization.",
-      skills: ["React Native", "Flutter", "Firebase", "Push Notifications", "App Store Deploy"],
-      slots: 25,
-      enrolled: 489,
-      duration: "8 Weeks",
-      level: "Intermediate",
-      featured: true
-    },
-    {
-      title: "Full-Stack Engineering",
-      icon: Code,
-      gradient: "linear-gradient(135deg, #a855f7, #ec4899, #f43f5e)",
-      color: "#a855f7",
-      desc: "Master modern full-stack from Next.js 14 to scalable cloud-native backends with TypeScript excellence.",
-      skills: ["Next.js 14", "TypeScript", "GraphQL", "PostgreSQL", "Docker"],
-      slots: 30,
-      enrolled: 642,
-      duration: "12 Weeks",
-      level: "Beginner to Expert",
-      featured: false
-    },
-    {
-      title: "Machine Learning Pro",
-      icon: Brain,
-      gradient: "linear-gradient(135deg, #10b981, #14b8a6, #06b6d4)",
-      color: "#10b981",
-      desc: "Real-world ML pipelines from raw data to production models with Python, scikit-learn, and MLOps.",
-      skills: ["Python ML Stack", "Feature Engineering", "MLOps", "Model Deploy", "Time Series"],
-      slots: 20,
-      enrolled: 573,
-      duration: "10 Weeks",
-      level: "Intermediate",
-      featured: false
-    },
-    {
-      title: "Deep Learning & Gen AI",
-      icon: Cpu,
-      gradient: "linear-gradient(135deg, #f59e0b, #f97316, #ef4444)",
-      color: "#f59e0b",
-      desc: "From CNNs to Diffusion Models — build intelligent systems with PyTorch, Transformers, and LLMs.",
-      skills: ["PyTorch 2.0", "Transformers", "Stable Diffusion", "LLM Fine-tuning", "RAG Systems"],
-      slots: 18,
-      enrolled: 521,
-      duration: "12 Weeks",
-      level: "Advanced",
-      featured: true
-    }
-  ];
+  const [time, setTime] = useState(0);
 
   useEffect(() => {
     const handleMove = (e) => {
       if (!containerRef.current) return;
       const rect = containerRef.current.getBoundingClientRect();
-      setMousePos({
-        x: ((e.clientX - rect.left) / rect.width) * 100,
-        y: ((e.clientY - rect.top) / rect.height) * 100
-      });
+      mouseX.set(e.clientX - rect.left);
+      mouseY.set(e.clientY - rect.top);
     };
 
     const animate = () => {
-      setTime(prev => prev + 0.016);
+      setTime((t) => t + 0.016);
       requestAnimationFrame(animate);
     };
 
     window.addEventListener("mousemove", handleMove);
-    const animationId = requestAnimationFrame(animate);
-    
+    const id = requestAnimationFrame(animate);
+
     return () => {
       window.removeEventListener("mousemove", handleMove);
-      cancelAnimationFrame(animationId);
+      cancelAnimationFrame(id);
     };
   }, []);
 
   const Counter = ({ target }) => {
     const [count, setCount] = useState(0);
-
     useEffect(() => {
-      let current = 0;
-      const step = target / 60;
+      let start = 0;
+      const duration = 1800;
+      const step = target / (duration / 16);
       const timer = setInterval(() => {
-        current += step;
-        if (current >= target) {
+        start += step;
+        if (start >= target) {
           setCount(target);
           clearInterval(timer);
         } else {
-          setCount(Math.floor(current));
+          setCount(Math.floor(start));
         }
-      }, 30);
+      }, 16);
       return () => clearInterval(timer);
     }, [target]);
-
     return <span>{count.toLocaleString()}</span>;
   };
 
   return (
-    <div ref={containerRef} style={{ position: "relative", minHeight: "100vh", background: "#000", overflow: "hidden", fontFamily: "system-ui, sans-serif" }}>
-      
-      {/* Ultra Dynamic Background */}
+    <div
+      ref={containerRef}
+      style={{
+        position: "relative",
+        minHeight: "100vh",
+        background: "#000",
+        color: "white",
+        overflow: "hidden",
+        fontFamily: "system-ui, sans-serif",
+      }}
+    >
+      {/* Global Keyframes */}
+      <style>{`
+        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
+        @keyframes pulse { 0%,100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+      `}</style>
+
+      {/* Background Layers */}
       <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
-        {/* Animated mouse gradient */}
-        <div style={{
-          position: "absolute", inset: 0,
-          background: `radial-gradient(circle 800px at ${mousePos.x}% ${mousePos.y}%, rgba(168,85,247,0.25), transparent 60%)`,
-          transition: "background 0.1s ease-out",
-          animation: "breathe 4s ease-in-out infinite"
-        }} />
-        
-        {/* Moving orbs */}
-        {[
-          { size: 900, color: "rgba(34,211,238,0.2)", x: 10, y: 15 },
-          { size: 1100, color: "rgba(168,85,247,0.15)", x: 70, y: 60 },
-          { size: 800, color: "rgba(16,185,129,0.12)", x: 40, y: 80 }
-        ].map((orb, i) => (
-          <div key={i} style={{
+        {/* Mouse-reactive gradient */}
+        <motion.div
+          style={{
             position: "absolute",
-            left: `${orb.x + Math.sin(time * 0.3 + i) * 15}%`,
-            top: `${orb.y + Math.cos(time * 0.4 + i) * 15}%`,
-            width: orb.size, height: orb.size,
-            background: `radial-gradient(circle, ${orb.color}, transparent 70%)`,
-            borderRadius: "50%",
-            filter: "blur(120px)",
-            transform: `scale(${1 + Math.sin(time * 0.5 + i) * 0.2})`,
-            transition: "all 0.3s ease-out"
-          }} />
+            inset: 0,
+            background: `radial-gradient(circle 900px at ${springX}px ${springY}px, rgba(168,85,247,0.22), transparent 70%)`,
+          }}
+        />
+
+        {/* Subtle moving orbs */}
+        {[
+          { x: 20, y: 30, size: 800, color: "rgba(34,211,238,0.18)", speed: 0.4 },
+          { x: 70, y: 65, size: 1000, color: "rgba(168,85,247,0.14)", speed: 0.3 },
+        ].map((orb, i) => (
+          <div
+            key={i}
+            style={{
+              position: "absolute",
+              width: orb.size,
+              height: orb.size,
+              background: `radial-gradient(circle, ${orb.color}, transparent 70%)`,
+              borderRadius: "50%",
+              filter: "blur(120px)",
+              left: `${orb.x + Math.sin(time * orb.speed) * 15}%`,
+              top: `${orb.y + Math.cos(time * (orb.speed + 0.1)) * 15}%`,
+              transform: `scale(${1 + Math.sin(time * 0.7 + i) * 0.15})`,
+            }}
+          />
         ))}
 
-        {/* Animated grid */}
-        <div style={{
-          position: "absolute", inset: 0,
-          backgroundImage: `linear-gradient(rgba(168,85,247,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.06) 1px, transparent 1px)`,
-          backgroundSize: "60px 60px",
-          transform: `translateY(${Math.sin(time * 0.2) * 20}px) translateX(${Math.cos(time * 0.15) * 20}px) rotate(${Math.sin(time * 0.1)}deg)`,
-          opacity: 0.4
-        }} />
-
-        {/* Dynamic particles */}
-        {[...Array(60)].map((_, i) => {
-          const angle = (i / 60) * Math.PI * 2;
-          const radius = 300 + Math.sin(time * 0.5 + i) * 200;
-          return (
-            <div key={i} style={{
-              position: "absolute",
-              left: `${50 + Math.cos(angle + time * 0.3) * (radius / 15)}%`,
-              top: `${50 + Math.sin(angle + time * 0.3) * (radius / 15)}%`,
-              width: `${3 + Math.sin(time + i) * 2}px`,
-              height: `${3 + Math.sin(time + i) * 2}px`,
-              background: `hsl(${(i * 6 + time * 50) % 360}, 80%, 70%)`,
-              borderRadius: "50%",
-              boxShadow: `0 0 ${15 + Math.sin(time + i) * 10}px currentColor`,
-              opacity: 0.6 + Math.sin(time * 2 + i) * 0.3,
-              transform: `scale(${1 + Math.sin(time * 3 + i) * 0.5})`
-            }} />
-          );
-        })}
-
-        {/* Scanning lines */}
-        <div style={{
-          position: "absolute",
-          inset: 0,
-          background: `linear-gradient(0deg, transparent ${(time * 20) % 100}%, rgba(168,85,247,0.1) ${(time * 20 + 1) % 100}%, transparent ${(time * 20 + 2) % 100}%)`,
-          pointerEvents: "none"
-        }} />
+        {/* Very light grid */}
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            backgroundImage: `linear-gradient(rgba(168,85,247,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.06) 1px, transparent 1px)`,
+            backgroundSize: "60px 60px",
+            opacity: 0.4,
+            transform: `translateY(${Math.sin(time * 0.2) * 10}px)`,
+          }}
+        />
       </div>
 
-      <div style={{ position: "relative", zIndex: 10, maxWidth: "1500px", margin: "0 auto", padding: "100px 24px" }}>
-        
-        {/* Animated Hero */}
-        <div style={{ textAlign: "center", marginBottom: "120px" }}>
-          <div style={{
-            fontSize: "6rem",
-            marginBottom: "32px",
-            transform: `translateY(${Math.sin(time * 2) * 15}px) rotate(${Math.sin(time) * 10}deg) scale(${1 + Math.sin(time * 3) * 0.1})`,
-            filter: `drop-shadow(0 0 ${40 + Math.sin(time * 4) * 20}px rgba(168,85,247,0.8))`
-          }}>
+      <div style={{
+        position: "relative",
+        zIndex: 10,
+        maxWidth: "1480px",
+        margin: "0 auto",
+        padding: "clamp(80px, 12vh, 140px) 24px",
+      }}>
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 60 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: "easeOut" }}
+          style={{ textAlign: "center", marginBottom: "clamp(60px, 10vh, 100px)" }}
+        >
+          <motion.div
+            animate={{ rotate: [0, 8, -8, 0] }}
+            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            style={{ fontSize: "clamp(4rem, 12vw, 7.5rem)", marginBottom: "16px" }}
+          >
             🚀
-          </div>
+          </motion.div>
 
           <h1 style={{
-            fontSize: "clamp(3.5rem, 10vw, 7rem)",
+            fontSize: "clamp(3.2rem, 9vw, 6.5rem)",
             fontWeight: 900,
-            background: "linear-gradient(90deg, #22d3ee, #a855f7, #ec4899, #f59e0b, #22d3ee)",
-            backgroundClip: "text",
+            background: "linear-gradient(90deg, #22d3ee, #a855f7, #ec4899)",
             WebkitBackgroundClip: "text",
+            backgroundClip: "text",
             color: "transparent",
-            backgroundSize: "300%",
-            backgroundPosition: `${time * 10}% 50%`,
+            lineHeight: 1.05,
             marginBottom: "24px",
-            lineHeight: 1.1,
-            transform: `scale(${1 + Math.sin(time) * 0.02})`,
-            filter: `brightness(${1 + Math.sin(time * 2) * 0.2})`
           }}>
             Elite Workshop Programs
           </h1>
 
           <p style={{
-            fontSize: "clamp(1.2rem, 2.5vw, 1.6rem)",
+            fontSize: "clamp(1.15rem, 2.8vw, 1.45rem)",
             color: "#cbd5e1",
-            maxWidth: "800px",
-            margin: "0 auto",
+            maxWidth: "780px",
+            margin: "0 auto 48px",
             lineHeight: 1.7,
-            opacity: 0.9 + Math.sin(time) * 0.1
           }}>
-            Expert-led mastery programs engineered to transform talented developers into industry-defining leaders
+            Intensive, mentor-led programs designed to turn strong developers into industry-leading engineers.
           </p>
-        </div>
 
-        {/* Workshop Grid */}
+          {/* Quick stats */}
+          <div style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "clamp(16px, 3vw, 32px)",
+            justifyContent: "center",
+          }}>
+            {[
+              { icon: Users, value: "2,225+", label: "Students Trained" },
+              { icon: Award, value: "98%", label: "Success Rate" },
+              { icon: Rocket, value: "40+", label: "Live Projects" },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.2 }}
+                style={{
+                  padding: "16px 28px",
+                  background: "rgba(255,255,255,0.04)",
+                  borderRadius: "999px",
+                  border: "1px solid rgba(168,85,247,0.2)",
+                  backdropFilter: "blur(12px)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "12px",
+                }}
+              >
+                <item.icon size={22} color="#a855f7" />
+                <div>
+                  <div style={{ fontSize: "1.3rem", fontWeight: 800 }}>{item.value}</div>
+                  <div style={{ fontSize: "0.9rem", color: "#94a3b8" }}>{item.label}</div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Cards Grid */}
         <div style={{
           display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(400px, 1fr))",
-          gap: "32px",
-          marginBottom: "80px"
+          gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+          gap: "clamp(24px, 4vw, 40px)",
         }}>
           {workshops.map((ws, idx) => (
-            <div
+            <motion.div
               key={idx}
+              initial={{ opacity: 0, y: 60 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: idx * 0.12, duration: 0.9, type: "spring", stiffness: 100 }}
+              whileHover={{ y: -16, scale: 1.02 }}
               onClick={() => setSelected(ws)}
               style={{
                 position: "relative",
-                padding: "40px 32px",
-                background: "rgba(15,23,42,0.8)",
-                backdropFilter: "blur(30px)",
-                borderRadius: "32px",
-                border: "2px solid rgba(168,85,247,0.2)",
-                cursor: "pointer",
-                transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+                padding: "clamp(32px, 5vw, 44px)",
+                background: "rgba(15,15,40,0.75)",
+                backdropFilter: "blur(20px)",
+                borderRadius: "28px",
+                border: hovered === idx ? `2px solid ${ws.color}` : "1px solid rgba(168,85,247,0.15)",
                 overflow: "hidden",
-                transform: `translateY(${Math.sin(time * 0.5 + idx) * 8}px) rotate(${Math.sin(time * 0.3 + idx) * 0.5}deg)`,
-                boxShadow: `0 ${20 + Math.sin(time + idx) * 10}px 60px rgba(0,0,0,0.5)`
+                cursor: "pointer",
+                boxShadow: hovered === idx
+                  ? `0 40px 100px ${ws.color}40`
+                  : "0 20px 60px rgba(0,0,0,0.5)",
+                transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
               }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = `translateY(-16px) scale(1.03) rotate(0deg)`;
-                e.currentTarget.style.borderColor = ws.color;
-                e.currentTarget.style.boxShadow = `0 40px 100px ${ws.color}60`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = `translateY(${Math.sin(time * 0.5 + idx) * 8}px) rotate(${Math.sin(time * 0.3 + idx) * 0.5}deg)`;
-                e.currentTarget.style.borderColor = "rgba(168,85,247,0.2)";
-                e.currentTarget.style.boxShadow = `0 ${20 + Math.sin(time + idx) * 10}px 60px rgba(0,0,0,0.5)`;
-              }}
+              onMouseEnter={() => setHovered(idx)}
+              onMouseLeave={() => setHovered(null)}
             >
-              {/* Animated gradient overlay */}
+              {/* Gradient overlay */}
               <div style={{
                 position: "absolute",
                 inset: 0,
                 background: ws.gradient,
-                opacity: 0.05 + Math.sin(time * 2 + idx) * 0.05,
+                opacity: hovered === idx ? 0.12 : 0.05,
+                transition: "opacity 0.5s",
                 mixBlendMode: "screen",
-                pointerEvents: "none"
               }} />
 
-              {/* Live badge */}
-              <div style={{
-                position: "absolute",
-                top: "24px",
-                right: "24px",
-                padding: "8px 16px",
-                background: "rgba(239,68,68,0.2)",
-                border: "2px solid rgba(239,68,68,0.6)",
-                borderRadius: "999px",
-                backdropFilter: "blur(10px)",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px",
-                fontSize: "0.85rem",
-                fontWeight: 900,
-                color: "#fee2e2",
-                boxShadow: `0 0 ${20 + Math.sin(time * 4) * 10}px rgba(239,68,68,0.5)`,
-                transform: `scale(${1 + Math.sin(time * 5 + idx) * 0.05})`
-              }}>
-                <div style={{
-                  width: "8px",
-                  height: "8px",
-                  background: "#ef4444",
-                  borderRadius: "50%",
-                  boxShadow: `0 0 ${10 + Math.sin(time * 6) * 5}px #ef4444`,
-                  transform: `scale(${1 + Math.sin(time * 4) * 0.3})`
-                }} />
-                LIVE
-              </div>
-
+              {/* Featured crown */}
               {ws.featured && (
                 <div style={{
                   position: "absolute",
-                  top: "24px",
-                  left: "24px",
+                  top: 20,
+                  left: 20,
                   background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
-                  padding: "8px",
+                  padding: "10px",
                   borderRadius: "50%",
-                  boxShadow: `0 0 ${30 + Math.sin(time * 3) * 15}px rgba(251,191,36,0.7)`,
-                  transform: `rotate(${time * 50}deg) scale(${1 + Math.sin(time * 4) * 0.1})`
+                  boxShadow: "0 0 40px rgba(251,191,36,0.7)",
                 }}>
                   <Crown size={24} color="#000" />
                 </div>
@@ -311,251 +320,239 @@ export default function WorkshopShowcase() {
 
               {/* Icon */}
               <div style={{
-                width: "100px",
-                height: "100px",
+                width: 100,
+                height: 100,
                 background: ws.gradient,
                 borderRadius: "24px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                marginBottom: "28px",
-                boxShadow: `0 20px 60px ${ws.color}60`,
-                transform: `rotate(${Math.sin(time * 2 + idx) * 5}deg) scale(${1 + Math.sin(time * 3 + idx) * 0.05})`,
-                transition: "transform 0.3s"
+                margin: "0 auto 32px",
+                boxShadow: `0 20px 60px ${ws.color}50`,
+                transform: hovered === idx ? "scale(1.12) rotate(3deg)" : "scale(1)",
+                transition: "transform 0.5s",
               }}>
-                <ws.icon size={56} color="white" />
+                <ws.icon size={56} color="white" strokeWidth={2.2} />
               </div>
 
               {/* Title */}
               <h3 style={{
-                fontSize: "2rem",
+                fontSize: "clamp(1.6rem, 3.5vw, 2.1rem)",
                 fontWeight: 900,
                 background: ws.gradient,
-                backgroundClip: "text",
                 WebkitBackgroundClip: "text",
+                backgroundClip: "text",
                 color: "transparent",
                 marginBottom: "16px",
-                lineHeight: 1.2,
-                transform: `translateX(${Math.sin(time + idx) * 2}px)`
+                textAlign: "center",
               }}>
                 {ws.title}
               </h3>
 
+              {/* Description */}
               <p style={{
                 color: "#cbd5e1",
-                fontSize: "1.05rem",
+                fontSize: "clamp(1rem, 2.2vw, 1.1rem)",
                 lineHeight: 1.6,
-                marginBottom: "24px"
+                marginBottom: "28px",
+                textAlign: "center",
+                opacity: hovered === idx ? 1 : 0.85,
+                transition: "opacity 0.4s",
               }}>
                 {ws.desc}
               </p>
 
-              {/* Stats */}
-              <div style={{ display: "flex", gap: "24px", marginBottom: "24px" }}>
-                <div style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: "8px",
-                  transform: `translateY(${Math.sin(time * 3 + idx) * 3}px)`
-                }}>
+              {/* Mini stats */}
+              <div style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "clamp(16px, 3vw, 28px)",
+                marginBottom: "32px",
+                flexWrap: "wrap",
+              }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Calendar size={18} color={ws.color} />
-                  <span style={{ color: "#94a3b8", fontSize: "0.95rem" }}>
-                    <Counter target={ws.slots} /> slots
-                  </span>
+                  <span style={{ fontWeight: 600 }}>{ws.duration}</span>
                 </div>
-                <div style={{ 
-                  display: "flex", 
-                  alignItems: "center", 
-                  gap: "8px",
-                  transform: `translateY(${Math.sin(time * 3.5 + idx) * 3}px)`
-                }}>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                   <Users size={18} color={ws.color} />
-                  <span style={{ color: "#94a3b8", fontSize: "0.95rem" }}>
+                  <span style={{ fontWeight: 600 }}>
                     <Counter target={ws.enrolled} /> enrolled
                   </span>
                 </div>
               </div>
 
               {/* CTA */}
-              <button style={{
-                width: "100%",
-                padding: "16px",
-                background: ws.gradient,
-                border: "none",
-                borderRadius: "16px",
-                color: "white",
-                fontSize: "1.05rem",
-                fontWeight: 700,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "10px",
-                cursor: "pointer",
-                transition: "all 0.3s",
-                boxShadow: `0 10px 40px ${ws.color}50`,
-                transform: `scale(${1 + Math.sin(time * 4 + idx) * 0.02})`
+              <div style={{
+                textAlign: "center",
+                marginTop: "auto",
               }}>
-                View Program <ArrowRight size={20} style={{ transform: `translateX(${Math.sin(time * 6) * 3}px)` }} />
-              </button>
-            </div>
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.97 }}
+                  style={{
+                    padding: "14px 32px",
+                    background: ws.gradient,
+                    borderRadius: "999px",
+                    color: "white",
+                    fontWeight: 700,
+                    fontSize: "1.05rem",
+                    border: "none",
+                    cursor: "pointer",
+                    boxShadow: `0 10px 40px ${ws.color}50`,
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 12,
+                  }}
+                >
+                  View Program <ArrowRight size={20} />
+                </motion.button>
+              </div>
+            </motion.div>
           ))}
         </div>
       </div>
 
       {/* Modal */}
-      {selected && (
-        <div onClick={() => setSelected(null)} style={{
-          position: "fixed",
-          inset: 0,
-          zIndex: 1000,
-          background: "rgba(0,0,0,0.95)",
-          backdropFilter: "blur(30px)",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "24px",
-          animation: "fadeIn 0.3s ease-out"
-        }}>
-          <div onClick={e => e.stopPropagation()} style={{
-            maxWidth: "900px",
-            width: "100%",
-            background: "linear-gradient(135deg, rgba(15,23,42,0.98), rgba(0,0,0,0.98))",
-            backdropFilter: "blur(40px)",
-            borderRadius: "40px",
-            padding: "48px",
-            border: `3px solid ${selected.color}`,
-            boxShadow: `0 0 ${100 + Math.sin(time * 4) * 30}px ${selected.color}80`,
-            maxHeight: "90vh",
-            overflowY: "auto",
-            position: "relative",
-            animation: "scaleIn 0.4s ease-out",
-            transform: `scale(${1 + Math.sin(time) * 0.01})`
-          }}>
-            <button onClick={() => setSelected(null)} style={{
-              position: "absolute",
-              top: "24px",
-              right: "24px",
-              width: "48px",
-              height: "48px",
-              background: "rgba(255,255,255,0.1)",
-              border: "2px solid rgba(255,255,255,0.3)",
-              borderRadius: "50%",
-              color: "white",
+      <AnimatePresence>
+        {selected && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSelected(null)}
+            style={{
+              position: "fixed",
+              inset: 0,
+              zIndex: 1000,
+              background: "rgba(0,0,0,0.92)",
+              backdropFilter: "blur(30px)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              cursor: "pointer",
-              transition: "all 0.3s",
-              transform: `rotate(${Math.sin(time * 2) * 10}deg)`
-            }}>
-              <X size={24} />
-            </button>
-
-            <div style={{ display: "flex", gap: "28px", alignItems: "center", marginBottom: "32px" }}>
-              <div style={{
-                width: "120px",
-                height: "120px",
-                background: selected.gradient,
-                borderRadius: "28px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: `0 30px 80px ${selected.color}60`,
-                transform: `rotate(${Math.sin(time) * 5}deg) scale(${1 + Math.sin(time * 2) * 0.05})`
-              }}>
-                <selected.icon size={70} color="white" />
-              </div>
-
-              <div>
-                <h2 style={{
-                  fontSize: "3rem",
-                  fontWeight: 900,
-                  background: selected.gradient,
-                  backgroundClip: "text",
-                  WebkitBackgroundClip: "text",
-                  color: "transparent",
-                  lineHeight: 1.1,
-                  marginBottom: "12px"
-                }}>
-                  {selected.title}
-                </h2>
-                <p style={{ fontSize: "1.2rem", color: "#94a3b8" }}>
-                  {selected.duration} • {selected.level}
-                </p>
-              </div>
-            </div>
-
-            <p style={{
-              fontSize: "1.25rem",
-              color: "#e2e8f0",
-              lineHeight: 1.7,
-              marginBottom: "40px"
-            }}>
-              {selected.desc}
-            </p>
-
-            <h3 style={{
-              fontSize: "1.8rem",
-              fontWeight: 900,
-              color: "white",
-              marginBottom: "24px"
-            }}>
-              Skills You'll Master
-            </h3>
-
-            <div style={{
-              display: "grid",
-              gridTemplateColumns: "repeat(auto-fill, minmax(240px, 1fr))",
-              gap: "16px",
-              marginBottom: "40px"
-            }}>
-              {selected.skills.map((skill, i) => (
-                <div key={i} style={{
-                  padding: "16px 20px",
-                  background: "rgba(255,255,255,0.05)",
-                  borderRadius: "16px",
-                  border: "1px solid rgba(255,255,255,0.1)",
+              padding: "clamp(20px, 5vw, 40px)",
+            }}
+          >
+            <motion.div
+              initial={{ scale: 0.9, y: 60 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.9, y: 60 }}
+              onClick={(e) => e.stopPropagation()}
+              style={{
+                maxWidth: 900,
+                width: "100%",
+                background: "rgba(15,15,40,0.95)",
+                backdropFilter: "blur(40px)",
+                borderRadius: 32,
+                padding: "clamp(40px, 6vw, 64px)",
+                border: `3px solid ${selected.color}`,
+                boxShadow: `0 0 120px ${selected.color}60`,
+                position: "relative",
+                maxHeight: "90vh",
+                overflowY: "auto",
+              }}
+            >
+              <button
+                onClick={() => setSelected(null)}
+                style={{
+                  position: "absolute",
+                  top: 24,
+                  right: 24,
+                  width: 48,
+                  height: 48,
+                  borderRadius: "50%",
+                  background: "rgba(255,255,255,0.1)",
+                  border: "2px solid rgba(255,255,255,0.3)",
+                  color: "white",
                   display: "flex",
                   alignItems: "center",
-                  gap: "12px",
-                  transform: `translateY(${Math.sin(time * 2 + i) * 3}px)`,
-                  boxShadow: `0 ${5 + Math.sin(time + i) * 3}px 15px rgba(0,0,0,0.3)`
+                  justifyContent: "center",
+                  cursor: "pointer",
+                }}
+              >
+                <X size={24} />
+              </button>
+
+              <div style={{
+                display: "flex",
+                gap: "clamp(24px, 5vw, 48px)",
+                alignItems: "center",
+                marginBottom: "40px",
+                flexWrap: "wrap",
+              }}>
+                <div style={{
+                  width: 140,
+                  height: 140,
+                  background: selected.gradient,
+                  borderRadius: 32,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  boxShadow: `0 30px 80px ${selected.color}60`,
+                  flexShrink: 0,
                 }}>
-                  <Sparkles size={18} color={selected.color} style={{ transform: `rotate(${Math.sin(time * 3 + i) * 15}deg)` }} />
-                  <span style={{ color: "#e2e8f0", fontSize: "1rem" }}>{skill}</span>
+                  <selected.icon size={80} color="white" strokeWidth={2} />
                 </div>
-              ))}
-            </div>
 
-            <button style={{
-              width: "100%",
-              padding: "20px",
-              background: selected.gradient,
-              border: "none",
-              borderRadius: "24px",
-              color: "white",
-              fontSize: "1.3rem",
-              fontWeight: 900,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: "12px",
-              cursor: "pointer",
-              boxShadow: `0 20px 60px ${selected.color}70`,
-              transition: "all 0.3s",
-              transform: `scale(${1 + Math.sin(time * 3) * 0.02})`
-            }}>
-              Enroll Now <TrendingUp size={24} style={{ transform: `translateY(${Math.sin(time * 5) * 3}px)` }} />
-            </button>
-          </div>
-        </div>
-      )}
+                <div>
+                  <h2 style={{
+                    fontSize: "clamp(2.5rem, 6vw, 3.8rem)",
+                    fontWeight: 900,
+                    background: selected.gradient,
+                    WebkitBackgroundClip: "text",
+                    backgroundClip: "text",
+                    color: "transparent",
+                    marginBottom: 12,
+                  }}>
+                    {selected.title}
+                  </h2>
+                  <p style={{ color: "#cbd5e1", fontSize: "1.15rem", lineHeight: 1.6 }}>
+                    {selected.desc}
+                  </p>
+                </div>
+              </div>
 
-      <style>{`
-        @keyframes breathe { 0%, 100% { opacity: 1 } 50% { opacity: 0.7 } }
-        @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
-        @keyframes scaleIn { from { opacity: 0; transform: scale(0.9) } to { opacity: 1; transform: scale(1) } }
-      `}</style>
+              <h3 style={{ fontSize: "1.6rem", fontWeight: 800, marginBottom: 20 }}>
+                Core Skills You’ll Master
+              </h3>
+              <div style={{
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 12,
+                marginBottom: 40,
+              }}>
+                {selected.skills.map((skill) => (
+                  <div key={skill} style={{
+                    padding: "10px 18px",
+                    background: "rgba(255,255,255,0.06)",
+                    borderRadius: 12,
+                    fontSize: "0.95rem",
+                    fontWeight: 600,
+                  }}>
+                    {skill}
+                  </div>
+                ))}
+              </div>
+
+              <div style={{
+                display: "flex",
+                gap: "clamp(32px, 6vw, 64px)",
+                flexWrap: "wrap",
+              }}>
+                <div>
+                  <strong style={{ color: "#e2e8f0" }}>Duration:</strong> {selected.duration}
+                </div>
+                <div>
+                  <strong style={{ color: "#e2e8f0" }}>Level:</strong> {selected.level}
+                </div>
+                <div>
+                  <strong style={{ color: "#e2e8f0" }}>Slots:</strong> {selected.slots}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

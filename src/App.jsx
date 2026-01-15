@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  BrowserRouter as Router,
   Routes,
   Route,
   useLocation,
@@ -24,7 +23,7 @@ import PersonalDetails from "./pages/PersonalDetails";
 import Internships from "./pages/Internships";
 import Hackathons from "./pages/Hackathons";
 import Beyondcoding from "./pages/Beyoundcoding";
-import Achivements from "./pages/Achivements"; // ✅ ADDED
+import Achivements from "./pages/Achivements";
 
 // 🔄 Scroll to top on route change
 const ScrollToTop = () => {
@@ -53,14 +52,14 @@ function App() {
   }, [darkMode]);
 
   return (
-    <Router>
+    <>
       <ScrollToTop />
       <Navbar darkMode={darkMode} setDarkMode={setDarkMode} />
 
       <div className="pt-20">
         <Routes>
           {/* Redirect root */}
-          <Route path="/" element={<Navigate to="/home" />} />
+          <Route path="/" element={<Navigate to="/home" replace />} />
 
           {/* Main pages */}
           <Route path="/home" element={<Home />} />
@@ -76,22 +75,20 @@ function App() {
           <Route path="/internships" element={<Internships />} />
           <Route path="/hackathons" element={<Hackathons />} />
           <Route path="/beyondcoding" element={<Beyondcoding />} />
-
-          {/* ✅ NEW ROUTE */}
           <Route path="/achivements" element={<Achivements />} />
 
           {/* 404 */}
           <Route
             path="*"
             element={
-              <h1 className="text-center text-3xl">
+              <h1 className="text-center text-3xl mt-20">
                 404 - Page Not Found
               </h1>
             }
           />
         </Routes>
       </div>
-    </Router>
+    </>
   );
 }
 

@@ -1,505 +1,661 @@
-import { useState, useEffect } from 'react';
-import { Download, Eye, FileText, Award, Code, Rocket, Star, Sparkles, ExternalLink, CheckCircle, TrendingUp } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { 
+  Download, Eye, FileText, Award, Code, Rocket, Star, Sparkles, 
+  X, CheckCircle, TrendingUp, Zap, Target, Brain, Flame, Trophy
+} from 'lucide-react';
 
 const RESUME_URL = "https://drive.google.com/file/d/1BfrC-GloabR5mOXuPb8mjkKQmya5luDE/preview";
 const RESUME_DOWNLOAD = "https://drive.google.com/uc?export=download&id=1BfrC-GloabR5mOXuPb8mjkKQmya5luDE";
 
-export default function Resume() {
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+export default function FuturisticResume() {
   const [showModal, setShowModal] = useState(false);
-  const [particles, setParticles] = useState([]);
+  const [time, setTime] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [activeTab, setActiveTab] = useState('preview');
+  const [isVisible, setIsVisible] = useState(false);
+  const containerRef = useRef(null);
+  const sectionRef = useRef(null);
 
   useEffect(() => {
-    const newParticles = [...Array(30)].map((_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 4 + 2,
-      duration: Math.random() * 10 + 15,
-      delay: Math.random() * 5,
-    }));
-    setParticles(newParticles);
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.1 }
+    );
+
+    if (sectionRef.current) observer.observe(sectionRef.current);
+    return () => observer.disconnect();
   }, []);
+
+  useEffect(() => {
+    const handleMove = (e) => {
+      if (!containerRef.current) return;
+      const rect = containerRef.current.getBoundingClientRect();
+      setMousePos({
+        x: ((e.clientX - rect.left) / rect.width) * 100,
+        y: ((e.clientY - rect.top) / rect.height) * 100
+      });
+    };
+
+    const animate = () => {
+      setTime(prev => prev + 0.016);
+      requestAnimationFrame(animate);
+    };
+
+    window.addEventListener('mousemove', handleMove);
+    const animationId = requestAnimationFrame(animate);
+    
+    return () => {
+      window.removeEventListener('mousemove', handleMove);
+      cancelAnimationFrame(animationId);
+    };
+  }, []);
+
+  const stats = [
+    { icon: Award, value: '8.5+', label: 'CGPA', color: '#fbbf24', grad: 'linear-gradient(135deg, #fbbf24, #f59e0b)' },
+    { icon: Code, value: '30+', label: 'Technologies', color: '#06b6d4', grad: 'linear-gradient(135deg, #06b6d4, #0891b2)' },
+    { icon: Rocket, value: '6+', label: 'Projects', color: '#a855f7', grad: 'linear-gradient(135deg, #a855f7, #9333ea)' },
+    { icon: Star, value: '13+', label: 'Certificates', color: '#ec4899', grad: 'linear-gradient(135deg, #ec4899, #db2777)' }
+  ];
+
+  const skills = [
+    { icon: '⚛️', name: 'React', color: '#06b6d4' },
+    { icon: '🟢', name: 'Node.js', color: '#10b981' },
+    { icon: '🍃', name: 'MongoDB', color: '#14b8a6' },
+    { icon: '🐍', name: 'Python', color: '#f59e0b' },
+    { icon: '🤖', name: 'AI/ML', color: '#a855f7' },
+    { icon: '📘', name: 'TypeScript', color: '#3b82f6' }
+  ];
 
   return (
     <div
-      onMouseMove={(e) => setMousePos({ x: e.clientX / window.innerWidth, y: e.clientY / window.innerHeight })}
+      ref={containerRef}
       style={{
         minHeight: '100vh',
         background: '#000',
         color: '#fff',
         overflow: 'hidden',
         position: 'relative',
-        fontFamily: 'system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif',
+        fontFamily: 'system-ui, sans-serif'
       }}
     >
       <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-30px) rotate(180deg); }
+          50% { transform: translateY(-25px) rotate(180deg); }
         }
-        @keyframes pulse-scale {
+        @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.1); }
+          50% { opacity: 0.7; transform: scale(1.08); }
         }
-        @keyframes glow-pulse {
-          0%, 100% { 
-            box-shadow: 0 0 20px rgba(59,130,246,0.5),
-                        0 0 40px rgba(139,92,246,0.3); 
-          }
-          50% { 
-            box-shadow: 0 0 60px rgba(139,92,246,0.9),
-                        0 0 100px rgba(236,72,153,0.6),
-                        0 0 150px rgba(59,130,246,0.4); 
-          }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
         }
-        @keyframes rotate-slow {
+        @keyframes rotate {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        @keyframes shimmer-bg {
-          0% { background-position: -200% center; }
-          100% { background-position: 200% center; }
-        }
-        @keyframes bounce-smooth {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes fade-in-up {
-          from { opacity: 0; transform: translateY(30px); }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(60px); }
           to { opacity: 1; transform: translateY(0); }
         }
-        @keyframes orbit {
-          from { 
-            transform: rotate(0deg) translateX(130px) rotate(0deg);
-          }
-          to { 
-            transform: rotate(360deg) translateX(130px) rotate(-360deg);
-          }
+        @keyframes glow {
+          0%, 100% { filter: blur(80px) brightness(1); }
+          50% { filter: blur(100px) brightness(1.5); }
         }
-        .animate-float {
-          animation: float var(--duration, 15s) ease-in-out infinite;
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
-        .animate-pulse-scale {
-          animation: pulse-scale 2s ease-in-out infinite;
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
         }
-        .animate-glow {
-          animation: glow-pulse 3s ease-in-out infinite;
-        }
-        .animate-rotate {
-          animation: rotate-slow var(--duration, 20s) linear infinite;
-        }
-        .animate-shimmer {
-          background-size: 200% auto;
-          animation: shimmer-bg 3s linear infinite;
-        }
-        .animate-bounce {
-          animation: bounce-smooth 2s ease-in-out infinite;
-        }
-        .animate-fade-in {
-          animation: fade-in-up 0.8s ease-out forwards;
-        }
-        .animate-orbit {
-          animation: orbit var(--duration, 15s) linear infinite;
+        @keyframes scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
         }
         
-        /* Glassmorphism */
-        .glass {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(20px);
-          -webkit-backdrop-filter: blur(20px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        .glass-strong {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(30px);
-          -webkit-backdrop-filter: blur(30px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Hover Effects */
-        .hover-lift {
-          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-        .hover-lift:hover {
-          transform: translateY(-8px) scale(1.02);
-          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
-        }
-        .hover-scale {
-          transition: all 0.3s ease;
-        }
-        .hover-scale:hover {
-          transform: scale(1.05);
-        }
-        .hover-glow {
-          transition: all 0.3s ease;
-        }
-        .hover-glow:hover {
-          box-shadow: 0 0 40px currentColor;
+        @media (max-width: 768px) {
+          .main-grid { grid-template-columns: 1fr !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .skills-grid { grid-template-columns: repeat(3, 1fr) !important; }
         }
       `}</style>
 
-      {/* Animated Background Layer */}
-      <div style={{ position: 'absolute', inset: 0, pointerEvents: 'none', overflow: 'hidden' }}>
-        {/* Gradient Orbs */}
-        <div
-          className="animate-float"
-          style={{
-            position: 'absolute',
-            width: '800px',
-            height: '800px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(59,130,246,0.4), transparent)',
-            filter: 'blur(150px)',
-            top: '-20%',
-            left: '-10%',
-            transform: `translate(${mousePos.x * 50}px, ${mousePos.y * 50}px)`,
-            transition: 'transform 0.3s ease-out',
-            '--duration': '10s',
-          }}
-        />
-        <div
-          className="animate-float"
-          style={{
-            position: 'absolute',
-            width: '700px',
-            height: '700px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(139,92,246,0.4), transparent)',
-            filter: 'blur(130px)',
-            bottom: '-15%',
-            right: '-10%',
-            transform: `translate(${-mousePos.x * 40}px, ${-mousePos.y * 40}px)`,
-            transition: 'transform 0.3s ease-out',
-            animationDelay: '2s',
-            '--duration': '12s',
-          }}
-        />
-        <div
-          className="animate-float"
-          style={{
-            position: 'absolute',
-            width: '600px',
-            height: '600px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(236,72,153,0.3), transparent)',
-            filter: 'blur(120px)',
-            top: '40%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            animationDelay: '4s',
-            '--duration': '14s',
-          }}
-        />
+      {/* Dynamic Background */}
+      <div style={{ position: 'fixed', inset: 0, zIndex: 0 }}>
+        {/* Gradient orbs */}
+        <div style={{
+          position: 'absolute',
+          width: '1000px',
+          height: '1000px',
+          top: '-20%',
+          left: '-10%',
+          background: `radial-gradient(circle, rgba(59,130,246,0.25), transparent 70%)`,
+          animation: 'float 20s ease-in-out infinite, glow 10s ease-in-out infinite',
+          transition: 'transform 0.3s ease',
+          transform: `translate(${mousePos.x * 0.5}px, ${mousePos.y * 0.5}px)`
+        }} />
+        
+        <div style={{
+          position: 'absolute',
+          width: '800px',
+          height: '800px',
+          bottom: '-15%',
+          right: '-10%',
+          background: `radial-gradient(circle, rgba(168,85,247,0.25), transparent 70%)`,
+          animation: 'float 25s ease-in-out infinite 5s, glow 12s ease-in-out infinite 3s',
+          transition: 'transform 0.3s ease',
+          transform: `translate(${-mousePos.x * 0.3}px, ${-mousePos.y * 0.3}px)`
+        }} />
 
-        {/* Floating Particles */}
-        {particles.map((p) => (
+        <div style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          top: '40%',
+          left: '50%',
+          background: `radial-gradient(circle, rgba(236,72,153,0.2), transparent 70%)`,
+          animation: 'float 30s ease-in-out infinite 10s, glow 15s ease-in-out infinite 5s',
+          transform: 'translate(-50%, -50%)'
+        }} />
+
+        {/* Grid pattern */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `
+            linear-gradient(rgba(59,130,246,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(59,130,246,0.1) 1px, transparent 1px)
+          `,
+          backgroundSize: '80px 80px',
+          opacity: 0.2
+        }} />
+
+        {/* Floating particles */}
+        {[...Array(50)].map((_, i) => (
           <div
-            key={p.id}
-            className="animate-float"
+            key={i}
             style={{
               position: 'absolute',
-              left: `${p.x}%`,
-              top: `${p.y}%`,
-              width: `${p.size}px`,
-              height: `${p.size}px`,
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+              width: `${Math.random() * 3 + 1}px`,
+              height: `${Math.random() * 3 + 1}px`,
+              background: ['#3b82f6', '#a855f7', '#ec4899'][i % 3],
               borderRadius: '50%',
-              background: `radial-gradient(circle, ${['#3b82f6', '#8b5cf6', '#ec4899'][p.id % 3]}, transparent)`,
-              '--duration': `${p.duration}s`,
-              animationDelay: `${p.delay}s`,
+              opacity: Math.random() * 0.5 + 0.3,
+              animation: `float ${Math.random() * 15 + 10}s ease-in-out infinite ${Math.random() * 5}s`,
+              boxShadow: `0 0 ${Math.random() * 20 + 10}px currentColor`
             }}
           />
         ))}
-
-        {/* Grid Pattern */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            opacity: 0.1,
-            backgroundImage: 'linear-gradient(rgba(59,130,246,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59,130,246,0.3) 1px, transparent 1px)',
-            backgroundSize: '100px 100px',
-            transform: `translate(${mousePos.x * 20}px, ${mousePos.y * 20}px)`,
-            transition: 'transform 0.3s ease-out',
-          }}
-        />
       </div>
 
-      <div style={{ position: 'relative', maxWidth: '1280px', margin: '0 auto', padding: '80px 16px' }}>
+      <div ref={sectionRef} style={{
+        position: 'relative',
+        zIndex: 10,
+        maxWidth: '1600px',
+        margin: '0 auto',
+        padding: 'clamp(80px, 12vh, 140px) clamp(20px, 5vw, 60px)'
+      }}>
+        
         {/* Header */}
-        <div className="animate-fade-in" style={{ textAlign: 'center', marginBottom: '64px' }}>
-          <div className="glass" style={{
+        <div style={{
+          textAlign: 'center',
+          marginBottom: 'clamp(60px, 10vh, 100px)',
+          opacity: isVisible ? 1 : 0,
+          animation: isVisible ? 'slideUp 1s ease-out' : 'none'
+        }}>
+          <div style={{
             display: 'inline-flex',
             alignItems: 'center',
             gap: '12px',
             padding: '12px 32px',
-            borderRadius: '9999px',
+            background: 'rgba(255,255,255,0.05)',
+            backdropFilter: 'blur(20px)',
+            borderRadius: '999px',
+            border: '1px solid rgba(255,255,255,0.1)',
             marginBottom: '32px',
+            boxShadow: '0 8px 32px rgba(0,0,0,0.3)'
           }}>
-            <FileText className="animate-bounce" style={{ width: '24px', height: '24px', color: '#3b82f6' }} />
+            <div style={{
+              width: '8px',
+              height: '8px',
+              borderRadius: '50%',
+              background: '#10b981',
+              animation: 'pulse 2s infinite',
+              boxShadow: '0 0 15px #10b981'
+            }} />
             <span style={{
-              fontSize: '14px',
+              fontSize: '13px',
               fontWeight: '900',
-              letterSpacing: '0.1em',
-              background: 'linear-gradient(90deg, #3b82f6, #a78bfa)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              letterSpacing: '3px',
+              color: '#fff'
             }}>
               PROFESSIONAL RESUME
             </span>
-            <Sparkles className="animate-pulse-scale" style={{ width: '20px', height: '20px', color: '#ec4899' }} />
+            <FileText size={20} style={{ color: '#3b82f6' }} />
           </div>
 
-          <h1 className="animate-shimmer" style={{
-            fontSize: 'clamp(3rem, 10vw, 7rem)',
+          <h1 style={{
+            fontSize: 'clamp(3.5rem, 10vw, 8rem)',
             fontWeight: '900',
+            lineHeight: 1,
             marginBottom: '24px',
-            background: 'linear-gradient(90deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
+            background: 'linear-gradient(90deg, #3b82f6, #a855f7, #ec4899, #f59e0b, #3b82f6)',
+            backgroundSize: '300%',
+            backgroundClip: 'text',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
+            animation: 'shimmer 8s linear infinite',
+            textShadow: '0 0 80px rgba(59,130,246,0.5)'
           }}>
             Resume
           </h1>
-          <p style={{ fontSize: '20px', color: '#9ca3af', maxWidth: '672px', margin: '0 auto' }}>
-            Production-grade engineer with <span style={{ color: '#06b6d4', fontWeight: 'bold' }}>AI/ML</span> & <span style={{ color: '#a78bfa', fontWeight: 'bold' }}>Full-Stack</span> expertise
+
+          <p style={{
+            fontSize: 'clamp(1.1rem, 2.5vw, 1.5rem)',
+            color: '#9ca3af',
+            maxWidth: '800px',
+            margin: '0 auto',
+            lineHeight: 1.6
+          }}>
+            Production-grade <strong style={{ color: '#3b82f6' }}>AI/ML Engineer</strong> & 
+            <strong style={{ color: '#a855f7' }}> Full-Stack Developer</strong> with proven expertise
           </p>
         </div>
 
         {/* Main Grid */}
-        <div style={{
+        <div className="main-grid" style={{
           display: 'grid',
-          gridTemplateColumns: window.innerWidth >= 1024 ? '7fr 5fr' : '1fr',
-          gap: '32px',
-          alignItems: 'start',
+          gridTemplateColumns: '2fr 3fr',
+          gap: 'clamp(24px, 4vw, 48px)',
+          marginBottom: '60px'
         }}>
-          {/* Left Content */}
-          <div className="animate-fade-in" style={{ display: 'flex', flexDirection: 'column', gap: '24px', animationDelay: '0.2s' }}>
-            {/* Description Card */}
-            <div className="glass hover-lift" style={{ padding: '32px', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
-              <h3 style={{ fontSize: '30px', fontWeight: '900', marginBottom: '16px', display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <Award className="animate-bounce" style={{ width: '32px', height: '32px', color: '#fbbf24' }} />
-                ATS-Optimized Resume
-              </h3>
-              
-              <p style={{ color: '#d1d5db', lineHeight: '1.75', fontSize: '18px', marginBottom: '24px' }}>
-                Professionally crafted resume highlighting <span style={{ color: '#06b6d4', fontWeight: '600' }}>MERN Stack</span>, <span style={{ color: '#a78bfa', fontWeight: '600' }}>Machine Learning</span>, and <span style={{ color: '#ec4899', fontWeight: '600' }}>production engineering</span>.
-              </p>
-
-              {/* Highlights Grid */}
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '16px' }}>
-                {[
-                  { icon: Award, text: '8.5+ CGPA', color: '#fbbf24' },
-                  { icon: Code, text: '30+ Tech Stack', color: '#06b6d4' },
-                  { icon: Rocket, text: '6 Projects', color: '#a78bfa' },
-                  { icon: Star, text: '13+ Certificates', color: '#ec4899' },
-                ].map((item, i) => (
-                  <div key={i} className="glass hover-scale" style={{ padding: '16px', borderRadius: '12px', cursor: 'pointer' }}>
-                    <item.icon className="hover-glow" style={{ width: '24px', height: '24px', color: item.color, marginBottom: '8px' }} />
-                    <div style={{ color: '#fff', fontWeight: 'bold' }}>{item.text}</div>
+          
+          {/* Left Column - Stats & Actions */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: 'clamp(20px, 3vw, 32px)'
+          }}>
+            
+            {/* Stats Cards */}
+            <div className="stats-grid" style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+              gap: '16px',
+              opacity: isVisible ? 1 : 0,
+              animation: isVisible ? 'slideUp 0.8s ease-out 0.2s backwards' : 'none'
+            }}>
+              {stats.map((stat, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: 'relative',
+                    padding: 'clamp(20px, 4vw, 32px)',
+                    background: 'rgba(255,255,255,0.03)',
+                    backdropFilter: 'blur(20px)',
+                    borderRadius: '24px',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    cursor: 'pointer',
+                    transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    overflow: 'hidden'
+                  }}
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-8px) scale(1.03)';
+                    e.currentTarget.style.boxShadow = `0 20px 60px -10px ${stat.color}60`;
+                    e.currentTarget.style.borderColor = `${stat.color}60`;
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                  }}
+                >
+                  {/* Gradient glow */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: stat.grad,
+                    opacity: 0.1,
+                    filter: 'blur(30px)'
+                  }} />
+                  
+                  <stat.icon 
+                    size={28} 
+                    style={{ 
+                      color: stat.color,
+                      marginBottom: '12px',
+                      filter: `drop-shadow(0 0 10px ${stat.color}60)`,
+                      position: 'relative',
+                      zIndex: 1
+                    }} 
+                  />
+                  <div style={{
+                    fontSize: 'clamp(2rem, 5vw, 2.8rem)',
+                    fontWeight: '900',
+                    background: stat.grad,
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                    marginBottom: '4px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    {stat.value}
                   </div>
-                ))}
-              </div>
+                  <div style={{
+                    fontSize: '13px',
+                    color: '#9ca3af',
+                    fontWeight: '600',
+                    letterSpacing: '0.5px',
+                    position: 'relative',
+                    zIndex: 1
+                  }}>
+                    {stat.label}
+                  </div>
+                </div>
+              ))}
             </div>
 
-            {/* Tech Stack */}
-            <div className="glass hover-lift" style={{ padding: '32px', borderRadius: '24px', position: 'relative', overflow: 'hidden' }}>
-              <h3 style={{ fontSize: '24px', fontWeight: '900', marginBottom: '32px', textAlign: 'center' }}>
-                Technology Stack
+            {/* Skills Grid */}
+            <div style={{
+              padding: 'clamp(24px, 4vw, 36px)',
+              background: 'rgba(255,255,255,0.03)',
+              backdropFilter: 'blur(20px)',
+              borderRadius: '24px',
+              border: '1px solid rgba(255,255,255,0.1)',
+              opacity: isVisible ? 1 : 0,
+              animation: isVisible ? 'slideUp 0.8s ease-out 0.3s backwards' : 'none'
+            }}>
+              <h3 style={{
+                fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
+                fontWeight: '900',
+                marginBottom: '24px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}>
+                <Zap size={24} style={{ color: '#fbbf24' }} />
+                Core Skills
               </h3>
-              
-              {/* Orbiting Icons */}
-              <div style={{ position: 'relative', height: '320px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div className="animate-pulse-scale" style={{
-                  position: 'relative',
-                  zIndex: 10,
-                  width: '96px',
-                  height: '96px',
-                  borderRadius: '50%',
-                  background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '48px',
-                }}>
-                  🚀
-                </div>
 
-                {[
-                  { icon: '⚛️', name: 'React', grad: 'linear-gradient(135deg, #06b6d4, #3b82f6)' },
-                  { icon: '🟢', name: 'Node.js', grad: 'linear-gradient(135deg, #34d399, #10b981)' },
-                  { icon: '🍃', name: 'MongoDB', grad: 'linear-gradient(135deg, #10b981, #14b8a6)' },
-                  { icon: '🐍', name: 'Python', grad: 'linear-gradient(135deg, #fbbf24, #f97316)' },
-                  { icon: '🤖', name: 'AI/ML', grad: 'linear-gradient(135deg, #a78bfa, #ec4899)' },
-                  { icon: '📘', name: 'TypeScript', grad: 'linear-gradient(135deg, #3b82f6, #4f46e5)' },
-                ].map((tech, i) => (
+              <div className="skills-grid" style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(3, 1fr)',
+                gap: '12px'
+              }}>
+                {skills.map((skill, i) => (
                   <div
                     key={i}
-                    className="animate-orbit"
                     style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      '--duration': `${15 + i * 2}s`,
-                      animationDelay: `${-i * 2.5}s`,
+                      padding: 'clamp(12px, 2vw, 16px)',
+                      background: 'rgba(255,255,255,0.05)',
+                      borderRadius: '16px',
+                      border: '1px solid rgba(255,255,255,0.1)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '8px',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s ease'
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
+                      e.currentTarget.style.background = `${skill.color}15`;
+                      e.currentTarget.style.borderColor = `${skill.color}50`;
+                      e.currentTarget.style.boxShadow = `0 10px 30px -5px ${skill.color}40`;
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                      e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                      e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                      e.currentTarget.style.boxShadow = 'none';
                     }}
                   >
-                    <div className="hover-scale" style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: '16px',
-                      background: tech.grad,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      fontSize: '32px',
-                      cursor: 'pointer',
-                      boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-                    }} title={tech.name}>
-                      {tech.icon}
+                    <div style={{ fontSize: 'clamp(1.5rem, 4vw, 2rem)' }}>
+                      {skill.icon}
+                    </div>
+                    <div style={{
+                      fontSize: 'clamp(0.7rem, 1.5vw, 0.85rem)',
+                      fontWeight: '700',
+                      color: '#fff',
+                      textAlign: 'center'
+                    }}>
+                      {skill.name}
                     </div>
                   </div>
                 ))}
-
-                <div className="animate-rotate" style={{
-                  position: 'absolute',
-                  inset: 0,
-                  border: '2px dashed rgba(255,255,255,0.1)',
-                  borderRadius: '50%',
-                  '--duration': '30s',
-                }} />
               </div>
             </div>
 
             {/* Action Buttons */}
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '16px' }}>
+            <div style={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '16px',
+              opacity: isVisible ? 1 : 0,
+              animation: isVisible ? 'slideUp 0.8s ease-out 0.4s backwards' : 'none'
+            }}>
               <a
                 href={RESUME_DOWNLOAD}
-                className="animate-glow hover-lift"
                 style={{
-                  flex: 1,
-                  minWidth: '200px',
-                  padding: '16px 32px',
-                  borderRadius: '16px',
-                  background: 'linear-gradient(90deg, #2563eb, #7c3aed, #db2777)',
+                  padding: 'clamp(14px, 3vw, 18px) clamp(24px, 4vw, 36px)',
+                  borderRadius: '20px',
+                  background: 'linear-gradient(135deg, #2563eb, #7c3aed, #db2777)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '12px',
                   color: '#fff',
-                  fontWeight: 'bold',
-                  fontSize: '18px',
+                  fontWeight: '800',
+                  fontSize: 'clamp(1rem, 2vw, 1.2rem)',
                   textDecoration: 'none',
+                  boxShadow: '0 10px 40px -10px rgba(37,99,235,0.5)',
+                  transition: 'all 0.3s ease',
+                  border: '2px solid rgba(255,255,255,0.2)'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 20px 60px -10px rgba(37,99,235,0.8)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 10px 40px -10px rgba(37,99,235,0.5)';
                 }}
               >
-                <Download style={{ width: '24px', height: '24px' }} />
+                <Download size={22} />
                 Download Resume
               </a>
 
               <button
                 onClick={() => setShowModal(true)}
-                className="glass-strong hover-lift"
                 style={{
-                  flex: 1,
-                  minWidth: '200px',
+                  padding: 'clamp(14px, 3vw, 18px) clamp(24px, 4vw, 36px)',
+                  borderRadius: '20px',
+                  background: 'rgba(255,255,255,0.05)',
+                  backdropFilter: 'blur(20px)',
+                  border: '2px solid rgba(255,255,255,0.2)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   gap: '12px',
-                  padding: '16px 32px',
-                  borderRadius: '16px',
-                  fontWeight: 'bold',
-                  fontSize: '18px',
                   color: '#fff',
+                  fontWeight: '800',
+                  fontSize: 'clamp(1rem, 2vw, 1.2rem)',
                   cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.02)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.1)';
+                  e.currentTarget.style.boxShadow = '0 20px 60px -10px rgba(168,85,247,0.5)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                  e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <Eye className="animate-pulse-scale" style={{ width: '24px', height: '24px' }} />
-                View Full Size
+                <Eye size={22} />
+                View Fullscreen
               </button>
             </div>
           </div>
 
-          {/* Right Preview */}
-          <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <div style={{ position: 'sticky', top: '96px' }}>
-              <div style={{ position: 'relative' }}>
-                {/* Rotating Glow */}
-                <div className="animate-rotate" style={{
+          {/* Right Column - Resume Preview */}
+          <div style={{
+            opacity: isVisible ? 1 : 0,
+            animation: isVisible ? 'slideUp 0.8s ease-out 0.5s backwards' : 'none'
+          }}>
+            <div style={{ position: 'relative' }}>
+              {/* Animated glow border */}
+              <div style={{
+                position: 'absolute',
+                inset: '-4px',
+                borderRadius: '32px',
+                background: 'conic-gradient(from 0deg, #3b82f6, #a855f7, #ec4899, #3b82f6)',
+                animation: 'rotate 6s linear infinite',
+                opacity: 0.5,
+                filter: 'blur(20px)'
+              }} />
+
+              <div style={{
+                position: 'relative',
+                borderRadius: '28px',
+                overflow: 'hidden',
+                border: '2px solid rgba(255,255,255,0.2)',
+                background: '#000',
+                boxShadow: '0 30px 80px -10px rgba(0,0,0,0.7)'
+              }}>
+                {/* Status badges */}
+                <div style={{
                   position: 'absolute',
-                  inset: '-8px',
-                  borderRadius: '24px',
-                  background: 'conic-gradient(from 0deg, #3b82f6, #8b5cf6, #ec4899, #3b82f6)',
-                  filter: 'blur(40px)',
-                  opacity: 0.75,
-                  '--duration': '4s',
-                }} />
+                  top: '16px',
+                  left: '16px',
+                  zIndex: 20,
+                  padding: '8px 16px',
+                  borderRadius: '999px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  color: '#fff',
+                  boxShadow: '0 4px 20px rgba(16,185,129,0.4)'
+                }}>
+                  <CheckCircle size={16} />
+                  ATS: 87%
+                </div>
 
-                {/* Card */}
-                <div style={{ position: 'relative', borderRadius: '24px', background: '#000', border: '2px solid rgba(255,255,255,0.2)', overflow: 'hidden' }}>
-                  {/* Badges */}
-                  <div className="animate-glow" style={{
-                    position: 'absolute',
-                    top: '16px',
-                    left: '16px',
-                    zIndex: 20,
-                    padding: '8px 16px',
-                    borderRadius: '9999px',
-                    background: 'linear-gradient(90deg, #10b981, #059669)',
-                    color: '#fff',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}>
-                    <CheckCircle style={{ width: '16px', height: '16px' }} />
-                    ATS Score: 87%
-                  </div>
+                <div style={{
+                  position: 'absolute',
+                  top: '16px',
+                  right: '16px',
+                  zIndex: 20,
+                  padding: '8px 16px',
+                  borderRadius: '999px',
+                  background: 'rgba(255,255,255,0.1)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid rgba(255,255,255,0.2)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                  fontSize: '13px',
+                  fontWeight: '800',
+                  color: '#fff'
+                }}>
+                  <div style={{
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: '#10b981',
+                    animation: 'pulse 2s infinite',
+                    boxShadow: '0 0 10px #10b981'
+                  }} />
+                  LIVE
+                </div>
 
+                {/* Resume iframe */}
+                <div style={{
+                  position: 'relative',
+                  aspectRatio: '8.5/11',
+                  background: 'linear-gradient(135deg, #111827, #000)'
+                }}>
+                  <iframe
+                    src={RESUME_URL}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      border: 'none'
+                    }}
+                    title="Resume Preview"
+                  />
+                  
+                  {/* Scan line effect */}
                   <div style={{
                     position: 'absolute',
-                    top: '16px',
-                    right: '16px',
-                    zIndex: 20,
-                    padding: '8px 16px',
-                    borderRadius: '9999px',
-                    background: 'linear-gradient(90deg, #3b82f6, #8b5cf6)',
-                    color: '#fff',
-                    fontSize: '14px',
-                    fontWeight: 'bold',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                  }}>
-                    <div className="animate-pulse-scale" style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#34d399' }} />
-                    Live Preview
-                  </div>
+                    inset: 0,
+                    background: 'linear-gradient(180deg, transparent, rgba(59,130,246,0.1), transparent)',
+                    height: '100px',
+                    animation: 'scan 4s ease-in-out infinite',
+                    pointerEvents: 'none'
+                  }} />
+                </div>
 
-                  {/* Resume Preview */}
-                  <div style={{ position: 'relative', aspectRatio: '8.5/11', background: 'linear-gradient(135deg, #111827, #000)' }}>
-                    <iframe
-                      src={RESUME_URL}
-                      style={{ width: '100%', height: '100%', border: 'none' }}
-                      title="Resume Preview"
-                    />
-                  </div>
-
-                  {/* Stats */}
-                  <div className="glass" style={{ padding: '16px', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', textAlign: 'center' }}>
-                      {[
-                        { icon: TrendingUp, value: '100+', label: 'Problems', color: '#34d399' },
-                        { icon: Star, value: '4★', label: 'Rating', color: '#fbbf24' },
-                        { icon: Rocket, value: '6+', label: 'Projects', color: '#a78bfa' },
-                      ].map((stat, i) => (
-                        <div key={i} className="hover-scale" style={{ cursor: 'pointer' }}>
-                          <stat.icon className="animate-bounce" style={{ width: '20px', height: '20px', color: stat.color, margin: '0 auto 4px' }} />
-                          <div style={{ fontSize: '14px', fontWeight: 'bold' }}>{stat.value}</div>
-                          <div style={{ fontSize: '12px', color: '#9ca3af' }}>{stat.label}</div>
-                        </div>
-                      ))}
+                {/* Bottom stats bar */}
+                <div style={{
+                  padding: '16px',
+                  background: 'rgba(255,255,255,0.03)',
+                  backdropFilter: 'blur(10px)',
+                  borderTop: '1px solid rgba(255,255,255,0.1)',
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '16px',
+                  textAlign: 'center'
+                }}>
+                  {[
+                    { icon: TrendingUp, value: '100+', label: 'Problems', color: '#10b981' },
+                    { icon: Trophy, value: '4★', label: 'Rating', color: '#fbbf24' },
+                    { icon: Target, value: '90%', label: 'Success', color: '#a855f7' }
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        cursor: 'pointer',
+                        transition: 'transform 0.3s ease'
+                      }}
+                      onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-4px)'}
+                      onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0)'}
+                    >
+                      <item.icon 
+                        size={20} 
+                        style={{ 
+                          color: item.color,
+                          marginBottom: '4px',
+                          filter: `drop-shadow(0 0 8px ${item.color}60)`
+                        }} 
+                      />
+                      <div style={{
+                        fontSize: '16px',
+                        fontWeight: '900',
+                        color: '#fff',
+                        marginBottom: '2px'
+                      }}>
+                        {item.value}
+                      </div>
+                      <div style={{
+                        fontSize: '11px',
+                        color: '#9ca3af',
+                        fontWeight: '600'
+                      }}>
+                        {item.label}
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
             </div>
@@ -511,53 +667,62 @@ export default function Resume() {
       {showModal && (
         <div
           onClick={() => setShowModal(false)}
-          className="animate-fade-in"
           style={{
             position: 'fixed',
             inset: 0,
-            zIndex: 50,
-            background: 'rgba(0,0,0,0.95)',
-            backdropFilter: 'blur(24px)',
+            zIndex: 1000,
+            background: 'rgba(0,0,0,0.97)',
+            backdropFilter: 'blur(40px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '24px',
+            padding: 'clamp(20px, 5vw, 40px)',
+            animation: 'fadeIn 0.3s ease-out'
           }}
         >
           <div
-            onClick={(e) => e.stopPropagation()}
+            onClick={e => e.stopPropagation()}
             style={{
               position: 'relative',
-              maxWidth: '1152px',
+              maxWidth: '1200px',
               width: '100%',
-              borderRadius: '24px',
+              borderRadius: '32px',
               overflow: 'hidden',
-              border: '4px solid rgba(255,255,255,0.2)',
-              boxShadow: '0 50px 100px rgba(0,0,0,0.5)',
+              border: '3px solid rgba(255,255,255,0.2)',
+              boxShadow: '0 50px 100px rgba(0,0,0,0.8)',
+              animation: 'scaleIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)'
             }}
           >
             <iframe
               src={RESUME_URL}
-              style={{ width: '100%', height: '85vh', border: 'none' }}
+              style={{
+                width: '100%',
+                height: '90vh',
+                border: 'none'
+              }}
               title="Resume Fullscreen"
             />
             
             <button
               onClick={() => setShowModal(false)}
-              className="hover-scale"
               style={{
                 position: 'absolute',
-                top: '16px',
-                right: '16px',
-                padding: '16px',
-                background: 'linear-gradient(90deg, #ef4444, #ec4899)',
+                top: '20px',
+                right: '20px',
+                width: '56px',
+                height: '56px',
+                background: 'linear-gradient(135 deg, #ef4444, #b91c1c)',
                 borderRadius: '50%',
-                color: '#fff',
                 border: 'none',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
                 cursor: 'pointer',
+                boxShadow: '0 10px 30px rgba(239,68,68,0.5)',
+                transition: 'all 0.3s ease'
               }}
             >
-              <ExternalLink style={{ width: '24px', height: '24px', transform: 'rotate(45deg)' }} />
+              <X size={28} color="#fff" />
             </button>
           </div>
         </div>
