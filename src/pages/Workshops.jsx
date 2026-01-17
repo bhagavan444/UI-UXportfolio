@@ -1,8 +1,7 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useState, useEffect } from "react";
 import {
   Smartphone, Code, Brain, Cpu, Crown, Zap, ArrowRight, Calendar,
-  Users, X, Sparkles, TrendingUp, Star, Rocket, Target, Award
+  Users, X, Sparkles, Star, Rocket, Award, CheckCircle, Play
 } from "lucide-react";
 
 const workshops = [
@@ -60,43 +59,29 @@ const workshops = [
   }
 ];
 
-export default function EliteWorkshopsShowcase() {
+export default function EliteWorkshops() {
   const [selected, setSelected] = useState(null);
-  const [hovered, setHovered] = useState(null);
-  const mouseX = useMotionValue(0);
-  const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { damping: 50, stiffness: 300 });
-  const springY = useSpring(mouseY, { damping: 50, stiffness: 300 });
-  const containerRef = useRef(null);
-  const [time, setTime] = useState(0);
+  const [hover, setHover] = useState(null);
+  const [visible, setVisible] = useState(false);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
   useEffect(() => {
-    const handleMove = (e) => {
-      if (!containerRef.current) return;
-      const rect = containerRef.current.getBoundingClientRect();
-      mouseX.set(e.clientX - rect.left);
-      mouseY.set(e.clientY - rect.top);
-    };
-
-    const animate = () => {
-      setTime((t) => t + 0.016);
-      requestAnimationFrame(animate);
-    };
-
-    window.addEventListener("mousemove", handleMove);
-    const id = requestAnimationFrame(animate);
-
-    return () => {
-      window.removeEventListener("mousemove", handleMove);
-      cancelAnimationFrame(id);
-    };
+    setTimeout(() => setVisible(true), 200);
   }, []);
+
+  const handleMouseMove = (e) => {
+    if (window.innerWidth >= 1024) {
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      setMousePos({ x, y });
+    }
+  };
 
   const Counter = ({ target }) => {
     const [count, setCount] = useState(0);
     useEffect(() => {
       let start = 0;
-      const duration = 1800;
+      const duration = 1500;
       const step = target / (duration / 16);
       const timer = setInterval(() => {
         start += step;
@@ -114,445 +99,687 @@ export default function EliteWorkshopsShowcase() {
 
   return (
     <div
-      ref={containerRef}
+      onMouseMove={handleMouseMove}
       style={{
-        position: "relative",
-        minHeight: "100vh",
-        background: "#000",
-        color: "white",
-        overflow: "hidden",
-        fontFamily: "system-ui, sans-serif",
+        position: 'relative',
+        minHeight: '100vh',
+        background: 'linear-gradient(135deg, #0a001a 0%, #001433 50%, #0a0028 100%)',
+        color: 'white',
+        overflow: 'hidden',
+        padding: 'clamp(60px, 10vw, 100px) clamp(16px, 5vw, 24px)'
       }}
     >
-      {/* Global Keyframes */}
       <style>{`
-        @keyframes float { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
-        @keyframes pulse { 0%,100% { opacity: 0.6; transform: scale(1); } 50% { opacity: 1; transform: scale(1.06); } }
-        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
-        @keyframes fadeInUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes floatWorkshop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+        @keyframes rotateGlow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes slideInUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulseGlow { 0%, 100% { box-shadow: 0 5px 25px rgba(168,85,247,0.3); } 50% { box-shadow: 0 10px 50px rgba(168,85,247,0.6); } }
+        @keyframes shimmerSlide { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+        @keyframes iconBounce { 0%, 100% { transform: translateY(0) rotate(0deg); } 50% { transform: translateY(-10px) rotate(5deg); } }
       `}</style>
 
-      {/* Background Layers */}
-      <div style={{ position: "fixed", inset: 0, zIndex: 0 }}>
-        {/* Mouse-reactive gradient */}
-        <motion.div
-          style={{
-            position: "absolute",
-            inset: 0,
-            background: `radial-gradient(circle 900px at ${springX}px ${springY}px, rgba(168,85,247,0.22), transparent 70%)`,
-          }}
-        />
+      {/* Animated Background */}
+      <div style={{ position: 'absolute', inset: 0, overflow: 'hidden', pointerEvents: 'none' }}>
+        {/* Dynamic Gradient Orbs */}
+        <div style={{
+          position: 'absolute',
+          width: '700px',
+          height: '700px',
+          top: '-15%',
+          right: '-10%',
+          background: 'radial-gradient(circle, rgba(168,85,247,0.35), transparent 70%)',
+          filter: 'blur(100px)',
+          animation: 'floatWorkshop 20s ease-in-out infinite',
+          transform: `translate(${mousePos.x}px, ${mousePos.y}px)`,
+          transition: 'transform 0.5s ease-out'
+        }} />
+        <div style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          bottom: '-10%',
+          left: '-5%',
+          background: 'radial-gradient(circle, rgba(34,211,238,0.3), transparent 70%)',
+          filter: 'blur(90px)',
+          animation: 'floatWorkshop 25s ease-in-out infinite',
+          animationDelay: '3s',
+          transform: `translate(${-mousePos.x}px, ${-mousePos.y}px)`,
+          transition: 'transform 0.5s ease-out'
+        }} />
 
-        {/* Subtle moving orbs */}
-        {[
-          { x: 20, y: 30, size: 800, color: "rgba(34,211,238,0.18)", speed: 0.4 },
-          { x: 70, y: 65, size: 1000, color: "rgba(168,85,247,0.14)", speed: 0.3 },
-        ].map((orb, i) => (
+        {/* Grid Pattern */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `linear-gradient(rgba(168,85,247,0.1) 1px, transparent 1px),
+                           linear-gradient(90deg, rgba(168,85,247,0.1) 1px, transparent 1px)`,
+          backgroundSize: '60px 60px',
+          opacity: 0.3
+        }} />
+
+        {/* Floating Particles */}
+        {[...Array(15)].map((_, i) => (
           <div
             key={i}
             style={{
-              position: "absolute",
-              width: orb.size,
-              height: orb.size,
-              background: `radial-gradient(circle, ${orb.color}, transparent 70%)`,
-              borderRadius: "50%",
-              filter: "blur(120px)",
-              left: `${orb.x + Math.sin(time * orb.speed) * 15}%`,
-              top: `${orb.y + Math.cos(time * (orb.speed + 0.1)) * 15}%`,
-              transform: `scale(${1 + Math.sin(time * 0.7 + i) * 0.15})`,
+              position: 'absolute',
+              width: `${40 + Math.random() * 60}px`,
+              height: `${40 + Math.random() * 60}px`,
+              borderRadius: '50%',
+              background: `${workshops[i % workshops.length].color}15`,
+              border: `2px solid ${workshops[i % workshops.length].color}30`,
+              top: `${Math.random() * 100}%`,
+              left: `${Math.random() * 100}%`,
+              animation: `floatWorkshop ${15 + Math.random() * 15}s ease-in-out infinite`,
+              animationDelay: `${Math.random() * 5}s`,
+              opacity: 0.4
             }}
           />
         ))}
-
-        {/* Very light grid */}
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `linear-gradient(rgba(168,85,247,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(168,85,247,0.06) 1px, transparent 1px)`,
-            backgroundSize: "60px 60px",
-            opacity: 0.4,
-            transform: `translateY(${Math.sin(time * 0.2) * 10}px)`,
-          }}
-        />
       </div>
 
-      <div style={{
-        position: "relative",
-        zIndex: 10,
-        maxWidth: "1480px",
-        margin: "0 auto",
-        padding: "clamp(80px, 12vh, 140px) 24px",
-      }}>
+      <div style={{ position: 'relative', maxWidth: '1400px', margin: '0 auto', zIndex: 1 }}>
         {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 60 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          style={{ textAlign: "center", marginBottom: "clamp(60px, 10vh, 100px)" }}
-        >
-          <motion.div
-            animate={{ rotate: [0, 8, -8, 0] }}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-            style={{ fontSize: "clamp(4rem, 12vw, 7.5rem)", marginBottom: "16px" }}
-          >
-            🚀
-          </motion.div>
-
-          <h1 style={{
-            fontSize: "clamp(3.2rem, 9vw, 6.5rem)",
-            fontWeight: 900,
-            background: "linear-gradient(90deg, #22d3ee, #a855f7, #ec4899)",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text",
-            color: "transparent",
-            lineHeight: 1.05,
-            marginBottom: "24px",
+        <div style={{
+          textAlign: 'center',
+          marginBottom: 'clamp(50px, 8vw, 80px)',
+          opacity: visible ? 1 : 0,
+          transform: visible ? 'translateY(0)' : 'translateY(-50px)',
+          transition: 'all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }}>
+          {/* Animated Icon */}
+          <div style={{
+            fontSize: 'clamp(4rem, 12vw, 7rem)',
+            marginBottom: '24px',
+            animation: 'iconBounce 4s ease-in-out infinite',
+            filter: 'drop-shadow(0 0 40px rgba(168,85,247,0.6))'
           }}>
-            Elite Workshop Programs
+            🎓
+          </div>
+
+          {/* Title */}
+          <h1 style={{
+            fontSize: 'clamp(2.5rem, 8vw, 5.5rem)',
+            fontWeight: '900',
+            lineHeight: 1.1,
+            margin: '0 0 20px 0',
+            background: 'linear-gradient(135deg, #22d3ee, #a855f7, #ec4899, #22d3ee)',
+            backgroundSize: '300% auto',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            animation: 'shimmerSlide 4s linear infinite'
+          }}>
+            Elite Workshops
           </h1>
 
           <p style={{
-            fontSize: "clamp(1.15rem, 2.8vw, 1.45rem)",
-            color: "#cbd5e1",
-            maxWidth: "780px",
-            margin: "0 auto 48px",
-            lineHeight: 1.7,
+            fontSize: 'clamp(1rem, 3vw, 1.4rem)',
+            color: '#cbd5e1',
+            maxWidth: '700px',
+            margin: '0 auto 50px',
+            lineHeight: 1.7
           }}>
-            Intensive, mentor-led programs designed to turn strong developers into industry-leading engineers.
+            Transform into an <span style={{ color: '#a855f7', fontWeight: '700' }}>industry-leading engineer</span> through 
+            intensive, <span style={{ color: '#22d3ee', fontWeight: '700' }}>mentor-led programs</span>
           </p>
 
-          {/* Quick stats */}
+          {/* Stats */}
           <div style={{
-            display: "flex",
-            flexWrap: "wrap",
-            gap: "clamp(16px, 3vw, 32px)",
-            justifyContent: "center",
+            display: 'flex',
+            justifyContent: 'center',
+            gap: 'clamp(12px, 4vw, 24px)',
+            flexWrap: 'wrap',
+            marginBottom: '40px'
           }}>
             {[
-              { icon: Users, value: "2,225+", label: "Students Trained" },
-              { icon: Award, value: "98%", label: "Success Rate" },
-              { icon: Rocket, value: "40+", label: "Live Projects" },
-            ].map((item, i) => (
-              <motion.div
+              { icon: Users, value: '2,225+', label: 'Students', color: '#a855f7' },
+              { icon: Award, value: '98%', label: 'Success', color: '#22d3ee' },
+              { icon: Rocket, value: '40+', label: 'Projects', color: '#10b981' }
+            ].map((stat, i) => (
+              <div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.2 }}
                 style={{
-                  padding: "16px 28px",
-                  background: "rgba(255,255,255,0.04)",
-                  borderRadius: "999px",
-                  border: "1px solid rgba(168,85,247,0.2)",
-                  backdropFilter: "blur(12px)",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
+                  position: 'relative',
+                  padding: 'clamp(14px, 4vw, 20px) clamp(24px, 6vw, 36px)',
+                  background: 'rgba(255,255,255,0.03)',
+                  backdropFilter: 'blur(20px)',
+                  border: `2px solid ${stat.color}40`,
+                  borderRadius: '20px',
+                  animation: `pulseGlow 3s ease-in-out ${i * 0.3}s infinite`,
+                  overflow: 'hidden'
                 }}
               >
-                <item.icon size={22} color="#a855f7" />
-                <div>
-                  <div style={{ fontSize: "1.3rem", fontWeight: 800 }}>{item.value}</div>
-                  <div style={{ fontSize: "0.9rem", color: "#94a3b8" }}>{item.label}</div>
+                {/* Rotating Gradient */}
+                <div style={{
+                  position: 'absolute',
+                  inset: '-80%',
+                  background: `conic-gradient(from 0deg, transparent, ${stat.color}30, transparent)`,
+                  animation: 'rotateGlow 6s linear infinite'
+                }} />
+                
+                <div style={{ position: 'relative', zIndex: 1, display: 'flex', alignItems: 'center', gap: '12px' }}>
+                  <stat.icon size={window.innerWidth < 640 ? 18 : 24} color={stat.color} />
+                  <div>
+                    <div style={{
+                      fontSize: 'clamp(1.5rem, 4vw, 2.2rem)',
+                      fontWeight: '900',
+                      color: stat.color
+                    }}>
+                      {stat.value}
+                    </div>
+                    <div style={{
+                      fontSize: 'clamp(10px, 2vw, 12px)',
+                      color: '#94a3b8',
+                      fontWeight: '600',
+                      letterSpacing: '0.05em'
+                    }}>
+                      {stat.label}
+                    </div>
+                  </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
-        </motion.div>
+        </div>
 
-        {/* Cards Grid */}
+        {/* Workshops Grid */}
         <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
-          gap: "clamp(24px, 4vw, 40px)",
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 320px), 1fr))',
+          gap: 'clamp(24px, 5vw, 40px)'
         }}>
           {workshops.map((ws, idx) => (
-            <motion.div
+            <div
               key={idx}
-              initial={{ opacity: 0, y: 60 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: idx * 0.12, duration: 0.9, type: "spring", stiffness: 100 }}
-              whileHover={{ y: -16, scale: 1.02 }}
+              onMouseEnter={() => setHover(idx)}
+              onMouseLeave={() => setHover(null)}
               onClick={() => setSelected(ws)}
               style={{
-                position: "relative",
-                padding: "clamp(32px, 5vw, 44px)",
-                background: "rgba(15,15,40,0.75)",
-                backdropFilter: "blur(20px)",
-                borderRadius: "28px",
-                border: hovered === idx ? `2px solid ${ws.color}` : "1px solid rgba(168,85,247,0.15)",
-                overflow: "hidden",
-                cursor: "pointer",
-                boxShadow: hovered === idx
-                  ? `0 40px 100px ${ws.color}40`
-                  : "0 20px 60px rgba(0,0,0,0.5)",
-                transition: "all 0.4s cubic-bezier(0.34,1.56,0.64,1)",
+                position: 'relative',
+                cursor: 'pointer',
+                opacity: visible ? 1 : 0,
+                animation: `slideInUp 0.8s ease ${idx * 0.15}s backwards`,
+                transform: hover === idx ? 'translateY(-12px) scale(1.02)' : 'scale(1)',
+                transition: 'all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)'
               }}
-              onMouseEnter={() => setHovered(idx)}
-              onMouseLeave={() => setHovered(null)}
             >
-              {/* Gradient overlay */}
+              {/* Glow Effect */}
               <div style={{
-                position: "absolute",
-                inset: 0,
-                background: ws.gradient,
-                opacity: hovered === idx ? 0.12 : 0.05,
-                transition: "opacity 0.5s",
-                mixBlendMode: "screen",
+                position: 'absolute',
+                inset: '-40px',
+                background: `radial-gradient(circle at 50% 50%, ${ws.color}40, transparent 70%)`,
+                filter: 'blur(60px)',
+                opacity: hover === idx ? 1 : 0,
+                transition: 'opacity 0.5s',
+                pointerEvents: 'none'
               }} />
 
-              {/* Featured crown */}
-              {ws.featured && (
+              {/* Card */}
+              <div style={{
+                position: 'relative',
+                padding: 'clamp(28px, 6vw, 40px)',
+                background: 'rgba(15,15,40,0.7)',
+                backdropFilter: 'blur(25px)',
+                borderRadius: '28px',
+                border: hover === idx ? `2px solid ${ws.color}` : '2px solid rgba(168,85,247,0.15)',
+                overflow: 'hidden',
+                boxShadow: hover === idx 
+                  ? `0 40px 100px ${ws.color}50` 
+                  : '0 20px 60px rgba(0,0,0,0.4)',
+                transition: 'all 0.5s'
+              }}>
+                {/* Background Gradient Overlay */}
                 <div style={{
-                  position: "absolute",
-                  top: 20,
-                  left: 20,
-                  background: "linear-gradient(135deg, #fbbf24, #f59e0b)",
-                  padding: "10px",
-                  borderRadius: "50%",
-                  boxShadow: "0 0 40px rgba(251,191,36,0.7)",
+                  position: 'absolute',
+                  inset: 0,
+                  background: ws.gradient,
+                  opacity: hover === idx ? 0.15 : 0.06,
+                  transition: 'opacity 0.5s',
+                  mixBlendMode: 'screen'
+                }} />
+
+                {/* Shimmer Effect */}
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent)',
+                  backgroundSize: '200% 100%',
+                  animation: hover === idx ? 'shimmerSlide 2s infinite' : 'none',
+                  pointerEvents: 'none'
+                }} />
+
+                {/* Featured Badge */}
+                {ws.featured && (
+                  <div style={{
+                    position: 'absolute',
+                    top: '20px',
+                    right: '20px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '6px',
+                    padding: '8px 16px',
+                    background: 'linear-gradient(135deg, #fbbf24, #f59e0b)',
+                    borderRadius: '20px',
+                    fontSize: 'clamp(10px, 2.5vw, 12px)',
+                    fontWeight: '800',
+                    color: '#000',
+                    boxShadow: '0 5px 25px rgba(251,191,36,0.6)',
+                    animation: 'pulseGlow 2s ease-in-out infinite',
+                    zIndex: 10
+                  }}>
+                    <Crown size={14} />
+                    FEATURED
+                  </div>
+                )}
+
+                {/* Icon Container */}
+                <div style={{
+                  position: 'relative',
+                  width: 'clamp(90px, 20vw, 120px)',
+                  height: 'clamp(90px, 20vw, 120px)',
+                  background: ws.gradient,
+                  borderRadius: '24px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  margin: '0 auto 28px',
+                  boxShadow: `0 20px 60px ${ws.color}60`,
+                  transform: hover === idx ? 'scale(1.15) rotate(5deg)' : 'scale(1)',
+                  transition: 'transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  overflow: 'hidden'
                 }}>
-                  <Crown size={24} color="#000" />
+                  {/* Icon Glow */}
+                  <div style={{
+                    position: 'absolute',
+                    inset: '-50%',
+                    background: `conic-gradient(from 0deg, transparent, ${ws.color}80, transparent)`,
+                    animation: hover === idx ? 'rotateGlow 3s linear infinite' : 'none'
+                  }} />
+                  
+                  <ws.icon 
+                    size={window.innerWidth < 640 ? 50 : 60} 
+                    color="white" 
+                    strokeWidth={2.5}
+                    style={{ position: 'relative', zIndex: 1 }}
+                  />
                 </div>
-              )}
 
-              {/* Icon */}
-              <div style={{
-                width: 100,
-                height: 100,
-                background: ws.gradient,
-                borderRadius: "24px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                margin: "0 auto 32px",
-                boxShadow: `0 20px 60px ${ws.color}50`,
-                transform: hovered === idx ? "scale(1.12) rotate(3deg)" : "scale(1)",
-                transition: "transform 0.5s",
-              }}>
-                <ws.icon size={56} color="white" strokeWidth={2.2} />
-              </div>
+                {/* Title */}
+                <h3 style={{
+                  fontSize: 'clamp(1.4rem, 4vw, 2rem)',
+                  fontWeight: '900',
+                  background: ws.gradient,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '16px',
+                  textAlign: 'center',
+                  lineHeight: 1.2
+                }}>
+                  {ws.title}
+                </h3>
 
-              {/* Title */}
-              <h3 style={{
-                fontSize: "clamp(1.6rem, 3.5vw, 2.1rem)",
-                fontWeight: 900,
-                background: ws.gradient,
-                WebkitBackgroundClip: "text",
-                backgroundClip: "text",
-                color: "transparent",
-                marginBottom: "16px",
-                textAlign: "center",
-              }}>
-                {ws.title}
-              </h3>
+                {/* Description */}
+                <p style={{
+                  color: '#cbd5e1',
+                  fontSize: 'clamp(0.95rem, 2.5vw, 1.1rem)',
+                  lineHeight: 1.7,
+                  marginBottom: '24px',
+                  textAlign: 'center',
+                  opacity: hover === idx ? 1 : 0.9,
+                  transition: 'opacity 0.4s'
+                }}>
+                  {ws.desc}
+                </p>
 
-              {/* Description */}
-              <p style={{
-                color: "#cbd5e1",
-                fontSize: "clamp(1rem, 2.2vw, 1.1rem)",
-                lineHeight: 1.6,
-                marginBottom: "28px",
-                textAlign: "center",
-                opacity: hovered === idx ? 1 : 0.85,
-                transition: "opacity 0.4s",
-              }}>
-                {ws.desc}
-              </p>
-
-              {/* Mini stats */}
-              <div style={{
-                display: "flex",
-                justifyContent: "center",
-                gap: "clamp(16px, 3vw, 28px)",
-                marginBottom: "32px",
-                flexWrap: "wrap",
-              }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Calendar size={18} color={ws.color} />
-                  <span style={{ fontWeight: 600 }}>{ws.duration}</span>
+                {/* Stats Row */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'center',
+                  gap: 'clamp(16px, 4vw, 24px)',
+                  marginBottom: '28px',
+                  flexWrap: 'wrap'
+                }}>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '12px',
+                    border: `1px solid ${ws.color}30`
+                  }}>
+                    <Calendar size={16} color={ws.color} />
+                    <span style={{ 
+                      fontWeight: '700', 
+                      fontSize: 'clamp(12px, 2.5vw, 14px)',
+                      color: '#e2e8f0'
+                    }}>
+                      {ws.duration}
+                    </span>
+                  </div>
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '8px 16px',
+                    background: 'rgba(255,255,255,0.05)',
+                    borderRadius: '12px',
+                    border: `1px solid ${ws.color}30`
+                  }}>
+                    <Users size={16} color={ws.color} />
+                    <span style={{ 
+                      fontWeight: '700', 
+                      fontSize: 'clamp(12px, 2.5vw, 14px)',
+                      color: '#e2e8f0'
+                    }}>
+                      <Counter target={ws.enrolled} />+
+                    </span>
+                  </div>
                 </div>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <Users size={18} color={ws.color} />
-                  <span style={{ fontWeight: 600 }}>
-                    <Counter target={ws.enrolled} /> enrolled
-                  </span>
-                </div>
-              </div>
 
-              {/* CTA */}
-              <div style={{
-                textAlign: "center",
-                marginTop: "auto",
-              }}>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.97 }}
-                  style={{
-                    padding: "14px 32px",
-                    background: ws.gradient,
-                    borderRadius: "999px",
-                    color: "white",
-                    fontWeight: 700,
-                    fontSize: "1.05rem",
-                    border: "none",
-                    cursor: "pointer",
-                    boxShadow: `0 10px 40px ${ws.color}50`,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: 12,
-                  }}
-                >
-                  View Program <ArrowRight size={20} />
-                </motion.button>
+                {/* CTA Button */}
+                <div style={{ textAlign: 'center' }}>
+                  <button
+                    style={{
+                      padding: 'clamp(12px, 3vw, 16px) clamp(28px, 6vw, 40px)',
+                      background: ws.gradient,
+                      borderRadius: '999px',
+                      color: 'white',
+                      fontWeight: '800',
+                      fontSize: 'clamp(13px, 3vw, 16px)',
+                      border: 'none',
+                      cursor: 'pointer',
+                      boxShadow: `0 10px 40px ${ws.color}60`,
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '10px',
+                      transition: 'all 0.3s',
+                      transform: hover === idx ? 'scale(1.05)' : 'scale(1)'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.transform = 'scale(1.08)'}
+                    onMouseLeave={(e) => e.currentTarget.style.transform = 'scale(1)'}
+                  >
+                    View Details <ArrowRight size={18} />
+                  </button>
+                </div>
+
+                {/* Corner Accents */}
+                <div style={{
+                  position: 'absolute',
+                  top: '16px',
+                  left: '16px',
+                  width: '30px',
+                  height: '30px',
+                  borderTop: `3px solid ${ws.color}`,
+                  borderLeft: `3px solid ${ws.color}`,
+                  borderTopLeftRadius: '16px',
+                  opacity: hover === idx ? 1 : 0.3,
+                  transition: 'opacity 0.4s'
+                }} />
+                <div style={{
+                  position: 'absolute',
+                  bottom: '16px',
+                  right: '16px',
+                  width: '30px',
+                  height: '30px',
+                  borderBottom: `3px solid ${ws.color}`,
+                  borderRight: `3px solid ${ws.color}`,
+                  borderBottomRightRadius: '16px',
+                  opacity: hover === idx ? 1 : 0.3,
+                  transition: 'opacity 0.4s'
+                }} />
               </div>
-            </motion.div>
+            </div>
           ))}
         </div>
       </div>
 
       {/* Modal */}
-      <AnimatePresence>
-        {selected && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSelected(null)}
+      {selected && (
+        <div
+          onClick={() => setSelected(null)}
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.94)',
+            backdropFilter: 'blur(30px)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: 'clamp(16px, 5vw, 40px)',
+            zIndex: 1000,
+            animation: 'slideInUp 0.3s ease'
+          }}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
             style={{
-              position: "fixed",
-              inset: 0,
-              zIndex: 1000,
-              background: "rgba(0,0,0,0.92)",
-              backdropFilter: "blur(30px)",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              padding: "clamp(20px, 5vw, 40px)",
+              position: 'relative',
+              maxWidth: '900px',
+              width: '100%',
+              background: 'rgba(15,15,40,0.98)',
+              backdropFilter: 'blur(40px)',
+              borderRadius: '32px',
+              padding: 'clamp(32px, 7vw, 64px)',
+              border: `3px solid ${selected.color}`,
+              boxShadow: `0 50px 150px ${selected.color}70`,
+              maxHeight: '90vh',
+              overflowY: 'auto'
             }}
           >
-            <motion.div
-              initial={{ scale: 0.9, y: 60 }}
-              animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 60 }}
-              onClick={(e) => e.stopPropagation()}
+            {/* Animated Glow */}
+            <div style={{
+              position: 'absolute',
+              inset: '-80px',
+              background: `radial-gradient(circle at 50% 0%, ${selected.color}30, transparent 70%)`,
+              filter: 'blur(100px)',
+              animation: 'pulseGlow 4s ease-in-out infinite',
+              pointerEvents: 'none'
+            }} />
+
+            {/* Close Button */}
+            <button
+              onClick={() => setSelected(null)}
               style={{
-                maxWidth: 900,
-                width: "100%",
-                background: "rgba(15,15,40,0.95)",
-                backdropFilter: "blur(40px)",
-                borderRadius: 32,
-                padding: "clamp(40px, 6vw, 64px)",
-                border: `3px solid ${selected.color}`,
-                boxShadow: `0 0 120px ${selected.color}60`,
-                position: "relative",
-                maxHeight: "90vh",
-                overflowY: "auto",
+                position: 'absolute',
+                top: '24px',
+                right: '24px',
+                width: '48px',
+                height: '48px',
+                borderRadius: '50%',
+                background: 'rgba(255,255,255,0.08)',
+                border: '2px solid rgba(255,255,255,0.2)',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'all 0.3s',
+                zIndex: 10
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.15)';
+                e.currentTarget.style.transform = 'scale(1.1)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.08)';
+                e.currentTarget.style.transform = 'scale(1)';
               }}
             >
+              <X size={24} />
+            </button>
+
+            {/* Header Section */}
+            <div style={{
+              position: 'relative',
+              display: 'flex',
+              gap: 'clamp(20px, 5vw, 48px)',
+              alignItems: 'center',
+              marginBottom: '40px',
+              flexWrap: 'wrap',
+              justifyContent: 'center'
+            }}>
+              <div style={{
+                width: 'clamp(100px, 25vw, 140px)',
+                height: 'clamp(100px, 25vw, 140px)',
+                background: selected.gradient,
+                borderRadius: '32px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: `0 30px 80px ${selected.color}70`,
+                flexShrink: 0
+              }}>
+                <selected.icon size={window.innerWidth < 640 ? 60 : 80} color="white" strokeWidth={2} />
+              </div>
+
+              <div style={{ flex: 1, minWidth: '250px' }}>
+                <h2 style={{
+                  fontSize: 'clamp(2rem, 6vw, 3.5rem)',
+                  fontWeight: '900',
+                  background: selected.gradient,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '12px',
+                  lineHeight: 1.1
+                }}>
+                  {selected.title}
+                </h2>
+                <p style={{
+                  color: '#cbd5e1',
+                  fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
+                  lineHeight: 1.6
+                }}>
+                  {selected.desc}
+                </p>
+              </div>
+            </div>
+
+            {/* Skills Section */}
+            <h3 style={{
+              fontSize: 'clamp(1.4rem, 4vw, 1.8rem)',
+              fontWeight: '800',
+              marginBottom: '20px',
+              color: '#fff'
+            }}>
+              Core Skills You'll Master
+            </h3>
+            <div style={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '40px'
+            }}>
+              {selected.skills.map((skill, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: 'clamp(10px, 3vw, 14px) clamp(16px, 4vw, 22px)',
+                    background: `${selected.color}15`,
+                    border: `2px solid ${selected.color}40`,
+                    borderRadius: '16px',
+                    fontSize: 'clamp(13px, 3vw, 16px)',
+                    fontWeight: '700',
+                    color: '#e2e8f0'
+                  }}
+                >
+                  <CheckCircle size={16} color={selected.color} />
+                  {skill}
+                </div>
+              ))}
+            </div>
+
+            {/* Details Grid */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
+              gap: '20px',
+              marginBottom: '32px'
+            }}>
+              <div style={{
+                padding: '20px',
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                textAlign: 'center'
+              }}>
+                <Calendar size={24} color={selected.color} style={{ marginBottom: '8px', marginLeft: 'auto', marginRight: 'auto', display: 'block' }} />
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Duration</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>{selected.duration}</div>
+              </div>
+              <div style={{
+                padding: '20px',
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                textAlign: 'center'
+              }}>
+                <Users size={24} color={selected.color} style={{ marginBottom: '8px', marginLeft: 'auto', marginRight: 'auto', display: 'block' }} /> 
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Enrolled</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>
+                  <Counter target={selected.enrolled} />
+                </div>
+              </div>
+              <div style={{ 
+                padding: '20px',
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                textAlign: 'center'
+              }}>
+                <Sparkles size={24} color={selected.color} style={{ marginBottom: '8px', marginLeft: 'auto', marginRight: 'auto', display: 'block' }} />
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Level</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>{selected.level}</div>
+              </div>
+              <div style={{ 
+                padding: '20px',
+                background: 'rgba(255,255,255,0.04)',
+                borderRadius: '16px',
+                border: '1px solid rgba(255,255,255,0.1)',
+                textAlign: 'center'
+              }}>
+                <Star size={24} color={selected.color} style={{ marginBottom: '8px', marginLeft: 'auto', marginRight: 'auto', display: 'block' }} />
+                <div style={{ fontSize: '12px', color: '#94a3b8', marginBottom: '4px' }}>Slots</div>
+                <div style={{ fontSize: '1.1rem', fontWeight: '800', color: '#fff' }}>{selected.slots}</div>
+              </div>
+            </div>
+            {/* Enroll Button */}
+            <div style={{ textAlign: 'center' }}>
               <button
-                onClick={() => setSelected(null)}
                 style={{
-                  position: "absolute",
-                  top: 24,
-                  right: 24,
-                  width: 48,
-                  height: 48,
-                  borderRadius: "50%",
-                  background: "rgba(255,255,255,0.1)",
-                  border: "2px solid rgba(255,255,255,0.3)",
-                  color: "white",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
+                  padding: 'clamp(14px, 4vw, 18px) clamp(32px, 7vw, 44px)',
+                  background: selected.gradient,
+                  borderRadius: '999px',
+                  color: 'white',
+                  fontWeight: '800',
+                  fontSize: 'clamp(14px, 3vw, 18px)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: `0 15px 50px ${selected.color}70`, 
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  transition: 'all 0.3s'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.boxShadow = `0 20px 70px ${selected.color}90`;
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.boxShadow = `0 15px 50px ${selected.color}70`;
+                  e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
-                <X size={24} />
+                Enroll Now <Play size={20} />
               </button>
-
-              <div style={{
-                display: "flex",
-                gap: "clamp(24px, 5vw, 48px)",
-                alignItems: "center",
-                marginBottom: "40px",
-                flexWrap: "wrap",
-              }}>
-                <div style={{
-                  width: 140,
-                  height: 140,
-                  background: selected.gradient,
-                  borderRadius: 32,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  boxShadow: `0 30px 80px ${selected.color}60`,
-                  flexShrink: 0,
-                }}>
-                  <selected.icon size={80} color="white" strokeWidth={2} />
-                </div>
-
-                <div>
-                  <h2 style={{
-                    fontSize: "clamp(2.5rem, 6vw, 3.8rem)",
-                    fontWeight: 900,
-                    background: selected.gradient,
-                    WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                    marginBottom: 12,
-                  }}>
-                    {selected.title}
-                  </h2>
-                  <p style={{ color: "#cbd5e1", fontSize: "1.15rem", lineHeight: 1.6 }}>
-                    {selected.desc}
-                  </p>
-                </div>
-              </div>
-
-              <h3 style={{ fontSize: "1.6rem", fontWeight: 800, marginBottom: 20 }}>
-                Core Skills You’ll Master
-              </h3>
-              <div style={{
-                display: "flex",
-                flexWrap: "wrap",
-                gap: 12,
-                marginBottom: 40,
-              }}>
-                {selected.skills.map((skill) => (
-                  <div key={skill} style={{
-                    padding: "10px 18px",
-                    background: "rgba(255,255,255,0.06)",
-                    borderRadius: 12,
-                    fontSize: "0.95rem",
-                    fontWeight: 600,
-                  }}>
-                    {skill}
-                  </div>
-                ))}
-              </div>
-
-              <div style={{
-                display: "flex",
-                gap: "clamp(32px, 6vw, 64px)",
-                flexWrap: "wrap",
-              }}>
-                <div>
-                  <strong style={{ color: "#e2e8f0" }}>Duration:</strong> {selected.duration}
-                </div>
-                <div>
-                  <strong style={{ color: "#e2e8f0" }}>Level:</strong> {selected.level}
-                </div>
-                <div>
-                  <strong style={{ color: "#e2e8f0" }}>Slots:</strong> {selected.slots}
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 }

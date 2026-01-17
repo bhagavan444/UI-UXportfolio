@@ -1,37 +1,59 @@
-import { useState, useEffect } from "react";
-import profileImg from "../assets/profile.jpeg";
-import resumePdf from "../assets/bhagavanresume.pdf";
-import { 
-  Award, Briefcase, Rocket, Sparkles, ExternalLink, GraduationCap 
-} from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import profileImage from "../assets/profile.jpeg";
 
-export default function ProHero() {
+import { Award, Briefcase, Rocket, Sparkles, ExternalLink, GraduationCap, Code, Cpu, Database, Globe, BrainCircuit, Zap, Terminal, ChevronRight, Download } from "lucide-react";
+
+export default function FuturisticDevHero() {
   const [visible, setVisible] = useState(false);
   const [typedText, setTypedText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
   const [roleIndex, setRoleIndex] = useState(0);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [particles, setParticles] = useState([]);
 
-  const roles = ["AI Engineer", "Full-Stack Developer", "Machine Learning Specialist", "MERN Stack Expert"];
+  const roles = [
+    "AI ENGINEER",
+    "FULL-STACK ARCHITECT", 
+    "ML SPECIALIST",
+    "MERN EXPERT"
+  ];
 
-  // Removed all orbiting tech icons — clean & focused on profile only
-  // Only keeping the glowing ring and subtle background effects
+  const techStack = [
+    { name: "React", color: "#61DAFB", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
+    { name: "Python", color: "#3776AB", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
+    { name: "TensorFlow", color: "#FF6F00", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" },
+    { name: "Node.js", color: "#339933", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" },
+    { name: "MongoDB", color: "#47A248", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" },
+    { name: "Docker", color: "#2496ED", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" },
+    { name: "JavaScript", color: "#F7DF1E", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" },
+    { name: "Git", color: "#F05032", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
+  ];
 
   useEffect(() => {
-    setTimeout(() => setVisible(true), 400);
+    setTimeout(() => setVisible(true), 300);
+    
+    const newParticles = Array.from({ length: 50 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      speedX: (Math.random() - 0.5) * 0.5,
+      speedY: (Math.random() - 0.5) * 0.5,
+      opacity: Math.random() * 0.5 + 0.3
+    }));
+    setParticles(newParticles);
   }, []);
 
-  // Typing animation
   useEffect(() => {
     const currentRole = roles[roleIndex];
-    const speed = isDeleting ? 45 : 85;
+    const speed = isDeleting ? 30 : 100;
 
     const timer = setTimeout(() => {
       if (!isDeleting) {
         if (typedText.length < currentRole.length) {
           setTypedText(currentRole.substring(0, typedText.length + 1));
         } else {
-          setTimeout(() => setIsDeleting(true), 2200);
+          setTimeout(() => setIsDeleting(true), 2000);
         }
       } else {
         if (typedText.length > 0) {
@@ -47,364 +69,566 @@ export default function ProHero() {
   }, [typedText, isDeleting, roleIndex]);
 
   const handleMouseMove = (e) => {
-    if (window.innerWidth >= 1024) {
-      const x = (e.clientX / window.innerWidth - 0.5) * 2.8;
-      const y = (e.clientY / window.innerHeight - 0.5) * 2.8;
-      setMouse({ x, y });
-    }
+    const x = (e.clientX / window.innerWidth) * 100;
+    const y = (e.clientY / window.innerHeight) * 100;
+    setMousePos({ x, y });
   };
 
   const stats = [
-    { icon: Briefcase, value: "3", label: "Internships", desc: "Production Level" },
-    { icon: Rocket, value: "5+", label: "Live Projects", desc: "Deployed Apps" },
-    { icon: Award, value: "13+", label: "Certifications", desc: "Google • IBM • AWS" }
+    { icon: Briefcase, value: "3+", label: "Internships", color: "#22d3ee" },
+    { icon: Rocket, value: "5+", label: "Live Projects", color: "#a78bfa" },
+    { icon: Award, value: "13+", label: "Certifications", color: "#34d399" }
   ];
 
+  
   return (
     <div
       onMouseMove={handleMouseMove}
       style={{
         position: 'relative',
         minHeight: '100vh',
-        background: 'linear-gradient(135deg, #0a001a, #001f33, #0a0028)',
+        background: '#000000',
         color: 'white',
         overflow: 'hidden',
-        display: 'flex',
-        alignItems: 'center',
-        padding: 'clamp(4rem, 10vw, 7rem) 1.5rem 4rem',
+        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        paddingTop: '80px'
       }}
     >
-      {/* Background Effects */}
-      <div style={{ 
-        position: 'absolute', 
-        inset: 0, 
-        pointerEvents: 'none',
-        overflow: 'hidden'
-      }}>
-        {/* Orbs */}
-        <div style={{
-          position: 'absolute', width: '1000px', height: '1000px', top: '-30%', left: '-30%',
-          background: 'radial-gradient(circle at 40% 30%, rgba(34,211,238,0.52), transparent 60%)',
-          filter: 'blur(110px)',
-          transform: `translate(${mouse.x * 70}px, ${mouse.y * 60}px)`,
-          transition: 'transform 0.8s ease-out',
-          opacity: window.innerWidth < 1024 ? 0.6 : 1
-        }} />
-        <div style={{
-          position: 'absolute', width: '1100px', height: '1100px', bottom: '-35%', right: '-35%',
-          background: 'radial-gradient(circle at 60% 70%, rgba(6,182,212,0.42), transparent 65%)',
-          filter: 'blur(130px)',
-          transform: `translate(${-mouse.x * 80}px, ${-mouse.y * 70}px)`,
-          transition: 'transform 0.8s ease-out',
-          opacity: window.innerWidth < 1024 ? 0.6 : 1
-        }} />
-        {/* Floating shapes */}
-        {[...Array(window.innerWidth < 768 ? 10 : 16)].map((_, i) => (
-          <div
-            key={`shape-${i}`}
-            style={{
-              position: 'absolute',
-              width: `${50 + Math.random() * 100}px`,
-              height: `${50 + Math.random() * 100}px`,
-              borderRadius: '50%',
-              border: `1.5px solid rgba(34,211,238,0.35)`,
-              background: 'rgba(34,211,238,0.06)',
-              boxShadow: '0 0 25px rgba(34,211,238,0.3)',
-              top: `${Math.random() * 120 - 10}%`,
-              left: `${Math.random() * 120 - 10}%`,
-              animation: `premiumFloat ${18 + Math.random() * 15}s ease-in-out infinite`,
-              animationDelay: `-${Math.random() * 12}s`,
-              opacity: 0.25 + Math.random() * 0.2,
-            }}
-          />
-        ))}
-      </div>
+      {/* Animated Grid Background */}
+      <div style={{
+        position: 'absolute',
+        inset: 0,
+        backgroundImage: `
+          linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px',
+        animation: 'gridMove 20s linear infinite',
+        maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)'
+      }} />
 
-      {/* Main Content Container */}
-      <div style={{ 
-        position: 'relative', 
-        zIndex: 10, 
-        width: '100%', 
-        maxWidth: '1600px',
+      {/* Dynamic Gradient Orbs */}
+      <div style={{
+        position: 'absolute',
+        width: '600px',
+        height: '600px',
+        top: `${mousePos.y - 50}%`,
+        left: `${mousePos.x - 50}%`,
+        background: 'radial-gradient(circle, rgba(34,211,238,0.15), transparent 70%)',
+        filter: 'blur(80px)',
+        transition: 'all 0.3s ease-out',
+        pointerEvents: 'none'
+      }} />
+      
+      <div style={{
+        position: 'absolute',
+        width: '500px',
+        height: '500px',
+        bottom: '10%',
+        right: '10%',
+        background: 'radial-gradient(circle, rgba(167,139,250,0.12), transparent 70%)',
+        filter: 'blur(90px)',
+        animation: 'float 15s ease-in-out infinite',
+        pointerEvents: 'none'
+      }} />
+
+      {/* Floating Particles */}
+      {particles.map(p => (
+        <div
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: `${p.x}%`,
+            top: `${p.y}%`,
+            width: `${p.size}px`,
+            height: `${p.size}px`,
+            borderRadius: '50%',
+            background: '#22d3ee',
+            opacity: p.opacity,
+            boxShadow: '0 0 10px rgba(34,211,238,0.5)',
+            animation: `particleFloat ${10 + p.id % 10}s ease-in-out infinite`,
+            animationDelay: `${p.id * 0.1}s`
+          }}
+        />
+      ))}
+
+      {/* Main Content */}
+      <div style={{
+        position: 'relative',
+        zIndex: 10,
+        maxWidth: '1400px',
         margin: '0 auto',
+        padding: '4rem 1.5rem',
+        minHeight: 'calc(100vh - 80px)',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center'
       }}>
+        
+        {/* Status Badge */}
         <div style={{
-          display: 'flex',
-          flexDirection: window.innerWidth < 1024 ? 'column' : 'row-reverse',
+          display: 'inline-flex',
           alignItems: 'center',
-          textAlign: window.innerWidth < 1024 ? 'center' : 'left',
-          gap: 'clamp(2rem, 4vw, 3.5rem)',           // slightly increased for breathing room
-          justifyContent: 'center',                  // centers content horizontally
-          paddingLeft: window.innerWidth >= 1024 ? 'clamp(3rem, 8vw, 6rem)' : '0', // ← added left padding to content
+          gap: '10px',
+          padding: '12px 24px',
+          borderRadius: '100px',
+          background: 'rgba(34,211,238,0.1)',
+          border: '1px solid rgba(34,211,238,0.3)',
+          backdropFilter: 'blur(20px)',
+          marginBottom: '2rem',
+          alignSelf: 'flex-start',
+          animation: 'glow 3s ease-in-out infinite',
+          fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
+          fontWeight: '700',
+          letterSpacing: '1.5px'
         }}>
-          {/* === PROFILE PICTURE - LARGER SQUARE + CLEAN DESIGN === */}
           <div style={{
-            position: 'relative',
-            width: 'clamp(320px, 42vw, 420px)',        // ← increased size for better presence
-            height: 'clamp(320px, 42vw, 420px)',       // square
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'scale(1)' : 'scale(0.92)',
-            transition: 'all 1.6s cubic-bezier(0.34,1.56,0.64,1)',
-            flexShrink: 0,
-            margin: window.innerWidth < 1024 ? '0 auto' : '0',
-          }}>
-            {/* Premium outer glow */}
-            <div style={{
-              position: 'absolute',
-              inset: '-80px',
-              background: 'conic-gradient(from 0deg at 50% 50%, #22d3ee, #06b6d4, #34d399, #22d3ee)',
-              filter: 'blur(90px)',
-              opacity: 0.5,
-              animation: 'slowAuraRotate 24s linear infinite',
-            }} />
+            width: '8px',
+            height: '8px',
+            borderRadius: '50%',
+            background: '#22d3ee',
+            boxShadow: '0 0 10px #22d3ee',
+            animation: 'pulse 2s ease-in-out infinite'
+          }} />
+          <span style={{ color: '#22d3ee' }}>AVAILABLE FOR 2026</span>
+        </div>
 
-            {/* Minimal floating rings - only 2 for elegance */}
-            {[0, 1].map((i) => (
-              <div
-                key={i}
-                style={{
-                  position: 'absolute',
-                  inset: `${-40 - i * 40}px`,
-                  borderRadius: '20px',
-                  border: `${6 - i * 2}px solid transparent`,
-                  background: `conic-gradient(from ${i*180}deg, transparent 20%, #22d3ee 40%, transparent 80%)`,
-                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 8px), black calc(100% - 7px))',
-                  animation: `smoothRing ${20 + i * 6}s linear infinite`,
-                  opacity: 0.7 - i * 0.2,
-                }}
-              />
-            ))}
-
-            {/* Profile Image - Clean Square */}
-            <div style={{
-              position: 'relative',
-              width: '100%',
-              height: '100%',
-              borderRadius: '20px',                     // soft corners
-              overflow: 'hidden',
-              border: '8px solid rgba(34,211,238,0.6)',
-              boxShadow: '0 30px 100px rgba(34,211,238,0.6), inset 0 0 70px rgba(34,211,238,0.3)',
-              background: 'linear-gradient(135deg, rgba(34,211,238,0.25), rgba(6,182,212,0.25))',
-              animation: 'premiumFloat 10s ease-in-out infinite'
-            }}>
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.16), transparent)',
-                backgroundSize: '300% 100%',
-                animation: 'premiumShimmer 5s linear infinite'
-              }} />
-              <img
-                src={profileImg}
-                alt="Siva Satya Sai Bhagavan"
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  objectPosition: 'center 15%',   // perfect face framing
-                }}
-              />
-            </div>
-
-            {/* Fresher Badge - Top Right */}
-            <div style={{
-              position: 'absolute',
-              top: '-12px',
-              right: '-12px',
-              padding: '10px 20px',
-              background: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
-              borderRadius: '999px',
-              fontSize: '0.9rem',
-              fontWeight: '800',
-              color: 'white',
-              boxShadow: '0 8px 30px rgba(34,211,238,0.6)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              animation: 'cyberPulse 4s ease-in-out infinite'
-            }}>
-              <GraduationCap size={18} />
-              FINAL YEAR STUDENT
-            </div>
-          </div>
-
-          {/* Content - now with comfortable left padding */}
+        {/* Main Hero Section */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: window.innerWidth < 1024 ? '1fr' : '1fr 1fr',
+          gap: 'clamp(3rem, 6vw, 5rem)',
+          alignItems: 'center'
+        }}>
+          
+          {/* Left Content */}
           <div style={{
-            flex: 1,
-            maxWidth: '840px',
             opacity: visible ? 1 : 0,
-            transform: visible ? 'translateY(0)' : 'translateY(60px)',
-            transition: 'all 1.5s cubic-bezier(0.34,1.56,0.64,1) 0.4s',
-            paddingLeft: window.innerWidth >= 1024 ? '2rem' : '0', // extra breathing room
+            transform: visible ? 'translateX(0)' : 'translateX(-50px)',
+            transition: 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)',
+            order: window.innerWidth < 1024 ? 2 : 1
           }}>
-            {/* Status Badge */}
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '12px',
-              padding: 'clamp(12px, 3vw, 16px) clamp(24px, 5vw, 36px)',
-              borderRadius: '999px',
-              background: 'rgba(34,211,238,0.16)',
-              border: '2px solid rgba(34,211,238,0.48)',
-              backdropFilter: 'blur(24px)',
-              marginBottom: '2.5rem',
-              boxShadow: '0 0 50px rgba(34,211,238,0.4)',
-              animation: 'cyberPulse 5s ease-in-out infinite'
-            }}>
-              <Sparkles size={20} color="#22d3ee" />
-              <span style={{
-                color: '#67e8f9',
-                fontSize: 'clamp(13px, 3.2vw, 15px)',
-                fontWeight: '900',
-                letterSpacing: '1.8px'
-              }}>
-                OPEN FOR 2026 OPPORTUNITIES
-              </span>
-            </div>
-
+            
             {/* Name */}
             <h1 style={{
-              fontSize: 'clamp(3rem, 10vw, 6.2rem)',
+              fontSize: 'clamp(2.5rem, 8vw, 6rem)',
               fontWeight: '900',
-              lineHeight: 1.05,
-              marginBottom: '1.5rem'
+              lineHeight: 1.1,
+              marginBottom: '1rem',
+              letterSpacing: '-0.02em'
             }}>
               <div style={{
-                background: 'linear-gradient(90deg, #22d3ee, #06b6d4, #34d399, #22d3ee)',
-                backgroundSize: '300%',
+                background: 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                animation: 'ultraFlow 6.5s ease infinite'
+                backgroundClip: 'text',
+                marginBottom: '0.5rem'
               }}>
                 SIVA SATYA SAI
               </div>
               <div style={{
-                background: 'linear-gradient(90deg, #06b6d4, #34d399, #22d3ee, #06b6d4)',
-                backgroundSize: '300%',
+                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
-                animation: 'ultraFlow 8s ease infinite'
+                backgroundClip: 'text'
               }}>
                 BHAGAVAN
               </div>
             </h1>
 
-            {/* Typing */}
+            {/* Typing Effect */}
             <div style={{
-              fontFamily: 'monospace',
-              fontSize: 'clamp(1.4rem, 5vw, 2.1rem)',
-              fontWeight: '700',
-              color: '#22d3ee',
-              marginBottom: '2.5rem',
-              textShadow: '0 0 25px #22d3ee80',
               display: 'flex',
-              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start',
               alignItems: 'center',
-              gap: '10px'
+              gap: '12px',
+              marginBottom: '2rem',
+              flexWrap: 'wrap'
             }}>
-              <span>system@portfolio:~$</span>
-              <span>{typedText}</span>
+              <Terminal size={window.innerWidth < 768 ? 24 : 32} color="#22d3ee" />
               <span style={{
-                width: '4px',
-                height: '1.4em',
+                fontFamily: 'monospace',
+                fontSize: 'clamp(1.25rem, 4vw, 2rem)',
+                fontWeight: '700',
+                color: '#22d3ee',
+                textShadow: '0 0 20px rgba(34,211,238,0.5)'
+              }}>
+                {typedText}
+              </span>
+              <span style={{
+                width: '3px',
+                height: '1.5em',
                 background: '#22d3ee',
-                animation: 'blinkCursor 0.85s step-end infinite'
+                animation: 'blink 1s step-end infinite',
+                boxShadow: '0 0 10px #22d3ee'
               }} />
             </div>
 
+            {/* Description */}
             <p style={{
-              fontSize: 'clamp(1.05rem, 3.5vw, 1.35rem)',
-              color: '#d1d5db',
-              lineHeight: 1.7,
-              maxWidth: '760px',
-              marginBottom: '3.5rem'
+              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
+              color: '#9ca3af',
+              lineHeight: 1.8,
+              marginBottom: '2.5rem',
+              maxWidth: '600px'
             }}>
-              Final-year <strong style={{ color: 'white' }}>AI & Data Science</strong> engineer crafting
-              <strong style={{ color: '#22d3ee' }}> next-generation intelligent systems</strong> and
-              <strong style={{ color: '#06b6d4' }}> scalable full-stack architectures</strong>.
+              Final-year <span style={{ color: '#22d3ee', fontWeight: '600' }}>AI & Data Science</span> engineer
+              crafting intelligent systems and scalable solutions with cutting-edge technology.
             </p>
 
-            {/* Stats */}
+            {/* Tech Stack Chips */}
             <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
-              gap: '1.8rem',
-              marginBottom: '3.5rem'
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '12px',
+              marginBottom: '3rem'
             }}>
-              {stats.map((s, i) => (
-                <div key={i} style={{
-                  padding: '1.6rem 1.2rem',
-                  borderRadius: '16px',
-                  background: 'rgba(15,15,40,0.75)',
-                  backdropFilter: 'blur(18px)',
-                  border: '1px solid rgba(34,211,238,0.35)',
-                  textAlign: 'center',
-                  boxShadow: '0 12px 40px rgba(34,211,238,0.22)'
-                }}>
-                  <s.icon size={36} color="#22d3ee" style={{ marginBottom: '1rem' }} />
-                  <div style={{ fontSize: 'clamp(2.2rem, 6vw, 2.8rem)', fontWeight: '900', color: 'white' }}>
-                    {s.value}
+              {techStack.slice(0, 5).map((tech, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: '10px 18px',
+                    borderRadius: '12px',
+                    background: 'rgba(255,255,255,0.05)',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    backdropFilter: 'blur(10px)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontSize: 'clamp(0.875rem, 2vw, 1rem)',
+                    fontWeight: '600',
+                    color: tech.color,
+                    animation: `fadeInUp 0.6s ease-out ${i * 0.1}s both`,
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
+                    e.currentTarget.style.borderColor = tech.color;
+                    e.currentTarget.style.boxShadow = `0 8px 25px ${tech.color}40`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                >
+                  <div style={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    <img src={tech.url} alt={tech.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
                   </div>
-                  <div style={{ fontSize: '1rem', color: '#94a3b8', fontWeight: '600', marginTop: '4px' }}>
-                    {s.label}
-                  </div>
+                  {tech.name}
                 </div>
               ))}
             </div>
 
-            {/* Buttons */}
+            {/* CTA Buttons */}
             <div style={{
               display: 'flex',
               flexWrap: 'wrap',
-              gap: '1.5rem',
-              justifyContent: window.innerWidth < 1024 ? 'center' : 'flex-start'
+              gap: '1rem'
             }}>
-              <button style={{
-                padding: 'clamp(14px, 4vw, 18px) clamp(32px, 6vw, 44px)',
-                borderRadius: '14px',
-                background: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
-                color: 'white',
-                fontWeight: 'bold',
-                fontSize: 'clamp(1rem, 3.5vw, 1.15rem)',
-                border: 'none',
-                cursor: 'pointer',
-                boxShadow: '0 15px 50px rgba(34,211,238,0.45)',
-                transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)'
-              }}
-                onMouseEnter={e => e.currentTarget.style.transform = 'translateY(-6px) scale(1.04)'}
-                onMouseLeave={e => e.currentTarget.style.transform = 'translateY(0) scale(1)'}
+              <button
+                style={{
+                  padding: 'clamp(14px, 3vw, 18px) clamp(28px, 5vw, 40px)',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
+                  color: 'white',
+                  fontWeight: '700',
+                  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
+                  border: 'none',
+                  cursor: 'pointer',
+                  boxShadow: '0 10px 40px rgba(34,211,238,0.3)',
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px)';
+                  e.currentTarget.style.boxShadow = '0 15px 50px rgba(34,211,238,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0)';
+                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(34,211,238,0.3)';
+                }}
               >
-                Explore Projects <ExternalLink size={20} style={{ marginLeft: '10px' }} />
+                View Projects
+                <ChevronRight size={20} />
               </button>
 
-              <a
-                href={resumePdf}
-                download="Siva_Satya_Sai_Bhagavan_Resume.pdf"
+              <button
                 style={{
-                  padding: 'clamp(14px, 4vw, 18px) clamp(32px, 6vw, 44px)',
-                  borderRadius: '14px',
-                  border: '2px solid rgba(34,211,238,0.5)',
-                  background: 'rgba(15,15,40,0.65)',
-                  backdropFilter: 'blur(20px)',
+                  padding: 'clamp(14px, 3vw, 18px) clamp(28px, 5vw, 40px)',
+                  borderRadius: '12px',
+                  background: 'rgba(255,255,255,0.05)',
+                  border: '1px solid rgba(34,211,238,0.5)',
+                  backdropFilter: 'blur(10px)',
                   color: '#22d3ee',
-                  fontWeight: 'bold',
-                  fontSize: 'clamp(1rem, 3.5vw, 1.15rem)',
+                  fontWeight: '700',
+                  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
                   cursor: 'pointer',
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                  transition: 'all 0.4s ease'
+                  transition: 'all 0.3s ease',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '10px'
                 }}
-                onMouseEnter={e => {
-                  e.currentTarget.style.background = 'rgba(34,211,238,0.25)';
-                  e.currentTarget.style.transform = 'translateY(-6px)';
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = 'rgba(34,211,238,0.1)';
+                  e.currentTarget.style.transform = 'translateY(-4px)';
                 }}
-                onMouseLeave={e => {
-                  e.currentTarget.style.background = 'rgba(15,15,40,0.65)';
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
-                Download Resume (PDF)
-              </a>
+                <Download size={20} />
+                Download Resume
+              </button>
+            </div>
+          </div>
+
+          {/* Right - Profile with Orbiting Tech Icons */}
+          <div style={{
+            position: 'relative',
+            opacity: visible ? 1 : 0,
+            transform: visible ? 'scale(1)' : 'scale(0.8)',
+            transition: 'all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s',
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            minHeight: '500px',
+            order: window.innerWidth < 1024 ? 1 : 2,
+            padding: '2rem'
+          }}>
+            
+            {/* Outer Rotating Rings */}
+            {[0, 1, 2, 3].map((i) => (
+              <div
+                key={i}
+                style={{
+                  position: 'absolute',
+                  width: `${300 + i * 80}px`,
+                  height: `${300 + i * 80}px`,
+                  borderRadius: '50%',
+                  border: `2px solid transparent`,
+                  background: `conic-gradient(from ${i * 90}deg, transparent 20%, ${['#22d3ee', '#a78bfa', '#34d399', '#f59e0b'][i]} 40%, transparent 80%)`,
+                  WebkitMask: 'radial-gradient(farthest-side, transparent calc(100% - 2px), black calc(100% - 1px))',
+                  mask: 'radial-gradient(farthest-side, transparent calc(100% - 2px), black calc(100% - 1px))',
+                  animation: `ring${i % 2 === 0 ? 'Forward' : 'Reverse'} ${20 + i * 5}s linear infinite`,
+                  opacity: 0.4 - i * 0.08
+                }}
+              />
+            ))}
+
+            {/* Orbiting Tech Icons */}
+            <div style={{ 
+              position: 'absolute', 
+              width: '100%', 
+              height: '100%',
+              maxWidth: '600px',
+              maxHeight: '600px'
+            }}>
+              {techStack.map((tech, i) => {
+                const angle = (i / techStack.length) * Math.PI * 2;
+                const radius = window.innerWidth < 768 ? 180 : 260;
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      width: 'clamp(60px, 8vw, 80px)',
+                      height: 'clamp(60px, 8vw, 80px)',
+                      transform: `translate(-50%, -50%)`,
+                      animation: `orbit 20s linear infinite`,
+                      animationDelay: `${-i * (20 / techStack.length)}s`,
+                    }}
+                  >
+                    <div style={{
+                      width: '100%',
+                      height: '100%',
+                      borderRadius: '20px',
+                      background: 'rgba(15,15,40,0.95)',
+                      backdropFilter: 'blur(20px)',
+                      border: `2px solid ${tech.color}60`,
+                      boxShadow: `0 10px 40px ${tech.color}40, inset 0 0 20px ${tech.color}20`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      padding: '14px',
+                      transition: 'all 0.4s ease',
+                      cursor: 'pointer',
+                      position: 'relative',
+                      overflow: 'hidden'
+                    }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.15)';
+                        e.currentTarget.style.boxShadow = `0 15px 50px ${tech.color}60, inset 0 0 30px ${tech.color}40`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1)';
+                        e.currentTarget.style.boxShadow = `0 10px 40px ${tech.color}40, inset 0 0 20px ${tech.color}20`;
+                      }}
+                    >
+                      <div style={{
+                        position: 'absolute',
+                        inset: 0,
+                        background: `linear-gradient(135deg, transparent, ${tech.color}15)`,
+                        animation: 'shimmer 3s ease-in-out infinite'
+                      }} />
+                      <img 
+                        src={tech.url} 
+                        alt={tech.name}
+                        style={{ 
+                          width: '100%', 
+                          height: '100%', 
+                          objectFit: 'contain',
+                          filter: `drop-shadow(0 0 10px ${tech.color})`,
+                          position: 'relative',
+                          zIndex: 1
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Central Profile Image */}
+            <div style={{
+              position: 'relative',
+              width: 'clamp(280px, 40vw, 380px)',
+              height: 'clamp(280px, 40vw, 380px)',
+              borderRadius: '50%',
+              overflow: 'hidden',
+              border: '6px solid rgba(34,211,238,0.5)',
+              boxShadow: '0 0 80px rgba(34,211,238,0.6), inset 0 0 60px rgba(34,211,238,0.2)',
+              background: 'linear-gradient(135deg, rgba(34,211,238,0.2), rgba(167,139,250,0.2))',
+              animation: 'profileFloat 6s ease-in-out infinite',
+              zIndex: 5
+            }}>
+              {/* Shimmer Effect */}
+              <div style={{
+                position: 'absolute',
+                inset: 0,
+                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
+                backgroundSize: '200% 100%',
+                animation: 'shimmer 3s linear infinite',
+                zIndex: 2
+              }} />
+              
+              <img
+  src={profileImage}
+  alt="Siva Satya Sai Bhagavan"
+  style={{
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    objectPosition: 'center'
+  }}
+/>
+
+            </div>
+
+            {/* Stats Cards Around Profile */}
+            <div style={{
+              position: 'absolute',
+              width: '100%',
+              height: '100%',
+              maxWidth: '700px',
+              maxHeight: '700px'
+            }}>
+              {stats.map((stat, i) => {
+                const angles = [-60, 60, 180]; // Top-left, top-right, bottom
+                const angle = angles[i] * (Math.PI / 180);
+                const radius = window.innerWidth < 768 ? 160 : 240;
+                const Icon = stat.icon;
+                
+                return (
+                  <div
+                    key={i}
+                    style={{
+                      position: 'absolute',
+                      top: '50%',
+                      left: '50%',
+                      transform: `translate(-50%, -50%) translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`,
+                      width: 'clamp(120px, 15vw, 160px)',
+                      animation: `fadeInUp 0.8s ease-out ${i * 0.2 + 0.5}s both`
+                    }}
+                  >
+                    <div
+                      style={{
+                        background: 'rgba(0,0,0,0.85)',
+                        borderRadius: '20px',
+                        border: `2px solid ${stat.color}60`,
+                        boxShadow: `0 15px 40px ${stat.color}40`,
+                        padding: 'clamp(1rem, 3vw, 1.5rem)',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        backdropFilter: 'blur(20px)',
+                        transition: 'all 0.4s ease',
+                        cursor: 'pointer'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'scale(1.1) translateY(-5px)';
+                        e.currentTarget.style.borderColor = stat.color;
+                        e.currentTarget.style.boxShadow = `0 20px 50px ${stat.color}60`;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'scale(1) translateY(0)';
+                        e.currentTarget.style.borderColor = `${stat.color}60`;
+                        e.currentTarget.style.boxShadow = `0 15px 40px ${stat.color}40`;
+                      }}
+                    >
+                      <Icon size={window.innerWidth < 768 ? 28 : 36} color={stat.color} />
+                      <div style={{
+                        fontSize: 'clamp(2rem, 5vw, 2.5rem)',
+                        fontWeight: '900',
+                        color: stat.color,
+                        textShadow: `0 0 20px ${stat.color}80`,
+                        lineHeight: 1
+                      }}>
+                        {stat.value}
+                      </div>
+                      <div style={{
+                        fontSize: 'clamp(0.7rem, 2vw, 0.85rem)',
+                        color: '#9ca3af',
+                        fontWeight: '600',
+                        textAlign: 'center'
+                      }}>
+                        {stat.label}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Talent Badge */}
+            <div style={{
+              position: 'absolute',
+              bottom: 'clamp(20px, 5vw, 40px)',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              padding: 'clamp(12px, 3vw, 16px) clamp(24px, 5vw, 36px)',
+              background: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
+              borderRadius: '100px',
+              fontSize: 'clamp(0.85rem, 2.5vw, 1rem)',
+              fontWeight: '800',
+              color: 'white',
+              boxShadow: '0 10px 40px rgba(34,211,238,0.6)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px',
+              animation: 'glow 4s ease-in-out infinite',
+              zIndex: 10,
+              whiteSpace: 'nowrap'
+            }}>
+              <GraduationCap size={window.innerWidth < 768 ? 18 : 22} />
+              FINAL YEAR TALENT
             </div>
           </div>
         </div>
@@ -412,13 +636,64 @@ export default function ProHero() {
 
       {/* Animations */}
       <style>{`
-        @keyframes slowAuraRotate { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes smoothRing { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-        @keyframes premiumFloat { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.018); } }
-        @keyframes premiumShimmer { 0% { background-position: -300% center; } 100% { background-position: 300% center; } }
-        @keyframes cyberPulse { 0%,100% { box-shadow: 0 0 35px rgba(34,211,238,0.35); } 50% { box-shadow: 0 0 80px rgba(34,211,238,0.65); } }
-        @keyframes ultraFlow { 0%,100% { background-position: 0% 50%; } 50% { background-position: 200% 50%; } }
-        @keyframes blinkCursor { 0%,50% { opacity: 1; } 51%,100% { opacity: 0; } }
+        @keyframes gridMove {
+          0% { transform: translate(0, 0); }
+          100% { transform: translate(50px, 50px); }
+        }
+        @keyframes float {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-20px); }
+        }
+        @keyframes particleFloat {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(20px, -30px); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.3); }
+        }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(34,211,238,0.3); }
+          50% { box-shadow: 0 0 40px rgba(34,211,238,0.6); }
+        }
+        @keyframes blink {
+          0%, 50% { opacity: 1; }
+          51%, 100% { opacity: 0; }
+        }
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(30px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        @keyframes ringForward {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes ringReverse {
+          from { transform: rotate(360deg); }
+          to { transform: rotate(0deg); }
+        }
+        @keyframes orbit {
+          from { 
+            transform: translate(-50%, -50%) rotate(0deg) translateX(${window.innerWidth < 768 ? 180 : 260}px) rotate(0deg);
+          }
+          to {  
+            transform: translate(-50%, -50%) rotate(360deg) translateX(${window.innerWidth < 768 ? 180 : 260}px) rotate(-360deg);
+          }
+        }
+        @keyframes shimmer {
+          0% { background-position: -200% 0; }
+          100% { background-position: 200% 0; }
+        }
+        @keyframes profileFloat {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-15px); }
+        }
       `}</style>
     </div>
   );
