@@ -1,95 +1,256 @@
-import { useState, useEffect } from "react";
-import profileImage from "../assets/profile.jpeg";
-import resumePDF from "../assets/bhagavanresume.pdf";
+import { useState, useEffect, useRef } from "react";
 
+import { Code, Database, Server, Zap, Cpu, Globe, Terminal, Award, Rocket, Briefcase, ChevronRight, Download, Coffee, Brain, Cloud, GitBranch } from "lucide-react";
 
-import { Award, Briefcase, Rocket, Download, ChevronRight, Terminal, GraduationCap } from "lucide-react";
+export default function UltimateMERNPortfolio() {
+  const [mousePos, setMousePos] = useState({ x: 50, y: 50 });
+  const [scrollY, setScrollY] = useState(0);
+  const [activeSection, setActiveSection] = useState(0);
+  const [codeLines, setCodeLines] = useState([]);
+  const [matrixRain, setMatrixRain] = useState([]);
+  const canvasRef = useRef(null);
 
-export default function FuturisticDevHero() {
-  const [visible, setVisible] = useState(false);
-  const [typedText, setTypedText] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [particles, setParticles] = useState([]);
-
-  const roles = [
-    "AI ENGINEER",
-    "FULL-STACK ARCHITECT", 
-    "ML SPECIALIST",
-    "MERN EXPERT"
+  // MERN Stack technologies with animated icons
+  const mernStack = [
+    { 
+      name: "MongoDB", 
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
+      color: "#47A248",
+      angle: 0,
+      description: "NoSQL Database Expert"
+    },
+    { 
+      name: "Express.js", 
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/express/express-original.svg",
+      color: "#FFFFFF",
+      angle: 90,
+      description: "Backend Framework Master"
+    },
+    { 
+      name: "React", 
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
+      color: "#61DAFB",
+      angle: 180,
+      description: "Frontend Architect"
+    },
+    { 
+      name: "Node.js", 
+      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
+      color: "#339933",
+      angle: 270,
+      description: "JavaScript Runtime Pro"
+    }
   ];
 
-  const techStack = [
-    { name: "React", color: "#61DAFB", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" },
-    { name: "Python", color: "#3776AB", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg" },
-    { name: "TensorFlow", color: "#FF6F00", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg" },
-    { name: "Node.js", color: "#339933", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" },
-    { name: "MongoDB", color: "#47A248", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg" },
-    { name: "Docker", color: "#2496ED", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg" },
-    { name: "JavaScript", color: "#F7DF1E", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg" },
-    { name: "Git", color: "#F05032", url: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg" },
+  const techEcosystem = [
+    { name: "Python", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg", color: "#3776AB" },
+    { name: "TensorFlow", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg", color: "#FF6F00" },
+    { name: "Docker", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg", color: "#2496ED" },
+    { name: "AWS", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-original-wordmark.svg", color: "#FF9900" },
+    { name: "Git", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg", color: "#F05032" },
+    { name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg", color: "#F7DF1E" },
+    { name: "Java", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/java/java-original.svg", color: "#007396" },
+    { name: "PostgreSQL", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg", color: "#336791" }
   ];
 
+  const codeSnippets = [
+    "const express = require('express');",
+    "app.use(express.json());",
+    "mongoose.connect(DB_URL);",
+    "const server = app.listen(3000);",
+    "React.useEffect(() => {});",
+    "await fetch('/api/data');",
+    "const pipeline = [...stages];",
+    "JWT.sign(payload, secret);",
+    "docker build -t app .",
+    "git push origin main"
+  ];
+
+  // Initialize matrix rain effect
   useEffect(() => {
-    setTimeout(() => setVisible(true), 300);
-    
-    const newParticles = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      speedX: (Math.random() - 0.5) * 0.5,
-      speedY: (Math.random() - 0.5) * 0.5,
-      opacity: Math.random() * 0.5 + 0.3
-    }));
-    setParticles(newParticles);
+    const columns = Math.floor(window.innerWidth / 20);
+    const drops = Array(columns).fill(1).map(() => Math.random() * 100);
+    setMatrixRain(drops);
+
+    const interval = setInterval(() => {
+      setMatrixRain(prev => prev.map(drop => drop > 100 ? 0 : drop + 0.5));
+    }, 50);
+
+    return () => clearInterval(interval);
   }, []);
 
+  // Scroll-based animations
   useEffect(() => {
-    const currentRole = roles[roleIndex];
-    const speed = isDeleting ? 30 : 100;
+    const handleScroll = () => {
+      setScrollY(window.scrollY);
+      const section = Math.floor(window.scrollY / 400);
+      setActiveSection(section);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-    const timer = setTimeout(() => {
-      if (!isDeleting) {
-        if (typedText.length < currentRole.length) {
-          setTypedText(currentRole.substring(0, typedText.length + 1));
-        } else {
-          setTimeout(() => setIsDeleting(true), 2000);
-        }
-      } else {
-        if (typedText.length > 0) {
-          setTypedText(currentRole.substring(0, typedText.length - 1));
-        } else {
-          setIsDeleting(false);
-          setRoleIndex((prev) => (prev + 1) % roles.length);
-        }
-      }
-    }, speed);
+  // Animated code lines
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCodeLines(prev => {
+        const newLines = [...prev, codeSnippets[Math.floor(Math.random() * codeSnippets.length)]];
+        return newLines.slice(-8);
+      });
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
-    return () => clearTimeout(timer);
-  }, [typedText, isDeleting, roleIndex]);
-
+  // Mouse parallax effect
   const handleMouseMove = (e) => {
     const x = (e.clientX / window.innerWidth) * 100;
     const y = (e.clientY / window.innerHeight) * 100;
     setMousePos({ x, y });
   };
 
-  const stats = [
-    { icon: Briefcase, value: "3+", label: "Internships", color: "#22d3ee" },
-    { icon: Rocket, value: "5+", label: "Live Projects", color: "#a78bfa" },
-    { icon: Award, value: "13+", label: "Certifications", color: "#34d399" }
-  ];
-  const handleResumeDownload = () => {
-  const link = document.createElement("a");
-  link.href = resumePDF;
-  link.download = "Bhagavan-Resume.pdf"; // download file name
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-};
+  // 3D DNA Helix Effect with Profile
+  const DNAHelix = () => {
+    const [rotation, setRotation] = useState(0);
 
+    useEffect(() => {
+      const interval = setInterval(() => {
+        setRotation(prev => (prev + 1) % 360);
+      }, 30);
+      return () => clearInterval(interval);
+    }, []);
+
+    return (
+      <div style={{
+        position: 'relative',
+        width: '100%',
+        height: '600px',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        perspective: '1000px'
+      }}>
+        {/* DNA Strands */}
+        {[...Array(30)].map((_, i) => {
+          const angle1 = (rotation + i * 12) * Math.PI / 180;
+          const angle2 = (rotation + i * 12 + 180) * Math.PI / 180;
+          const y = i * 18 - 270;
+          
+          return (
+            <div key={i}>
+              {/* Strand 1 */}
+              <div style={{
+                position: 'absolute',
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                background: `linear-gradient(135deg, ${mernStack[i % 4].color}, ${mernStack[(i + 1) % 4].color})`,
+                boxShadow: `0 0 20px ${mernStack[i % 4].color}`,
+                left: '50%',
+                top: '50%',
+                transform: `
+                  translateX(${Math.cos(angle1) * 180}px) 
+                  translateY(${y}px) 
+                  translateZ(${Math.sin(angle1) * 100}px)
+                `,
+                opacity: 0.8
+              }} />
+              
+              {/* Strand 2 */}
+              <div style={{
+                position: 'absolute',
+                width: '12px',
+                height: '12px',
+                borderRadius: '50%',
+                background: `linear-gradient(135deg, ${mernStack[(i + 2) % 4].color}, ${mernStack[(i + 3) % 4].color})`,
+                boxShadow: `0 0 20px ${mernStack[(i + 2) % 4].color}`,
+                left: '50%',
+                top: '50%',
+                transform: `
+                  translateX(${Math.cos(angle2) * 180}px) 
+                  translateY(${y}px) 
+                  translateZ(${Math.sin(angle2) * 100}px)
+                `,
+                opacity: 0.8
+              }} />
+              
+              {/* Connecting line */}
+              <div style={{
+                position: 'absolute',
+                height: '2px',
+                width: Math.abs(Math.cos(angle1) - Math.cos(angle2)) * 180 + 'px',
+                background: `linear-gradient(90deg, ${mernStack[i % 4].color}50, transparent)`,
+                left: '50%',
+                top: '50%',
+                transform: `
+                  translateX(${Math.min(Math.cos(angle1), Math.cos(angle2)) * 180}px) 
+                  translateY(${y}px)
+                `,
+                opacity: 0.3
+              }} />
+            </div>
+          );
+        })}
+
+        {/* Central Profile with Holographic Ring */}
+        <div style={{
+          position: 'absolute',
+          width: '280px',
+          height: '280px',
+          borderRadius: '50%',
+          background: 'linear-gradient(135deg, rgba(15,15,35,0.95), rgba(30,30,60,0.95))',
+          border: '3px solid rgba(97,218,251,0.6)',
+          boxShadow: `
+            0 0 60px rgba(97,218,251,0.4),
+            inset 0 0 60px rgba(97,218,251,0.1),
+            0 0 120px rgba(71,162,72,0.2)
+          `,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          overflow: 'hidden',
+          animation: 'holoPulse 3s ease-in-out infinite',
+          zIndex: 10
+        }}>
+          {/* Rotating holographic rings */}
+          {[0, 1, 2].map(i => (
+            <div key={i} style={{
+              position: 'absolute',
+              width: `${100 + i * 20}%`,
+              height: `${100 + i * 20}%`,
+              borderRadius: '50%',
+              border: `2px solid ${i === 0 ? 'rgba(97,218,251,0.3)' : i === 1 ? 'rgba(71,162,72,0.3)' : 'rgba(255,159,0,0.3)'}`,
+              animation: `holoSpin ${3 + i}s linear infinite ${i % 2 === 0 ? '' : 'reverse'}`
+            }} />
+          ))}
+          
+          {/* Profile image placeholder */}
+          <div style={{
+            width: '240px',
+            height: '240px',
+            borderRadius: '50%',
+            background: 'linear-gradient(135deg, #1a1a3a, #2a2a4a)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '4rem',
+            color: '#61DAFB',
+            fontWeight: '900',
+            zIndex: 1,
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              inset: 0,
+              background: 'linear-gradient(135deg, rgba(97,218,251,0.2), rgba(71,162,72,0.2))',
+              animation: 'shimmer 3s linear infinite'
+            }} />
+            <span style={{ position: 'relative', zIndex: 2 }}>SS</span>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
   return (
     <div
@@ -100,617 +261,777 @@ export default function FuturisticDevHero() {
         background: '#000000',
         color: 'white',
         overflow: 'hidden',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-        paddingTop: '80px'
+        fontFamily: '"Space Grotesk", -apple-system, sans-serif'
       }}
     >
-      {/* Animated Grid Background */}
+      {/* Matrix Rain Background */}
       <div style={{
-        position: 'absolute',
+        position: 'fixed',
+        inset: 0,
+        zIndex: 0,
+        opacity: 0.15
+      }}>
+        {matrixRain.map((drop, i) => (
+          <div key={i} style={{
+            position: 'absolute',
+            left: `${(i / matrixRain.length) * 100}%`,
+            top: `${drop}%`,
+            color: '#00ff41',
+            fontSize: '14px',
+            fontFamily: 'monospace',
+            textShadow: '0 0 10px #00ff41'
+          }}>
+            {codeSnippets[i % codeSnippets.length].charAt(Math.floor(drop) % 20)}
+          </div>
+        ))}
+      </div>
+
+      {/* Animated grid with parallax */}
+      <div style={{
+        position: 'fixed',
         inset: 0,
         backgroundImage: `
-          linear-gradient(rgba(34, 211, 238, 0.03) 1px, transparent 1px),
-          linear-gradient(90deg, rgba(34, 211, 238, 0.03) 1px, transparent 1px)
+          linear-gradient(rgba(97,218,251,0.05) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(97,218,251,0.05) 1px, transparent 1px)
         `,
-        backgroundSize: '50px 50px',
-        animation: 'gridMove 20s linear infinite',
-        maskImage: 'radial-gradient(ellipse at center, black 40%, transparent 80%)'
+        backgroundSize: '60px 60px',
+        transform: `translate(${mousePos.x * 0.02}px, ${mousePos.y * 0.02}px)`,
+        transition: 'transform 0.3s ease',
+        maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 70%)'
       }} />
 
-      {/* Dynamic Gradient Orbs */}
-      <div style={{
-        position: 'absolute',
-        width: '600px',
-        height: '600px',
-        top: `${mousePos.y - 50}%`,
-        left: `${mousePos.x - 50}%`,
-        background: 'radial-gradient(circle, rgba(34,211,238,0.15), transparent 70%)',
-        filter: 'blur(80px)',
-        transition: 'all 0.3s ease-out',
-        pointerEvents: 'none'
-      }} />
-      
-      <div style={{
-        position: 'absolute',
-        width: '500px',
-        height: '500px',
-        bottom: '10%',
-        right: '10%',
-        background: 'radial-gradient(circle, rgba(167,139,250,0.12), transparent 70%)',
-        filter: 'blur(90px)',
-        animation: 'float 15s ease-in-out infinite',
-        pointerEvents: 'none'
-      }} />
-
-      {/* Floating Particles */}
-      {particles.map(p => (
-        <div
-          key={p.id}
-          style={{
-            position: 'absolute',
-            left: `${p.x}%`,
-            top: `${p.y}%`,
-            width: `${p.size}px`,
-            height: `${p.size}px`,
-            borderRadius: '50%',
-            background: '#22d3ee',
-            opacity: p.opacity,
-            boxShadow: '0 0 10px rgba(34,211,238,0.5)',
-            animation: `particleFloat ${10 + p.id % 10}s ease-in-out infinite`,
-            animationDelay: `${p.id * 0.1}s`
-          }}
-        />
+      {/* Floating orbs with mouse tracking */}
+      {[0, 1, 2, 3].map(i => (
+        <div key={i} style={{
+          position: 'fixed',
+          width: `${300 + i * 100}px`,
+          height: `${300 + i * 100}px`,
+          borderRadius: '50%',
+          background: `radial-gradient(circle, ${mernStack[i].color}20, transparent 70%)`,
+          filter: 'blur(60px)',
+          top: `${20 + i * 20}%`,
+          left: `${10 + i * 20}%`,
+          transform: `translate(${mousePos.x * (i + 1) * 0.5}px, ${mousePos.y * (i + 1) * 0.5}px)`,
+          transition: 'transform 0.5s ease',
+          animation: `float ${8 + i * 2}s ease-in-out infinite`,
+          zIndex: 1
+        }} />
       ))}
 
-      {/* Main Content */}
+      {/* Main Content Container */}
       <div style={{
         position: 'relative',
         zIndex: 10,
-        maxWidth: '1400px',
+        maxWidth: '1600px',
         margin: '0 auto',
-        padding: '4rem 1.5rem',
-        minHeight: 'calc(100vh - 80px)',
-        display: 'flex',
-        flexDirection: 'column',
-        justifyContent: 'center'
+        padding: '2rem'
       }}>
         
-        {/* Status Badge */}
+        {/* Hero Header Section */}
         <div style={{
-          display: 'inline-flex',
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
           alignItems: 'center',
-          gap: '10px',
-          padding: '12px 24px',
-          borderRadius: '100px',
-          background: 'rgba(34,211,238,0.1)',
-          border: '1px solid rgba(34,211,238,0.3)',
-          backdropFilter: 'blur(20px)',
-          marginBottom: '2rem',
-          alignSelf: 'flex-start',
-          animation: 'glow 3s ease-in-out infinite',
-          fontSize: 'clamp(0.75rem, 2vw, 0.875rem)',
-          fontWeight: '700',
-          letterSpacing: '1.5px'
-        }}>
-          <div style={{
-            width: '8px',
-            height: '8px',
-            borderRadius: '50%',
-            background: '#22d3ee',
-            boxShadow: '0 0 10px #22d3ee',
-            animation: 'pulse 2s ease-in-out infinite'
-          }} />
-          <span style={{ color: '#22d3ee' }}>AVAILABLE FOR 2026</span>
-        </div>
-
-        {/* Main Hero Section */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: window.innerWidth < 1024 ? '1fr' : '1fr 1fr',
-          gap: 'clamp(3rem, 6vw, 5rem)',
-          alignItems: 'center'
+          textAlign: 'center',
+          position: 'relative'
         }}>
           
-          {/* Left Content */}
+          {/* Animated Status Badge */}
           <div style={{
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'translateX(0)' : 'translateX(-50px)',
-            transition: 'all 1s cubic-bezier(0.34, 1.56, 0.64, 1)',
-            order: window.innerWidth < 1024 ? 2 : 1
+            padding: '12px 32px',
+            borderRadius: '100px',
+            background: 'rgba(97,218,251,0.1)',
+            border: '2px solid rgba(97,218,251,0.5)',
+            backdropFilter: 'blur(20px)',
+            marginBottom: '2rem',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '12px',
+            animation: 'glow 2s ease-in-out infinite'
           }}>
-            
-            {/* Name */}
-            <h1 style={{
-              fontSize: 'clamp(2.5rem, 8vw, 6rem)',
-              fontWeight: '900',
-              lineHeight: 1.1,
-              marginBottom: '1rem',
-              letterSpacing: '-0.02em'
-            }}>
-              <div style={{
-                background: 'linear-gradient(135deg, #ffffff 0%, #22d3ee 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                marginBottom: '0.5rem'
-              }}>
-                SIVA SATYA SAI
-              </div>
-              <div style={{
-                background: 'linear-gradient(135deg, #22d3ee 0%, #a78bfa 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text'
-              }}>
-                BHAGAVAN
-              </div>
-            </h1>
-
-            {/* Typing Effect */}
             <div style={{
+              width: '10px',
+              height: '10px',
+              borderRadius: '50%',
+              background: '#00ff41',
+              boxShadow: '0 0 20px #00ff41',
+              animation: 'pulse 2s ease-in-out infinite'
+            }} />
+            <span style={{
+              fontWeight: '700',
+              fontSize: '0.9rem',
+              letterSpacing: '2px',
+              color: '#00ff41'
+            }}>
+              AVAILABLE FOR OPPORTUNITIES 2026
+            </span>
+          </div>
+
+          {/* Main Title with Glitch Effect */}
+          <h1 style={{
+            fontSize: 'clamp(3rem, 12vw, 8rem)',
+            fontWeight: '900',
+            lineHeight: 1,
+            marginBottom: '1rem',
+            position: 'relative'
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #ffffff 0%, #61DAFB 50%, #47A248 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'gradientShift 3s ease infinite',
+              textShadow: '0 0 80px rgba(97,218,251,0.5)'
+            }}>
+              Bhagavan Mern & AIDS Student
+            </div>
+            <div style={{
+              background: 'linear-gradient(135deg, #61DAFB 0%, #339933 50%, #FF6F00 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'gradientShift 3s ease infinite 1s'
+            }}>
+              RCEE
+            </div>
+          </h1>
+
+          {/* Typing Console Effect */}
+          <div style={{
+            background: 'rgba(10,10,25,0.9)',
+            border: '2px solid rgba(97,218,251,0.3)',
+            borderRadius: '12px',
+            padding: '1.5rem 2rem',
+            marginBottom: '2rem',
+            fontFamily: 'monospace',
+            fontSize: 'clamp(0.9rem, 2vw, 1.2rem)',
+            backdropFilter: 'blur(20px)',
+            maxWidth: '800px'
+          }}>
+            <div style={{ color: '#00ff41', marginBottom: '0.5rem' }}>
+              <Terminal size={20} style={{ display: 'inline', marginRight: '8px' }} />
+              bhagavan@portfolio:~$
+            </div>
+            {codeLines.map((line, i) => (
+              <div key={i} style={{
+                color: '#61DAFB',
+                opacity: 1 - (i * 0.1),
+                marginBottom: '4px',
+                animation: 'fadeIn 0.5s ease'
+              }}>
+                {'>'} {line}
+              </div>
+            ))}
+            <span style={{
+              display: 'inline-block',
+              width: '10px',
+              height: '20px',
+              background: '#61DAFB',
+              animation: 'blink 1s step-end infinite',
+              marginLeft: '4px'
+            }} />
+          </div>
+
+          {/* Subtitle */}
+          <p style={{
+            fontSize: 'clamp(1.1rem, 3vw, 1.5rem)',
+            color: '#9ca3af',
+            maxWidth: '800px',
+            lineHeight: 1.6,
+            marginBottom: '3rem'
+          }}>
+            Final-Year <span style={{ color: '#61DAFB', fontWeight: '700' }}>AI & Data Science</span> Engineer 
+            crafting <span style={{ color: '#47A248', fontWeight: '700' }}>Full-Stack Solutions</span> with 
+            cutting-edge <span style={{ color: '#FF6F00', fontWeight: '700' }}>Intelligence</span>
+          </p>
+
+          {/* CTA Buttons */}
+          <div style={{
+            display: 'flex',
+            gap: '1.5rem',
+            flexWrap: 'wrap',
+            justifyContent: 'center',
+            marginBottom: '4rem'
+          }}>
+            <button style={{
+              padding: '18px 40px',
+              borderRadius: '12px',
+              background: 'linear-gradient(135deg, #61DAFB, #339933)',
+              color: 'white',
+              fontWeight: '700',
+              fontSize: '1.1rem',
+              border: 'none',
+              cursor: 'pointer',
+              boxShadow: '0 10px 40px rgba(97,218,251,0.4)',
+              transition: 'all 0.3s ease',
               display: 'flex',
               alignItems: 'center',
-              gap: '12px',
-              marginBottom: '2rem',
-              flexWrap: 'wrap'
+              gap: '10px'
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.transform = 'translateY(-5px) scale(1.05)';
+                e.currentTarget.style.boxShadow = '0 20px 60px rgba(97,218,251,0.6)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                e.currentTarget.style.boxShadow = '0 10px 40px rgba(97,218,251,0.4)';
+              }}
+            >
+              <Rocket size={20} />
+              Explore Projects
+              <ChevronRight size={20} />
+            </button>
+
+            <button style={{
+              padding: '18px 40px',
+              borderRadius: '12px',
+              background: 'rgba(255,255,255,0.05)',
+              border: '2px solid rgba(97,218,251,0.5)',
+              backdropFilter: 'blur(10px)',
+              color: '#61DAFB',
+              fontWeight: '700',
+              fontSize: '1.1rem',
+              cursor: 'pointer',
+              transition: 'all 0.3s ease',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '10px'
+            }}
+              onMouseEnter={e => {
+                e.currentTarget.style.background = 'rgba(97,218,251,0.1)';
+                e.currentTarget.style.transform = 'translateY(-5px)';
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
+                e.currentTarget.style.transform = 'translateY(0)';
+              }}
+            >
+              <Download size={20} />
+              Download Resume
+            </button>
+          </div>
+
+          {/* Scroll Indicator */}
+          <div style={{
+            position: 'absolute',
+            bottom: '40px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '10px',
+            opacity: 0.6,
+            animation: 'bounce 2s ease-in-out infinite'
+          }}>
+            <span style={{ fontSize: '0.9rem', letterSpacing: '2px' }}>SCROLL</span>
+            <ChevronRight size={24} style={{ transform: 'rotate(90deg)' }} />
+          </div>
+        </div>
+
+        {/* DNA Helix Section with MERN Focus */}
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+          padding: '4rem 0'
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+            fontWeight: '900',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            background: 'linear-gradient(135deg, #61DAFB, #47A248, #339933)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            MERN DNA
+          </h2>
+          <p style={{
+            fontSize: '1.2rem',
+            color: '#9ca3af',
+            textAlign: 'center',
+            marginBottom: '3rem'
+          }}>
+            Full-Stack Mastery Encoded in My Engineering
+          </p>
+
+          <DNAHelix />
+
+          {/* MERN Stack Cards */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+            gap: '2rem',
+            width: '100%',
+            maxWidth: '1200px',
+            marginTop: '4rem'
+          }}>
+            {mernStack.map((tech, i) => (
+              <div key={i} style={{
+                background: 'rgba(10,10,25,0.9)',
+                border: `2px solid ${tech.color}50`,
+                borderRadius: '20px',
+                padding: '2rem',
+                backdropFilter: 'blur(20px)',
+                transition: 'all 0.4s ease',
+                cursor: 'pointer',
+                animation: `fadeInUp 0.6s ease ${i * 0.2}s both`
+              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-10px) scale(1.05)';
+                  e.currentTarget.style.borderColor = tech.color;
+                  e.currentTarget.style.boxShadow = `0 20px 60px ${tech.color}60`;
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.borderColor = `${tech.color}50`;
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <div style={{
+                  width: '80px',
+                  height: '80px',
+                  margin: '0 auto 1.5rem',
+                  position: 'relative'
+                }}>
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    borderRadius: '50%',
+                    background: `${tech.color}20`,
+                    filter: 'blur(20px)'
+                  }} />
+                  <img 
+                    src={tech.icon} 
+                    alt={tech.name}
+                    style={{
+                      width: '100%',
+                      height: '100%',
+                      objectFit: 'contain',
+                      filter: `drop-shadow(0 0 10px ${tech.color})`,
+                      position: 'relative'
+                    }}
+                  />
+                </div>
+                <h3 style={{
+                  fontSize: '1.5rem',
+                  fontWeight: '700',
+                  color: tech.color,
+                  textAlign: 'center',
+                  marginBottom: '0.5rem'
+                }}>
+                  {tech.name}
+                </h3>
+                <p style={{
+                  color: '#9ca3af',
+                  textAlign: 'center',
+                  fontSize: '0.95rem'
+                }}>
+                  {tech.description}
+                </p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Tech Ecosystem Galaxy */}
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'relative',
+          padding: '4rem 0'
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+            fontWeight: '900',
+            textAlign: 'center',
+            marginBottom: '3rem',
+            background: 'linear-gradient(135deg, #FF6F00, #61DAFB, #47A248)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            TECH GALAXY
+          </h2>
+
+          {/* Orbiting Tech Icons */}
+          <div style={{
+            position: 'relative',
+            width: '100%',
+            maxWidth: '800px',
+            height: '800px',
+            margin: '0 auto'
+          }}>
+            {/* Central Core */}
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              width: '200px',
+              height: '200px',
+              borderRadius: '50%',
+              background: 'linear-gradient(135deg, rgba(97,218,251,0.3), rgba(71,162,72,0.3))',
+              boxShadow: '0 0 100px rgba(97,218,251,0.5), inset 0 0 50px rgba(255,255,255,0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontSize: '3rem',
+              fontWeight: '900',
+              animation: 'coreGlow 3s ease-in-out infinite'
             }}>
-              <Terminal size={window.innerWidth < 768 ? 24 : 32} color="#22d3ee" />
-              <span style={{
-                fontFamily: 'monospace',
-                fontSize: 'clamp(1.25rem, 4vw, 2rem)',
-                fontWeight: '700',
-                color: '#22d3ee',
-                textShadow: '0 0 20px rgba(34,211,238,0.5)'
-              }}>
-                {typedText}
-              </span>
-              <span style={{
-                width: '3px',
-                height: '1.5em',
-                background: '#22d3ee',
-                animation: 'blink 1s step-end infinite',
-                boxShadow: '0 0 10px #22d3ee'
-              }} />
+              <Code size={80} color="#61DAFB" />
             </div>
 
-            {/* Description */}
-            <p style={{
-              fontSize: 'clamp(1rem, 2.5vw, 1.25rem)',
-              color: '#9ca3af',
-              lineHeight: 1.8,
-              marginBottom: '2.5rem',
-              maxWidth: '600px'
-            }}>
-              Final-year <span style={{ color: '#22d3ee', fontWeight: '600' }}>AI & Data Science</span> engineer
-              crafting intelligent systems and scalable solutions with cutting-edge technology.
-            </p>
+            {/* Orbiting Technologies */}
+            {techEcosystem.map((tech, i) => {
+              const angle = (i / techEcosystem.length) * 360;
+              const radius = 320;
+              
+              return (
+                <div key={i} style={{
+                  position: 'absolute',
+                  top: '50%',
+                  left: '50%',
+                  width: '100px',
+                  height: '100px',
+                  animation: `orbit ${20 + i * 2}s linear infinite`,
+                  animationDelay: `${-i * (20 / techEcosystem.length)}s`
+                }}>
+                  <div style={{
+                    width: '100%',
+                    height: '100%',
+                    borderRadius: '20px',
+                    background: 'rgba(10,10,25,0.95)',
+                    border: `3px solid ${tech.color}60`,
+                    boxShadow: `0 10px 40px ${tech.color}40`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.3s ease',
+                    cursor: 'pointer',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.transform = 'scale(1.3)';
+                      e.currentTarget.style.borderColor = tech.color;
+                      e.currentTarget.style.boxShadow = `0 15px 60px ${tech.color}80`;
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.borderColor = `${tech.color}60`;
+                      e.currentTarget.style.boxShadow = `0 10px 40px ${tech.color}40`;
+                    }}
+                  >
+                    <img 
+                      src={tech.icon} 
+                      alt={tech.name}
+                      style={{
+                        width: '70%',
+                        height: '70%',
+                        objectFit: 'contain',
+                        filter: `drop-shadow(0 0 10px ${tech.color})`
+                      }}
+                    />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
-            {/* Tech Stack Chips */}
-            <div style={{
-              display: 'flex',
-              flexWrap: 'wrap',
-              gap: '12px',
-              marginBottom: '3rem'
-            }}>
-              {techStack.slice(0, 5).map((tech, i) => (
+        {/* Stats Section with Animated Cards */}
+        <div style={{
+          minHeight: '80vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          padding: '4rem 0'
+        }}>
+          <h2 style={{
+            fontSize: 'clamp(2.5rem, 8vw, 5rem)',
+            fontWeight: '900',
+            textAlign: 'center',
+            marginBottom: '1rem',
+            background: 'linear-gradient(135deg, #61DAFB, #FF6F00)',
+            WebkitBackgroundClip: 'text',
+            WebkitTextFillColor: 'transparent',
+            backgroundClip: 'text'
+          }}>
+            ACHIEVEMENTS
+          </h2>
+          <p style={{
+            fontSize: '1.2rem',
+            color: '#9ca3af',
+            textAlign: 'center',
+            marginBottom: '4rem'
+          }}>
+            Building Experience Through Real Projects
+          </p>
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+            gap: '2rem',
+            width: '100%',
+            maxWidth: '1200px'
+          }}>
+            {[
+              { icon: Briefcase, value: "3+", label: "Internships", color: "#61DAFB", desc: "MERN, AI/ML, Data Science" },
+              { icon: Rocket, value: "5+", label: "Live Projects", color: "#47A248", desc: "Production Applications" },
+              { icon: Award, value: "13+", label: "Certifications", color: "#FF6F00", desc: "Google, IBM, Infosys" },
+              { icon: Brain, value: "AI/ML", label: "Specialist", color: "#a78bfa", desc: "TensorFlow & Deep Learning" }
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
                 <div
                   key={i}
                   style={{
-                    padding: '10px 18px',
-                    borderRadius: '12px',
-                    background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    backdropFilter: 'blur(10px)',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontSize: 'clamp(0.875rem, 2vw, 1rem)',
-                    fontWeight: '600',
-                    color: tech.color,
-                    animation: `fadeInUp 0.6s ease-out ${i * 0.1}s both`,
-                    transition: 'all 0.3s ease',
-                    cursor: 'pointer'
+                    background: 'rgba(10,10,25,0.9)',
+                    border: `2px solid ${stat.color}50`,
+                    borderRadius: '24px',
+                    padding: '2.5rem',
+                    backdropFilter: 'blur(20px)',
+                    transition: 'all 0.4s ease',
+                    cursor: 'pointer',
+                    animation: `fadeInUp 0.6s ease ${i * 0.15}s both`,
+                    position: 'relative',
+                    overflow: 'hidden'
                   }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
-                    e.currentTarget.style.borderColor = tech.color;
-                    e.currentTarget.style.boxShadow = `0 8px 25px ${tech.color}40`;
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = 'translateY(-15px) scale(1.05)';
+                    e.currentTarget.style.borderColor = stat.color;
+                    e.currentTarget.style.boxShadow = `0 25px 70px ${stat.color}70`;
                   }}
-                  onMouseLeave={(e) => {
+                  onMouseLeave={e => {
                     e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                    e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)';
+                    e.currentTarget.style.borderColor = `${stat.color}50`;
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  <div style={{ width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                    <img src={tech.url} alt={tech.name} style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+                  <div style={{
+                    position: 'absolute',
+                    inset: 0,
+                    background: `linear-gradient(135deg, transparent, ${stat.color}15)`,
+                    animation: 'shimmer 3s linear infinite'
+                  }} />
+                  
+                  <div style={{
+                    width: '80px',
+                    height: '80px',
+                    margin: '0 auto 1.5rem',
+                    borderRadius: '50%',
+                    background: `${stat.color}20`,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    position: 'relative'
+                  }}>
+                    <Icon size={40} color={stat.color} />
                   </div>
-                  {tech.name}
-                </div>
-              ))}
-            </div>
 
-            {/* CTA Buttons */}
+                  <div style={{
+                    fontSize: '3.5rem',
+                    fontWeight: '900',
+                    color: stat.color,
+                    textAlign: 'center',
+                    textShadow: `0 0 30px ${stat.color}80`,
+                    marginBottom: '0.5rem'
+                  }}>
+                    {stat.value}
+                  </div>
+                  
+                  <h3 style={{
+                    fontSize: '1.3rem',
+                    fontWeight: '700',
+                    color: 'white',
+                    textAlign: 'center',
+                    marginBottom: '0.5rem'
+                  }}>
+                    {stat.label}
+                  </h3>
+                  
+                  <p style={{
+                    fontSize: '0.95rem',
+                    color: '#9ca3af',
+                    textAlign: 'center'
+                  }}>
+                    {stat.desc}
+                  </p>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Final CTA Section */}
+        <div style={{
+          minHeight: '60vh',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          alignItems: 'center',
+          textAlign: 'center',
+          padding: '4rem 2rem'
+        }}>
+          <div style={{
+            maxWidth: '800px'
+          }}>
+            <h2 style={{
+              fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
+              fontWeight: '900',
+              marginBottom: '2rem',
+              background: 'linear-gradient(135deg, #61DAFB, #47A248, #FF6F00)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              animation: 'gradientShift 3s ease infinite'
+            }}>
+              Let's Build Something Amazing
+            </h2>
+            
+            <p style={{
+              fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
+              color: '#9ca3af',
+              marginBottom: '3rem',
+              lineHeight: 1.6
+            }}>
+              Ready to bring your next <span style={{ color: '#61DAFB', fontWeight: '700' }}>MERN Stack</span> project to life with 
+              <span style={{ color: '#FF6F00', fontWeight: '700' }}> AI-powered intelligence</span>? 
+              Let's connect and create the future together.
+            </p>
+
             <div style={{
               display: 'flex',
+              gap: '1.5rem',
               flexWrap: 'wrap',
-              gap: '1rem'
+              justifyContent: 'center'
             }}>
-              <button
-                style={{
-                  padding: 'clamp(14px, 3vw, 18px) clamp(28px, 5vw, 40px)',
-                  borderRadius: '12px',
-                  background: 'linear-gradient(135deg, #22d3ee, #06b6d4)',
-                  color: 'white',
-                  fontWeight: '700',
-                  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-                  border: 'none',
-                  cursor: 'pointer',
-                  boxShadow: '0 10px 40px rgba(34,211,238,0.3)',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
+              <button style={{
+                padding: '20px 50px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #61DAFB, #47A248)',
+                color: 'white',
+                fontWeight: '700',
+                fontSize: '1.2rem',
+                border: 'none',
+                cursor: 'pointer',
+                boxShadow: '0 15px 50px rgba(97,218,251,0.4)',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-5px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 25px 70px rgba(97,218,251,0.6)';
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                  e.currentTarget.style.boxShadow = '0 15px 50px rgba(34,211,238,0.5)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(34,211,238,0.3)';
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 15px 50px rgba(97,218,251,0.4)';
                 }}
               >
-                View Projects
-                <ChevronRight size={20} />
+                <Coffee size={24} />
+                Get In Touch
+                <ChevronRight size={24} />
               </button>
 
-              <button
-                style={{
-                  padding: 'clamp(14px, 3vw, 18px) clamp(28px, 5vw, 40px)',
-                  borderRadius: '12px',
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(34,211,238,0.5)',
-                  backdropFilter: 'blur(10px)',
-                  color: '#22d3ee',
-                  fontWeight: '700',
-                  fontSize: 'clamp(1rem, 2.5vw, 1.125rem)',
-                  cursor: 'pointer',
-                  transition: 'all 0.3s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '10px'
+              <button style={{
+                padding: '20px 50px',
+                borderRadius: '12px',
+                background: 'rgba(255,255,255,0.05)',
+                border: '2px solid rgba(97,218,251,0.5)',
+                backdropFilter: 'blur(10px)',
+                color: '#61DAFB',
+                fontWeight: '700',
+                fontSize: '1.2rem',
+                cursor: 'pointer',
+                transition: 'all 0.3s ease',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px'
+              }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.background = 'rgba(97,218,251,0.1)';
+                  e.currentTarget.style.transform = 'translateY(-5px)';
                 }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = 'rgba(34,211,238,0.1)';
-                  e.currentTarget.style.transform = 'translateY(-4px)';
-                }}
-                onMouseLeave={(e) => {
+                onMouseLeave={e => {
                   e.currentTarget.style.background = 'rgba(255,255,255,0.05)';
                   e.currentTarget.style.transform = 'translateY(0)';
                 }}
               >
-                <Download size={20} />
-                Download Resume
+                <GitBranch size={24} />
+                View GitHub
               </button>
-            </div>
-          </div>
-
-          {/* Right - Square Profile with Orbiting Tech Icons */}
-          <div style={{
-            position: 'relative',
-            opacity: visible ? 1 : 0,
-            transform: visible ? 'scale(1)' : 'scale(0.8)',
-            transition: 'all 1.2s cubic-bezier(0.34, 1.56, 0.64, 1) 0.3s',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'center',
-            minHeight: '600px',
-            order: window.innerWidth < 1024 ? 1 : 2,
-            padding: '2rem'
-          }}>
-            
-            {/* Animated Square Borders - Multiple Layers */}
-            {[0, 1, 2].map((i) => (
-              <div
-                key={`border-${i}`}
-                style={{
-                  position: 'absolute',
-                  width: `${320 + i * 60}px`,
-                  height: `${320 + i * 60}px`,
-                  border: `2px solid ${i === 0 ? 'rgba(34,211,238,0.5)' : i === 1 ? 'rgba(168,139,250,0.4)' : 'rgba(52,211,153,0.3)'}`,
-                  borderRadius: '28px',
-                  animation: `spinSquare ${20 + i * 10}s linear infinite ${i % 2 === 0 ? '' : 'reverse'}`,
-                  boxShadow: `0 0 40px ${i === 0 ? 'rgba(34,211,238,0.3)' : i === 1 ? 'rgba(168,139,250,0.2)' : 'rgba(52,211,153,0.15)'}`
-                }}
-              />
-            ))}
-
-            {/* Corner Accent Borders */}
-            {[0, 1].map((i) => (
-              <div
-                key={`accent-${i}`}
-                style={{
-                  position: 'absolute',
-                  width: `${380 + i * 40}px`,
-                  height: `${380 + i * 40}px`,
-                  border: '2px solid transparent',
-                  borderRadius: '32px',
-                  borderTop: `2px solid rgba(${i === 0 ? '34,211,238' : '168,139,250'},0.6)`,
-                  borderRight: `2px solid rgba(${i === 0 ? '34,211,238' : '168,139,250'},0.6)`,
-                  animation: `spinSquare ${15 + i * 8}s linear infinite ${i === 0 ? 'reverse' : ''}`,
-                  opacity: 0.5
-                }}
-              />
-            ))}
-
-            {/* Orbiting Tech Icons */}
-            <div style={{ 
-              position: 'absolute', 
-              width: '100%', 
-              height: '100%',
-              maxWidth: '600px',
-              maxHeight: '600px'
-            }}>
-              {techStack.map((tech, i) => {
-                const angle = (i / techStack.length) * Math.PI * 2;
-                const radius = window.innerWidth < 768 ? 200 : 280;
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      width: 'clamp(64px, 8vw, 80px)',
-                      height: 'clamp(64px, 8vw, 80px)',
-                      transform: `translate(-50%, -50%)`,
-                      animation: `orbit 25s linear infinite`,
-                      animationDelay: `${-i * (25 / techStack.length)}s`,
-                    }}
-                  >
-                    <div style={{
-                      width: '100%',
-                      height: '100%',
-                      borderRadius: '18px',
-                      background: 'rgba(10,10,25,0.95)',
-                      backdropFilter: 'blur(20px)',
-                      border: `2px solid ${tech.color}50`,
-                      boxShadow: `0 10px 40px ${tech.color}40, inset 0 0 20px ${tech.color}15`,
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      padding: '14px',
-                      transition: 'all 0.4s ease',
-                      cursor: 'pointer',
-                      position: 'relative',
-                      overflow: 'hidden'
-                    }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.2)';
-                        e.currentTarget.style.boxShadow = `0 15px 50px ${tech.color}70, inset 0 0 30px ${tech.color}40`;
-                        e.currentTarget.style.borderColor = tech.color;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1)';
-                        e.currentTarget.style.boxShadow = `0 10px 40px ${tech.color}40, inset 0 0 20px ${tech.color}15`;
-                        e.currentTarget.style.borderColor = `${tech.color}50`;
-                      }}
-                    >
-                      <div style={{
-                        position: 'absolute',
-                        inset: 0,
-                        background: `linear-gradient(135deg, transparent, ${tech.color}15)`,
-                        animation: 'shimmer 3s ease-in-out infinite'
-                      }} />
-                      <img 
-                        src={tech.url} 
-                        alt={tech.name}
-                        style={{ 
-                          width: '100%', 
-                          height: '100%', 
-                          objectFit: 'contain',
-                          filter: `drop-shadow(0 0 8px ${tech.color})`,
-                          position: 'relative',
-                          zIndex: 1
-                        }}
-                      />
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Central Square Profile Image */}
-            <div style={{
-              position: 'relative',
-              width: 'clamp(300px, 40vw, 380px)',
-              height: 'clamp(300px, 40vw, 380px)',
-              borderRadius: '24px',
-              overflow: 'hidden',
-              border: '4px solid rgba(34,211,238,0.6)',
-              boxShadow: '0 0 60px rgba(34,211,238,0.5), inset 0 0 40px rgba(34,211,238,0.15)',
-              background: 'linear-gradient(135deg, rgba(34,211,238,0.15), rgba(167,139,250,0.15))',
-              animation: 'profileFloat 6s ease-in-out infinite',
-              zIndex: 5
-            }}>
-              {/* Shimmer Effect */}
-              <div style={{
-                position: 'absolute',
-                inset: 0,
-                background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
-                backgroundSize: '200% 100%',
-                animation: 'shimmer 3s linear infinite',
-                zIndex: 2
-              }} />
-              
-              {/* Profile Image */}
-             <img
-  src={profileImage}
-  alt="Siva Satya Sai Bhagavan"
-  style={{
-    width: '100%',
-    height: '100%',
-    objectFit: 'cover',
-    objectPosition: 'center'
-  }}
-/>
-
-            </div>
-
-            {/* Stats Cards Around Profile */}
-            <div style={{
-              position: 'absolute',
-              width: '100%',
-              height: '100%',
-              maxWidth: '700px',
-              maxHeight: '700px'
-            }}>
-              {stats.map((stat, i) => {
-                const angles = [-50, 50, 180];
-                const angle = angles[i] * (Math.PI / 180);
-                const radius = window.innerWidth < 768 ? 180 : 260;
-                const Icon = stat.icon;
-                
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: `translate(-50%, -50%) translate(${Math.cos(angle) * radius}px, ${Math.sin(angle) * radius}px)`,
-                      width: 'clamp(120px, 15vw, 150px)',
-                      animation: `fadeInUp 0.8s ease-out ${i * 0.2 + 0.5}s both`
-                    }}
-                  >
-                    <div
-                      style={{
-                        background: 'rgba(5,5,15,0.9)',
-                        borderRadius: '18px',
-                        border: `2px solid ${stat.color}50`,
-                        boxShadow: `0 15px 40px ${stat.color}40`,
-                        padding: 'clamp(1rem, 3vw, 1.5rem)',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        backdropFilter: 'blur(20px)',
-                        transition: 'all 0.4s ease',
-                        cursor: 'pointer'
-                      }}
-                      onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = 'scale(1.15) translateY(-8px)';
-                        e.currentTarget.style.borderColor = stat.color;
-                        e.currentTarget.style.boxShadow = `0 20px 60px ${stat.color}70`;
-                      }}
-                      onMouseLeave={(e) => {
-                        e.currentTarget.style.transform = 'scale(1) translateY(0)';
-                        e.currentTarget.style.borderColor = `${stat.color}50`;
-                        e.currentTarget.style.boxShadow = `0 15px 40px ${stat.color}40`;
-                      }}
-                    >
-                      <Icon size={window.innerWidth < 768 ? 28 : 36} color={stat.color} />
-                      <div style={{
-                        fontSize: 'clamp(1.75rem, 5vw, 2.5rem)',
-                        fontWeight: '900',
-                        color: stat.color,
-                        textShadow: `0 0 20px ${stat.color}80`,
-                        lineHeight: 1
-                      }}>
-                        {stat.value}
-                      </div>
-                      <div style={{
-                        fontSize: 'clamp(0.7rem, 2vw, 0.85rem)',
-                        color: '#9ca3af',
-                        fontWeight: '600',
-                        textAlign: 'center'
-                      }}>
-                        {stat.label}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* Talent Badge */}
-            <div style={{
-              position: 'absolute',
-              bottom: 'clamp(-10px, 2vw, 20px)',
-              left: '50%',
-              transform: 'translateX(-50%)',
-              padding: 'clamp(10px, 2.5vw, 14px) clamp(20px, 4vw, 32px)',
-              background: 'linear-gradient(135deg, rgba(34,211,238,0.2), rgba(168,139,250,0.2))',
-              border: '2px solid rgba(34,211,238,0.5)',
-              borderRadius: '100px',
-              fontSize: 'clamp(0.75rem, 2vw, 0.95rem)',
-              fontWeight: '800',
-              color: '#22d3ee',
-              backdropFilter: 'blur(20px)',
-              boxShadow: '0 10px 40px rgba(34,211,238,0.4)',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              animation: 'glow 4s ease-in-out infinite',
-              zIndex: 10,
-              whiteSpace: 'nowrap',
-              letterSpacing: '1px'
-            }}>
-              <GraduationCap size={window.innerWidth < 768 ? 16 : 20} />
-              FINAL YEAR TALENT
             </div>
           </div>
         </div>
       </div>
 
-      {/* Animations */}
+      {/* Animations & Keyframes */}
       <style>{`
-        @keyframes gridMove {
-          0% { transform: translate(0, 0); }
-          100% { transform: translate(50px, 50px); }
-        }
         @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-20px); }
-        }
-        @keyframes particleFloat {
-          0%, 100% { transform: translate(0, 0); }
-          50% { transform: translate(20px, -30px); }
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-30px); }
         }
         @keyframes pulse {
           0%, 100% { transform: scale(1); opacity: 1; }
           50% { transform: scale(1.5); opacity: 0.5; }
         }
+        @keyframes glow {
+          0%, 100% { box-shadow: 0 0 20px rgba(97,218,251,0.5); }
+          50% { box-shadow: 0 0 50px rgba(97,218,251,1); }
+        }
+        @keyframes gradientShift {
+          0%, 100% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+        }
         @keyframes blink {
           0%, 50% { opacity: 1; }
           51%, 100% { opacity: 0; }
         }
-        @keyframes spinSquare { 
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes bounce {
+          0%, 100% { transform: translateX(-50%) translateY(0); }
+          50% { transform: translateX(-50%) translateY(-20px); }
+        }
+        @keyframes holoSpin {
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
-        @keyframes orbit {  
-          0% { transform: translate(-50%, -50%) rotate(0deg) translateX(280px) rotate(0deg); }
-          100% { transform: translate(-50%, -50%) rotate(360deg) translateX(280px) rotate(-360deg); }
+        @keyframes holoPulse {
+          0%, 100% { box-shadow: 0 0 60px rgba(97,218,251,0.4), inset 0 0 60px rgba(97,218,251,0.1); }
+          50% { box-shadow: 0 0 100px rgba(97,218,251,0.7), inset 0 0 80px rgba(97,218,251,0.2); }
         }
         @keyframes shimmer {
           0% { background-position: -200% 0; }
-          100% { background-position: 200% 0; } 
+          100% { background-position: 200% 0; }
         }
-        @keyframes profileFloat {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
+        @keyframes orbit {
+          0% { transform: translate(-50%, -50%) rotate(0deg) translateX(320px) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg) translateX(320px) rotate(-360deg); }
         }
-        @keyframes fadeInUp {
-
-          0% { opacity: 0; transform: translateY(20px); }
-          100% { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px rgba(34,211,238,0.5); }
-          50% { box-shadow: 0 0 40px rgba(34,211,238,1); }
+        @keyframes coreGlow {
+          0%, 100% { box-shadow: 0 0 100px rgba(97,218,251,0.5); }
+          50% { box-shadow: 0 0 150px rgba(97,218,251,0.8); }
         }
       `}</style>
     </div>

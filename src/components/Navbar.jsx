@@ -369,7 +369,7 @@ const Navbar = () => {
             >
               ⚡
             </motion.span>
-            <span className="logo-gradient">Bhagavan</span>
+            <span className="logo-gradient">SSSB</span>
           </motion.button>
 
           {!isMobile && (
