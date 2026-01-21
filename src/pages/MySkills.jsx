@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Code2, Database, Brain, Cloud, Layers, Zap, Cpu, Globe, Sparkles, TrendingUp } from 'lucide-react';
+import { Code2, Database, Brain, Cloud, Layers, Zap, Cpu, Globe, Terminal, TrendingUp, Award, Star } from 'lucide-react';
 
 const skills = [
   {
@@ -7,8 +7,7 @@ const skills = [
     name: 'Full Stack Development',
     icon: Layers,
     level: 92,
-    gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-    color: '#667eea',
+    color: '#00ffff',
     technologies: ['React', 'Node.js', 'Express', 'MongoDB', 'PostgreSQL', 'TypeScript'],
     projects: 24,
     description: 'Building scalable web applications with modern frameworks'
@@ -18,8 +17,7 @@ const skills = [
     name: 'Machine Learning',
     icon: Brain,
     level: 88,
-    gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-    color: '#f093fb',
+    color: '#8a2be2',
     technologies: ['TensorFlow', 'PyTorch', 'Scikit-learn', 'Keras', 'OpenCV'],
     projects: 18,
     description: 'Developing intelligent systems with deep learning'
@@ -29,8 +27,7 @@ const skills = [
     name: 'Cloud Infrastructure',
     icon: Cloud,
     level: 85,
-    gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)',
-    color: '#4facfe',
+    color: '#00ffff',
     technologies: ['AWS', 'Docker', 'Kubernetes', 'CI/CD', 'Terraform'],
     projects: 16,
     description: 'Deploying scalable cloud solutions'
@@ -40,8 +37,7 @@ const skills = [
     name: 'Data Science',
     icon: Database,
     level: 90,
-    gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)',
-    color: '#43e97b',
+    color: '#8a2be2',
     technologies: ['Pandas', 'NumPy', 'Matplotlib', 'SQL', 'Big Data'],
     projects: 22,
     description: 'Extracting insights from complex datasets'
@@ -49,10 +45,9 @@ const skills = [
   {
     id: 5,
     name: 'AI & Deep Learning',
-    icon: Sparkles,
+    icon: Star,
     level: 87,
-    gradient: 'linear-gradient(135deg, #fa709a 0%, #fee140 100%)',
-    color: '#fa709a',
+    color: '#00ffff',
     technologies: ['Neural Networks', 'NLP', 'Computer Vision', 'GANs'],
     projects: 14,
     description: 'Creating intelligent AI-powered solutions'
@@ -62,74 +57,72 @@ const skills = [
     name: 'Core Programming',
     icon: Code2,
     level: 94,
-    gradient: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)',
-    color: '#30cfd0',
+    color: '#8a2be2',
     technologies: ['Python', 'JavaScript', 'Java', 'C++', 'Go'],
     projects: 32,
     description: 'Strong foundation in algorithms and design patterns'
   }
 ];
 
-export default function ModernSkillsSection() {
+export default function CyberpunkSkills() {
   const [activeSkill, setActiveSkill] = useState(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const [scrollProgress, setScrollProgress] = useState(0);
   const canvasRef = useRef(null);
-  const containerRef = useRef(null);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const section = document.getElementById('skills-section');
+      if (section) {
+        const rect = section.getBoundingClientRect();
+        const progress = Math.max(0, Math.min(100, (1 - rect.top / window.innerHeight) * 100));
+        setScrollProgress(progress);
+      }
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles = [];
-    const particleCount = 80;
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2 + 0.5,
-        opacity: Math.random() * 0.5 + 0.2
-      });
-    }
-
     let animationId;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+
+    const particles = Array.from({ length: 60 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.3,
+      vy: (Math.random() - 0.5) * 0.3,
+      size: Math.random() * 2 + 1
+    }));
+
     const animate = () => {
-      ctx.fillStyle = 'rgba(10, 10, 20, 0.1)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach((p, i) => {
+      particles.forEach(p => {
         p.x += p.vx;
         p.y += p.vy;
 
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
+        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
+        gradient.addColorStop(0, 'rgba(0, 255, 255, 0.3)');
+        gradient.addColorStop(1, 'transparent');
+
+        ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(100, 150, 255, ${p.opacity})`;
+        ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
         ctx.fill();
-
-        particles.forEach((p2, j) => {
-          if (i === j) return;
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 120) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(100, 150, 255, ${0.15 * (1 - dist / 120)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
       });
 
       animationId = requestAnimationFrame(animate);
@@ -137,438 +130,462 @@ export default function ModernSkillsSection() {
 
     animate();
 
-    const handleResize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-
-    window.addEventListener('resize', handleResize);
-
+    window.addEventListener('resize', resize);
     return () => {
       cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('resize', resize);
     };
   }, []);
 
-  const handleMouseMove = (e) => {
-    if (containerRef.current) {
-      const rect = containerRef.current.getBoundingClientRect();
-      setMousePos({
-        x: e.clientX - rect.left,
-        y: e.clientY - rect.top
-      });
-    }
-  };
-
   return (
-    <div 
-      ref={containerRef}
-      onMouseMove={handleMouseMove}
-      style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #0a0a14, #1a1a2e)',
-        color: '#fff',
-        position: 'relative',
-        overflow: 'hidden',
-        fontFamily: '"Inter", system-ui, sans-serif',
-        padding: '4rem 2rem'
-      }}
-    >
+    <>
       <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-40px); }
+          to { opacity: 1; transform: translateX(0); }
         }
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+
+        @keyframes glitch {
+          0%, 100% { transform: translate(0); }
+          20% { transform: translate(-2px, 2px); }
+          40% { transform: translate(-2px, -2px); }
+          60% { transform: translate(2px, 2px); }
+          80% { transform: translate(2px, -2px); }
         }
+
+        @keyframes scan {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
+        }
+
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
         }
+
+        @keyframes loadBar {
+          from { width: 0; }
+          to { width: 100%; }
+        }
+
         @keyframes float {
-          0%, 100% { transform: translateY(0px); }
+          0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
         }
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px currentColor; }
-          50% { box-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
+
+        .skill-card {
+          position: relative;
+          background: rgba(0, 0, 0, 0.7);
+          border: 2px solid rgba(0, 255, 255, 0.2);
+          transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
         }
-        @keyframes slideIn {
-          from {
-            opacity: 0;
-            transform: translateX(-20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
+
+        .skill-card:hover {
+          transform: translateY(-10px);
+          border-color: currentColor;
+          box-shadow: 0 0 40px currentColor;
         }
-        @keyframes rotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+
+        .skill-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 100%;
+          background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(0, 255, 255, 0.1) 50%,
+            transparent 70%
+          );
+          animation: scan 4s linear infinite;
+          pointer-events: none;
+        }
+
+        .tech-tag {
+          background: rgba(0, 0, 0, 0.6);
+          border: 1px solid currentColor;
+          padding: 0.4rem 0.9rem;
+          border-radius: 20px;
+          font-family: 'Fira Code', monospace;
+          font-size: 0.8rem;
+          transition: all 0.3s;
+        }
+
+        .tech-tag:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 20px currentColor;
+        }
+
+        .neon-text {
+          text-shadow: 
+            0 0 10px currentColor,
+            0 0 20px currentColor,
+            0 0 40px currentColor;
+        }
+
+        .grid-bg {
+          background-image: 
+            linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px);
+          background-size: 40px 40px;
         }
       `}</style>
 
-      <canvas
-        ref={canvasRef}
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-          zIndex: 1
-        }}
-      />
-
-      <div style={{
+      <div id="skills-section" style={{
+        minHeight: '100vh',
+        background: '#000000',
+        color: '#ffffff',
         position: 'relative',
-        zIndex: 10,
-        maxWidth: '1400px',
-        margin: '0 auto'
+        overflow: 'hidden',
+        padding: '6rem 2rem',
+        fontFamily: "'Outfit', sans-serif"
       }}>
+        {/* Grid Background */}
+        <div className="grid-bg" style={{
+          position: 'absolute',
+          inset: 0,
+          opacity: 0.2,
+          pointerEvents: 'none'
+        }} />
+
+        {/* Canvas Background */}
+        <canvas
+          ref={canvasRef}
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 1
+          }}
+        />
+
+        {/* Rotating Border */}
         <div style={{
-          textAlign: 'center',
-          marginBottom: '4rem',
-          animation: 'fadeInUp 0.8s ease-out'
+          position: 'absolute',
+          top: '10%',
+          right: '5%',
+          width: '500px',
+          height: '500px',
+          border: '2px solid rgba(0, 255, 255, 0.1)',
+          borderRadius: '50%',
+          animation: 'float 20s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 0
+        }} />
+
+        <div style={{
+          position: 'relative',
+          zIndex: 10,
+          maxWidth: '1400px',
+          margin: '0 auto'
         }}>
+          {/* Header */}
           <div style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            padding: '0.5rem 1.5rem',
-            background: 'rgba(100, 150, 255, 0.1)',
-            border: '1px solid rgba(100, 150, 255, 0.3)',
-            borderRadius: '999px',
-            marginBottom: '1.5rem',
-            backdropFilter: 'blur(10px)'
+            textAlign: 'center',
+            marginBottom: '5rem'
           }}>
-            <Zap size={16} style={{ color: '#6496ff' }} />
-            <span style={{
-              fontSize: '0.75rem',
-              fontWeight: '700',
-              letterSpacing: '0.1em',
-              textTransform: 'uppercase',
-              color: '#94a3b8'
+            <div style={{
+              display: 'inline-block',
+              fontFamily: "'Fira Code', monospace",
+              color: '#00ffff',
+              fontSize: '1rem',
+              marginBottom: '1rem',
+              padding: '0.75rem 1.5rem',
+              border: '2px solid rgba(0, 255, 255, 0.3)',
+              borderRadius: '30px',
+              animation: 'pulse 2s ease-in-out infinite'
             }}>
-              Technical Expertise
-            </span>
+              {'>'} skills.initialize()
+            </div>
+
+            <h1 className="neon-text" style={{
+              fontSize: 'clamp(3rem, 7vw, 5rem)',
+              fontWeight: 900,
+              marginBottom: '1.5rem',
+              color: '#00ffff',
+              textTransform: 'uppercase',
+              letterSpacing: '3px',
+              animation: 'slideIn 1s ease-out'
+            }}>
+              TECHNICAL ARSENAL
+            </h1>
+
+            <p style={{
+              fontSize: 'clamp(1.1rem, 2vw, 1.3rem)',
+              color: '#a0a0a0',
+              maxWidth: '700px',
+              margin: '0 auto',
+              lineHeight: 1.8,
+              fontFamily: "'Fira Code', monospace"
+            }}>
+              [ Mastering the tools that power next-generation systems ]
+            </p>
           </div>
 
-          <h1 style={{
-            fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-            fontWeight: '900',
-            marginBottom: '1rem',
-            background: 'linear-gradient(135deg, #fff 0%, #6496ff 100%)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            letterSpacing: '-0.02em'
+          {/* Skills Grid */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+            gap: '2rem',
+            marginBottom: '4rem'
           }}>
-            My Skills & Expertise
-          </h1>
+            {skills.map((skill, index) => {
+              const Icon = skill.icon;
+              const isActive = activeSkill === skill.id;
 
-          <p style={{
-            fontSize: 'clamp(1rem, 2vw, 1.25rem)',
-            color: '#94a3b8',
-            maxWidth: '700px',
-            margin: '0 auto',
-            lineHeight: '1.6'
-          }}>
-            Passionate AI Engineer with expertise spanning Full Stack Development, 
-            Machine Learning, and Cloud Infrastructure
-          </p>
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(340px, 1fr))',
-          gap: '2rem',
-          marginBottom: '4rem'
-        }}>
-          {skills.map((skill, index) => {
-            const Icon = skill.icon;
-            const isActive = activeSkill === skill.id;
-
-            return (
-              <div
-                key={skill.id}
-                onMouseEnter={() => setActiveSkill(skill.id)}
-                onMouseLeave={() => setActiveSkill(null)}
-                style={{
-                  position: 'relative',
-                  background: 'rgba(20, 20, 35, 0.6)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: '1.5rem',
-                  border: isActive 
-                    ? `2px solid ${skill.color}` 
-                    : '2px solid rgba(255, 255, 255, 0.1)',
-                  padding: '2rem',
-                  transition: 'all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                  animation: `fadeInUp ${0.6 + index * 0.1}s ease-out`,
-                  transform: isActive ? 'translateY(-10px) scale(1.02)' : 'translateY(0) scale(1)',
-                  boxShadow: isActive 
-                    ? `0 20px 60px ${skill.color}40, 0 0 0 1px ${skill.color}20` 
-                    : '0 10px 30px rgba(0, 0, 0, 0.3)',
-                  cursor: 'pointer',
-                  overflow: 'hidden'
-                }}
-              >
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: '4px',
-                  background: skill.gradient,
-                  opacity: isActive ? 1 : 0.5,
-                  transition: 'opacity 0.3s ease'
-                }} />
-
-                {isActive && (
+              return (
+                <div
+                  key={skill.id}
+                  className="skill-card"
+                  onMouseEnter={() => setActiveSkill(skill.id)}
+                  onMouseLeave={() => setActiveSkill(null)}
+                  style={{
+                    padding: '2rem',
+                    borderRadius: '20px',
+                    color: skill.color,
+                    animation: `slideIn ${0.8 + index * 0.1}s ease-out`,
+                    opacity: 0,
+                    animationFillMode: 'forwards'
+                  }}
+                >
+                  {/* Top Border */}
                   <div style={{
                     position: 'absolute',
                     top: 0,
                     left: 0,
                     right: 0,
-                    bottom: 0,
-                    background: `radial-gradient(circle at ${mousePos.x}px ${mousePos.y}px, ${skill.color}15, transparent 50%)`,
-                    pointerEvents: 'none',
-                    transition: 'opacity 0.3s ease'
+                    height: '3px',
+                    background: `linear-gradient(90deg, ${skill.color}, transparent)`,
+                    opacity: isActive ? 1 : 0.5
                   }} />
-                )}
 
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  marginBottom: '1.5rem'
-                }}>
+                  {/* Header */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '1.5rem'
+                  }}>
+                    <div style={{
+                      width: '60px',
+                      height: '60px',
+                      border: `2px solid ${skill.color}`,
+                      borderRadius: '12px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      animation: isActive ? 'float 2s ease-in-out infinite' : 'none',
+                      boxShadow: isActive ? `0 0 30px ${skill.color}` : 'none'
+                    }}>
+                      <Icon size={32} style={{ color: skill.color }} />
+                    </div>
+
+                    <div style={{
+                      fontFamily: "'Fira Code', monospace",
+                      fontSize: '3rem',
+                      fontWeight: 900,
+                      color: skill.color,
+                      textShadow: isActive ? `0 0 20px ${skill.color}` : 'none'
+                    }}>
+                      {skill.level}
+                      <span style={{ fontSize: '1.5rem' }}>%</span>
+                    </div>
+                  </div>
+
+                  {/* Title */}
+                  <h3 style={{
+                    fontSize: '1.6rem',
+                    fontWeight: 800,
+                    marginBottom: '1rem',
+                    color: '#ffffff',
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px'
+                  }}>
+                    {skill.name}
+                  </h3>
+
+                  {/* Description */}
+                  <p style={{
+                    fontSize: '0.95rem',
+                    color: '#a0a0a0',
+                    lineHeight: 1.6,
+                    marginBottom: '1.5rem',
+                    fontFamily: "'Fira Code', monospace"
+                  }}>
+                    {skill.description}
+                  </p>
+
+                  {/* Progress Bar */}
+                  <div style={{ marginBottom: '1.5rem' }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.75rem',
+                      fontFamily: "'Fira Code', monospace",
+                      fontSize: '0.85rem'
+                    }}>
+                      <span style={{ color: '#666' }}>PROFICIENCY</span>
+                      <span style={{ color: skill.color }}>[{skill.level}%]</span>
+                    </div>
+                    <div style={{
+                      height: '8px',
+                      background: 'rgba(255, 255, 255, 0.05)',
+                      borderRadius: '4px',
+                      overflow: 'hidden',
+                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                    }}>
+                      <div style={{
+                        height: '100%',
+                        width: isActive ? `${skill.level}%` : '0%',
+                        background: `linear-gradient(90deg, ${skill.color}, ${skill.color}aa)`,
+                        transition: 'width 1s cubic-bezier(0.22, 1, 0.36, 1)',
+                        boxShadow: `0 0 10px ${skill.color}`,
+                        position: 'relative'
+                      }}>
+                        <div style={{
+                          position: 'absolute',
+                          top: 0,
+                          right: 0,
+                          width: '20px',
+                          height: '100%',
+                          background: 'rgba(255, 255, 255, 0.5)',
+                          filter: 'blur(4px)'
+                        }} />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Technologies */}
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.5rem',
+                    marginBottom: '1.5rem'
+                  }}>
+                    {skill.technologies.map((tech) => (
+                      <span
+                        key={tech}
+                        className="tech-tag"
+                        style={{
+                          color: isActive ? skill.color : '#666',
+                          borderColor: isActive ? skill.color : '#333'
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Projects Count */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.75rem',
+                    padding: '1rem',
+                    background: 'rgba(0, 0, 0, 0.5)',
+                    border: `1px solid ${isActive ? skill.color : 'rgba(255, 255, 255, 0.1)'}`,
+                    borderRadius: '10px',
+                    fontFamily: "'Fira Code', monospace"
+                  }}>
+                    <Terminal size={20} style={{ color: skill.color }} />
+                    <span style={{
+                      fontSize: '0.9rem',
+                      fontWeight: 600,
+                      color: '#ffffff'
+                    }}>
+                      {skill.projects} PROJECTS DEPLOYED
+                    </span>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          {/* Stats Bar */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1.5rem',
+            padding: '3rem',
+            background: 'rgba(0, 0, 0, 0.7)',
+            border: '2px solid rgba(0, 255, 255, 0.2)',
+            borderRadius: '20px',
+            position: 'relative',
+            overflow: 'hidden'
+          }}>
+            <div style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              right: 0,
+              height: '3px',
+              background: 'linear-gradient(90deg, #00ffff, #8a2be2, #00ffff)',
+              animation: 'loadBar 2s ease-out'
+            }} />
+
+            {[
+              { label: 'Experience', value: '4+', icon: Cpu, color: '#00ffff' },
+              { label: 'Projects', value: '126+', icon: Layers, color: '#8a2be2' },
+              { label: 'Technologies', value: '30+', icon: Globe, color: '#00ffff' },
+              { label: 'Certifications', value: '15+', icon: Award, color: '#8a2be2' }
+            ].map((stat, i) => {
+              const Icon = stat.icon;
+              return (
+                <div
+                  key={i}
+                  style={{
+                    textAlign: 'center',
+                    animation: `slideIn ${1 + i * 0.15}s ease-out`,
+                    opacity: 0,
+                    animationFillMode: 'forwards'
+                  }}
+                >
                   <div style={{
                     width: '60px',
                     height: '60px',
-                    borderRadius: '1rem',
-                    background: skill.gradient,
+                    margin: '0 auto 1rem',
+                    border: `2px solid ${stat.color}`,
+                    borderRadius: '12px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    animation: isActive ? 'float 3s ease-in-out infinite' : 'none',
-                    boxShadow: isActive ? `0 10px 30px ${skill.color}60` : 'none'
+                    animation: 'float 3s ease-in-out infinite',
+                    animationDelay: `${i * 0.2}s`
                   }}>
-                    <Icon size={32} style={{ color: '#fff' }} />
+                    <Icon size={28} style={{ color: stat.color }} />
                   </div>
-
                   <div style={{
                     fontSize: '2.5rem',
-                    fontWeight: '900',
-                    background: skill.gradient,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent'
+                    fontWeight: 900,
+                    color: stat.color,
+                    marginBottom: '0.5rem',
+                    fontFamily: "'Fira Code', monospace",
+                    textShadow: `0 0 20px ${stat.color}`
                   }}>
-                    {skill.level}%
-                  </div>
-                </div>
-
-                <h3 style={{
-                  fontSize: '1.5rem',
-                  fontWeight: '800',
-                  marginBottom: '0.75rem',
-                  color: '#fff'
-                }}>
-                  {skill.name}
-                </h3>
-
-                <p style={{
-                  fontSize: '0.95rem',
-                  color: '#94a3b8',
-                  lineHeight: '1.6',
-                  marginBottom: '1.5rem'
-                }}>
-                  {skill.description}
-                </p>
-
-                <div style={{
-                  marginBottom: '1.5rem'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    marginBottom: '0.5rem'
-                  }}>
-                    <span style={{
-                      fontSize: '0.75rem',
-                      fontWeight: '700',
-                      textTransform: 'uppercase',
-                      letterSpacing: '0.05em',
-                      color: '#64748b'
-                    }}>
-                      Proficiency
-                    </span>
-                    <span style={{
-                      fontSize: '0.875rem',
-                      fontWeight: '700',
-                      color: skill.color
-                    }}>
-                      {skill.level}%
-                    </span>
+                    {stat.value}
                   </div>
                   <div style={{
-                    height: '8px',
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    borderRadius: '999px',
-                    overflow: 'hidden',
-                    position: 'relative'
+                    fontSize: '0.9rem',
+                    color: '#a0a0a0',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '1px'
                   }}>
-                    <div style={{
-                      height: '100%',
-                      width: `${skill.level}%`,
-                      background: skill.gradient,
-                      borderRadius: '999px',
-                      transition: 'width 1s cubic-bezier(0.34, 1.56, 0.64, 1)',
-                      boxShadow: `0 0 10px ${skill.color}80`
-                    }}>
-                      <div style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)',
-                        animation: isActive ? 'shimmer 2s infinite' : 'none'
-                      }} />
-                    </div>
+                    {stat.label}
                   </div>
                 </div>
-
-                <div style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '0.5rem',
-                  marginBottom: '1.5rem'
-                }}>
-                  {skill.technologies.map((tech, i) => (
-                    <span
-                      key={tech}
-                      style={{
-                        padding: '0.4rem 0.9rem',
-                        background: 'rgba(255, 255, 255, 0.05)',
-                        border: `1px solid ${isActive ? skill.color + '40' : 'rgba(255, 255, 255, 0.1)'}`,
-                        borderRadius: '999px',
-                        fontSize: '0.8rem',
-                        fontWeight: '600',
-                        color: isActive ? skill.color : '#cbd5e1',
-                        transition: 'all 0.3s ease',
-                        animation: isActive ? `slideIn ${0.3 + i * 0.1}s ease-out` : 'none'
-                      }}
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem',
-                  padding: '0.75rem 1rem',
-                  background: `${skill.color}10`,
-                  border: `1px solid ${skill.color}30`,
-                  borderRadius: '0.75rem'
-                }}>
-                  <TrendingUp size={18} style={{ color: skill.color }} />
-                  <span style={{
-                    fontSize: '0.875rem',
-                    fontWeight: '700',
-                    color: '#e2e8f0'
-                  }}>
-                    {skill.projects} Projects Completed
-                  </span>
-                </div>
-              </div>
-            );
-          })}
-        </div>
-
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1.5rem',
-          animation: 'fadeInUp 1s ease-out'
-        }}>
-          {[
-            { label: 'Years Experience', value: '4+', icon: Cpu, gradient: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' },
-            { label: 'Projects', value: '126+', icon: Layers, gradient: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' },
-            { label: 'Technologies', value: '30+', icon: Globe, gradient: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)' },
-            { label: 'Certifications', value: '12', icon: Sparkles, gradient: 'linear-gradient(135deg, #43e97b 0%, #38f9d7 100%)' }
-          ].map((stat, i) => {
-            const Icon = stat.icon;
-            return (
-              <div
-                key={i}
-                style={{
-                  padding: '2rem',
-                  background: 'rgba(20, 20, 35, 0.6)',
-                  backdropFilter: 'blur(20px)',
-                  borderRadius: '1.25rem',
-                  border: '2px solid rgba(255, 255, 255, 0.1)',
-                  textAlign: 'center',
-                  transition: 'all 0.4s ease',
-                  cursor: 'pointer'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.transform = 'translateY(-8px)';
-                  e.currentTarget.style.borderColor = 'rgba(100, 150, 255, 0.5)';
-                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(100, 150, 255, 0.3)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'translateY(0)';
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                }}
-              >
-                <div style={{
-                  width: '50px',
-                  height: '50px',
-                  margin: '0 auto 1rem',
-                  borderRadius: '1rem',
-                  background: stat.gradient,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Icon size={24} style={{ color: '#fff' }} />
-                </div>
-                <div style={{
-                  fontSize: '2.5rem',
-                  fontWeight: '900',
-                  background: stat.gradient,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  marginBottom: '0.5rem'
-                }}>
-                  {stat.value}
-                </div>
-                <div style={{
-                  fontSize: '0.9rem',
-                  color: '#94a3b8',
-                  fontWeight: '600'
-                }}>
-                  {stat.label}
-                </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
