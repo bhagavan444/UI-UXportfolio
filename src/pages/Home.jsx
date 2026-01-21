@@ -6,17 +6,24 @@ import {
   Phone,
   Linkedin,
   Github,
-  ExternalLink,
   Code2,
   Brain,
   Database,
   Server,
-  Zap,
   Award,
   Briefcase,
   Terminal,
-  Globe,
   Rocket,
+  Download,
+  ArrowRight,
+  CheckCircle2,
+  Layers,
+  Bot,
+  Cpu as CpuIcon,
+  Cloud,
+  GitBranch,
+  Star,
+  Trophy,           // ← added here
 } from "lucide-react";
 
 export default function Home() {
@@ -26,20 +33,23 @@ export default function Home() {
   const [currentRole, setCurrentRole] = useState(0);
   const [displayText, setDisplayText] = useState("");
   const [isDeleting, setIsDeleting] = useState(false);
+
   const canvasRef = useRef(null);
+  const starsCanvasRef = useRef(null);
 
   const roles = [
     "AI & Data Science Engineer",
     "Full-Stack Developer",
     "Machine Learning Specialist",
     "MERN Stack Expert",
+    "Cloud & DevOps Enthusiast",
+    "System Design Enthusiast",
   ];
 
   // Typing animation
   useEffect(() => {
     setIsVisible(true);
-
-    const typingSpeed = isDeleting ? 30 : 80;
+    const typingSpeed = isDeleting ? 35 : 90;
     const currentText = roles[currentRole];
 
     const timer = setTimeout(() => {
@@ -47,7 +57,7 @@ export default function Home() {
         if (displayText.length < currentText.length) {
           setDisplayText(currentText.substring(0, displayText.length + 1));
         } else {
-          setTimeout(() => setIsDeleting(true), 2000);
+          setTimeout(() => setIsDeleting(true), 2800);
         }
       } else {
         if (displayText.length > 0) {
@@ -62,761 +72,640 @@ export default function Home() {
     return () => clearTimeout(timer);
   }, [displayText, isDeleting, currentRole]);
 
-  // Particle network background
+  // Starfield background
   useEffect(() => {
-    const canvas = canvasRef.current;
+    const canvas = starsCanvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext("2d");
 
-    const setCanvasSize = () => {
+    const resize = () => {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
     };
+    resize();
 
-    setCanvasSize();
-
-    const particles = Array.from({ length: 140 }, () => ({
+    const stars = Array.from({ length: 380 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.45,
-      vy: (Math.random() - 0.5) * 0.45,
-      radius: Math.random() * 2 + 0.7,
+      radius: Math.random() * 1.4 + 0.4,
+      speed: Math.random() * 0.35 + 0.08,
+      opacity: Math.random() * 0.7 + 0.3,
+      twinkleSpeed: Math.random() * 0.025 + 0.008,
     }));
 
-    let animationId;
+    let raf;
+    const animate = () => {
+      ctx.fillStyle = "rgba(5, 10, 25, 0.18)";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      stars.forEach((s) => {
+        s.y += s.speed;
+        s.opacity += s.twinkleSpeed;
+        if (s.opacity > 1 || s.opacity < 0.3) s.twinkleSpeed *= -1;
+        if (s.y > canvas.height) {
+          s.y = -10;
+          s.x = Math.random() * canvas.width;
+        }
+
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(220, 230, 255, ${s.opacity})`;
+        ctx.fill();
+      });
+
+      raf = requestAnimationFrame(animate);
+    };
+    animate();
+
+    window.addEventListener("resize", resize);
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
+    };
+  }, []);
+
+  // Particle network (with fixed alpha)
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+
+    const particles = Array.from({ length: 110 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 1.1,
+      vy: (Math.random() - 0.5) * 1.1,
+      radius: Math.random() * 2.8 + 0.8,
+      color: ["#3b82f6", "#a855f7", "#ec4899", "#22d3ee", "#eab308", "#f97316", "#10b981", "#06b6d4"][
+        Math.floor(Math.random() * 8)
+      ],
+      opacity: Math.random() * 0.6 + 0.35,
+      pulse: Math.random() * 0.028 + 0.012,
+      angle: Math.random() * Math.PI * 2,
+      orbitSpeed: (Math.random() - 0.5) * 0.018,
+    }));
+
+    let raf;
+    let frame = 0;
 
     const animate = () => {
-      ctx.fillStyle = "rgba(0, 0, 0, 0.07)";
+      frame++;
+      ctx.fillStyle = "rgba(2, 6, 23, 0.09)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach((p, i) => {
-        p.x += p.vx;
-        p.y += p.vy;
+        p.angle += p.orbitSpeed;
+        p.x += p.vx + Math.cos(p.angle) * 0.4;
+        p.y += p.vy + Math.sin(p.angle) * 0.4;
+
+        p.opacity += p.pulse;
+        if (p.opacity > 1.0 || p.opacity < 0.35) p.pulse *= -1;
 
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
+        const alpha = Math.max(0, Math.min(255, Math.floor(p.opacity * 255)));
+        const alphaHex = alpha.toString(16).padStart(2, "0");
+
+        // Glow
+        const g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.radius * 4.5);
+        g.addColorStop(0, `${p.color}${alphaHex}`);
+        g.addColorStop(0.6, `${p.color}${Math.floor(alpha * 0.4).toString(16).padStart(2, "0")}`);
+        g.addColorStop(1, "transparent");
+        ctx.fillStyle = g;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        const alpha = 0.5 + Math.sin(Date.now() / 1400 + i) * 0.3;
-        ctx.fillStyle = `rgba(96, 165, 250, ${alpha})`;
+        ctx.arc(p.x, p.y, p.radius * 4.5, 0, Math.PI * 2);
         ctx.fill();
 
-        particles.forEach((p2, j) => {
-          if (i <= j) return;
-          const dx = p.x - p2.x;
-          const dy = p.y - p2.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
+        // Core
+        ctx.beginPath();
+        const size = p.radius * (1 + Math.sin(frame * 0.06 + i) * 0.28);
+        ctx.arc(p.x, p.y, size, 0, Math.PI * 2);
+        ctx.fillStyle = `${p.color}${alphaHex}`;
+        ctx.fill();
 
-          if (dist < 200) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(p2.x, p2.y);
-            const opacity = (1 - dist / 200) * 0.3;
-            ctx.strokeStyle = `rgba(96, 165, 250, ${opacity})`;
-            ctx.lineWidth = 0.7;
-            ctx.stroke();
-          }
+        // Connections
+        particles.forEach((p2, j) => {
+          if (i >= j) return;
+          const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
+          if (dist >= 170) return;
+
+          const lineAlpha = Math.floor((1 - dist / 170) * 255 * 0.45);
+          const lineAlphaHex = lineAlpha.toString(16).padStart(2, "0");
+
+          const lg = ctx.createLinearGradient(p.x, p.y, p2.x, p2.y);
+          lg.addColorStop(0, `${p.color}${lineAlphaHex}`);
+          lg.addColorStop(1, `${p2.color}${lineAlphaHex}`);
+
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = lg;
+          ctx.lineWidth = 1.4;
+          ctx.stroke();
         });
       });
 
-      animationId = requestAnimationFrame(animate);
+      raf = requestAnimationFrame(animate);
     };
-
     animate();
 
-    const handleResize = () => setCanvasSize();
-    window.addEventListener("resize", handleResize);
-
+    window.addEventListener("resize", resize);
     return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener("resize", handleResize);
+      cancelAnimationFrame(raf);
+      window.removeEventListener("resize", resize);
     };
   }, []);
 
   const handleMouseMove = (e) => {
-    const x = (e.clientX / window.innerWidth) * 2 - 1;
-    const y = (e.clientY / window.innerHeight) * 2 - 1;
-    setMousePos({ x, y });
+    setMousePos({
+      x: (e.clientX / window.innerWidth) * 2 - 1,
+      y: (e.clientY / window.innerHeight) * 2 - 1,
+    });
   };
 
   const techStack = [
-    { icon: Code2, label: "MERN Stack", color: "from-blue-400 to-cyan-400" },
-    { icon: Brain, label: "TensorFlow", color: "from-purple-400 to-pink-400" },
-    { icon: Database, label: "MongoDB", color: "from-green-400 to-emerald-400" },
-    { icon: Server, label: "AWS Cloud", color: "from-orange-400 to-red-400" },
-    { icon: Terminal, label: "Python", color: "from-yellow-400 to-orange-400" },
-    { icon: Globe, label: "REST APIs", color: "from-indigo-400 to-blue-400" },
+    { icon: Code2, label: "React", color: "#61DAFB" },
+    { icon: Layers, label: "Node.js", color: "#68A063" },
+    { icon: Database, label: "MongoDB", color: "#47A248" },
+    { icon: Brain, label: "TensorFlow", color: "#FF6F00" },
+    { icon: Server, label: "AWS", color: "#FF9900" },
+    { icon: Terminal, label: "Python", color: "#3776AB" },
+    { icon: Bot, label: "Gemini AI", color: "#4285F4" },
+    { icon: CpuIcon, label: "Docker", color: "#2496ED" },
+    { icon: Cloud, label: "Kubernetes", color: "#326CE5" },
+    { icon: GitBranch, label: "Git", color: "#f05032" },
   ];
 
   const stats = [
-    { icon: Briefcase, value: "3", label: "Internships", desc: "Production Experience" },
-    { icon: Rocket, value: "5+", label: "Projects", desc: "Live Deployments" },
-    { icon: Award, value: "13+", label: "Certifications", desc: "Google, IBM, AWS" },
+    { icon: Briefcase, value: "3", label: "Internships", color: "#22d3ee" },
+    { icon: Rocket, value: "8", label: "Major Projects", color: "#a855f7" },
+    { icon: Award, value: "15+", label: "Certifications", color: "#ec4899" },
+    { icon: Trophy, value: "Top 10%", label: "Hackathons", color: "#eab308" },
   ];
 
-  const links = [
-    { icon: Github, label: "GitHub", href: "https://github.com/bhagavan444", color: "hover:text-purple-400" },
-    { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/bhagavan", color: "hover:text-blue-400" },
-    { icon: Mail, label: "Email", href: "mailto:g.sivasatyasaibhagavan@gmail.com", color: "hover:text-cyan-400" },
-    { icon: Phone, label: "+91 7569205626", href: "tel:+917569205626", color: "hover:text-green-400" },
+  const highlights = [
+    "3 production-level internships in Full-Stack & AI/ML",
+    "15+ professional certifications (Google, IBM, AWS, DeepLearning.AI)",
+    "Expert in MERN stack, TensorFlow, PyTorch & Gemini API",
+    "Built real-world scalable ML & web applications",
+    "Strong foundation in system design & cloud architecture",
+    "Passionate about building intelligent, user-centric solutions",
   ];
 
-  // Handle CTA clicks
+  const socialLinks = [
+    { icon: Github, label: "GitHub", href: "https://github.com/bhagavan444", hoverColor: "#a855f7", bg: "rgba(168, 85, 247, 0.2)" },
+    { icon: Linkedin, label: "LinkedIn", href: "https://linkedin.com/in/bhagavan", hoverColor: "#0a66c2", bg: "rgba(10, 102, 194, 0.2)" },
+    { icon: Mail, label: "Email", href: "mailto:g.sivasatyasaibhagavan@gmail.com", hoverColor: "#22d3ee", bg: "rgba(34, 211, 238, 0.2)" },
+    { icon: Phone, label: "+91 7569205626", href: "tel:+917569205626", hoverColor: "#22c55e", bg: "rgba(34, 197, 94, 0.2)" },
+  ];
+
   const handleViewProjects = () => {
     navigate("/projects");
+    window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
   const handleDownloadResume = () => {
     const link = document.createElement("a");
-    link.href = "/assets/bhagavanresume.pdf";
-    link.download = "Bhagavan_Resume.pdf";
+    link.href = "/assets/bhagavan-resume.pdf"; // ← make sure this path exists
+    link.download = "Siva_Satya_Sai_Bhagavan_Resume_2026.pdf";
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
   };
 
   return (
-    <div
-      onMouseMove={handleMouseMove}
-      style={{
-        position: "relative",
-        minHeight: "100vh",
-        background: "linear-gradient(to bottom right, #0f172a, #020617, #000000)",
-        overflow: "hidden",
-        display: "flex",
-        alignItems: "center",
-      }}
-    >
-      {/* Particle Canvas */}
-      <canvas
-        ref={canvasRef}
+    <>
+      <style>{`
+        @keyframes gradient-shift { 0%,100% {background-position:0% 50%} 50% {background-position:100% 50%} }
+        @keyframes ping { 75%,100% {transform:scale(2.5);opacity:0} }
+        @keyframes blob {
+          0%   {border-radius:58% 42% 63% 37% / 55% 48% 52% 45%; transform:rotate(0deg) scale(1)}
+          33%  {border-radius:41% 59% 38% 62% / 62% 43% 57% 38%; transform:rotate(120deg) scale(1.08)}
+          66%  {border-radius:62% 38% 59% 41% / 38% 62% 41% 59%; transform:rotate(240deg) scale(0.95)}
+          100% {border-radius:58% 42% 63% 37% / 55% 48% 52% 45%; transform:rotate(360deg) scale(1)}
+        }
+        @keyframes float-badge { 0%,100%{transform:translateY(0) rotate(0deg)} 50%{transform:translateY(-18px) rotate(6deg)} }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0} }
+        @keyframes meteor {
+          0%   {transform:translate(-150px,-150px) rotate(40deg); opacity:0.9}
+          60%  {opacity:0.9}
+          100% {transform:translate(1200px,1200px) rotate(40deg); opacity:0}
+        }
+        @media (max-width:1024px) {
+          .grid-2-col {grid-template-columns:1fr !important}
+          .profile-align {margin-top:3.5rem !important}
+        }
+        @media (max-width:768px) {
+          .profile-align {margin-top:2.8rem !important}
+          .name-title {text-align:center}
+          .content-col {order:2}
+          .image-col {order:1}
+          .floating-badge {display:none !important}
+        }
+      `}</style>
+
+      <div
+        onMouseMove={handleMouseMove}
         style={{
-          position: "absolute",
-          inset: 0,
-          pointerEvents: "none",
-          opacity: 0.7,
+          position: "relative",
+          minHeight: "100vh",
+          background: "radial-gradient(ellipse at top, #1a1a40 0%, #0b0b24 50%, #000 100%)",
+          color: "white",
+          overflow: "hidden",
+          fontFamily: "'Inter', system-ui, sans-serif",
         }}
-      />
+      >
+        <canvas ref={starsCanvasRef} style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0 }} />
+        <canvas ref={canvasRef} style={{ position: "fixed", inset: 0, pointerEvents: "none", opacity: 0.82, zIndex: 1 }} />
 
-      {/* Glowing Gradient Orbs */}
-      <div style={{ position: "absolute", inset: 0, overflow: "hidden", pointerEvents: "none" }}>
-        <div
-          style={{
-            position: "absolute",
-            top: "5%",
-            left: "10%",
-            width: "32rem",
-            height: "32rem",
-            backgroundColor: "#3b82f6",
-            borderRadius: "9999px",
-            mixBlendMode: "multiply",
-            filter: "blur(100px)",
-            opacity: 0.14,
-            animation: "blob 15s infinite",
-            transform: `translate(${mousePos.x * 40}px, ${mousePos.y * 40}px)`,
-            transition: "transform 0.5s ease-out",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            top: "15%",
-            right: "5%",
-            width: "36rem",
-            height: "36rem",
-            backgroundColor: "#a855f7",
-            borderRadius: "9999px",
-            mixBlendMode: "multiply",
-            filter: "blur(110px)",
-            opacity: 0.14,
-            animation: "blob 18s infinite",
-            animationDelay: "4s",
-            transform: `translate(${-mousePos.x * 50}px, ${mousePos.y * 50}px)`,
-            transition: "transform 0.5s ease-out",
-          }}
-        />
-        <div
-          style={{
-            position: "absolute",
-            bottom: "10%",
-            left: "45%",
-            width: "34rem",
-            height: "34rem",
-            backgroundColor: "#ec4899",
-            borderRadius: "9999px",
-            mixBlendMode: "multiply",
-            filter: "blur(105px)",
-            opacity: 0.2,
-            animation: "blob 20s infinite",
-            animationDelay: "8s",
-            transform: `translate(${mousePos.x * 60}px, ${-mousePos.y * 40}px)`,
-            transition: "transform 0.5s ease-out",
-          }}
-        />
-      </div>
+        {/* Meteors */}
+        {[...Array(4)].map((_, i) => (
+          <div
+            key={i}
+            style={{
+              position: "fixed",
+              top: `${15 + Math.random() * 50}%`,
+              left: `${Math.random() * 60}%`,
+              width: "1.5px",
+              height: "90px",
+              background: "linear-gradient(to bottom, transparent, #a5b4fc, transparent)",
+              animation: `meteor ${4 + Math.random() * 4}s linear infinite ${i * 2.5}s`,
+              zIndex: 2,
+              pointerEvents: "none",
+            }}
+          />
+        ))}
 
-      {/* Main Hero Container */}
-      <div style={{ position: "relative", zIndex: 10, width: "100%", maxWidth: "95rem", margin: "0 auto", padding: "7rem 2.5rem" }}>
-        <div
-          style={{
-            display: "flex",
-            flexDirection: "column",
-            gap: "6rem",
-            alignItems: "center",
-            "@media (min-width: 1024px)": {
-              flexDirection: "row",
-              gap: "10rem",
-              alignItems: "flex-start",
-            },
-          }}
-        >
-          {/* Profile Image Card - MOBILE: Top | DESKTOP: Right */}
+        {/* Animated orbs */}
+        <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 2, overflow: "hidden" }}>
           <div
             style={{
-              width: "100%",
-              maxWidth: "420px",
-              order: 1,
-              "@media (min-width: 1024px)": {
-                order: 2,
-                flex: "0 0 420px",
-              },
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? "translateY(0)" : "translateY(70px)",
-              transition: "all 1.4s cubic-bezier(0.4, 0, 0.2, 1) 0.4s",
+              position: "absolute",
+              width: "36rem",
+              height: "36rem",
+              top: "10%",
+              left: "8%",
+              background: "radial-gradient(circle at 45% 55%, rgba(59,130,246,0.32), transparent 70%)",
+              animation: "blob 24s ease-in-out infinite",
+              transform: `translate(${mousePos.x * 28}px, ${mousePos.y * 28}px)`,
+              filter: "blur(85px)",
             }}
-          >
-            <div style={{ position: "relative" }}>
-              <div
-                style={{
-                  position: "relative",
-                  borderRadius: "2rem",
-                  overflow: "hidden",
-                  border: "3px solid rgba(34,211,238,0.5)",
-                  boxShadow: "0 30px 70px -20px rgba(34,211,238,0.6)",
-                  transition: "all 0.6s ease",
-                  aspectRatio: "4 / 5",
-                }}
-                className="group hover:scale-[1.04] hover:shadow-[0_40px_100px_-25px_rgba(34,211,238,0.8)]"
-              >
-                <img
-                  src="https://lh3.googleusercontent.com/d/1hFtkcydF2n7kk2XtWqD9hSGcLGiDRKuB"
-                  alt="Siva Satya Sai Bhagavan"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    objectPosition: "center 20%",
-                    transition: "transform 1s ease",
-                  }}
-                  className="group-hover:scale-115"
-                />
-
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "linear-gradient(135deg, rgba(34,211,238,0.2) 0%, rgba(168,85,247,0.2) 50%, rgba(236,72,153,0.2) 100%)",
-                    backdropFilter: "blur(6px)",
-                    opacity: 0.7,
-                    transition: "opacity 0.7s",
-                  }}
-                  className="group-hover:opacity-90"
-                />
-
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    opacity: 0.15,
-                    pointerEvents: "none",
-                    backgroundImage: "repeating-linear-gradient(0deg, transparent, transparent 4px, rgba(96,165,250,0.08) 4px, rgba(96,165,250,0.08) 8px)",
-                  }}
-                />
-
-                <div
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    background: "linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 60%, transparent 100%)",
-                    opacity: 0,
-                    transition: "opacity 0.8s",
-                  }}
-                  className="group-hover:opacity-100"
-                />
-              </div>
-
-              {/* Floating Badges */}
-              {[
-                { text: "React Expert", pos: { top: "-2rem", left: "1rem" }, color: "from-cyan-500 to-blue-600", delay: 0 },
-                { text: "AI/ML Pro", pos: { top: "-1.5rem", right: "1rem" }, color: "from-purple-500 to-pink-600", delay: 0.4 },
-                { text: "Python Dev", pos: { bottom: "7rem", left: "-4rem" }, color: "from-yellow-500 to-orange-600", delay: 0.8 },
-                { text: "AWS Cloud", pos: { bottom: "6rem", right: "-4rem" }, color: "from-orange-500 to-red-600", delay: 1.2 },
-              ].map((badge, i) => (
-                <div
-                  key={i}
-                  style={{
-                    position: "absolute",
-                    ...badge.pos,
-                    animation: `floatBadge 6s ease-in-out infinite ${badge.delay}s`,
-                    opacity: isVisible ? 1 : 0,
-                    transition: `opacity 0.8s ease ${badge.delay + 0.8}s`,
-                  }}
-                >
-                  <div
-                    style={{
-                      padding: "0.8rem 1.6rem",
-                      borderRadius: "9999px",
-                      background: `linear-gradient(to right, ${badge.color.split(" ")[1]}, ${badge.color.split(" ")[3]})`,
-                      color: "white",
-                      fontSize: "1rem",
-                      fontWeight: 700,
-                      boxShadow: "0 15px 30px -8px rgba(0,0,0,0.5)",
-                      border: "1px solid rgba(255,255,255,0.3)",
-                      backdropFilter: "blur(12px)",
-                      transition: "all 0.5s",
-                    }}
-                    className="hover:scale-115 hover:shadow-2xl"
-                  >
-                    {badge.text}
-                  </div>
-                </div>
-              ))}
-
-              {/* Open to Work Badge */}
-              <div
-                style={{
-                  position: "absolute",
-                  bottom: "-4rem",
-                  left: "50%",
-                  transform: "translateX(-50%)",
-                  opacity: isVisible ? 1 : 0,
-                  transition: "opacity 0.8s ease 1.5s",
-                }}
-              >
-                <div style={{ position: "relative" }}>
-                  <div
-                    style={{
-                      position: "absolute",
-                      inset: "-0.5rem",
-                      background: "linear-gradient(to right, #22c55e, #10b981)",
-                      borderRadius: "9999px",
-                      filter: "blur(15px)",
-                      opacity: 0.85,
-                      animation: "pulse-slow 5s ease-in-out infinite",
-                    }}
-                    className="group-hover:opacity-100"
-                  />
-                  <div
-                    style={{
-                      position: "relative",
-                      padding: "1.2rem 2.5rem",
-                      background: "linear-gradient(to right, #16a34a, #059669)",
-                      borderRadius: "9999px",
-                      boxShadow: "0 20px 40px -10px rgba(16,185,129,0.6)",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "1rem",
-                      color: "white",
-                      fontWeight: 900,
-                      fontSize: "1.1rem",
-                      letterSpacing: "0.1em",
-                    }}
-                  >
-                    <span style={{ position: "relative", display: "flex", width: "1.2rem", height: "1.2rem" }}>
-                      <span
-                        style={{
-                          position: "absolute",
-                          inset: 0,
-                          borderRadius: "9999px",
-                          backgroundColor: "white",
-                          opacity: 0.85,
-                          animation: "ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite",
-                        }}
-                      />
-                      <span
-                        style={{
-                          position: "relative",
-                          borderRadius: "9999px",
-                          width: "1.2rem",
-                          height: "1.2rem",
-                          backgroundColor: "white",
-                        }}
-                      />
-                    </span>
-                    OPEN TO WORK
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Text Content - MOBILE: Below image | DESKTOP: Left side */}
+          />
           <div
             style={{
-              opacity: isVisible ? 1 : 0,
-              transform: isVisible ? "translateY(0)" : "translateY(70px)",
-              transition: "all 1.3s cubic-bezier(0.4, 0, 0.2, 1)",
-              display: "flex",
-              flexDirection: "column",
-              gap: "3rem",
-              order: 2,
-              "@media (min-width: 1024px)": {
-                order: 1,
-              },
+              position: "absolute",
+              width: "40rem",
+              height: "40rem",
+              bottom: "12%",
+              right: "10%",
+              background: "radial-gradient(circle at 55% 45%, rgba(168,85,247,0.32), transparent 70%)",
+              animation: "blob 28s ease-in-out infinite 5s",
+              transform: `translate(${mousePos.x * -32}px, ${mousePos.y * -32}px)`,
+              filter: "blur(90px)",
             }}
-          >
+          />
+        </div>
+
+        <div style={{ position: "relative", zIndex: 10, maxWidth: "1780px", margin: "0 auto", padding: "6rem 1.6rem 3rem" }}>
+          <div className="grid-2-col" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "4rem", alignItems: "start" }}>
+            {/* Left column */}
             <div
               style={{
-                display: "inline-flex",
-                alignItems: "center",
-                gap: "0.8rem",
-                padding: "0.7rem 1.4rem",
-                borderRadius: "9999px",
-                background: "linear-gradient(to right, rgba(34,197,94,0.18), rgba(16,185,129,0.18))",
-                border: "1px solid rgba(34,197,94,0.35)",
-                backdropFilter: "blur(14px)",
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(70px)",
+                transition: "all 1.4s cubic-bezier(0.4,0,0.2,1)",
               }}
             >
-              <span style={{ position: "relative", display: "flex", width: "1rem", height: "1rem" }}>
-                <span
-                  style={{
-                    position: "absolute",
-                    inset: 0,
-                    borderRadius: "9999px",
-                    backgroundColor: "#4ade80",
-                    opacity: 0.85,
-                    animation: "ping 2.5s cubic-bezier(0, 0, 0.2, 1) infinite",
-                  }}
-                />
-                <span
-                  style={{
-                    position: "relative",
-                    borderRadius: "9999px",
-                    width: "1rem",
-                    height: "1rem",
-                    backgroundColor: "#22c55e",
-                  }}
-                />
-              </span>
-              <span style={{ color: "#4ade80", fontSize: "1rem", fontWeight: 600 }}>Available for Opportunities</span>
-            </div>
-
-            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-              <h1
+              {/* Open to work */}
+              <div
                 style={{
-                  fontSize: "4rem",
-                  lineHeight: 1.1,
-                  fontWeight: 900,
-                  letterSpacing: "-0.025em",
-                  "@media (min-width: 640px)": { fontSize: "5rem" },
-                  "@media (min-width: 1024px)": { fontSize: "6.2rem" },
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "1.1rem",
+                  padding: "0.9rem 1.8rem",
+                  borderRadius: "999px",
+                  background: "linear-gradient(to right, rgba(34,197,94,0.22), rgba(16,185,129,0.22))",
+                  border: "1.5px solid rgba(34,197,94,0.5)",
+                  backdropFilter: "blur(22px)",
+                  marginBottom: "2.2rem",
+                  boxShadow: "0 12px 36px rgba(34,197,94,0.28)",
                 }}
               >
+                <span style={{ position: "relative", width: "18px", height: "18px" }}>
+                  <span style={{ position: "absolute", inset: 0, borderRadius: "50%", background: "#4ade80", animation: "ping 2.5s infinite" }} />
+                  <span style={{ position: "relative", display: "block", width: "18px", height: "18px", borderRadius: "50%", background: "#22c55e", boxShadow: "0 0 20px #22c55e" }} />
+                </span>
+                <span style={{ color: "#4ade80", fontWeight: 700, fontSize: "1.05rem" }}>
+                  Open to Full-Time Opportunities • 2026 Batch
+                </span>
+              </div>
+
+              <h1 style={{ fontSize: "clamp(3.8rem, 9.5vw, 6.4rem)", fontWeight: 900, lineHeight: 1.05 }}>
                 <span
                   style={{
-                    display: "block",
                     background: "linear-gradient(to right, #60a5fa, #22d3ee, #60a5fa)",
+                    backgroundSize: "200% auto",
                     WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                    backgroundSize: "200% 200%",
-                    animation: "gradient 5s ease infinite",
+                    WebkitTextFillColor: "transparent",
+                    animation: "gradient-shift 10s ease infinite",
                   }}
                 >
                   Siva Satya Sai
                 </span>
+                <br />
                 <span
                   style={{
-                    display: "block",
                     background: "linear-gradient(to right, #c084fc, #ec4899, #c084fc)",
+                    backgroundSize: "200% auto",
                     WebkitBackgroundClip: "text",
-                    backgroundClip: "text",
-                    color: "transparent",
-                    backgroundSize: "200% 200%",
-                    animation: "gradient 5s ease infinite",
-                    animationDelay: "1.5s",
+                    WebkitTextFillColor: "transparent",
+                    animation: "gradient-shift 10s ease infinite 2.2s",
                   }}
                 >
                   Bhagavan
                 </span>
               </h1>
 
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "1rem",
-                  fontSize: "1.8rem",
-                  fontWeight: 700,
-                  color: "white",
-                  minHeight: "3.5rem",
-                  "@media (min-width: 640px)": { fontSize: "2.2rem" },
-                }}
-              >
-                <span style={{ color: "#22d3ee", fontSize: "2rem" }}>&gt;</span>
-                <span>{displayText}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "1.2rem", fontSize: "clamp(1.9rem, 5.2vw, 2.6rem)", fontWeight: 700, minHeight: "4rem", margin: "1.5rem 0" }}>
+                <span style={{ color: "#22d3ee", fontSize: "2.8rem" }}>&gt;</span>
+                <span style={{ minWidth: "380px" }}>{displayText}</span>
                 <span
                   style={{
-                    display: "inline-block",
-                    width: "0.25rem",
-                    height: "3rem",
-                    backgroundColor: "#22d3ee",
-                    animation: "pulse 1.3s infinite",
+                    width: "8px",
+                    height: "3.2rem",
+                    background: "#22d3ee",
+                    animation: "blink 1.5s infinite",
+                    borderRadius: "4px",
+                    boxShadow: "0 0 16px #22d3ee",
                   }}
                 />
               </div>
-            </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-              <p style={{ fontSize: "1.3rem", color: "#cbd5e1", lineHeight: "2rem" }}>
-                AI & Data Science undergraduate with hands-on experience in{" "}
-                <span style={{ color: "#22d3ee", fontWeight: 600 }}>machine learning</span> and{" "}
-                <span style={{ color: "#c084fc", fontWeight: 600 }}>full-stack development</span>.
-                <br />
-                Building intelligent, scalable solutions with modern tech stacks.
+              <p style={{ fontSize: "1.28rem", color: "#cbd5e1", lineHeight: 1.85, maxWidth: "640px", marginBottom: "2.5rem" }}>
+                Passionate <strong style={{ color: "#22d3ee" }}>AI & Data Science</strong> undergraduate with strong hands-on experience in machine learning, full-stack development and modern cloud technologies.
               </p>
 
-              <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
-                {[
-                  "3 production internships in Full-Stack & AI/ML",
-                  "13+ professional certifications (Google, IBM, AWS)",
-                  "Expertise in MERN stack & TensorFlow",
-                  "Building real-world ML & web applications",
-                ].map((item, i) => (
+              <div style={{ display: "flex", flexDirection: "column", gap: "1.3rem", marginBottom: "3rem" }}>
+                {highlights.map((item, i) => (
+                  <div key={i} style={{ display: "flex", alignItems: "start", gap: "1.1rem" }}>
+                    <CheckCircle2 size={28} color="#22d3ee" />
+                    <span style={{ fontSize: "1.18rem" }}>{item}</span>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "1.1rem", marginBottom: "3.5rem" }}>
+                {techStack.map((tech, i) => (
                   <div
                     key={i}
                     style={{
+                      padding: "0.85rem 1.7rem",
+                      background: "rgba(30,41,59,0.78)",
+                      border: "1px solid rgba(71,85,105,0.65)",
+                      borderRadius: "999px",
                       display: "flex",
-                      alignItems: "flex-start",
-                      gap: "1rem",
-                      color: "#94a3b8",
-                      opacity: isVisible ? 1 : 0,
-                      transform: isVisible ? "translateX(0)" : "translateX(-40px)",
-                      transition: `all 0.9s cubic-bezier(0.4, 0, 0.2, 1) ${i * 0.2 + 0.5}s`,
+                      alignItems: "center",
+                      gap: "0.8rem",
+                      backdropFilter: "blur(14px)",
+                      transition: "all 0.4s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-5px) scale(1.07)";
+                      e.currentTarget.style.borderColor = tech.color;
+                      e.currentTarget.style.boxShadow = `0 14px 32px ${tech.color}35`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "";
+                      e.currentTarget.style.borderColor = "rgba(71,85,105,0.65)";
+                      e.currentTarget.style.boxShadow = "";
                     }}
                   >
-                    <Zap size={24} style={{ color: "#22d3ee", marginTop: "0.25rem" }} />
-                    <span style={{ fontSize: "1.1rem" }}>{item}</span>
+                    <tech.icon size={22} color={tech.color} />
+                    <span style={{ fontWeight: 600 }}>{tech.label}</span>
                   </div>
+                ))}
+              </div>
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(155px, 1fr))", gap: "1.6rem", marginBottom: "4rem" }}>
+                {stats.map((stat, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      padding: "1.8rem 1.4rem",
+                      background: "rgba(30,41,59,0.68)",
+                      borderRadius: "18px",
+                      border: "1px solid rgba(71,85,105,0.55)",
+                      backdropFilter: "blur(16px)",
+                      textAlign: "center",
+                      transition: "all 0.45s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-10px)";
+                      e.currentTarget.style.borderColor = stat.color;
+                      e.currentTarget.style.boxShadow = `0 18px 40px ${stat.color}30`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "";
+                      e.currentTarget.style.borderColor = "rgba(71,85,105,0.55)";
+                      e.currentTarget.style.boxShadow = "";
+                    }}
+                  >
+                    <stat.icon size={38} color={stat.color} style={{ marginBottom: "0.9rem" }} />
+                    <div style={{ fontSize: "2.4rem", fontWeight: 900 }}>{stat.value}</div>
+                    <div style={{ color: "#94a3b8", fontSize: "0.92rem", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.8px" }}>
+                      {stat.label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: "flex", gap: "1.6rem", flexWrap: "wrap" }}>
+                <button
+                  onClick={handleViewProjects}
+                  style={{
+                    padding: "1.3rem 3rem",
+                    background: "linear-gradient(90deg, #2563eb, #06b6d4, #22d3ee)",
+                    color: "white",
+                    border: "none",
+                    borderRadius: "14px",
+                    fontSize: "1.18rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.9rem",
+                    boxShadow: "0 14px 36px rgba(6,182,212,0.45)",
+                    transition: "all 0.4s ease",
+                  }}
+                  onMouseEnter={(e) => e.currentTarget.style.transform = "translateY(-5px) scale(1.04)"}
+                  onMouseLeave={(e) => e.currentTarget.style.transform = ""}
+                >
+                  <Rocket size={26} />
+                  View Projects
+                  <ArrowRight size={24} />
+                </button>
+
+                <button
+                  onClick={handleDownloadResume}
+                  style={{
+                    padding: "1.3rem 3rem",
+                    background: "rgba(30,41,59,0.88)",
+                    border: "2px solid #475569",
+                    color: "white",
+                    borderRadius: "14px",
+                    fontSize: "1.18rem",
+                    fontWeight: 700,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.9rem",
+                    backdropFilter: "blur(14px)",
+                    transition: "all 0.4s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = "#22d3ee";
+                    e.currentTarget.style.background = "rgba(30,41,59,0.98)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = "#475569";
+                    e.currentTarget.style.background = "rgba(30,41,59,0.88)";
+                  }}
+                >
+                  <Download size={24} />
+                  Download Resume
+                </button>
+              </div>
+
+              <div style={{ display: "flex", flexWrap: "wrap", gap: "1.6rem", marginTop: "3.5rem" }}>
+                {socialLinks.map((link, i) => (
+                  <a
+                    key={i}
+                    href={link.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.9rem",
+                      padding: "0.9rem 1.8rem",
+                      borderRadius: "999px",
+                      background: link.bg,
+                      color: "#e2e8f0",
+                      textDecoration: "none",
+                      fontWeight: 600,
+                      transition: "all 0.4s ease",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = "translateY(-5px)";
+                      e.currentTarget.style.color = link.hoverColor;
+                      e.currentTarget.style.boxShadow = `0 12px 30px ${link.hoverColor}30`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = "";
+                      e.currentTarget.style.color = "#e2e8f0";
+                      e.currentTarget.style.boxShadow = "";
+                    }}
+                  >
+                    <link.icon size={28} />
+                    {link.label}
+                  </a>
                 ))}
               </div>
             </div>
 
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "1.2rem" }}>
-              {techStack.map((tech, i) => {
-                const [start, end] = tech.color.split(" to-").map((s) => s.replace("from-", "").replace("to-", ""));
-                return (
-                  <div
-                    key={i}
-                    style={{
-                      position: "relative",
-                      opacity: isVisible ? 1 : 0,
-                      transform: isVisible ? "scale(1)" : "scale(0.6)",
-                      transition: `all 0.7s cubic-bezier(0.4, 0, 0.2, 1) ${i * 0.1 + 0.7}s`,
-                    }}
-                  >
-                    <div
-                      style={{
-                        position: "absolute",
-                        inset: "-0.25rem",
-                        background: `linear-gradient(to right, ${start}, ${end})`,
-                        borderRadius: "1rem",
-                        filter: "blur(8px)",
-                        opacity: 0,
-                        transition: "opacity 0.5s",
-                      }}
-                      className="group-hover:opacity-75"
-                    />
-                    <div
-                      style={{
-                        position: "relative",
-                        padding: "0.8rem 1.5rem",
-                        backgroundColor: "rgba(15, 23, 42, 0.9)",
-                        border: "1px solid rgba(51, 65, 85, 0.7)",
-                        borderRadius: "1rem",
-                        backdropFilter: "blur(12px)",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "0.7rem",
-                        transition: "all 0.5s",
-                      }}
-                      className="group-hover:scale-115 group-hover:shadow-xl"
-                    >
-                      <tech.icon size={20} style={{ color: "#94a3b8" }} />
-                      <span style={{ fontSize: "1rem", fontWeight: 600, color: "#cbd5e1" }}>{tech.label}</span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "1.5rem" }}>
-              {stats.map((stat, i) => (
+            {/* Right column – profile image */}
+            <div
+              className="profile-align"
+              style={{
+                position: "relative",
+                opacity: isVisible ? 1 : 0,
+                transform: isVisible ? "translateY(0)" : "translateY(70px)",
+                transition: "all 1.5s cubic-bezier(0.4,0,0.2,1) 0.4s",
+              }}
+            >
+              <div style={{ position: "relative", maxWidth: "540px", margin: "0 auto" }}>
                 <div
-                  key={i}
                   style={{
                     position: "relative",
-                    opacity: isVisible ? 1 : 0,
-                    transform: isVisible ? "translateY(0)" : "translateY(40px)",
-                    transition: `all 0.9s cubic-bezier(0.4, 0, 0.2, 1) ${i * 0.2 + 0.9}s`,
+                    aspectRatio: "4 / 5",
+                    borderRadius: "2.8rem",
+                    overflow: "hidden",
+                    border: "4px solid rgba(34,211,238,0.48)",
+                    boxShadow: "0 45px 90px -25px rgba(34,211,238,0.55)",
+                    transition: "all 0.6s ease",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "scale(1.05) rotate(2.5deg)";
+                    e.currentTarget.style.boxShadow = "0 70px 140px -35px rgba(34,211,238,0.75)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "scale(1) rotate(0deg)";
+                    e.currentTarget.style.boxShadow = "0 45px 90px -25px rgba(34,211,238,0.55)";
                   }}
                 >
-                  <div
+                  <img
+                    src="https://lh3.googleusercontent.com/d/1hFtkcydF2n7kk2XtWqD9hSGcLGiDRKuB"
+                    alt="Siva Satya Sai Bhagavan"
                     style={{
-                      position: "absolute",
-                      inset: "-0.25rem",
-                      background: "linear-gradient(to right, #3b82f6, #22d3ee)",
-                      borderRadius: "1.25rem",
-                      filter: "blur(12px)",
-                      opacity: 0,
-                      transition: "opacity 0.5s",
+                      width: "100%",
+                      height: "100%",
+                      objectFit: "cover",
+                      objectPosition: "center 18%",
+                      transition: "transform 0.9s ease",
                     }}
-                    className="group-hover:opacity-85"
                   />
                   <div
                     style={{
-                      position: "relative",
-                      padding: "1.75rem",
-                      backgroundColor: "rgba(15, 23, 42, 0.9)",
-                      border: "1px solid rgba(51, 65, 85, 0.7)",
-                      borderRadius: "1.25rem",
-                      backdropFilter: "blur(12px)",
-                      transition: "all 0.5s",
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(135deg, rgba(34,211,238,0.42), rgba(168,85,247,0.42), rgba(236,72,153,0.42))",
+                      mixBlendMode: "overlay",
+                      opacity: 0.78,
                     }}
-                    className="group-hover:border-cyan-400/70 group-hover:scale-110"
+                  />
+                </div>
+
+                {/* Floating badges */}
+                {[
+                  { text: "React + Next.js", top: "-2.8rem", left: "6%", bg: "#61DAFB", delay: 0 },
+                  { text: "TensorFlow", top: "14%", right: "-5rem", bg: "#FF6F00", delay: 0.8 },
+                  { text: "AWS Certified", bottom: "24%", left: "-5.5rem", bg: "#FF9900", delay: 1.6 },
+                ].map((badge, i) => (
+                  <div
+                    key={i}
+                    className="floating-badge"
+                    style={{
+                      position: "absolute",
+                      ...badge,
+                      padding: "0.8rem 1.6rem",
+                      borderRadius: "999px",
+                      background: badge.bg,
+                      color: "#000",
+                      fontWeight: 700,
+                      fontSize: "1rem",
+                      boxShadow: "0 14px 36px rgba(0,0,0,0.55)",
+                      border: "2px solid rgba(255,255,255,0.38)",
+                      backdropFilter: "blur(12px)",
+                      animation: `float-badge 9s ease-in-out infinite ${badge.delay}s`,
+                      zIndex: 15,
+                    }}
                   >
-                    <stat.icon size={32} style={{ color: "#22d3ee", marginBottom: "1rem" }} />
-                    <div style={{ fontSize: "2.25rem", fontWeight: 900, color: "white", marginBottom: "0.4rem" }}>{stat.value}</div>
-                    <div
-                      style={{
-                        fontSize: "0.9rem",
-                        fontWeight: 600,
-                        color: "#94a3b8",
-                        textTransform: "uppercase",
-                        letterSpacing: "0.07em",
-                      }}
-                    >
-                      {stat.label}
-                    </div>
-                    <div style={{ fontSize: "0.85rem", color: "#64748b", marginTop: "0.4rem" }}>{stat.desc}</div>
+                    {badge.text}
                   </div>
-                </div>
-              ))}
-            </div>
-
-            {/* CTA Buttons */}
-            <div style={{ display: "flex", flexDirection: "column", gap: "1.5rem", "@media (min-width: 640px)": { flexDirection: "row" } }}>
-              <button
-                onClick={handleViewProjects}
-                style={{
-                  position: "relative",
-                  padding: "1.4rem 3rem",
-                  borderRadius: "1.25rem",
-                  overflow: "hidden",
-                  background: "linear-gradient(to right, #2563eb, #06b6d4)",
-                  color: "white",
-                  fontWeight: 700,
-                  fontSize: "1.2rem",
-                  boxShadow: "0 20px 40px -10px rgba(6,182,212,0.5)",
-                  transition: "all 0.5s",
-                  cursor: "pointer",
-                }}
-                className="hover:from-blue-500 hover:to-cyan-500 hover:shadow-cyan-700/60 hover:scale-105 hover:translate-y-[-3px]"
-              >
-                <div style={{ position: "relative", display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
-                  <Rocket size={24} />
-                  View Projects
-                  <ExternalLink size={20} />
-                </div>
-              </button>
-
-              <button
-                onClick={handleDownloadResume}
-                style={{
-                  padding: "1.4rem 3rem",
-                  borderRadius: "1.25rem",
-                  border: "2px solid #475569",
-                  backgroundColor: "rgba(15, 23, 42, 0.7)",
-                  backdropFilter: "blur(14px)",
-                  color: "white",
-                  fontWeight: 700,
-                  fontSize: "1.2rem",
-                  transition: "all 0.5s",
-                  cursor: "pointer",
-                }}
-                className="hover:border-cyan-400 hover:bg-slate-800/70 hover:scale-105 hover:translate-y-[-3px]"
-              >
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "1rem" }}>
-                  Download Resume
-                  <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                  </svg>
-                </div>
-              </button>
-            </div>
-
-            {/* Social Links */}
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "2.5rem" }}>
-              {links.map((link, i) => (
-                <a
-                  key={i}
-                  href={link.href}
-                  target={link.href.startsWith("http") ? "_blank" : undefined}
-                  rel={link.href.startsWith("http") ? "noopener noreferrer" : undefined}
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1rem",
-                    color: "#94a3b8",
-                    transition: "all 0.5s",
-                    opacity: isVisible ? 1 : 0,
-                    transform: isVisible ? "translateY(0)" : "translateY(30px)",
-                    transitionDelay: `${i * 0.15 + 1.4}s`,
-                  }}
-                  className={link.color}
-                >
-                  <link.icon size={28} className="group-hover:scale-130 transition-transform" />
-                  <span style={{ fontSize: "1.1rem", fontWeight: 500 }}>{link.label}</span>
-                </a>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Global Keyframes */}
-      <style jsx global>{`
-        @keyframes gradient {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(80px, -100px) scale(1.2); }
-          66% { transform: translate(-70px, 80px) scale(0.9); }
-        }
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-30px); }
-        }
-        @keyframes floatBadge {
-          0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(4deg); }
-        }
-        @keyframes pulse-slow {
-          0%, 100% { opacity: 0.7; }
-          50% { opacity: 1; }
-        }
-        @keyframes ping {
-          75%, 100% { transform: scale(3); opacity: 0; }
-        }
-        @keyframes pulse {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0; }
-        }
-      `}</style>
-    </div>
+    </>
   );
 }
