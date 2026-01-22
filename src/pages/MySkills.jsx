@@ -5,7 +5,7 @@ import {
   Code2, Database, Brain, Cloud, Layers, Zap, Cpu, Globe, Terminal,
   TrendingUp, Award, Star, ExternalLink, CheckCircle2, Rocket,
   GitBranch, Server, Lock, BarChart2, Settings, FileCode,
-  Database as DbIcon, Network, Wrench, Sparkles
+  Network, Wrench, Sparkles, Sun, Moon
 } from "lucide-react";
 
 const skills = [
@@ -14,7 +14,7 @@ const skills = [
     name: "Full-Stack Development",
     icon: Layers,
     level: 92,
-    color: "#00ffff",
+    color: "#00b7eb",
     technologies: [
       "React", "Next.js", "Node.js", "Express", "MongoDB",
       "JWT", "OAuth 2.0", "REST APIs", "TypeScript", "Tailwind CSS"
@@ -41,13 +41,12 @@ const skills = [
     description:
       "Designed and developed end-to-end full-stack web applications with modern authentication, database integration, responsive UI, and production-ready architecture."
   },
-
   {
     id: 2,
     name: "Machine Learning",
     icon: Brain,
     level: 88,
-    color: "#8a2be2",
+    color: "#7c3aed",
     technologies: [
       "Scikit-learn", "Pandas", "NumPy", "Matplotlib", "Seaborn",
       "Jupyter Notebook", "TF-IDF", "Feature Engineering", "Hyperparameter Tuning"
@@ -72,13 +71,12 @@ const skills = [
     description:
       "Developed high-accuracy machine learning models for classification, regression, and prediction tasks using structured and unstructured data."
   },
-
   {
     id: 3,
     name: "Deep Learning & AI",
     icon: Star,
     level: 87,
-    color: "#00ffff",
+    color: "#00b7eb",
     technologies: [
       "TensorFlow", "Keras", "PyTorch", "CNN", "Computer Vision",
       "OpenCV", "Neural Networks", "Transfer Learning", "Image Augmentation"
@@ -103,13 +101,12 @@ const skills = [
     description:
       "Built powerful deep learning models for computer vision and intelligent automation with real-world deployment experience."
   },
-
   {
     id: 4,
     name: "Cloud & DevOps",
     icon: Cloud,
     level: 85,
-    color: "#8a2be2",
+    color: "#7c3aed",
     technologies: [
       "AWS EC2", "AWS S3", "AWS Lambda", "Docker", "GitHub Actions",
       "Linux Server Management", "Nginx", "CI/CD Basics"
@@ -133,13 +130,12 @@ const skills = [
     description:
       "Deployed and managed scalable, production-ready applications using cloud platforms and containerization tools."
   },
-
   {
     id: 5,
     name: "Data Science & Analytics",
     icon: Database,
     level: 90,
-    color: "#00ffff",
+    color: "#00b7eb",
     technologies: [
       "Pandas", "NumPy", "Matplotlib", "Seaborn", "Plotly",
       "SQL", "MySQL", "PostgreSQL", "Data Cleaning", "EDA"
@@ -162,13 +158,12 @@ const skills = [
     description:
       "Analyzed and processed complex datasets to extract meaningful insights and support advanced machine learning models."
   },
-
   {
     id: 6,
     name: "Core Programming & CS Fundamentals",
     icon: Code2,
     level: 94,
-    color: "#8a2be2",
+    color: "#7c3aed",
     technologies: [
       "Python", "Java", "JavaScript", "TypeScript", "C++",
       "Data Structures & Algorithms", "OOP", "System Design Basics"
@@ -195,23 +190,30 @@ const skills = [
 
 export default function CyberpunkSkills() {
   const [activeSkill, setActiveSkill] = useState(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [theme, setTheme] = useState("light"); // DEFAULT: LIGHT theme
   const canvasRef = useRef(null);
 
+  // Load saved theme preference
   useEffect(() => {
-    const handleScroll = () => {
-      const section = document.getElementById('skills-section');
-      if (section) {
-        const rect = section.getBoundingClientRect();
-        const progress = Math.max(0, Math.min(100, (1 - rect.top / window.innerHeight) * 100));
-        setScrollProgress(progress);
-      }
-    };
-
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    const savedTheme = localStorage.getItem("skills-theme");
+    if (savedTheme) {
+      setTheme(savedTheme);
+    }
   }, []);
 
+  // Save theme & apply to body
+  useEffect(() => {
+    document.body.className = theme;
+    localStorage.setItem("skills-theme", theme);
+  }, [theme]);
+
+  // Theme toggle function
+  const toggleTheme = () => {
+    setTheme(prev => prev === "light" ? "dark" : "light");
+  };
+
+  // Canvas background particles
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -234,7 +236,7 @@ export default function CyberpunkSkills() {
     }));
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillStyle = theme === "dark" ? 'rgba(0, 0, 0, 0.05)' : 'rgba(240, 244, 255, 0.04)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach(p => {
@@ -244,13 +246,13 @@ export default function CyberpunkSkills() {
         if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 3);
-        gradient.addColorStop(0, 'rgba(0, 255, 255, 0.3)');
+        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
+        gradient.addColorStop(0, theme === "dark" ? 'rgba(0, 240, 255, 0.28)' : 'rgba(0, 102, 204, 0.25)');
         gradient.addColorStop(1, 'transparent');
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 3, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
         ctx.fill();
       });
 
@@ -264,24 +266,58 @@ export default function CyberpunkSkills() {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [theme]);
 
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
 
+        :root {
+          --neon-primary: #00b7eb;
+          --neon-secondary: #7c3aed;
+          --neon-gradient: linear-gradient(135deg, #00b7eb, #7c3aed);
+          --neon-glow: 0 0 40px rgba(0, 183, 235, 0.5);
+          --bg-primary: #f8f9fa;
+          --bg-secondary: #ffffff;
+          --text-primary: #1a1a1a;
+          --text-secondary: #4b5563;
+          --text-tertiary: #6b7280;
+          --card-bg: rgba(255,255,255,0.95);
+          --border-glow: rgba(0,183,235,0.25);
+          --detail-bg: rgba(255,255,255,0.92);
+          --detail-border: rgba(0,183,235,0.18);
+          --progress-bg: rgba(0, 0, 0, 0.07);
+          --progress-border: rgba(0, 0, 0, 0.09);
+          --tech-tag-bg: rgba(255,255,255,0.85);
+          --tech-tag-text: #1e40af;
+          --tech-tag-border: rgba(0,183,235,0.4);
+        }
+
+        body.dark {
+          --neon-primary: #00f0ff;
+          --neon-secondary: #c084fc;
+          --neon-gradient: linear-gradient(135deg, #00f0ff, #c084fc);
+          --neon-glow: 0 0 40px rgba(0, 240, 255, 0.55);
+          --bg-primary: #000000;
+          --bg-secondary: #0f172a;
+          --text-primary: #f1f5f9;
+          --text-secondary: #cbd5e1;
+          --text-tertiary: #94a3b8;
+          --card-bg: rgba(15,23,42,0.92);
+          --border-glow: rgba(0,240,255,0.32);
+          --detail-bg: rgba(0,0,0,0.55);
+          --detail-border: rgba(0,240,255,0.28);
+          --progress-bg: rgba(255, 255, 255, 0.06);
+          --progress-border: rgba(255, 255, 255, 0.12);
+          --tech-tag-bg: rgba(0,0,0,0.65);
+          --tech-tag-text: #e0f2fe;
+          --tech-tag-border: rgba(0,240,255,0.45);
+        }
+
         @keyframes slideIn {
           from { opacity: 0; transform: translateX(-40px); }
           to { opacity: 1; transform: translateX(0); }
-        }
-
-        @keyframes glitch {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
         }
 
         @keyframes scan {
@@ -294,86 +330,86 @@ export default function CyberpunkSkills() {
           50% { opacity: 0.5; }
         }
 
-        @keyframes loadBar {
-          from { width: 0; }
-          to { width: 100%; }
-        }
-
         @keyframes float {
           0%, 100% { transform: translateY(0); }
           50% { transform: translateY(-10px); }
         }
 
+        @keyframes loadBar {
+          from { width: 0; }
+          to { width: 100%; }
+        }
+
         .skill-card {
           position: relative;
-          background: rgba(0, 0, 0, 0.7);
-          border: 2px solid rgba(0, 255, 255, 0.2);
-          transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+          background: var(--card-bg);
+          border: 2px solid var(--border-glow);
+          transition: all 0.45s cubic-bezier(0.22, 1, 0.36, 1);
           overflow: hidden;
           border-radius: 20px;
           height: 100%;
           display: flex;
           flex-direction: column;
+          backdrop-filter: blur(12px);
         }
 
         .skill-card:hover {
-          transform: translateY(-10px);
-          border-color: currentColor;
-          box-shadow: 0 0 40px currentColor;
+          transform: translateY(-12px) scale(1.03);
+          border-color: var(--neon-primary);
+          box-shadow: var(--neon-glow);
         }
 
         .skill-card::before {
           content: '';
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 100%;
+          inset: 0;
           background: linear-gradient(
             45deg,
             transparent 30%,
-            rgba(0, 255, 255, 0.1) 50%,
+            rgba(var(--neon-primary-rgb),0.12) 50%,
             transparent 70%
           );
-          animation: scan 4s linear infinite;
+          animation: scan 4.5s linear infinite;
           pointer-events: none;
         }
 
         .tech-tag {
-          background: rgba(0, 0, 0, 0.6);
-          border: 1px solid currentColor;
-          padding: 0.4rem 0.9rem;
-          border-radius: 20px;
+          background: var(--tech-tag-bg);
+          border: 1px solid var(--tech-tag-border);
+          padding: 0.5rem 1rem;
+          border-radius: 999px;
           font-family: 'Fira Code', monospace;
-          font-size: 0.8rem;
-          transition: all 0.3s;
+          font-size: 0.85rem;
+          transition: all 0.3s ease;
+          color: var(--tech-tag-text);
         }
 
         .tech-tag:hover {
-          transform: scale(1.1);
-          box-shadow: 0 0 20px currentColor;
+          transform: scale(1.08) translateY(-2px);
+          box-shadow: 0 0 20px var(--neon-primary);
         }
 
         .neon-text {
           text-shadow: 
-            0 0 10px currentColor,
-            0 0 20px currentColor,
-            0 0 40px currentColor;
+            0 0 10px var(--neon-primary),
+            0 0 20px var(--neon-primary),
+            0 0 40px var(--neon-primary);
         }
 
         .detail-section {
-          background: rgba(0, 0, 0, 0.5);
-          border: 1px solid rgba(0, 255, 255, 0.3);
+          background: var(--detail-bg);
+          border: 1px solid var(--detail-border);
           border-radius: 12px;
-          padding: 1.2rem;
-          margin: 1rem 0;
+          padding: 1.3rem;
+          margin: 1.2rem 0;
+          transition: all 0.3s ease;
         }
 
         .detail-title {
           color: var(--neon-primary);
           font-size: 1.15rem;
           font-weight: 700;
-          margin-bottom: 0.8rem;
+          margin-bottom: 0.9rem;
           display: flex;
           align-items: center;
           gap: 0.7rem;
@@ -381,26 +417,90 @@ export default function CyberpunkSkills() {
 
         .grid-bg {
           background-image: 
-            linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px);
-          background-size: 40px 40px;
+            linear-gradient(rgba(var(--neon-primary-rgb),0.07) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(var(--neon-primary-rgb),0.07) 1px, transparent 1px);
+          background-size: 45px 45px;
+        }
+
+        .theme-toggle {
+          position: fixed;
+          top: 20px;
+          right: 30px;
+          z-index: 1000;
+          background: var(--card-bg);
+          border: 2px solid var(--neon-primary);
+          border-radius: 50%;
+          width: 55px;
+          height: 55px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.4s ease;
+          backdrop-filter: blur(12px);
+          box-shadow: 0 0 20px var(--neon-glow);
+        }
+
+        .theme-toggle:hover {
+          transform: scale(1.15) rotate(15deg);
+          box-shadow: 0 0 35px var(--neon-primary);
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 1024px) {
+          .skills-grid {
+            grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)) !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .skills-grid {
+            grid-template-columns: 1fr !important;
+            gap: 2.8rem !important;
+          }
+          .theme-toggle {
+            top: 15px;
+            right: 15px;
+            width: 48px;
+            height: 48px;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .skill-card {
+            padding: 1.8rem !important;
+          }
         }
       `}</style>
 
+      {/* Theme Toggle Button */}
+      <button
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label="Toggle between Light & Dark mode"
+      >
+        {theme === "light" ? (
+          <Moon size={26} color="#0066cc" />
+        ) : (
+          <Sun size={26} color="#00f0ff" />
+        )}
+      </button>
+
       <div id="skills-section" style={{
         minHeight: '100vh',
-        background: '#000000',
-        color: '#ffffff',
+        background: 'var(--bg-primary)',
+        color: 'var(--text-primary)',
         position: 'relative',
         overflow: 'hidden',
         padding: '6rem 2rem',
-        fontFamily: "'Outfit', sans-serif"
+        fontFamily: "'Outfit', sans-serif",
+        transition: "background 0.5s ease, color 0.5s ease",
       }}>
         {/* Grid Background */}
         <div className="grid-bg" style={{
           position: 'absolute',
           inset: 0,
-          opacity: 0.2,
+          opacity: theme === "dark" ? 0.2 : 0.12,
           pointerEvents: 'none'
         }} />
 
@@ -425,7 +525,7 @@ export default function CyberpunkSkills() {
           right: '5%',
           width: '500px',
           height: '500px',
-          border: '2px solid rgba(0, 255, 255, 0.1)',
+          border: '2px solid rgba(var(--neon-primary-rgb),0.1)',
           borderRadius: '50%',
           animation: 'float 20s ease-in-out infinite',
           pointerEvents: 'none',
@@ -446,11 +546,11 @@ export default function CyberpunkSkills() {
             <div style={{
               display: 'inline-block',
               fontFamily: "'Fira Code', monospace",
-              color: '#00ffff',
+              color: 'var(--neon-primary)',
               fontSize: '1rem',
               marginBottom: '1rem',
               padding: '0.75rem 1.5rem',
-              border: '2px solid rgba(0, 255, 255, 0.3)',
+              border: `2px solid rgba(var(--neon-primary-rgb),0.3)`,
               borderRadius: '30px',
               animation: 'pulse 2s ease-in-out infinite'
             }}>
@@ -461,7 +561,10 @@ export default function CyberpunkSkills() {
               fontSize: 'clamp(3rem, 7vw, 5rem)',
               fontWeight: 900,
               marginBottom: '1.5rem',
-              color: '#00ffff',
+              background: 'var(--neon-gradient)',
+              WebkitBackgroundClip: 'text',
+              backgroundClip: 'text',
+              color: 'transparent',
               textTransform: 'uppercase',
               letterSpacing: '3px',
               animation: 'slideIn 1s ease-out'
@@ -471,7 +574,7 @@ export default function CyberpunkSkills() {
 
             <p style={{
               fontSize: 'clamp(1.1rem, 2vw, 1.3rem)',
-              color: '#a0a0a0',
+              color: 'var(--text-secondary)',
               maxWidth: '700px',
               margin: '0 auto',
               lineHeight: 1.8,
@@ -482,7 +585,7 @@ export default function CyberpunkSkills() {
           </div>
 
           {/* Skills Grid */}
-          <div style={{
+          <div className="skills-grid" style={{
             display: 'grid',
             gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
             gap: '2.5rem',
@@ -491,13 +594,20 @@ export default function CyberpunkSkills() {
             {skills.map((skill, index) => {
               const Icon = skill.icon;
               const isActive = activeSkill === skill.id;
+              const isHovered = hoveredCard === index;
 
               return (
                 <div
                   key={skill.id}
                   className="skill-card"
-                  onMouseEnter={() => setActiveSkill(skill.id)}
-                  onMouseLeave={() => setActiveSkill(null)}
+                  onMouseEnter={() => {
+                    setActiveSkill(skill.id);
+                    setHoveredCard(index);
+                  }}
+                  onMouseLeave={() => {
+                    setActiveSkill(null);
+                    setHoveredCard(null);
+                  }}
                   style={{
                     padding: '2.2rem',
                     borderRadius: '20px',
@@ -505,7 +615,8 @@ export default function CyberpunkSkills() {
                     animation: `slideIn ${0.8 + index * 0.1}s ease-out`,
                     opacity: 0,
                     animationFillMode: 'forwards',
-                    boxShadow: isActive ? `0 0 40px ${skill.color}50` : 'none'
+                    boxShadow: isHovered ? `0 0 40px ${skill.color}50` : 'none',
+                    transform: isHovered ? 'translateY(-10px) scale(1.03)' : 'none'
                   }}
                 >
                   {/* Top Border */}
@@ -516,7 +627,7 @@ export default function CyberpunkSkills() {
                     right: 0,
                     height: '4px',
                     background: `linear-gradient(90deg, ${skill.color}, transparent)`,
-                    opacity: isActive ? 1 : 0.5
+                    opacity: isActive || isHovered ? 1 : 0.5
                   }} />
 
                   {/* Header */}
@@ -534,8 +645,8 @@ export default function CyberpunkSkills() {
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      animation: isActive ? 'float 2s ease-in-out infinite' : 'none',
-                      boxShadow: isActive ? `0 0 35px ${skill.color}` : 'none'
+                      animation: isActive || isHovered ? 'float 2s ease-in-out infinite' : 'none',
+                      boxShadow: isActive || isHovered ? `0 0 35px ${skill.color}` : 'none'
                     }}>
                       <Icon size={36} style={{ color: skill.color }} />
                     </div>
@@ -545,7 +656,7 @@ export default function CyberpunkSkills() {
                       fontSize: '3.5rem',
                       fontWeight: 900,
                       color: skill.color,
-                      textShadow: isActive ? `0 0 25px ${skill.color}` : 'none'
+                      textShadow: isActive || isHovered ? `0 0 25px ${skill.color}` : 'none'
                     }}>
                       {skill.level}
                       <span style={{ fontSize: '1.6rem' }}>%</span>
@@ -554,10 +665,10 @@ export default function CyberpunkSkills() {
 
                   {/* Title */}
                   <h3 style={{
-                    fontSize: '1.8rem',
+                    fontSize: 'clamp(1.6rem, 4vw, 1.8rem)',
                     fontWeight: 900,
                     marginBottom: '1.2rem',
-                    color: '#ffffff',
+                    color: theme === "dark" ? '#ffffff' : '#1a1a1a',
                     textTransform: 'uppercase',
                     letterSpacing: '1px'
                   }}>
@@ -567,7 +678,7 @@ export default function CyberpunkSkills() {
                   {/* Description */}
                   <p style={{
                     fontSize: '1rem',
-                    color: '#c0c0ff',
+                    color: theme === "dark" ? '#c0c0ff' : '#444444',
                     lineHeight: 1.7,
                     marginBottom: '1.8rem',
                     fontFamily: "'Fira Code', monospace"
@@ -584,19 +695,19 @@ export default function CyberpunkSkills() {
                       fontFamily: "'Fira Code', monospace",
                       fontSize: '0.9rem'
                     }}>
-                      <span style={{ color: '#888' }}>PROFICIENCY</span>
+                      <span style={{ color: theme === "dark" ? '#888' : '#666' }}>PROFICIENCY</span>
                       <span style={{ color: skill.color }}>[{skill.level}%]</span>
                     </div>
                     <div style={{
                       height: '10px',
-                      background: 'rgba(255, 255, 255, 0.05)',
+                      background: theme === "dark" ? 'rgba(255, 255, 255, 0.05)' : 'rgba(0, 0, 0, 0.08)',
                       borderRadius: '5px',
                       overflow: 'hidden',
-                      border: '1px solid rgba(255, 255, 255, 0.1)'
+                      border: `1px solid ${theme === "dark" ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'}`
                     }}>
                       <div style={{
                         height: '100%',
-                        width: isActive ? `${skill.level}%` : '0%',
+                        width: isActive || isHovered ? `${skill.level}%` : '0%',
                         background: `linear-gradient(90deg, ${skill.color}, ${skill.color}aa)`,
                         transition: 'width 1.5s cubic-bezier(0.22, 1, 0.36, 1)',
                         boxShadow: `0 0 15px ${skill.color}`,
@@ -638,8 +749,8 @@ export default function CyberpunkSkills() {
                           key={tech}
                           className="tech-tag"
                           style={{
-                            color: isActive ? skill.color : '#aaa',
-                            borderColor: isActive ? skill.color : '#444'
+                            color: isActive || isHovered ? skill.color : theme === "dark" ? '#e0f2fe' : '#1e40af',
+                            borderColor: isActive || isHovered ? skill.color : theme === "dark" ? 'rgba(0,240,255,0.45)' : 'rgba(0,183,235,0.4)'
                           }}
                         >
                           {tech}
@@ -662,7 +773,7 @@ export default function CyberpunkSkills() {
                       <Rocket size={20} /> Used In Projects
                     </h4>
                     <ul style={{
-                      color: '#e0f7ff',
+                      color: theme === "dark" ? '#e0f7ff' : '#1f2937',
                       fontSize: '0.95rem',
                       listStyleType: 'none',
                       padding: 0,
@@ -696,7 +807,7 @@ export default function CyberpunkSkills() {
                       <Wrench size={20} /> How I Used It
                     </h4>
                     <ul style={{
-                      color: '#e0f7ff',
+                      color: theme === "dark" ? '#e0f7ff' : '#1f2937',
                       fontSize: '0.95rem',
                       listStyleType: 'none',
                       padding: 0,
@@ -722,8 +833,8 @@ export default function CyberpunkSkills() {
                     alignItems: 'center',
                     gap: '0.9rem',
                     padding: '1.2rem',
-                    background: 'rgba(0, 0, 0, 0.5)',
-                    border: `1px solid ${isActive ? skill.color : 'rgba(255, 255, 255, 0.1)'}`,
+                    background: theme === "dark" ? 'rgba(0, 0, 0, 0.5)' : 'rgba(255, 255, 255, 0.65)',
+                    border: `1px solid ${isActive || isHovered ? skill.color : theme === "dark" ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 183, 235, 0.15)'}`,
                     borderRadius: '12px',
                     fontFamily: "'Fira Code', monospace",
                     marginTop: 'auto'
@@ -732,7 +843,7 @@ export default function CyberpunkSkills() {
                     <span style={{
                       fontSize: '1rem',
                       fontWeight: 700,
-                      color: '#ffffff'
+                      color: theme === "dark" ? '#ffffff' : '#1a1a1a'
                     }}>
                       {skill.projects} PROJECTS DEPLOYED
                     </span>
@@ -748,11 +859,12 @@ export default function CyberpunkSkills() {
             gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
             gap: '2rem',
             padding: '3.5rem 2rem',
-            background: 'rgba(0, 0, 0, 0.7)',
-            border: '2px solid rgba(0, 255, 255, 0.2)',
+            background: theme === "dark" ? 'rgba(0, 0, 0, 0.7)' : 'rgba(255, 255, 255, 0.92)',
+            border: `2px solid ${theme === "dark" ? 'rgba(0, 255, 255, 0.2)' : 'rgba(0, 183, 235, 0.2)'}`,
             borderRadius: '24px',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            marginTop: '5rem'
           }}>
             <div style={{
               position: 'absolute',
@@ -760,15 +872,15 @@ export default function CyberpunkSkills() {
               left: 0,
               right: 0,
               height: '4px',
-              background: 'linear-gradient(90deg, #00ffff, #8a2be2, #00ffff)',
+              background: 'var(--neon-gradient)',
               animation: 'loadBar 2.5s ease-out'
             }} />
 
             {[
-              { label: 'Experience', value: '4+', icon: Cpu, color: '#00ffff' },
-              { label: 'Projects', value: '126+', icon: Layers, color: '#8a2be2' },
-              { label: 'Technologies', value: '38+', icon: Globe, color: '#00ffff' },
-              { label: 'Certifications', value: '15+', icon: Award, color: '#8a2be2' }
+              { label: 'Experience', value: '4+', icon: Cpu, color: '#00b7eb' },
+              { label: 'Projects', value: '126+', icon: Layers, color: '#7c3aed' },
+              { label: 'Technologies', value: '38+', icon: Globe, color: '#00b7eb' },
+              { label: 'Certifications', value: '15+', icon: Award, color: '#7c3aed' }
             ].map((stat, i) => {
               const Icon = stat.icon;
               return (
@@ -808,7 +920,7 @@ export default function CyberpunkSkills() {
                   </div>
                   <div style={{
                     fontSize: '1rem',
-                    color: '#b0b0d8',
+                    color: theme === "dark" ? '#cbd5e1' : '#4b5563',
                     fontWeight: 700,
                     textTransform: 'uppercase',
                     letterSpacing: '1px'

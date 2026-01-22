@@ -4,14 +4,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 
 import profileImg from "../assets/profile.jpeg";
-import resumePdf from "../assets/bhagavanresume.pdf"; // <-- Added import for resume PDF
+import resumePdf from "../assets/bhagavanresume.pdf";
 
-import { 
-  Terminal, 
-  Download, 
-  Github, 
-  Linkedin, 
-  Mail, 
+import {
+  Terminal,
+  Download,
+  Github,
+  Linkedin,
+  Mail,
   Phone,
   ChevronRight,
   Cpu,
@@ -23,14 +23,28 @@ import {
   Zap,
   Cloud,
   Layers,
-  Server
+  Server,
+  Sun,
+  Moon
 } from "lucide-react";
 
 export default function ModernPortfolio() {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState(0);
+  const [theme, setTheme] = useState("light"); // Default: LIGHT theme
   const containerRef = useRef(null);
 
+  // Toggle between light & dark theme
+  const toggleTheme = () => {
+    setTheme(prev => (prev === "light" ? "dark" : "light"));
+  };
+
+  // Apply theme class to body
+  useEffect(() => {
+    document.body.className = theme;
+  }, [theme]);
+
+  // Scroll progress & section tracking
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY;
@@ -83,13 +97,42 @@ export default function ModernPortfolio() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
 
+        :root {
+          --bg-primary: #f8f9fa;
+          --bg-secondary: #ffffff;
+          --text-primary: #1a1a1a;
+          --text-secondary: #555555;
+          --accent: #0066cc;
+          --accent-dark: #004080;
+          --gradient-start: #0066cc;
+          --gradient-end: #00aaff;
+          --neon-glow: rgba(0, 102, 204, 0.6);
+          --card-bg: rgba(255,255,255,0.9);
+          --border-color: rgba(0,102,204,0.3);
+        }
+
+        body.dark {
+          --bg-primary: #000000;
+          --bg-secondary: #111111;
+          --text-primary: #ffffff;
+          --text-secondary: #a0a0a0;
+          --accent: #00ffff;
+          --accent-dark: #00cccc;
+          --gradient-start: #00ffff;
+          --gradient-end: #8a2be2;
+          --neon-glow: rgba(0, 255, 255, 0.6);
+          --card-bg: rgba(17,24,39,0.9);
+          --border-color: rgba(0,255,255,0.3);
+        }
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
+
         body {
           font-family: 'Outfit', sans-serif;
-          background: #000000;
-          color: #ffffff;
+          background: var(--bg-primary);
+          color: var(--text-primary);
           overflow-x: hidden;
+          transition: background 0.5s ease, color 0.5s ease;
         }
 
         @keyframes fadeSlide {
@@ -130,37 +173,28 @@ export default function ModernPortfolio() {
 
         .neon-text {
           text-shadow: 
-            0 0 10px rgba(0, 255, 255, 0.7),
-            0 0 20px rgba(0, 255, 255, 0.5),
-            0 0 40px rgba(0, 255, 255, 0.3);
+            0 0 10px var(--accent),
+            0 0 20px var(--accent),
+            0 0 40px var(--accent);
         }
 
         .hologram-card {
-          background: linear-gradient(145deg, rgba(0,255,255,0.05) 0%, rgba(138,43,226,0.05) 100%);
-          border: 1px solid rgba(0,255,255,0.2);
+          background: var(--card-bg);
+          border: 1px solid var(--border-color);
           position: relative;
           overflow: hidden;
+          transition: all 0.4s ease;
+          backdrop-filter: blur(10px);
         }
 
-        .hologram-card::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: linear-gradient(
-            45deg,
-            transparent 30%,
-            rgba(0,255,255,0.1) 50%,
-            transparent 70%
-          );
-          animation: scan 3s linear infinite;
+        .hologram-card:hover {
+          transform: translateY(-8px);
+          box-shadow: 0 0 40px var(--neon-glow);
         }
 
         .cyber-btn {
           position: relative;
-          background: linear-gradient(135deg, #00ffff, #8a2be2);
+          background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
           border: none;
           color: #000;
           font-weight: 700;
@@ -173,13 +207,13 @@ export default function ModernPortfolio() {
 
         .cyber-btn:hover {
           transform: scale(1.05);
-          box-shadow: 0 0 30px rgba(0,255,255,0.6);
+          box-shadow: 0 0 30px var(--accent);
         }
 
         .grid-bg {
           background-image: 
-            linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px);
+            linear-gradient(rgba(var(--accent-rgb),0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(var(--accent-rgb),0.08) 1px, transparent 1px);
           background-size: 50px 50px;
           animation: gridMove 20s linear infinite;
         }
@@ -190,18 +224,51 @@ export default function ModernPortfolio() {
         }
 
         .tech-tag {
-          background: rgba(0,0,0,0.6);
-          border: 1px solid currentColor;
+          background: rgba(0,0,0,0.3);
+          border: 1px solid var(--accent);
           padding: 0.5rem 1rem;
           border-radius: 20px;
           font-size: 0.85rem;
           font-family: 'Fira Code', monospace;
           transition: all 0.3s;
+          color: var(--text-primary);
         }
 
         .tech-tag:hover {
           transform: translateY(-3px);
-          box-shadow: 0 5px 20px currentColor;
+          box-shadow: 0 5px 20px var(--neon-glow);
+        }
+
+        .theme-toggle {
+          position: fixed;
+          top: 20px;
+          right: 30px;
+          z-index: 1000;
+          background: var(--card-bg);
+          border: 2px solid var(--accent);
+          border-radius: 50%;
+          width: 55px;
+          height: 55px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          cursor: pointer;
+          transition: all 0.4s ease;
+          backdrop-filter: blur(12px);
+          box-shadow: 0 0 20px var(--neon-glow);
+        }
+
+        .theme-toggle:hover {
+          transform: scale(1.15) rotate(15deg);
+          box-shadow: 0 0 35px var(--accent);
+        }
+
+        .theme-toggle svg {
+          transition: transform 0.6s ease;
+        }
+
+        body.dark .theme-toggle svg {
+          transform: rotate(180deg);
         }
 
         .tech-orbit {
@@ -231,13 +298,13 @@ export default function ModernPortfolio() {
           top: -25px;
           left: 50%;
           transform: translateX(-50%);
-          background: linear-gradient(135deg, #00ffff, #8a2be2);
+          background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
           color: #000;
           font-weight: 900;
           font-size: 1.2rem;
           padding: 0.7rem 1.6rem;
           border-radius: 40px;
-          box-shadow: 0 0 35px rgba(0,255,255,0.8);
+          box-shadow: 0 0 35px var(--neon-glow);
           border: 2.5px solid #fff;
           letter-spacing: 2px;
           z-index: 10;
@@ -246,14 +313,14 @@ export default function ModernPortfolio() {
         }
 
         .hire-badge {
-          color: #00ffff;
+          color: var(--accent);
           text-decoration: none;
           font-weight: 700;
         }
 
         .hire-badge:hover {
-          color: #ffffff;
-          text-shadow: 0 0 15px #00ffff;
+          color: var(--text-primary);
+          text-shadow: 0 0 15px var(--accent);
         }
 
         @media (max-width: 768px) {
@@ -262,18 +329,32 @@ export default function ModernPortfolio() {
           .profile-container { width: 320px !important; height: 400px !important; }
           .tech-orbit { width: 54px !important; height: 54px !important; }
           .badge-2026 { font-size: 1rem !important; padding: 0.6rem 1.2rem !important; top: -20px !important; }
+          .theme-toggle { top: 15px; right: 15px; width: 48px; height: 48px; }
         }
       `}</style>
 
-      <div style={{ background: "#000000", minHeight: "100vh", position: "relative" }}>
+      {/* Theme Toggle Button - Beautiful Floating Orb */}
+      <button
+        className="theme-toggle"
+        onClick={toggleTheme}
+        aria-label="Toggle between Light & Dark mode"
+      >
+        {theme === "light" ? (
+          <Moon size={26} color="#0066cc" strokeWidth={2.5} />
+        ) : (
+          <Sun size={26} color="#00ffff" strokeWidth={2.5} />
+        )}
+      </button>
+
+      <div style={{ background: "var(--bg-primary)", minHeight: "100vh", position: "relative" }}>
         {/* Progress Bar */}
         <div style={{
           position: "fixed",
           top: 0,
           left: 0,
           width: `${scrollProgress}%`,
-          height: "3px",
-          background: "linear-gradient(90deg, #00ffff, #8a2be2)",
+          height: "4px",
+          background: "linear-gradient(90deg, var(--gradient-start), var(--gradient-end))",
           zIndex: 1000,
           transition: "width 0.1s"
         }} />
@@ -282,7 +363,7 @@ export default function ModernPortfolio() {
         <div className="grid-bg" style={{
           position: "fixed",
           inset: 0,
-          opacity: 0.3,
+          opacity: theme === "dark" ? 0.3 : 0.12,
           pointerEvents: "none"
         }} />
 
@@ -293,7 +374,7 @@ export default function ModernPortfolio() {
           right: "-10%",
           width: "800px",
           height: "800px",
-          border: "2px solid rgba(0,255,255,0.1)",
+          border: "2px solid rgba(var(--accent-rgb),0.08)",
           borderRadius: "50%",
           animation: "rotate 30s linear infinite",
           pointerEvents: "none"
@@ -305,7 +386,7 @@ export default function ModernPortfolio() {
           left: "-10%",
           width: "600px",
           height: "600px",
-          border: "2px solid rgba(138,43,226,0.1)",
+          border: "2px solid rgba(var(--gradient-end-rgb),0.08)",
           borderRadius: "50%",
           animation: "rotate 40s linear infinite reverse",
           pointerEvents: "none"
@@ -318,7 +399,7 @@ export default function ModernPortfolio() {
               <div style={{ flex: 1 }}>
                 <div className="fade-in d1" style={{
                   fontFamily: "'Fira Code', monospace",
-                  color: "#00ffff",
+                  color: "var(--accent)",
                   fontSize: "1rem",
                   marginBottom: "1rem",
                   opacity: 0.8
@@ -331,7 +412,7 @@ export default function ModernPortfolio() {
                   fontWeight: 900,
                   lineHeight: 1.1,
                   marginBottom: "1rem",
-                  background: "linear-gradient(135deg, #00ffff 0%, #8a2be2 100%)",
+                  background: `linear-gradient(135deg, var(--gradient-start) 0%, var(--gradient-end) 100%)`,
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
                   color: "transparent"
@@ -346,7 +427,8 @@ export default function ModernPortfolio() {
                     fontWeight: 600,
                     marginBottom: "2rem",
                     fontFamily: "'Fira Code', monospace",
-                    letterSpacing: "0.12em"
+                    letterSpacing: "0.12em",
+                    color: "var(--text-secondary)"
                   }}
                 >
                   [ AI Engineer × Full-Stack Developer ]
@@ -355,7 +437,7 @@ export default function ModernPortfolio() {
                 <p className="fade-in d4" style={{
                   fontSize: "1.2rem",
                   lineHeight: 1.8,
-                  color: "#a0a0a0",
+                  color: "var(--text-secondary)",
                   maxWidth: "600px",
                   marginBottom: "3rem"
                 }}>
@@ -365,10 +447,10 @@ export default function ModernPortfolio() {
                 </p>
 
                 <div className="fade-in d5" style={{ display: "flex", gap: "1.5rem", marginBottom: "3rem", flexWrap: "wrap" }}>
-                  {/* Projects Button - Links to /projects */}
-                  <a 
-                    href="/projects" 
-                    className="cyber-btn" 
+                  {/* Projects Button */}
+                  <Link
+                    to="/projects"
+                    className="cyber-btn"
                     style={{
                       padding: "1.2rem 3rem",
                       fontSize: "1rem",
@@ -380,17 +462,17 @@ export default function ModernPortfolio() {
                   >
                     <Terminal size={20} />
                     View Projects
-                  </a>
+                  </Link>
 
-                  {/* Resume Button - Direct PDF Download */}
-                  <a 
-                    href={resumePdf} 
+                  {/* Resume Button */}
+                  <a
+                    href={resumePdf}
                     download="Bhagavan_Resume.pdf"
                     style={{
                       padding: "1.2rem 3rem",
                       background: "transparent",
-                      border: "2px solid #00ffff",
-                      color: "#00ffff",
+                      border: `2px solid var(--accent)`,
+                      color: "var(--accent)",
                       fontWeight: 600,
                       cursor: "pointer",
                       transition: "all 0.3s",
@@ -408,10 +490,10 @@ export default function ModernPortfolio() {
 
                 <div style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
                   {[
-                    { icon: Github, href: "https://github.com/bhagavan444", color: "#ffffff" },
-                    { icon: Linkedin, href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", color: "#00ffff" },
-                    { icon: Mail, href: "mailto:g.sivasatyasaibhagavan@gmail.com", color: "#8a2be2" },
-                    { icon: Phone, href: "tel:+917569205626", color: "#00ffff" }
+                    { icon: Github, href: "https://github.com/bhagavan444", color: "var(--text-primary)" },
+                    { icon: Linkedin, href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", color: "var(--accent)" },
+                    { icon: Mail, href: "mailto:g.sivasatyasaibhagavan@gmail.com", color: "var(--gradient-end)" },
+                    { icon: Phone, href: "tel:+917569205626", color: "var(--accent)" }
                   ].map((link, i) => (
                     <a
                       key={i}
@@ -424,7 +506,7 @@ export default function ModernPortfolio() {
                         justifyContent: "center",
                         width: "50px",
                         height: "50px",
-                        background: "rgba(0,0,0,0.5)",
+                        background: "rgba(var(--accent-rgb),0.15)",
                         border: `2px solid ${link.color}`,
                         borderRadius: "50%",
                         color: link.color,
@@ -438,45 +520,42 @@ export default function ModernPortfolio() {
                 </div>
               </div>
 
-              {/* Animated Profile Image - Rectangle Shape */}
+              {/* Animated Profile Image */}
               <div className="fade-in d4" style={{ flex: 1, maxWidth: "450px", display: "flex", justifyContent: "center" }}>
                 <div className="profile-container" style={{ position: "relative", width: "400px", height: "480px" }}>
-                  {/* 2026 Badge - Top Center */}
-                  <div className="ready-badge">
-  2026 READY
-</div>
+                  {/* 2026 Badge */}
+                  <div className="badge-2026">
+                    2026 READY
+                  </div>
 
-
-                  {/* Rotating Ring 1 */}
+                  {/* Rotating Rings */}
                   <div style={{
                     position: "absolute",
                     inset: "-20px",
                     border: "3px solid transparent",
-                    borderTopColor: "#00ffff",
-                    borderRightColor: "#00ffff",
+                    borderTopColor: "var(--accent)",
+                    borderRightColor: "var(--accent)",
                     borderRadius: "20px",
                     animation: "rotate 4s linear infinite",
                     opacity: 0.6
                   }} />
 
-                  {/* Rotating Ring 2 */}
                   <div style={{
                     position: "absolute",
                     inset: "-35px",
                     border: "2px solid transparent",
-                    borderBottomColor: "#8a2be2",
-                    borderLeftColor: "#8a2be2",
+                    borderBottomColor: "var(--gradient-end)",
+                    borderLeftColor: "var(--gradient-end)",
                     borderRadius: "25px",
                     animation: "rotate 6s linear infinite reverse",
                     opacity: 0.5
                   }} />
 
-                  {/* Rotating Ring 3 */}
                   <div style={{
                     position: "absolute",
                     inset: "-50px",
                     border: "2px solid transparent",
-                    borderTopColor: "#00ffff",
+                    borderTopColor: "var(--accent)",
                     borderRadius: "30px",
                     animation: "rotate 8s linear infinite",
                     opacity: 0.3
@@ -489,8 +568,8 @@ export default function ModernPortfolio() {
                     left: "-10px",
                     width: "30px",
                     height: "30px",
-                    borderTop: "3px solid #00ffff",
-                    borderLeft: "3px solid #00ffff",
+                    borderTop: `3px solid var(--accent)`,
+                    borderLeft: `3px solid var(--accent)`,
                     animation: "pulse 2s ease-in-out infinite"
                   }} />
                   <div style={{
@@ -499,8 +578,8 @@ export default function ModernPortfolio() {
                     right: "-10px",
                     width: "30px",
                     height: "30px",
-                    borderTop: "3px solid #8a2be2",
-                    borderRight: "3px solid #8a2be2",
+                    borderTop: `3px solid var(--gradient-end)`,
+                    borderRight: `3px solid var(--gradient-end)`,
                     animation: "pulse 2s ease-in-out infinite",
                     animationDelay: "0.5s"
                   }} />
@@ -510,8 +589,8 @@ export default function ModernPortfolio() {
                     left: "-10px",
                     width: "30px",
                     height: "30px",
-                    borderBottom: "3px solid #00ffff",
-                    borderLeft: "3px solid #00ffff",
+                    borderBottom: `3px solid var(--accent)`,
+                    borderLeft: `3px solid var(--accent)`,
                     animation: "pulse 2s ease-in-out infinite",
                     animationDelay: "1s"
                   }} />
@@ -521,23 +600,23 @@ export default function ModernPortfolio() {
                     right: "-10px",
                     width: "30px",
                     height: "30px",
-                    borderBottom: "3px solid #8a2be2",
-                    borderRight: "3px solid #8a2be2",
+                    borderBottom: `3px solid var(--gradient-end)`,
+                    borderRight: `3px solid var(--gradient-end)`,
                     animation: "pulse 2s ease-in-out infinite",
                     animationDelay: "1.5s"
                   }} />
 
-                  {/* Image Container - Rectangle Shape */}
+                  {/* Image Container */}
                   <div style={{
                     position: "relative",
                     width: "100%",
                     height: "100%",
                     borderRadius: "20px",
                     overflow: "hidden",
-                    border: "4px solid rgba(0,255,255,0.4)",
+                    border: `4px solid rgba(var(--accent-rgb),0.4)`,
                     boxShadow: `
-                      0 0 40px rgba(0,255,255,0.5),
-                      0 0 80px rgba(138,43,226,0.4),
+                      0 0 40px var(--neon-glow),
+                      0 0 80px rgba(var(--gradient-end-rgb),0.4),
                       inset 0 0 40px rgba(0,0,0,0.6)
                     `
                   }}>
@@ -559,7 +638,7 @@ export default function ModernPortfolio() {
                       left: 0,
                       right: 0,
                       height: "120px",
-                      background: "linear-gradient(to bottom, transparent, rgba(0,255,255,0.3), transparent)",
+                      background: "linear-gradient(to bottom, transparent, rgba(var(--accent-rgb),0.3), transparent)",
                       animation: "scan 3s ease-in-out infinite",
                       pointerEvents: "none"
                     }} />
@@ -573,17 +652,17 @@ export default function ModernPortfolio() {
                     }} />
                   </div>
 
-                  {/* Orbiting Tech Icons - Positioned around rectangle edges */}
+                  {/* Orbiting Tech Icons */}
                   {techStack.map((tech, index) => {
                     const positions = [
-                      { top: "-10%", left: "50%", transform: "translate(-50%, -50%)" },     // Top center
-                      { top: "20%", right: "-10%", transform: "translate(50%, -50%)" },     // Top-right
-                      { top: "50%", right: "-10%", transform: "translate(50%, -50%)" },     // Middle-right
-                      { bottom: "20%", right: "-10%", transform: "translate(50%, 50%)" },   // Bottom-right
-                      { bottom: "-10%", left: "50%", transform: "translate(-50%, 50%)" },   // Bottom center
-                      { bottom: "20%", left: "-10%", transform: "translate(-50%, 50%)" },   // Bottom-left
-                      { top: "50%", left: "-10%", transform: "translate(-50%, -50%)" },     // Middle-left
-                      { top: "20%", left: "-10%", transform: "translate(-50%, -50%)" },     // Top-left
+                      { top: "-10%", left: "50%", transform: "translate(-50%, -50%)" },
+                      { top: "20%", right: "-10%", transform: "translate(50%, -50%)" },
+                      { top: "50%", right: "-10%", transform: "translate(50%, -50%)" },
+                      { bottom: "20%", right: "-10%", transform: "translate(50%, 50%)" },
+                      { bottom: "-10%", left: "50%", transform: "translate(-50%, 50%)" },
+                      { bottom: "20%", left: "-10%", transform: "translate(-50%, 50%)" },
+                      { top: "50%", left: "-10%", transform: "translate(-50%, -50%)" },
+                      { top: "20%", left: "-10%", transform: "translate(-50%, -50%)" },
                     ];
 
                     const pos = positions[index % positions.length];
@@ -611,15 +690,15 @@ export default function ModernPortfolio() {
                     bottom: "20px",
                     left: "50%",
                     transform: "translateX(-50%)",
-                    background: "rgba(0,0,0,0.8)",
-                    border: "2px solid #00ffff",
+                    background: "rgba(var(--accent-rgb),0.15)",
+                    border: `2px solid var(--accent)`,
                     borderRadius: "30px",
                     padding: "0.75rem 1.5rem",
                     fontFamily: "'Fira Code', monospace",
                     fontSize: "0.85rem",
-                    color: "#00ffff",
+                    color: "var(--accent)",
                     fontWeight: 600,
-                    boxShadow: "0 0 20px rgba(0,255,255,0.5)",
+                    boxShadow: "0 0 20px var(--neon-glow)",
                     animation: "pulse 2s ease-in-out infinite",
                     whiteSpace: "nowrap"
                   }}>
@@ -642,7 +721,7 @@ export default function ModernPortfolio() {
               fontWeight: 800,
               marginBottom: "3rem",
               textAlign: "center",
-              color: "#00ffff",
+              color: "var(--accent)",
               textTransform: "uppercase",
               letterSpacing: "2px"
             }}>
@@ -651,13 +730,13 @@ export default function ModernPortfolio() {
 
             <div className="tech-grid" style={{
               display: "grid",
-              gridTemplateColumns: "repeat(4, 1fr)",
+              gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))",
               gap: "1.5rem"
             }}>
               {techStack.map((tech, i) => (
                 <div
                   key={i}
-                  className="tech-tag fade-in"
+                  className="tech-tag fade-in hologram-card"
                   style={{
                     color: tech.color,
                     borderColor: tech.color,
@@ -673,7 +752,7 @@ export default function ModernPortfolio() {
             </div>
           </section>
 
-          {/* Timeline */}
+          {/* Timeline / Milestones */}
           <section style={{ padding: "6rem 0 10rem" }}>
             <div style={{ display: "flex", justifyContent: "space-around", alignItems: "center", flexWrap: "wrap", gap: "3rem" }}>
               {milestones.map((milestone, i) => (
@@ -685,13 +764,13 @@ export default function ModernPortfolio() {
                   animationDelay: `${i * 0.15}s`
                 }}>
                   <milestone.icon size={40} style={{ color: milestone.color, marginBottom: "1rem" }} />
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "#8a2be2", marginBottom: "0.5rem" }}>
+                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: "var(--gradient-end)", marginBottom: "0.5rem" }}>
                     {milestone.year}
                   </div>
-                  <div style={{ fontSize: "1.1rem", color: "#a0a0a0" }}>
+                  <div style={{ fontSize: "1.1rem", color: "var(--text-secondary)" }}>
                     {milestone.title}
                   </div>
-                  <div style={{ fontSize: "0.95rem", color: "#b0b0ff", marginTop: "0.5rem" }}>
+                  <div style={{ fontSize: "0.95rem", color: "var(--text-primary)", marginTop: "0.5rem" }}>
                     {milestone.subtitle}
                   </div>
                 </div>
