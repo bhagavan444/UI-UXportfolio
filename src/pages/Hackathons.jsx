@@ -20,7 +20,7 @@ export default function CyberpunkHackathon() {
       icon: Terminal,
       title: "Foundation Sprint",
       desc: "System architecture design, MongoDB schema modeling, JWT authentication core, project scaffolding, RESTful API structure planning",
-      color: "#00ffff",
+      color: "var(--neon-primary)",
       achievements: ["Database Schema Design", "Auth System Core", "API Architecture", "Environment Setup"]
     },
     {
@@ -29,7 +29,7 @@ export default function CyberpunkHackathon() {
       icon: Code,
       title: "Core Development",
       desc: "RESTful API endpoints implementation, React component library, state management architecture, routing system, real-time features integration foundation",
-      color: "#8a2be2",
+      color: "var(--neon-primary)",
       achievements: ["15+ API Endpoints", "UI Component Library", "State Management", "Routing System"]
     },
     {
@@ -38,7 +38,7 @@ export default function CyberpunkHackathon() {
       icon: Zap,
       title: "Integration Phase",
       desc: "Socket.io real-time chat implementation, security hardening, comprehensive error handling, data validation layers, middleware integration",
-      color: "#00ffff",
+      color: "var(--neon-primary)",
       achievements: ["Real-time Chat System", "Security Hardening", "Error Handling", "Data Validation"]
     },
     {
@@ -47,14 +47,14 @@ export default function CyberpunkHackathon() {
       icon: Rocket,
       title: "Launch Sequence",
       desc: "Production optimization, comprehensive testing suite, performance tuning, demo preparation, cloud deployment pipeline, final documentation",
-      color: "#8a2be2",
+      color: "var(--neon-primary)",
       achievements: ["Testing Suite", "Cloud Deployment", "Performance Optimization", "Documentation"]
     }
   ];
 
   const techStack = [
     { icon: Database, name: "MongoDB", desc: "NoSQL Database", color: "#10b981" },
-    { icon: Server, name: "Express.js", desc: "Backend Framework", color: "#00ffff" },
+    { icon: Server, name: "Express.js", desc: "Backend Framework", color: "var(--neon-primary)" },
     { icon: Sparkles, name: "React", desc: "UI Library", color: "#8b5cf6" },
     { icon: Layers, name: "Node.js", desc: "Runtime Environment", color: "#ec4899" },
     { icon: Lock, name: "JWT", desc: "Authentication", color: "#f59e0b" },
@@ -62,10 +62,10 @@ export default function CyberpunkHackathon() {
   ];
 
   const stats = [
-    { label: "Duration", value: "24", unit: "hours", icon: Clock, color: "#00ffff" },
-    { label: "Team Size", value: "4", unit: "members", icon: Users, color: "#8a2be2" },
-    { label: "Code Lines", value: "5000+", unit: "lines", icon: Code, color: "#00ffff" },
-    { label: "Rank", value: "1st", unit: "place", icon: Trophy, color: "#8a2be2" }
+    { label: "Duration", value: "24", unit: "hours", icon: Clock, color: "var(--neon-primary)" },
+    { label: "Team Size", value: "4", unit: "members", icon: Users, color: "var(--neon-primary)" },
+    { label: "Code Lines", value: "5000+", unit: "lines", icon: Code, color: "var(--neon-primary)" },
+    { label: "Rank", value: "1st", unit: "place", icon: Trophy, color: "var(--neon-primary)" }
   ];
 
   // ─── BACKGROUND PARTICLES ────────────────────────────────────────────────
@@ -81,16 +81,16 @@ export default function CyberpunkHackathon() {
     };
     resize();
 
-    const particles = Array.from({ length: 70 }, () => ({
+    const particles = Array.from({ length: 50 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
       vx: (Math.random() - 0.5) * 0.4,
       vy: (Math.random() - 0.5) * 0.4,
-      size: Math.random() * 2.8 + 1.2
+      size: Math.random() * 2 + 1
     }));
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.07)';
+      ctx.fillStyle = 'rgba(0,0,0,0.1)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
       particles.forEach(p => {
@@ -100,7 +100,7 @@ export default function CyberpunkHackathon() {
         if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
 
         const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 5);
-        gradient.addColorStop(0, 'rgba(0, 255, 255, 0.38)');
+        gradient.addColorStop(0, 'rgba(0, 240, 255, 0.35)');
         gradient.addColorStop(1, 'transparent');
         ctx.fillStyle = gradient;
         ctx.beginPath();
@@ -134,53 +134,125 @@ export default function CyberpunkHackathon() {
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
 
-        @keyframes slideIn { from { opacity:0; transform:translateY(60px); } to { opacity:1; transform:translateY(0); } }
+        :root {
+          --neon-primary: #00f0ff;
+          --neon-gradient: linear-gradient(90deg, #00f0ff, #a78bfa, #ff61d2);
+          --neon-glow: 0 0 25px rgba(0, 240, 255, 0.75);
+        }
+
+        @keyframes slideIn { from { opacity:0; transform:translateY(50px); } to { opacity:1; transform:translateY(0); } }
         @keyframes scan     { 0% { transform:translateY(-100%); } 100% { transform:translateY(100%); } }
-        @keyframes float    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-14px); } }
-        @keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+        @keyframes float    { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-10px); } }
+        @keyframes pulse    { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
 
         .hack-card {
           position: relative;
-          background: rgba(8,8,22,0.84);
-          border: 2px solid rgba(0,255,255,0.24);
-          border-radius: 24px;
+          background: rgba(8,8,22,0.92);
+          border: 2px solid rgba(0,240,255,0.32);
+          border-radius: 20px;
           overflow: hidden;
           transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+          max-width: 100%;
+          box-sizing: border-box;
         }
 
         .hack-card:hover {
-          transform: translateY(-20px) scale(1.04);
-          border-color: currentColor;
-          box-shadow: 0 0 80px currentColor;
+          transform: translateY(-16px) scale(1.03);
+          border-color: var(--neon-primary);
+          box-shadow: var(--neon-glow);
         }
 
         .hack-card::before {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(135deg, transparent 35%, rgba(0,255,255,0.15) 50%, transparent 65%);
-          animation: scan 6s linear infinite;
+          background: linear-gradient(135deg, transparent 35%, rgba(0,240,255,0.15) 50%, transparent 65%);
+          animation: scan 7s linear infinite;
           pointer-events: none;
           z-index: 1;
         }
 
         .tech-pill {
-          background: rgba(0,0,0,0.72);
-          border: 1.5px solid currentColor;
-          padding: 0.55rem 1.15rem;
+          background: rgba(0,0,0,0.78);
+          border: 1.6px solid var(--neon-primary);
+          padding: 0.5rem 1rem;
           border-radius: 999px;
           font-family: 'Fira Code',monospace;
-          font-size: 0.9rem;
+          font-size: 0.86rem;
           transition: all 0.3s;
+          color: #e0f7ff;
         }
 
         .tech-pill:hover {
-          transform: scale(1.08);
-          box-shadow: 0 0 28px currentColor;
+          transform: scale(1.06);
+          box-shadow: 0 0 20px var(--neon-primary);
         }
 
         .neon-title {
-          text-shadow: 0 0 14px currentColor, 0 0 32px currentColor, 0 0 60px currentColor;
+          background: var(--neon-gradient);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          text-shadow: 0 0 35px rgba(0,240,255,0.85);
+        }
+
+        /* ─── RESPONSIVE FIXES ──────────────────────────────────────── */
+        @media (max-width: 1024px) {
+          .hack-grid {
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)) !important;
+            gap: 2.5rem !important;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .hack-grid {
+            grid-template-columns: 1fr !important;
+            gap: 3rem !important;
+          }
+          .cert-showcase {
+            margin: 0 auto 6rem !important;
+          }
+          .card-padding {
+            padding: 1.8rem 1.5rem !important;
+          }
+          h1.neon-title {
+            font-size: clamp(3.4rem, 11vw, 5.5rem) !important;
+            letter-spacing: 3px !important;
+          }
+          .modal-content {
+            padding: 2.2rem 1.6rem !important;
+            width: 98% !important;
+            max-width: 98% !important;
+          }
+        }
+
+        @media (max-width: 480px) {
+          .cert-showcase img {
+            max-height: 50vh !important;
+            object-fit: contain !important;
+          }
+          .card-padding {
+            padding: 1.5rem 1.3rem !important;
+          }
+          h3 {
+            font-size: 1.65rem !important;
+          }
+          .tech-pill {
+            padding: 0.45rem 0.9rem;
+            font-size: 0.82rem;
+          }
+          .cta-buttons {
+            flex-direction: column !important;
+            gap: 1.5rem !important;
+          }
+          .modal-content {
+            padding: 2rem 1.4rem !important;
+          }
+        }
+
+        @media (max-width: 360px) {
+          .card-padding {
+            padding: 1.4rem 1.2rem !important;
+          }
         }
       `}</style>
 
@@ -190,7 +262,7 @@ export default function CyberpunkHackathon() {
         color: '#e0e0ff',
         position: 'relative',
         overflow: 'hidden',
-        padding: '8rem 3rem 6rem',
+        padding: 'clamp(5rem, 12vw, 10rem) 1.5rem 6rem',
         fontFamily: "'Outfit', sans-serif"
       }}>
         {/* Grid overlay */}
@@ -198,10 +270,10 @@ export default function CyberpunkHackathon() {
           position: 'absolute',
           inset: 0,
           backgroundImage: `
-            linear-gradient(rgba(0,255,255,0.09) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,255,255,0.09) 1px, transparent 1px)
+            linear-gradient(rgba(0,240,255,0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,240,255,0.08) 1px, transparent 1px)
           `,
-          backgroundSize: '60px 60px',
+          backgroundSize: '50px 50px',
           opacity: 0.22,
           pointerEvents: 'none'
         }} />
@@ -220,40 +292,41 @@ export default function CyberpunkHackathon() {
         <div style={{
           position: 'relative',
           zIndex: 10,
-          maxWidth: '1680px',
-          margin: '0 auto'
+          maxWidth: '1600px',
+          margin: '0 auto',
+          width: '100%'
         }}>
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '7rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(4rem, 10vw, 7rem)' }}>
             <div style={{
               display: 'inline-block',
               fontFamily: "'Fira Code', monospace",
-              color: '#00ffff',
-              fontSize: '1.15rem',
-              padding: '0.9rem 2rem',
-              border: '2.5px solid rgba(0,255,255,0.4)',
+              color: 'var(--neon-primary)',
+              fontSize: 'clamp(1rem, 2.6vw, 1.15rem)',
+              padding: '0.8rem 1.8rem',
+              border: '2px solid rgba(0,240,255,0.45)',
               borderRadius: '999px',
-              marginBottom: '1.8rem',
+              marginBottom: '1.6rem',
               animation: 'pulse 3.5s infinite'
             }}>
               {'>'} hackathon.2024.load()
             </div>
 
             <h1 className="neon-title" style={{
-              fontSize: 'clamp(4rem, 9vw, 7rem)',
+              fontSize: 'clamp(3.8rem, 11vw, 7rem)',
               fontWeight: 900,
-              color: '#00ffff',
-              letterSpacing: '5px',
+              letterSpacing: '4px',
               textTransform: 'uppercase',
-              marginBottom: '1.8rem'
+              marginBottom: '1.4rem',
+              lineHeight: 1.1
             }}>
               BRAINO VISION
             </h1>
 
             <div style={{
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
+              fontSize: 'clamp(1.8rem, 5vw, 3.2rem)',
               fontWeight: 900,
-              background: 'linear-gradient(90deg, #00ffff, #8a2be2)',
+              background: 'var(--neon-gradient)',
               WebkitBackgroundClip: 'text',
               backgroundClip: 'text',
               color: 'transparent',
@@ -267,10 +340,10 @@ export default function CyberpunkHackathon() {
               alignItems: 'center',
               gap: '1rem',
               padding: '1rem 2.5rem',
-              background: 'rgba(0,255,255,0.12)',
-              border: '2.5px solid #00ffff60',
+              background: 'rgba(0,240,255,0.12)',
+              border: '2.5px solid rgba(0,240,255,0.6)',
               borderRadius: '999px',
-              color: '#00ffff',
+              color: 'var(--neon-primary)',
               fontSize: '1.3rem',
               fontWeight: 800,
               marginBottom: '3rem'
@@ -280,7 +353,7 @@ export default function CyberpunkHackathon() {
             </div>
 
             <p style={{
-              fontSize: 'clamp(1.25rem, 2.8vw, 1.6rem)',
+              fontSize: 'clamp(1.15rem, 3vw, 1.4rem)',
               color: '#a0a0c8',
               maxWidth: '820px',
               margin: '0 auto 4rem',
@@ -294,28 +367,28 @@ export default function CyberpunkHackathon() {
             {/* Quick Stats */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
               gap: '2rem',
               marginBottom: '5rem'
             }}>
               {stats.map((stat, i) => (
                 <div key={i} style={{
-                  padding: '2.2rem',
+                  padding: '2rem',
                   background: 'rgba(0,0,0,0.65)',
                   border: `2px solid ${stat.color}40`,
                   borderRadius: '20px',
                   textAlign: 'center'
                 }}>
-                  <stat.icon size={38} style={{ color: stat.color, marginBottom: '1rem' }} />
+                  <stat.icon size={36} style={{ color: stat.color, marginBottom: '1rem' }} />
                   <div style={{
-                    fontSize: '2.8rem',
+                    fontSize: 'clamp(2rem, 5vw, 2.8rem)',
                     fontWeight: 900,
                     color: stat.color,
                     marginBottom: '0.5rem'
                   }}>
-                    {stat.value}{stat.unit && <span style={{ fontSize: '1.4rem' }}> {stat.unit}</span>}
+                    {stat.value}{stat.unit && <span style={{ fontSize: '1.2rem' }}> {stat.unit}</span>}
                   </div>
-                  <div style={{ color: '#b0b0d0', fontSize: '1.1rem' }}>
+                  <div style={{ color: '#b0b0d0', fontSize: '1.05rem' }}>
                     {stat.label}
                   </div>
                 </div>
@@ -324,18 +397,18 @@ export default function CyberpunkHackathon() {
           </div>
 
           {/* Certificate Showcase */}
-          <div style={{
+          <div className="cert-showcase" style={{
             maxWidth: '1100px',
-            margin: '0 auto 8rem',
+            margin: '0 auto 6rem',
             borderRadius: '28px',
             overflow: 'hidden',
             position: 'relative',
-            boxShadow: '0 0 100px rgba(0,255,255,0.3)'
+            boxShadow: '0 0 100px rgba(0,240,255,0.3)'
           }}>
             <div style={{
               position: 'absolute',
               inset: '-4px',
-              background: 'conic-gradient(from 0deg at 50% 50%, #00ffff, #8a2be2, #00ffff)',
+              background: 'conic-gradient(from 0deg at 50% 50%, #00f0ff, #a78bfa, #00f0ff)',
               borderRadius: '32px',
               animation: 'rotate 20s linear infinite',
               zIndex: -1,
@@ -364,9 +437,9 @@ export default function CyberpunkHackathon() {
           {/* 24-Hour Timeline */}
           <div style={{ marginBottom: '8rem' }}>
             <h2 className="neon-title" style={{
-              fontSize: 'clamp(3rem, 7vw, 5rem)',
+              fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
               fontWeight: 900,
-              color: '#00ffff',
+              color: 'var(--neon-primary)',
               textAlign: 'center',
               marginBottom: '4rem',
               letterSpacing: '2px'
@@ -374,10 +447,12 @@ export default function CyberpunkHackathon() {
               24-HOUR DEPLOYMENT LOG
             </h2>
 
-            <div style={{
+            <div className="hack-grid" style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(380px, 1fr))',
-              gap: '2.5rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+              gap: 'clamp(2rem, 5vw, 3rem)',
+              width: '100%',
+              maxWidth: '100%'
             }}>
               {phases.map(phase => {
                 const isHovered = hoveredId === phase.id;
@@ -392,74 +467,75 @@ export default function CyberpunkHackathon() {
                     onClick={() => setActivePhase(phase.id - 1)}
                     style={{
                       color,
-                      cursor: 'pointer',
-                      padding: '2.2rem'
+                      cursor: 'pointer'
                     }}
                   >
-                    <div style={{
-                      width: '90px',
-                      height: '90px',
-                      border: `3px solid ${color}`,
-                      borderRadius: '20px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      margin: '0 auto 1.8rem',
-                      animation: isHovered ? 'float 3s ease-in-out infinite' : 'none',
-                      boxShadow: isHovered ? `0 0 50px ${color}80` : 'none'
-                    }}>
-                      <phase.icon size={44} />
-                    </div>
+                    <div className="card-padding" style={{ padding: 'clamp(1.8rem, 4vw, 2.4rem) clamp(1.6rem, 3.5vw, 2.2rem)' }}>
+                      <div style={{
+                        width: '90px',
+                        height: '90px',
+                        border: `3px solid ${color}`,
+                        borderRadius: '20px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        margin: '0 auto 1.8rem',
+                        animation: isHovered ? 'float 3s ease-in-out infinite' : 'none',
+                        boxShadow: isHovered ? `0 0 50px ${color}80` : 'none'
+                      }}>
+                        <phase.icon size={44} />
+                      </div>
 
-                    <div style={{
-                      fontSize: '1.4rem',
-                      fontWeight: 800,
-                      color: '#ffffff',
-                      textAlign: 'center',
-                      marginBottom: '1rem'
-                    }}>
-                      {phase.hour}
-                    </div>
+                      <div style={{
+                        fontSize: '1.4rem',
+                        fontWeight: 800,
+                        color: '#ffffff',
+                        textAlign: 'center',
+                        marginBottom: '1rem'
+                      }}>
+                        {phase.hour}
+                      </div>
 
-                    <h3 style={{
-                      fontSize: '1.8rem',
-                      fontWeight: 800,
-                      marginBottom: '1.2rem',
-                      textAlign: 'center'
-                    }}>
-                      {phase.title}
-                    </h3>
+                      <h3 style={{
+                        fontSize: 'clamp(1.6rem, 4.2vw, 1.9rem)',
+                        fontWeight: 800,
+                        marginBottom: '1.2rem',
+                        textAlign: 'center'
+                      }}>
+                        {phase.title}
+                      </h3>
 
-                    <p style={{
-                      fontSize: '1rem',
-                      color: '#b0b0d0',
-                      lineHeight: 1.7,
-                      textAlign: 'center',
-                      marginBottom: '2rem',
-                      fontFamily: "'Fira Code', monospace"
-                    }}>
-                      {phase.desc}
-                    </p>
+                      <p style={{
+                        fontSize: '1rem',
+                        color: '#b0b0d0',
+                        lineHeight: 1.7,
+                        textAlign: 'center',
+                        marginBottom: '2rem',
+                        fontFamily: "'Fira Code', monospace"
+                      }}>
+                        {phase.desc}
+                      </p>
 
-                    <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '1rem'
-                    }}>
-                      {phase.achievements.map((ach, idx) => (
-                        <div key={idx} style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1rem',
-                          padding: '1rem',
-                          background: 'rgba(0,0,0,0.55)',
-                          borderRadius: '14px',
-                          border: `1px solid ${color}30`
-                        }}>
-                          <CheckCircle2 size={20} style={{ color }} />
-                          {ach}
-                        </div>
-                      ))}
+                      <div style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '1rem'
+                      }}>
+                        {phase.achievements.map((ach, idx) => (
+                          <div key={idx} style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '1rem',
+                            padding: '1rem',
+                            background: 'rgba(0,0,0,0.55)',
+                            borderRadius: '14px',
+                            border: `1px solid ${color}30`
+                          }}>
+                            <CheckCircle2 size={20} style={{ color }} />
+                            {ach}
+                          </div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 );
@@ -472,7 +548,7 @@ export default function CyberpunkHackathon() {
             <h2 className="neon-title" style={{
               fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
               fontWeight: 900,
-              color: '#00ffff',
+              color: 'var(--neon-primary)',
               textAlign: 'center',
               marginBottom: '4rem'
             }}>
@@ -511,31 +587,38 @@ export default function CyberpunkHackathon() {
 
           {/* CTA */}
           <div style={{
-            padding: '4rem',
+            padding: 'clamp(3rem, 8vw, 4.5rem) 2rem',
             background: 'rgba(0,0,0,0.75)',
-            border: '2.5px solid rgba(0,255,255,0.3)',
+            border: '2.5px solid rgba(0,240,255,0.38)',
             borderRadius: '28px',
             textAlign: 'center'
           }}>
             <h2 style={{
-              fontSize: 'clamp(3rem, 7vw, 4.8rem)',
+              fontSize: 'clamp(2.8rem, 6vw, 4.5rem)',
               fontWeight: 900,
-              color: '#00ffff',
+              background: 'var(--neon-gradient)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
               marginBottom: '2.5rem',
-              textShadow: '0 0 40px #00ffff90'
+              textShadow: '0 0 40px rgba(0,240,255,0.7)'
             }}>
               READY FOR NEXT HACK?
             </h2>
 
-            <div style={{ display: 'flex', gap: '2.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <div className="cta-buttons" style={{ 
+              display: 'flex', 
+              gap: '2.5rem', 
+              justifyContent: 'center', 
+              flexWrap: 'wrap' 
+            }}>
               <button
                 onClick={() => setModalOpen(true)}
                 style={{
                   padding: '1.4rem 3.2rem',
-                  background: 'rgba(0,255,255,0.14)',
-                  border: '2.5px solid #00ffff80',
+                  background: 'rgba(0,240,255,0.14)',
+                  border: '2.5px solid rgba(0,240,255,0.7)',
                   borderRadius: '999px',
-                  color: '#00ffff',
+                  color: 'var(--neon-primary)',
                   fontWeight: 700,
                   fontSize: '1.25rem',
                   display: 'flex',
@@ -552,7 +635,7 @@ export default function CyberpunkHackathon() {
                 onClick={handleDownload}
                 style={{
                   padding: '1.4rem 3.2rem',
-                  background: 'linear-gradient(90deg, #00ffff, #8a2be2)',
+                  background: 'var(--neon-gradient)',
                   borderRadius: '999px',
                   color: '#000',
                   fontWeight: 900,
@@ -579,26 +662,27 @@ export default function CyberpunkHackathon() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.96)',
+            background: 'rgba(0,0,0,0.97)',
             backdropFilter: 'blur(16px)',
             zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '2rem'
+            padding: '1.5rem'
           }}
         >
           <div
             onClick={e => e.stopPropagation()}
+            className="modal-content"
             style={{
-              background: 'rgba(6,6,28,0.97)',
-              border: '4px solid #00ffffaa',
-              borderRadius: '32px',
+              background: 'rgba(6,6,28,0.98)',
+              border: `4px solid var(--neon-primary)aa`,
+              borderRadius: '28px',
               maxWidth: '1300px',
-              width: '94%',
+              width: '96%',
               maxHeight: '92vh',
               overflowY: 'auto',
-              boxShadow: '0 0 160px #00ffff70',
+              boxShadow: '0 0 160px rgba(0,240,255,0.7)',
               position: 'relative'
             }}
           >
@@ -606,8 +690,8 @@ export default function CyberpunkHackathon() {
               onClick={() => setModalOpen(false)}
               style={{
                 position: 'absolute',
-                top: '2rem',
-                right: '2.5rem',
+                top: '1.5rem',
+                right: '1.8rem',
                 background: 'none',
                 border: 'none',
                 color: '#ff6666',
@@ -615,17 +699,19 @@ export default function CyberpunkHackathon() {
                 zIndex: 10
               }}
             >
-              <X size={56} strokeWidth={2.8} />
+              <X size={48} strokeWidth={2.8} />
             </button>
 
-            <div style={{ padding: '5rem 4rem 6rem' }}>
+            <div style={{ padding: 'clamp(3rem, 7vw, 5rem) clamp(2rem, 6vw, 4rem) 6rem' }}>
               <h2 style={{
-                fontSize: 'clamp(3rem, 7vw, 5rem)',
+                fontSize: 'clamp(2.8rem, 7vw, 4.5rem)',
                 fontWeight: 900,
-                color: '#00ffff',
+                background: 'var(--neon-gradient)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
                 textAlign: 'center',
                 marginBottom: '4rem',
-                textShadow: '0 0 40px #00ffff90'
+                textShadow: '0 0 40px rgba(0,240,255,0.7)'
               }}>
                 24-HOUR FULL TIMELINE
               </h2>
@@ -633,7 +719,8 @@ export default function CyberpunkHackathon() {
               {phases.map(phase => (
                 <div key={phase.id} style={{
                   display: 'flex',
-                  gap: '3rem',
+                  flexDirection: 'column',
+                  gap: '2rem',
                   marginBottom: '3.5rem',
                   padding: '2.5rem',
                   background: 'rgba(0,0,0,0.55)',
@@ -641,19 +728,20 @@ export default function CyberpunkHackathon() {
                   border: `2px solid ${phase.color}40`
                 }}>
                   <div style={{
-                    width: '120px',
-                    height: '120px',
+                    width: '100px',
+                    height: '100px',
                     border: `3px solid ${phase.color}`,
-                    borderRadius: '24px',
+                    borderRadius: '20px',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
+                    margin: '0 auto',
                     flexShrink: 0
                   }}>
-                    <phase.icon size={52} style={{ color: phase.color }} />
+                    <phase.icon size={48} style={{ color: phase.color }} />
                   </div>
 
-                  <div style={{ flex: 1 }}>
+                  <div style={{ textAlign: 'center' }}>
                     <div style={{
                       fontSize: '1.5rem',
                       fontWeight: 800,
@@ -664,7 +752,7 @@ export default function CyberpunkHackathon() {
                     </div>
 
                     <h3 style={{
-                      fontSize: '2.2rem',
+                      fontSize: 'clamp(1.9rem, 5vw, 2.3rem)',
                       fontWeight: 800,
                       color: '#ffffff',
                       marginBottom: '1.5rem'
@@ -673,7 +761,7 @@ export default function CyberpunkHackathon() {
                     </h3>
 
                     <p style={{
-                      fontSize: '1.2rem',
+                      fontSize: 'clamp(1.1rem, 3vw, 1.3rem)',
                       color: '#d0d0ff',
                       lineHeight: 1.7,
                       marginBottom: '2rem'
@@ -683,8 +771,9 @@ export default function CyberpunkHackathon() {
 
                     <div style={{
                       display: 'grid',
-                      gridTemplateColumns: '1fr 1fr',
-                      gap: '1.2rem'
+                      gridTemplateColumns: '1fr',
+                      gap: '1.2rem',
+                      '@media (min-width: 768px)': { gridTemplateColumns: '1fr 1fr' }
                     }}>
                       {phase.achievements.map((ach, idx) => (
                         <div key={idx} style={{
