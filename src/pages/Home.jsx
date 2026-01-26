@@ -34,62 +34,91 @@ import {
 } from "lucide-react";
 
 export default function ModernPortfolio() {
+  // ──────────────────────────────────────────────────────────────
+  // STATE MANAGEMENT
+  // ──────────────────────────────────────────────────────────────
   const [scrollProgress, setScrollProgress] = useState(0);
   const [activeSection, setActiveSection] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [typedText, setTypedText] = useState("");
   const [skillProgress, setSkillProgress] = useState({});
-  const [visitorCount, setVisitorCount] = useState(1247);
   const [isVisible, setIsVisible] = useState({});
+  
+  // ──────────────────────────────────────────────────────────────
+  // REFS
+  // ──────────────────────────────────────────────────────────────
   const containerRef = useRef(null);
-  const statsRef = useRef(null);
 
-  const roles = ["AI Engineer", "Full-Stack Developer", "Cloud Architect", "ML Engineer"];
+  // ──────────────────────────────────────────────────────────────
+  // TYPING ANIMATION ROLES
+  // ──────────────────────────────────────────────────────────────
+  const roles = [
+    "AI Engineer",
+    "Full-Stack Developer",
+    "Cloud Architect",
+    "ML Engineer",
+    "System Designer"
+  ];
   const [roleIndex, setRoleIndex] = useState(0);
 
-  // Mouse parallax effect
+  // ──────────────────────────────────────────────────────────────
+  // MOUSE PARALLAX EFFECT
+  // ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth - 0.5) * 20,
-        y: (e.clientY / window.innerHeight - 0.5) * 20
-      });
+      const x = (e.clientX / window.innerWidth - 0.5) * 25;
+      const y = (e.clientY / window.innerHeight - 0.5) * 25;
+      setMousePosition({ x, y });
     };
+    
     window.addEventListener("mousemove", handleMouseMove);
     return () => window.removeEventListener("mousemove", handleMouseMove);
   }, []);
 
-  // Typing animation
+  // ──────────────────────────────────────────────────────────────
+  // TYPING ANIMATION
+  // ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const currentRole = roles[roleIndex];
     let index = 0;
-    const interval = setInterval(() => {
+    
+    const typingInterval = setInterval(() => {
       if (index <= currentRole.length) {
         setTypedText(currentRole.slice(0, index));
         index++;
       } else {
-        clearInterval(interval);
+        clearInterval(typingInterval);
         setTimeout(() => {
           setRoleIndex((prev) => (prev + 1) % roles.length);
-        }, 2000);
+        }, 2200);
       }
-    }, 100);
-    return () => clearInterval(interval);
+    }, 90);
+
+    return () => clearInterval(typingInterval);
   }, [roleIndex]);
 
-  // Scroll progress
+  // ──────────────────────────────────────────────────────────────
+  // SCROLL PROGRESS & ACTIVE SECTION
+  // ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY;
       const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress((scrolled / maxScroll) * 100);
-      setActiveSection(Math.floor(scrolled / 600));
+      const progress = (scrolled / maxScroll) * 100;
+      setScrollProgress(progress);
+      
+      // Update active section based on scroll position
+      setActiveSection(Math.floor(scrolled / 700));
     };
-    window.addEventListener("scroll", handleScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll(); // Initial call
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Intersection Observer for animations
+  // ──────────────────────────────────────────────────────────────
+  // INTERSECTION OBSERVER FOR ANIMATIONS
+  // ──────────────────────────────────────────────────────────────
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -100,7 +129,10 @@ export default function ModernPortfolio() {
           }));
         });
       },
-      { threshold: 0.1 }
+      { 
+        threshold: 0.15,
+        rootMargin: "0px 0px -100px 0px"
+      }
     );
 
     document.querySelectorAll("[data-observe]").forEach((el) => {
@@ -110,43 +142,50 @@ export default function ModernPortfolio() {
     return () => observer.disconnect();
   }, []);
 
-  // Skill progress animation
+  // ──────────────────────────────────────────────────────────────
+  // SKILL PROGRESS ANIMATION
+  // ──────────────────────────────────────────────────────────────
   useEffect(() => {
     if (isVisible.skills) {
-      skills.forEach((skill) => {
+      skills.forEach((skill, index) => {
         setTimeout(() => {
-          setSkillProgress((prev) => ({ ...prev, [skill.name]: skill.level }));
-        }, 100);
+          setSkillProgress((prev) => ({
+            ...prev,
+            [skill.name]: skill.level
+          }));
+        }, 300 + index * 150);
       });
     }
   }, [isVisible.skills]);
 
+  // ──────────────────────────────────────────────────────────────
+  // DATA
+  // ──────────────────────────────────────────────────────────────
   const techStack = [
-    { name: "TensorFlow", icon: Brain, color: "#FF6F00", desc: "Deep Learning & Model Training" },
-    { name: "PyTorch", icon: Cpu, color: "#EE4C2C", desc: "Neural Networks & Research" },
-    { name: "React", icon: Code, color: "#61DAFB", desc: "Modern Frontend" },
-    { name: "Node.js", icon: Server, color: "#339933", desc: "Backend APIs" },
-    { name: "MongoDB", icon: Database, color: "#47A248", desc: "NoSQL Database" },
-    { name: "AWS", icon: Cloud, color: "#FF9900", desc: "Cloud Infrastructure" },
-    { name: "Docker", icon: Layers, color: "#2496ED", desc: "Containerization" },
-    { name: "Kubernetes", icon: Zap, color: "#326CE5", desc: "Orchestration" },
+    { name: "TensorFlow",     icon: Brain,     color: "#FF6F00", desc: "Deep Learning & Model Training" },
+    { name: "PyTorch",        icon: Cpu,       color: "#EE4C2C", desc: "Neural Networks & Research" },
+    { name: "React",          icon: Code,      color: "#61DAFB", desc: "Modern Frontend" },
+    { name: "Node.js",        icon: Server,    color: "#339933", desc: "Backend APIs" },
+    { name: "MongoDB",        icon: Database,  color: "#47A248", desc: "NoSQL Database" },
+    { name: "AWS",            icon: Cloud,     color: "#FF9900", desc: "Cloud Infrastructure" },
+    { name: "Docker",         icon: Layers,    color: "#2496ED", desc: "Containerization" },
+    { name: "Kubernetes",     icon: Zap,       color: "#326CE5", desc: "Orchestration" },
   ];
 
- const skills = [
-  { name: "Artificial Intelligence & Machine Learning", level: 95, color: "#FF6F00" },
-  { name: "Full-Stack Web Development (MERN)", level: 93, color: "#61DAFB" },
-  { name: "Deep Learning & Computer Vision", level: 90, color: "#8b5cf6" },
-  { name: "Cloud Computing & Deployment", level: 88, color: "#FF9900" },
-  { name: "DevOps, CI/CD & Automation", level: 85, color: "#2496ED" },
-  { name: "Data Structures & Algorithms", level: 89, color: "#22c55e" },
-];
-
+  const skills = [
+    { name: "Artificial Intelligence & Machine Learning", level: 95, color: "#FF6F00" },
+    { name: "Full-Stack Web Development (MERN)",          level: 93, color: "#61DAFB" },
+    { name: "Deep Learning & Computer Vision",            level: 90, color: "#8b5cf6" },
+    { name: "Cloud Computing & Deployment",               level: 88, color: "#FF9900" },
+    { name: "DevOps, CI/CD & Automation",                 level: 85, color: "#2496ED" },
+    { name: "Data Structures & Algorithms",               level: 89, color: "#22c55e" },
+  ];
 
   const stats = [
-    { label: "Projects Completed", value: "10+", icon: Briefcase, color: "#00ffff" },
-    { label: "Certifications", value: "15+", icon: Award, color: "#8a2be2" },
-    { label: "Tech Stack", value: "20+", icon: Code, color: "#00ffff" },
-    { label: "Success Rate", value: "100%", icon: Target, color: "#8a2be2" },
+    { label: "Projects Completed", value: "10+",  icon: Briefcase,  color: "#00ffff" },
+    { label: "Certifications",     value: "15+",  icon: Award,      color: "#8a2be2" },
+    { label: "Tech Stack",         value: "20+",  icon: Code,       color: "#00ffff" },
+    { label: "Success Rate",       value: "100%", icon: Target,     color: "#8a2be2" },
   ];
 
   const achievements = [
@@ -176,12 +215,22 @@ export default function ModernPortfolio() {
     }
   ];
 
+  // ──────────────────────────────────────────────────────────────
+  // RENDER
+  // ──────────────────────────────────────────────────────────────
   return (
     <>
+      {/* ────────────────────────────────────────────────────────────── */}
+      {/* GLOBAL STYLES - CYBERPUNK NEON AESTHETIC */}
+      {/* ────────────────────────────────────────────────────────────── */}
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
         
         body {
           font-family: 'Outfit', sans-serif;
@@ -191,12 +240,12 @@ export default function ModernPortfolio() {
         }
 
         @keyframes fadeSlide {
-          from { opacity: 0; transform: translateX(-40px); }
+          from { opacity: 0; transform: translateX(-50px); }
           to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes fadeUp {
-          from { opacity: 0; transform: translateY(40px); }
+          from { opacity: 0; transform: translateY(60px); }
           to { opacity: 1; transform: translateY(0); }
         }
 
@@ -207,22 +256,22 @@ export default function ModernPortfolio() {
 
         @keyframes pulse {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.5; }
+          50% { opacity: 0.6; }
         }
 
         @keyframes scan {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
+          0% { transform: translateY(-120%); }
+          100% { transform: translateY(120%); }
         }
 
         @keyframes float {
           0%, 100% { transform: translateY(0) rotate(0deg); }
-          50% { transform: translateY(-12px) rotate(3deg); }
+          50% { transform: translateY(-14px) rotate(4deg); }
         }
 
         @keyframes glow {
           0%, 100% { box-shadow: 0 0 20px currentColor; }
-          50% { box-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
+          50% { box-shadow: 0 0 50px currentColor, 0 0 80px currentColor; }
         }
 
         @keyframes typing {
@@ -235,72 +284,64 @@ export default function ModernPortfolio() {
         }
 
         @keyframes shimmer {
-          0% { background-position: -1000px 0; }
-          100% { background-position: 1000px 0; }
+          0% { background-position: -1200px 0; }
+          100% { background-position: 1200px 0; }
         }
 
         @keyframes slideIn {
-          from { transform: translateX(-100%); opacity: 0; }
+          from { transform: translateX(-120%); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
         }
 
-        @keyframes countUp {
-          from { opacity: 0; transform: scale(0.5); }
-          to { opacity: 1; transform: scale(1); }
-        }
-
         .fade-in {
-          animation: fadeSlide 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          animation: fadeSlide 1.2s cubic-bezier(0.22, 1, 0.36, 1) forwards;
           opacity: 0;
         }
 
         .fade-up {
-          animation: fadeUp 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+          animation: fadeUp 1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
           opacity: 0;
         }
 
-        .d1 { animation-delay: 0.1s; }
-        .d2 { animation-delay: 0.2s; }
-        .d3 { animation-delay: 0.3s; }
-        .d4 { animation-delay: 0.4s; }
-        .d5 { animation-delay: 0.5s; }
-        .d6 { animation-delay: 0.6s; }
+        .d1 { animation-delay: 0.15s; }
+        .d2 { animation-delay: 0.3s;  }
+        .d3 { animation-delay: 0.45s; }
+        .d4 { animation-delay: 0.6s;  }
+        .d5 { animation-delay: 0.75s; }
+        .d6 { animation-delay: 0.9s;  }
 
         .neon-text {
           text-shadow: 
-            0 0 10px rgba(0, 255, 255, 0.7),
-            0 0 20px rgba(0, 255, 255, 0.5),
-            0 0 40px rgba(0, 255, 255, 0.3);
+            0 0 15px rgba(0, 255, 255, 0.8),
+            0 0 30px rgba(0, 255, 255, 0.6),
+            0 0 60px rgba(0, 255, 255, 0.4);
         }
 
         .hologram-card {
-          background: linear-gradient(145deg, rgba(0,255,255,0.05) 0%, rgba(138,43,226,0.05) 100%);
-          border: 1px solid rgba(0,255,255,0.2);
+          background: linear-gradient(145deg, rgba(0,255,255,0.06) 0%, rgba(138,43,226,0.06) 100%);
+          border: 1.5px solid rgba(0,255,255,0.25);
           position: relative;
           overflow: hidden;
-          transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+          transition: all 0.5s cubic-bezier(0.23,1,0.32,1);
+          backdrop-filter: blur(8px);
         }
 
         .hologram-card:hover {
-          transform: translateY(-10px) scale(1.02);
-          border-color: rgba(0,255,255,0.5);
-          box-shadow: 0 20px 60px rgba(0,255,255,0.3);
+          transform: translateY(-12px) scale(1.03);
+          border-color: rgba(0,255,255,0.6);
+          box-shadow: 0 25px 70px rgba(0,255,255,0.35);
         }
 
         .hologram-card::before {
           content: '';
           position: absolute;
-          top: -50%;
-          left: -50%;
-          width: 200%;
-          height: 200%;
-          background: linear-gradient(
-            45deg,
-            transparent 30%,
-            rgba(0,255,255,0.1) 50%,
-            transparent 70%
-          );
-          animation: scan 3s linear infinite;
+          top: -60%;
+          left: -60%;
+          width: 220%;
+          height: 220%;
+          background: linear-gradient(45deg, transparent 35%, rgba(0,255,255,0.12) 50%, transparent 65%);
+          animation: scan 4s linear infinite;
+          pointer-events: none;
         }
 
         .cyber-btn {
@@ -308,12 +349,12 @@ export default function ModernPortfolio() {
           background: linear-gradient(135deg, #00ffff, #8a2be2);
           border: none;
           color: #000;
-          font-weight: 700;
+          font-weight: 800;
           cursor: pointer;
-          clip-path: polygon(10% 0%, 100% 0%, 90% 100%, 0% 100%);
-          transition: all 0.3s;
+          clip-path: polygon(12% 0%, 100% 0%, 88% 100%, 0% 100%);
+          transition: all 0.4s;
           text-transform: uppercase;
-          letter-spacing: 1px;
+          letter-spacing: 1.5px;
           overflow: hidden;
         }
 
@@ -321,124 +362,125 @@ export default function ModernPortfolio() {
           content: '';
           position: absolute;
           top: 0;
-          left: -100%;
-          width: 100%;
+          left: -120%;
+          width: 120%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-          transition: left 0.5s;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transition: left 0.6s;
         }
 
         .cyber-btn:hover::before {
-          left: 100%;
+          left: 120%;
         }
 
         .cyber-btn:hover {
-          transform: scale(1.05) translateY(-2px);
-          box-shadow: 0 10px 40px rgba(0,255,255,0.6);
+          transform: scale(1.06) translateY(-3px);
+          box-shadow: 0 15px 50px rgba(0,255,255,0.7);
         }
 
         .grid-bg {
           background-image: 
-            linear-gradient(rgba(0,255,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,255,255,0.1) 1px, transparent 1px);
-          background-size: 50px 50px;
-          animation: gridMove 20s linear infinite;
+            linear-gradient(rgba(0,255,255,0.12) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,255,255,0.12) 1px, transparent 1px);
+          background-size: 60px 60px;
+          animation: gridMove 25s linear infinite;
         }
 
         @keyframes gridMove {
           0% { background-position: 0 0; }
-          100% { background-position: 50px 50px; }
+          100% { background-position: 60px 60px; }
         }
 
         .tech-tag {
-          background: rgba(0,0,0,0.6);
-          border: 1px solid currentColor;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-size: 0.85rem;
+          background: rgba(0,0,0,0.65);
+          border: 1.5px solid currentColor;
+          padding: 1.2rem 1.2rem;
+          border-radius: 22px;
+          font-size: 0.9rem;
           font-family: 'Fira Code', monospace;
-          transition: all 0.3s;
+          transition: all 0.4s;
           position: relative;
           overflow: hidden;
+          backdrop-filter: blur(6px);
         }
 
         .tech-tag::before {
           content: '';
           position: absolute;
           top: 0;
-          left: -100%;
-          width: 100%;
+          left: -120%;
+          width: 120%;
           height: 100%;
-          background: linear-gradient(90deg, transparent, currentColor, transparent);
-          opacity: 0.1;
-          transition: left 0.5s;
+          background: linear-gradient(90deg, transparent, currentColor 50%, transparent);
+          opacity: 0.15;
+          transition: left 0.6s;
         }
 
         .tech-tag:hover::before {
-          left: 100%;
+          left: 120%;
         }
 
         .tech-tag:hover {
-          transform: translateY(-5px) scale(1.05);
-          box-shadow: 0 10px 30px currentColor;
-          border-width: 2px;
+          transform: translateY(-6px) scale(1.07);
+          box-shadow: 0 15px 40px currentColor;
+          border-width: 2.5px;
         }
 
         .tech-orbit {
           position: absolute;
-          width: 64px;
-          height: 64px;
-          background: rgba(0,0,0,0.65);
-          border: 2.5px solid;
+          width: 70px;
+          height: 70px;
+          background: rgba(0,0,0,0.7);
+          border: 3px solid;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
-          backdrop-filter: blur(10px);
-          box-shadow: 0 0 25px currentColor;
-          animation: float 7s ease-in-out infinite;
+          backdrop-filter: blur(12px);
+          box-shadow: 0 0 30px currentColor;
+          animation: float 8s ease-in-out infinite;
           z-index: 2;
-          transition: all 0.4s;
+          transition: all 0.5s;
         }
 
         .tech-orbit:hover {
-          transform: scale(1.35) !important;
-          box-shadow: 0 0 50px currentColor !important;
-          animation: glow 1.5s ease-in-out infinite;
+          transform: scale(1.4) !important;
+          box-shadow: 0 0 60px currentColor !important;
+          animation: glow 1.8s ease-in-out infinite;
         }
 
         .ready-badge {
           position: absolute;
-          top: -25px;
+          top: -28px;
           left: 50%;
           transform: translateX(-50%);
           background: linear-gradient(135deg, #00ffff, #8a2be2);
           color: #000;
           font-weight: 900;
-          font-size: 1.2rem;
-          padding: 0.7rem 1.6rem;
-          border-radius: 40px;
-          box-shadow: 0 0 35px rgba(0,255,255,0.8);
-          border: 2.5px solid #fff;
-          letter-spacing: 2px;
+          font-size: 1.3rem;
+          padding: 0.8rem 1.8rem;
+          border-radius: 50px;
+          box-shadow: 0 0 40px rgba(0,255,255,0.85);
+          border: 3px solid #fff;
+          letter-spacing: 2.5px;
           z-index: 10;
-          animation: pulse 2s infinite;
+          animation: pulse 2.2s infinite;
           white-space: nowrap;
         }
 
         .skill-bar {
-          height: 8px;
-          background: rgba(0,255,255,0.1);
-          border-radius: 10px;
+          height: 10px;
+          background: rgba(0,255,255,0.12);
+          border-radius: 12px;
           overflow: hidden;
           position: relative;
         }
 
         .skill-fill {
           height: 100%;
-          background: linear-gradient(90deg, currentColor, rgba(138,43,226,0.8));
-          border-radius: 10px;
-          transition: width 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+          background: linear-gradient(90deg, currentColor, rgba(138,43,226,0.85));
+          border-radius: 12px;
+          transition: width 1.8s cubic-bezier(0.22, 1, 0.36, 1);
           position: relative;
           overflow: hidden;
         }
@@ -446,23 +488,21 @@ export default function ModernPortfolio() {
         .skill-fill::after {
           content: '';
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-          animation: shimmer 2s infinite;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.35), transparent);
+          animation: shimmer 2.5s infinite;
         }
 
         .stat-card {
-          background: linear-gradient(145deg, rgba(0,0,0,0.8), rgba(0,255,255,0.05));
-          border: 2px solid;
-          border-radius: 20px;
-          padding: 2rem;
+          background: linear-gradient(145deg, rgba(0,0,0,0.85), rgba(0,255,255,0.06));
+          border: 2.5px solid;
+          border-radius: 24px;
+          padding: 2.2rem;
           text-align: center;
-          transition: all 0.4s;
+          transition: all 0.5s;
           position: relative;
           overflow: hidden;
+          backdrop-filter: blur(8px);
         }
 
         .stat-card::before {
@@ -474,157 +514,163 @@ export default function ModernPortfolio() {
           height: 0;
           border-radius: 50%;
           background: currentColor;
-          opacity: 0.1;
+          opacity: 0.12;
           transform: translate(-50%, -50%);
-          transition: width 0.4s, height 0.4s;
+          transition: width 0.6s, height 0.6s;
         }
 
         .stat-card:hover::before {
-          width: 300px;
-          height: 300px;
+          width: 350px;
+          height: 350px;
         }
 
         .stat-card:hover {
-          transform: translateY(-10px) scale(1.05);
-          box-shadow: 0 20px 60px currentColor;
+          transform: translateY(-12px) scale(1.06);
+          box-shadow: 0 25px 70px currentColor;
         }
 
         .typing-cursor {
           display: inline-block;
-          width: 3px;
-          height: 1.2em;
-          background: #00ffff;
-          margin-left: 5px;
-          animation: blink 1s step-end infinite;
-        }
-
-        .particle {
-          position: absolute;
           width: 4px;
-          height: 4px;
+          height: 1.3em;
           background: #00ffff;
-          border-radius: 50%;
-          pointer-events: none;
-          animation: particleFloat 3s ease-out forwards;
-        }
-
-        @keyframes particleFloat {
-          0% { transform: translateY(0) scale(1); opacity: 1; }
-          100% { transform: translateY(-100px) scale(0); opacity: 0; }
+          margin-left: 6px;
+          animation: blink 1.1s step-end infinite;
         }
 
         .hire-badge {
           color: #00ffff;
           text-decoration: none;
-          font-weight: 700;
-          transition: all 0.3s;
+          font-weight: 800;
+          transition: all 0.4s;
+          letter-spacing: 1px;
         }
 
         .hire-badge:hover {
           color: #ffffff;
-          text-shadow: 0 0 15px #00ffff;
+          text-shadow: 0 0 20px #00ffff;
+        }
+
+        @media (max-width: 1024px) {
+          .hero-layout { flex-direction: column !important; gap: 5rem !important; }
+          .tech-grid { grid-template-columns: repeat(3, 1fr) !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .profile-container { width: 360px !important; height: 440px !important; }
+          .tech-orbit { width: 60px !important; height: 60px !important; }
+          .ready-badge { font-size: 1.1rem !important; padding: 0.7rem 1.4rem !important; top: -24px !important; }
         }
 
         @media (max-width: 768px) {
-          .hero-layout { flex-direction: column !important; }
+          .hero-layout { padding-top: 2rem !important; }
           .tech-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; }
+          .stats-grid { grid-template-columns: repeat(2, 1fr) !important; gap: 1.5rem !important; }
           .profile-container { width: 320px !important; height: 400px !important; }
           .tech-orbit { width: 54px !important; height: 54px !important; }
-          .ready-badge { font-size: 1rem !important; padding: 0.6rem 1.2rem !important; top: -20px !important; }
+          h1 { font-size: 4rem !important; }
+          h2 { font-size: 2.5rem !important; }
         }
       `}</style>
 
-      <div style={{ background: "#000000", minHeight: "100vh", position: "relative" }}>
+      {/* ────────────────────────────────────────────────────────────── */}
+      {/* MAIN CONTAINER */}
+      {/* ────────────────────────────────────────────────────────────── */}
+      <div style={{
+        background: "#000000",
+        minHeight: "100vh",
+        position: "relative",
+        overflow: "hidden"
+      }}>
         {/* Progress Bar */}
         <div style={{
           position: "fixed",
           top: 0,
           left: 0,
           width: `${scrollProgress}%`,
-          height: "4px",
-          background: "linear-gradient(90deg, #00ffff, #8a2be2)",
+          height: "5px",
+          background: "linear-gradient(90deg, #00ffff, #8a2be2, #00ffff)",
           zIndex: 1000,
-          transition: "width 0.1s",
-          boxShadow: "0 0 20px rgba(0,255,255,0.8)"
+          transition: "width 0.15s",
+          boxShadow: "0 0 25px rgba(0,255,255,0.9)"
         }} />
-
-        {/* Visitor Counter */}
-        <div style={{
-          position: "fixed",
-          top: "20px",
-          right: "20px",
-          background: "rgba(0,0,0,0.8)",
-          border: "2px solid #00ffff",
-          borderRadius: "10px",
-          padding: "0.75rem 1.5rem",
-          zIndex: 1000,
-          display: "flex",
-          alignItems: "center",
-          gap: "0.5rem",
-          backdropFilter: "blur(10px)"
-        }}>
-          <Eye size={18} style={{ color: "#00ffff" }} />
-          <span style={{ fontFamily: "'Fira Code', monospace", color: "#00ffff", fontSize: "0.9rem" }}>
-            {visitorCount.toLocaleString()} views
-          </span>
-        </div>
 
         {/* Grid Background */}
         <div className="grid-bg" style={{
           position: "fixed",
           inset: 0,
-          opacity: 0.3,
-          pointerEvents: "none"
+          opacity: 0.35,
+          pointerEvents: "none",
+          zIndex: 1
         }} />
 
-        {/* Animated Background Elements */}
+        {/* Animated Background Orbs */}
         <div style={{
           position: "fixed",
-          top: "50%",
-          right: "-10%",
-          width: "800px",
-          height: "800px",
-          border: "2px solid rgba(0,255,255,0.1)",
+          top: "40%",
+          right: "-15%",
+          width: "900px",
+          height: "900px",
+          border: "3px solid rgba(0,255,255,0.12)",
           borderRadius: "50%",
-          animation: "rotate 30s linear infinite",
+          animation: "rotate 35s linear infinite",
           pointerEvents: "none",
-          transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`
+          transform: `translate(${mousePosition.x * 1.2}px, ${mousePosition.y * 1.2}px)`,
+          opacity: 0.6
         }} />
 
         <div style={{
           position: "fixed",
-          bottom: "-10%",
-          left: "-10%",
-          width: "600px",
-          height: "600px",
-          border: "2px solid rgba(138,43,226,0.1)",
+          bottom: "-15%",
+          left: "-15%",
+          width: "700px",
+          height: "700px",
+          border: "3px solid rgba(138,43,226,0.12)",
           borderRadius: "50%",
-          animation: "rotate 40s linear infinite reverse",
+          animation: "rotate 45s linear infinite reverse",
           pointerEvents: "none",
-          transform: `translate(${-mousePosition.x}px, ${-mousePosition.y}px)`
+          transform: `translate(${-mousePosition.x * 1.1}px, ${-mousePosition.y * 1.1}px)`,
+          opacity: 0.5
         }} />
 
-        <div ref={containerRef} style={{ maxWidth: "1300px", margin: "0 auto", padding: "0 2rem", position: "relative", zIndex: 10 }}>
-          {/* Hero Section */}
-          <section style={{ minHeight: "100vh", display: "flex", alignItems: "center", paddingTop: "4rem" }}>
-            <div className="hero-layout" style={{ display: "flex", gap: "4rem", alignItems: "center", width: "100%" }}>
+        {/* ────────────────────────────────────────────────────────────── */}
+        {/* CONTENT WRAPPER */}
+        {/* ────────────────────────────────────────────────────────────── */}
+        <div ref={containerRef} style={{
+          maxWidth: "1380px",
+          margin: "0 auto",
+          padding: "0 3rem",
+          position: "relative",
+          zIndex: 10
+        }}>
+          {/* ────────────────────── HERO SECTION ────────────────────── */}
+          <section style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            paddingTop: "5rem"
+          }}>
+            <div className="hero-layout" style={{
+              display: "flex",
+              gap: "5rem",
+              alignItems: "center",
+              width: "100%"
+            }}>
+              {/* Left - Text Content */}
               <div style={{ flex: 1 }}>
                 <div className="fade-in d1" style={{
                   fontFamily: "'Fira Code', monospace",
                   color: "#00ffff",
-                  fontSize: "1rem",
-                  marginBottom: "1rem",
-                  opacity: 0.8
+                  fontSize: "1.1rem",
+                  marginBottom: "1.5rem",
+                  opacity: 0.85
                 }}>
-                  {'>'} System.initialize()
+                  {'>'} boot_sequence.initiated()
                 </div>
 
                 <h1 className="fade-in d2 neon-text" style={{
-                  fontSize: "clamp(3rem, 7vw, 5.5rem)",
+                  fontSize: "clamp(3.5rem, 8vw, 6.2rem)",
                   fontWeight: 900,
-                  lineHeight: 1.1,
-                  marginBottom: "1rem",
+                  lineHeight: 1.05,
+                  marginBottom: "1.5rem",
                   background: "linear-gradient(135deg, #00ffff 0%, #8a2be2 100%)",
                   WebkitBackgroundClip: "text",
                   backgroundClip: "text",
@@ -633,84 +679,93 @@ export default function ModernPortfolio() {
                   SIVA SATYA SAI<br />BHAGAVAN
                 </h1>
 
-                <div
-                  className="fade-in d3"
-                  style={{
-                    fontSize: "clamp(1.2rem, 3vw, 1.8rem)",
-                    fontWeight: 600,
-                    marginBottom: "2rem",
-                    fontFamily: "'Fira Code', monospace",
-                    letterSpacing: "0.12em",
-                    color: "#00ffff",
-                    minHeight: "2.5rem"
-                  }}
-                >
+                <div className="fade-in d3" style={{
+                  fontSize: "clamp(1.4rem, 3.5vw, 2rem)",
+                  fontWeight: 600,
+                  marginBottom: "2.5rem",
+                  fontFamily: "'Fira Code', monospace",
+                  letterSpacing: "0.15em",
+                  color: "#00ffff",
+                  minHeight: "3rem"
+                }}>
                   [ {typedText}<span className="typing-cursor" /> ]
                 </div>
 
                 <p className="fade-in d4" style={{
-                  fontSize: "1.2rem",
-                  lineHeight: 1.8,
-                  color: "#a0a0a0",
-                  maxWidth: "600px",
-                  marginBottom: "3rem"
+                  fontSize: "1.3rem",
+                  lineHeight: 1.9,
+                  color: "#b0b0b0",
+                  maxWidth: "620px",
+                  marginBottom: "3.5rem"
                 }}>
-                  Engineering the future with intelligent systems. Specialized in building
-                  production-grade AI/ML pipelines, scalable cloud architectures, and seamless
-                  full-stack experiences that drive real business impact.
+                  Crafting intelligent systems and scalable architectures. 
+                  Specialized in production-grade AI/ML pipelines, cloud-native 
+                  applications, and high-performance full-stack solutions.
                 </p>
 
-                <div className="fade-in d5" style={{ display: "flex", gap: "1.5rem", marginBottom: "3rem", flexWrap: "wrap" }}>
+                <div className="fade-in d5" style={{
+                  display: "flex",
+                  gap: "1.8rem",
+                  marginBottom: "3.5rem",
+                  flexWrap: "wrap"
+                }}>
                   <Link 
                     to="/projects" 
                     className="cyber-btn" 
                     style={{
-                      padding: "1.2rem 3rem",
-                      fontSize: "1rem",
+                      padding: "1.3rem 3.5rem",
+                      fontSize: "1.1rem",
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: "0.6rem"
+                      gap: "0.8rem"
                     }}
                   >
-                    <Terminal size={20} />
-                    View Projects
+                    <Terminal size={22} />
+                    Explore Projects
                   </Link>
 
                   <a 
                     href={resumePdf} 
                     download="Bhagavan_Resume.pdf"
                     style={{
-                      padding: "1.2rem 3rem",
+                      padding: "1.3rem 3.5rem",
                       background: "transparent",
-                      border: "2px solid #00ffff",
+                      border: "2.5px solid #00ffff",
                       color: "#00ffff",
-                      fontWeight: 600,
+                      fontWeight: 700,
                       cursor: "pointer",
-                      transition: "all 0.3s",
-                      fontSize: "1rem",
+                      transition: "all 0.4s",
+                      fontSize: "1.1rem",
                       textDecoration: "none",
                       display: "inline-flex",
                       alignItems: "center",
-                      gap: "0.6rem",
+                      gap: "0.8rem",
                       position: "relative",
-                      overflow: "hidden"
+                      overflow: "hidden",
+                      borderRadius: "6px"
                     }}
                     onMouseEnter={(e) => {
                       e.currentTarget.style.background = "#00ffff";
                       e.currentTarget.style.color = "#000";
+                      e.currentTarget.style.transform = "translateY(-4px)";
                     }}
                     onMouseLeave={(e) => {
                       e.currentTarget.style.background = "transparent";
                       e.currentTarget.style.color = "#00ffff";
+                      e.currentTarget.style.transform = "translateY(0)";
                     }}
                   >
-                    <Download size={20} />
-                    Get Résumé
+                    <Download size={22} />
+                    Download Résumé
                   </a>
                 </div>
 
-                <div className="fade-in d6" style={{ display: "flex", gap: "1rem", flexWrap: "wrap" }}>
+                <div className="fade-in d6" style={{
+                  display: "flex",
+                  gap: "1.5rem",
+                  flexWrap: "wrap"
+                }}>
                   {[
                     { icon: Github, href: "https://github.com/bhagavan444", color: "#ffffff" },
                     { icon: Linkedin, href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", color: "#00ffff" },
@@ -726,100 +781,112 @@ export default function ModernPortfolio() {
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
-                        width: "50px",
-                        height: "50px",
-                        background: "rgba(0,0,0,0.5)",
-                        border: `2px solid ${link.color}`,
+                        width: "55px",
+                        height: "55px",
+                        background: "rgba(0,0,0,0.55)",
+                        border: `2.5px solid ${link.color}`,
                         borderRadius: "50%",
                         color: link.color,
-                        transition: "all 0.3s",
+                        transition: "all 0.4s",
                         textDecoration: "none"
                       }}
                       onMouseEnter={(e) => {
-                        e.currentTarget.style.transform = "scale(1.2) translateY(-5px)";
-                        e.currentTarget.style.boxShadow = `0 10px 30px ${link.color}`;
+                        e.currentTarget.style.transform = "scale(1.25) translateY(-6px)";
+                        e.currentTarget.style.boxShadow = `0 12px 35px ${link.color}`;
                       }}
                       onMouseLeave={(e) => {
                         e.currentTarget.style.transform = "scale(1) translateY(0)";
                         e.currentTarget.style.boxShadow = "none";
                       }}
                     >
-                      <link.icon size={22} />
+                      <link.icon size={24} />
                     </a>
                   ))}
                 </div>
               </div>
 
-              {/* Animated Profile */}
-              <div className="fade-in d4" style={{ flex: 1, maxWidth: "450px", display: "flex", justifyContent: "center" }}>
-                <div className="profile-container" style={{ position: "relative", width: "400px", height: "480px" }}>
+              {/* Right - Animated Profile */}
+              <div className="fade-in d4" style={{
+                flex: 1,
+                maxWidth: "480px",
+                display: "flex",
+                justifyContent: "center"
+              }}>
+                <div className="profile-container" style={{
+                  position: "relative",
+                  width: "420px",
+                  height: "500px"
+                }}>
                   <div className="ready-badge">2026 READY</div>
 
+                  {/* Rotating Borders */}
                   <div style={{
                     position: "absolute",
-                    inset: "-20px",
-                    border: "3px solid transparent",
+                    inset: "-25px",
+                    border: "3.5px solid transparent",
                     borderTopColor: "#00ffff",
                     borderRightColor: "#00ffff",
-                    borderRadius: "20px",
-                    animation: "rotate 4s linear infinite",
-                    opacity: 0.6
+                    borderRadius: "24px",
+                    animation: "rotate 4.5s linear infinite",
+                    opacity: 0.65
                   }} />
 
                   <div style={{
                     position: "absolute",
-                    inset: "-35px",
-                    border: "2px solid transparent",
+                    inset: "-40px",
+                    border: "2.5px solid transparent",
                     borderBottomColor: "#8a2be2",
                     borderLeftColor: "#8a2be2",
-                    borderRadius: "25px",
-                    animation: "rotate 6s linear infinite reverse",
-                    opacity: 0.5
+                    borderRadius: "28px",
+                    animation: "rotate 7s linear infinite reverse",
+                    opacity: 0.55
                   }} />
 
                   <div style={{
                     position: "absolute",
-                    inset: "-50px",
-                    border: "2px solid transparent",
+                    inset: "-55px",
+                    border: "2.5px solid transparent",
                     borderTopColor: "#00ffff",
-                    borderRadius: "30px",
-                    animation: "rotate 8s linear infinite",
-                    opacity: 0.3
+                    borderRadius: "34px",
+                    animation: "rotate 9s linear infinite",
+                    opacity: 0.35
                   }} />
 
+                  {/* Corner Glows */}
                   {[
-                    { top: "-10px", left: "-10px", borderTop: true, borderLeft: true, color: "#00ffff" },
-                    { top: "-10px", right: "-10px", borderTop: true, borderRight: true, color: "#8a2be2", delay: "0.5s" },
-                    { bottom: "-10px", left: "-10px", borderBottom: true, borderLeft: true, color: "#00ffff", delay: "1s" },
-                    { bottom: "-10px", right: "-10px", borderBottom: true, borderRight: true, color: "#8a2be2", delay: "1.5s" }
+                    { top: "-12px", left: "-12px", borderTop: true, borderLeft: true, color: "#00ffff" },
+                    { top: "-12px", right: "-12px", borderTop: true, borderRight: true, color: "#8a2be2", delay: "0.6s" },
+                    { bottom: "-12px", left: "-12px", borderBottom: true, borderLeft: true, color: "#00ffff", delay: "1.2s" },
+                    { bottom: "-12px", right: "-12px", borderBottom: true, borderRight: true, color: "#8a2be2", delay: "1.8s" }
                   ].map((corner, i) => (
                     <div key={i} style={{
                       position: "absolute",
                       ...Object.fromEntries(Object.entries(corner).filter(([k]) => ['top', 'right', 'bottom', 'left'].includes(k))),
-                      width: "30px",
-                      height: "30px",
-                      ...(corner.borderTop && { borderTop: `3px solid ${corner.color}` }),
-                      ...(corner.borderRight && { borderRight: `3px solid ${corner.color}` }),
-                      ...(corner.borderBottom && { borderBottom: `3px solid ${corner.color}` }),
-                      ...(corner.borderLeft && { borderLeft: `3px solid ${corner.color}` }),
-                      animation: "pulse 2s ease-in-out infinite",
+                      width: "36px",
+                      height: "36px",
+                      ...(corner.borderTop && { borderTop: `3.5px solid ${corner.color}` }),
+                      ...(corner.borderRight && { borderRight: `3.5px solid ${corner.color}` }),
+                      ...(corner.borderBottom && { borderBottom: `3.5px solid ${corner.color}` }),
+                      ...(corner.borderLeft && { borderLeft: `3.5px solid ${corner.color}` }),
+                      animation: "pulse 2.2s ease-in-out infinite",
                       animationDelay: corner.delay || "0s"
                     }} />
                   ))}
 
+                  {/* Profile Image Container */}
                   <div style={{
                     position: "relative",
                     width: "100%",
                     height: "100%",
-                    borderRadius: "20px",
+                    borderRadius: "24px",
                     overflow: "hidden",
-                    border: "4px solid rgba(0,255,255,0.4)",
+                    border: "4.5px solid rgba(0,255,255,0.45)",
                     boxShadow: `
-                      0 0 40px rgba(0,255,255,0.5),
-                      0 0 80px rgba(138,43,226,0.4),
-                      inset 0 0 40px rgba(0,0,0,0.6)
+                      0 0 50px rgba(0,255,255,0.6),
+                      0 0 100px rgba(138,43,226,0.45),
+                      inset 0 0 50px rgba(0,0,0,0.7)
                     `,
-                    transform: `translate(${mousePosition.x * 0.02}px, ${mousePosition.y * 0.02}px)`
+                    transform: `translate(${mousePosition.x * 0.03}px, ${mousePosition.y * 0.03}px)`
                   }}>
                     <img
                       src={profileImg}
@@ -832,39 +899,42 @@ export default function ModernPortfolio() {
                       }}
                     />
 
+                    {/* Scan Line Effect */}
                     <div style={{
                       position: "absolute",
                       top: 0,
                       left: 0,
                       right: 0,
-                      height: "120px",
-                      background: "linear-gradient(to bottom, transparent, rgba(0,255,255,0.3), transparent)",
-                      animation: "scan 3s ease-in-out infinite",
+                      height: "140px",
+                      background: "linear-gradient(to bottom, transparent, rgba(0,255,255,0.35), transparent)",
+                      animation: "scan 3.5s ease-in-out infinite",
                       pointerEvents: "none"
                     }} />
 
+                    {/* Bottom Gradient */}
                     <div style={{
                       position: "absolute",
                       inset: 0,
-                      background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent 60%)",
+                      background: "linear-gradient(to top, rgba(0,0,0,0.6), transparent 65%)",
                       pointerEvents: "none"
                     }} />
                   </div>
 
+                  {/* Orbiting Tech Icons */}
                   {techStack.map((tech, index) => {
                     const positions = [
-                      { top: "-10%", left: "50%", transform: "translate(-50%, -50%)" },
-                      { top: "20%", right: "-10%", transform: "translate(50%, -50%)" },
-                      { top: "50%", right: "-10%", transform: "translate(50%, -50%)" },
-                      { bottom: "20%", right: "-10%", transform: "translate(50%, 50%)" },
-                      { bottom: "-10%", left: "50%", transform: "translate(-50%, 50%)" },
-                      { bottom: "20%", left: "-10%", transform: "translate(-50%, 50%)" },
-                      { top: "50%", left: "-10%", transform: "translate(-50%, -50%)" },
-                      { top: "20%", left: "-10%", transform: "translate(-50%, -50%)" },
+                      { top: "-12%", left: "50%", transform: "translate(-50%, -50%)" },
+                      { top: "18%", right: "-12%", transform: "translate(50%, -50%)" },
+                      { top: "50%", right: "-12%", transform: "translate(50%, -50%)" },
+                      { bottom: "18%", right: "-12%", transform: "translate(50%, 50%)" },
+                      { bottom: "-12%", left: "50%", transform: "translate(-50%, 50%)" },
+                      { bottom: "18%", left: "-12%", transform: "translate(-50%, 50%)" },
+                      { top: "50%", left: "-12%", transform: "translate(-50%, -50%)" },
+                      { top: "18%", left: "-12%", transform: "translate(-50%, -50%)" },
                     ];
 
                     const pos = positions[index % positions.length];
-                    const delay = index * 0.5;
+                    const delay = index * 0.6;
 
                     return (
                       <div
@@ -878,33 +948,34 @@ export default function ModernPortfolio() {
                         }}
                         title={tech.desc}
                       >
-                        <tech.icon size={32} />
+                        <tech.icon size={36} />
                       </div>
                     );
                   })}
 
+                  {/* Hire Me Badge */}
                   <div style={{
                     position: "absolute",
-                    bottom: "20px",
+                    bottom: "25px",
                     left: "50%",
                     transform: "translateX(-50%)",
-                    background: "rgba(0,0,0,0.8)",
-                    border: "2px solid #00ffff",
-                    borderRadius: "30px",
-                    padding: "0.75rem 1.5rem",
+                    background: "rgba(0,0,0,0.85)",
+                    border: "2.5px solid #00ffff",
+                    borderRadius: "40px",
+                    padding: "0.9rem 1.8rem",
                     fontFamily: "'Fira Code', monospace",
-                    fontSize: "0.85rem",
+                    fontSize: "0.95rem",
                     color: "#00ffff",
-                    fontWeight: 600,
-                    boxShadow: "0 0 20px rgba(0,255,255,0.5)",
-                    animation: "pulse 2s ease-in-out infinite",
+                    fontWeight: 700,
+                    boxShadow: "0 0 25px rgba(0,255,255,0.6)",
+                    animation: "pulse 2.3s ease-in-out infinite",
                     whiteSpace: "nowrap"
                   }}>
                     <a
                       href="mailto:g.sivasatyasaibhagavan@gmail.com"
                       className="hire-badge"
                     >
-                      AVAILABLE FOR HIRE
+                      AVAILABLE FOR HIRE 2026
                     </a>
                   </div>
                 </div>
@@ -912,12 +983,12 @@ export default function ModernPortfolio() {
             </div>
           </section>
 
-          {/* Stats Section */}
-          <section id="stats" data-observe style={{ padding: "4rem 0" }}>
+          {/* ────────────────────── STATS SECTION ────────────────────── */}
+          <section id="stats" data-observe style={{ padding: "5rem 0" }}>
             <div className="stats-grid" style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "2rem"
+              gap: "2.5rem"
             }}>
               {stats.map((stat, i) => (
                 <div
@@ -926,24 +997,24 @@ export default function ModernPortfolio() {
                   style={{
                     borderColor: stat.color,
                     color: stat.color,
-                    animationDelay: `${i * 0.1}s`,
+                    animationDelay: `${i * 0.15}s`,
                     opacity: isVisible.stats ? 1 : 0
                   }}
                 >
-                  <stat.icon size={40} style={{ marginBottom: "1rem" }} />
+                  <stat.icon size={48} style={{ marginBottom: "1.2rem" }} />
                   <div style={{
-                    fontSize: "2.5rem",
-                    fontWeight: 800,
-                    marginBottom: "0.5rem",
+                    fontSize: "2.8rem",
+                    fontWeight: 900,
+                    marginBottom: "0.6rem",
                     fontFamily: "'Fira Code', monospace"
                   }}>
                     {stat.value}
                   </div>
                   <div style={{
-                    fontSize: "0.95rem",
-                    opacity: 0.8,
+                    fontSize: "1rem",
+                    opacity: 0.85,
                     textTransform: "uppercase",
-                    letterSpacing: "1px"
+                    letterSpacing: "1.2px"
                   }}>
                     {stat.label}
                   </div>
@@ -952,41 +1023,54 @@ export default function ModernPortfolio() {
             </div>
           </section>
 
-          {/* Skills Section */}
-          <section id="skills" data-observe style={{ padding: "6rem 0" }}>
+          {/* ────────────────────── SKILLS SECTION ────────────────────── */}
+          <section id="skills" data-observe style={{ padding: "7rem 0" }}>
             <h2 style={{
-              fontSize: "3rem",
-              fontWeight: 800,
-              marginBottom: "3rem",
+              fontSize: "3.5rem",
+              fontWeight: 900,
+              marginBottom: "4rem",
               textAlign: "center",
               color: "#00ffff",
               textTransform: "uppercase",
-              letterSpacing: "2px"
+              letterSpacing: "2.5px"
             }}>
               Core Competencies
             </h2>
 
-            <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", flexDirection: "column", gap: "2rem" }}>
+            <div style={{
+              maxWidth: "860px",
+              margin: "0 auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "2.5rem"
+            }}>
               {skills.map((skill, i) => (
-                <div key={i} style={{ opacity: isVisible.skills ? 1 : 0, transition: "opacity 0.5s", transitionDelay: `${i * 0.1}s` }}>
+                <div 
+                  key={i} 
+                  style={{
+                    opacity: isVisible.skills ? 1 : 0,
+                    transition: "opacity 0.6s",
+                    transitionDelay: `${i * 0.15}s`
+                  }}
+                >
                   <div style={{
                     display: "flex",
                     justifyContent: "space-between",
-                    marginBottom: "0.75rem",
+                    marginBottom: "1rem",
                     alignItems: "center"
                   }}>
                     <span style={{
-                      fontSize: "1.1rem",
-                      fontWeight: 600,
+                      fontSize: "1.25rem",
+                      fontWeight: 700,
                       color: skill.color
                     }}>
                       {skill.name}
                     </span>
                     <span style={{
                       fontFamily: "'Fira Code', monospace",
-                      fontSize: "1rem",
+                      fontSize: "1.1rem",
                       color: skill.color,
-                      fontWeight: 700
+                      fontWeight: 800
                     }}>
                       {skillProgress[skill.name] || 0}%
                     </span>
@@ -1005,16 +1089,16 @@ export default function ModernPortfolio() {
             </div>
           </section>
 
-          {/* Tech Stack Section */}
-          <section style={{ padding: "6rem 0" }}>
+          {/* ────────────────────── TECH STACK SECTION ────────────────────── */}
+          <section style={{ padding: "7rem 0" }}>
             <h2 style={{
-              fontSize: "3rem",
-              fontWeight: 800,
-              marginBottom: "3rem",
+              fontSize: "3.5rem",
+              fontWeight: 900,
+              marginBottom: "4rem",
               textAlign: "center",
               color: "#00ffff",
               textTransform: "uppercase",
-              letterSpacing: "2px"
+              letterSpacing: "2.5px"
             }}>
               Technology Arsenal
             </h2>
@@ -1022,7 +1106,7 @@ export default function ModernPortfolio() {
             <div className="tech-grid" style={{
               display: "grid",
               gridTemplateColumns: "repeat(4, 1fr)",
-              gap: "1.5rem"
+              gap: "2rem"
             }}>
               {techStack.map((tech, i) => (
                 <div
@@ -1031,80 +1115,102 @@ export default function ModernPortfolio() {
                   style={{
                     color: tech.color,
                     borderColor: tech.color,
-                    animationDelay: `${i * 0.05}s`,
+                    animationDelay: `${i * 0.08}s`,
                     textAlign: "center",
-                    padding: "1.2rem 1rem"
+                    padding: "1.5rem 1.2rem"
                   }}
                 >
-                  <tech.icon size={32} style={{ marginBottom: "0.5rem" }} />
-                  <div style={{ fontWeight: 600, marginBottom: "0.25rem" }}>{tech.name}</div>
-                  <div style={{ fontSize: "0.75rem", opacity: 0.7 }}>{tech.desc}</div>
+                  <tech.icon size={38} style={{ marginBottom: "0.8rem" }} />
+                  <div style={{ fontWeight: 700, marginBottom: "0.4rem" }}>{tech.name}</div>
+                  <div style={{ fontSize: "0.8rem", opacity: 0.75 }}>{tech.desc}</div>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* Achievements Timeline */}
-          <section style={{ padding: "6rem 0 10rem" }}>
+          {/* ────────────────────── ACHIEVEMENTS TIMELINE ────────────────────── */}
+          <section style={{ padding: "7rem 0 11rem" }}>
             <h2 style={{
-              fontSize: "3rem",
-              fontWeight: 800,
-              marginBottom: "4rem",
+              fontSize: "3.5rem",
+              fontWeight: 900,
+              marginBottom: "5rem",
               textAlign: "center",
               color: "#00ffff",
               textTransform: "uppercase",
-              letterSpacing: "2px"
+              letterSpacing: "2.5px"
             }}>
               Journey Milestones
             </h2>
 
-            <div style={{ display: "flex", justifyContent: "space-around", alignItems: "stretch", flexWrap: "wrap", gap: "3rem" }}>
+            <div style={{
+              display: "flex",
+              justifyContent: "space-around",
+              alignItems: "stretch",
+              flexWrap: "wrap",
+              gap: "3.5rem"
+            }}>
               {achievements.map((milestone, i) => (
-                <div key={i} className="hologram-card fade-in" style={{
-                  padding: "2.5rem 2rem",
-                  borderRadius: "20px",
-                  textAlign: "center",
-                  minWidth: "280px",
-                  flex: "1 1 280px",
-                  maxWidth: "350px",
-                  animationDelay: `${i * 0.15}s`,
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "1rem"
-                }}>
+                <div 
+                  key={i} 
+                  className="hologram-card fade-in" 
+                  style={{
+                    padding: "3rem 2.5rem",
+                    borderRadius: "24px",
+                    textAlign: "center",
+                    minWidth: "300px",
+                    flex: "1 1 300px",
+                    maxWidth: "380px",
+                    animationDelay: `${i * 0.2}s`,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1.5rem"
+                  }}
+                >
                   <div style={{
-                    width: "80px",
-                    height: "80px",
+                    width: "90px",
+                    height: "90px",
                     margin: "0 auto",
                     borderRadius: "50%",
-                    border: `3px solid ${milestone.color}`,
+                    border: `3.5px solid ${milestone.color}`,
                     display: "flex",
                     alignItems: "center",
                     justifyContent: "center",
-                    background: "rgba(0,0,0,0.6)",
-                    boxShadow: `0 0 30px ${milestone.color}`
+                    background: "rgba(0,0,0,0.65)",
+                    boxShadow: `0 0 35px ${milestone.color}`
                   }}>
-                    <milestone.icon size={40} style={{ color: milestone.color }} />
+                    <milestone.icon size={48} style={{ color: milestone.color }} />
                   </div>
                   
-                  <div style={{ fontSize: "2.5rem", fontWeight: 800, color: milestone.color }}>
+                  <div style={{
+                    fontSize: "2.8rem",
+                    fontWeight: 900,
+                    color: milestone.color
+                  }}>
                     {milestone.year}
                   </div>
                   
-                  <div style={{ fontSize: "1.3rem", fontWeight: 700, color: "#ffffff" }}>
+                  <div style={{
+                    fontSize: "1.5rem",
+                    fontWeight: 800,
+                    color: "#ffffff"
+                  }}>
                     {milestone.title}
                   </div>
                   
-                  <div style={{ fontSize: "1rem", color: "#a0a0a0", marginBottom: "0.5rem" }}>
+                  <div style={{
+                    fontSize: "1.1rem",
+                    color: "#b0b0b0",
+                    marginBottom: "0.6rem"
+                  }}>
                     {milestone.subtitle}
                   </div>
                   
                   <div style={{
-                    fontSize: "0.9rem",
+                    fontSize: "1rem",
                     color: milestone.color,
                     fontStyle: "italic",
-                    borderTop: `1px solid ${milestone.color}`,
-                    paddingTop: "1rem",
+                    borderTop: `1.5px solid ${milestone.color}`,
+                    paddingTop: "1.2rem",
                     marginTop: "auto"
                   }}>
                     {milestone.details}
@@ -1114,77 +1220,85 @@ export default function ModernPortfolio() {
             </div>
           </section>
 
-          {/* CTA Section */}
+          {/* ────────────────────── FINAL CTA SECTION ────────────────────── */}
           <section style={{
-            padding: "6rem 0 8rem",
+            padding: "7rem 0 9rem",
             textAlign: "center"
           }}>
             <div className="hologram-card" style={{
-              padding: "4rem 2rem",
-              borderRadius: "30px",
-              maxWidth: "800px",
+              padding: "5rem 3rem",
+              borderRadius: "36px",
+              maxWidth: "860px",
               margin: "0 auto"
             }}>
               <h2 style={{
-                fontSize: "2.5rem",
-                fontWeight: 800,
-                marginBottom: "1.5rem",
+                fontSize: "3rem",
+                fontWeight: 900,
+                marginBottom: "2rem",
                 background: "linear-gradient(135deg, #00ffff 0%, #8a2be2 100%)",
                 WebkitBackgroundClip: "text",
                 backgroundClip: "text",
                 color: "transparent"
               }}>
-                Let's Build Something Extraordinary
+                Let's Build The Future Together
               </h2>
               
               <p style={{
-                fontSize: "1.2rem",
-                color: "#a0a0a0",
-                marginBottom: "2.5rem",
-                lineHeight: 1.6
+                fontSize: "1.3rem",
+                color: "#b0b0b0",
+                marginBottom: "3rem",
+                lineHeight: 1.7,
+                maxWidth: "680px",
+                marginLeft: "auto",
+                marginRight: "auto"
               }}>
-                Ready to collaborate on your next AI-powered project or full-stack application?
-                Let's turn innovative ideas into production-ready solutions.
+                Ready to collaborate on groundbreaking AI-powered solutions, 
+                scalable cloud architectures, or high-performance full-stack applications?
               </p>
               
-              <div style={{ display: "flex", gap: "1.5rem", justifyContent: "center", flexWrap: "wrap" }}>
+              <div style={{
+                display: "flex",
+                gap: "2rem",
+                justifyContent: "center",
+                flexWrap: "wrap"
+              }}>
                 <a
                   href="mailto:g.sivasatyasaibhagavan@gmail.com"
                   className="cyber-btn"
                   style={{
-                    padding: "1.2rem 3rem",
-                    fontSize: "1rem",
+                    padding: "1.4rem 4rem",
+                    fontSize: "1.15rem",
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "0.6rem"
+                    gap: "0.8rem"
                   }}
                 >
-                  <Mail size={20} />
-                  Start a Conversation
+                  <Mail size={24} />
+                  Get in Touch
                 </a>
                 
                 <Link
                   to="/projects"
                   style={{
-                    padding: "1.2rem 3rem",
+                    padding: "1.4rem 4rem",
                     background: "transparent",
-                    border: "2px solid #8a2be2",
+                    border: "2.5px solid #8a2be2",
                     color: "#8a2be2",
-                    fontWeight: 600,
+                    fontWeight: 700,
                     cursor: "pointer",
-                    transition: "all 0.3s",
-                    fontSize: "1rem",
+                    transition: "all 0.4s",
+                    fontSize: "1.15rem",
                     textDecoration: "none",
                     display: "inline-flex",
                     alignItems: "center",
-                    gap: "0.6rem",
-                    borderRadius: "5px"
+                    gap: "0.8rem",
+                    borderRadius: "8px"
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.background = "#8a2be2";
                     e.currentTarget.style.color = "#000";
-                    e.currentTarget.style.transform = "translateY(-3px)";
+                    e.currentTarget.style.transform = "translateY(-4px)";
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.background = "transparent";
@@ -1192,8 +1306,8 @@ export default function ModernPortfolio() {
                     e.currentTarget.style.transform = "translateY(0)";
                   }}
                 >
-                  <Rocket size={20} />
-                  Explore My Work
+                  <Rocket size={24} />
+                  View My Work
                 </Link>
               </div>
             </div>

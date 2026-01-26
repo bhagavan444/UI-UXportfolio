@@ -4,9 +4,10 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence, useMotionValue, useSpring } from "framer-motion";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  FaBars, FaTimes, FaHome, FaGraduationCap,
-  FaBriefcase, FaCode, FaEllipsisH, FaTrophy, FaLaptopCode, FaFileAlt,
-  FaCertificate, FaHeart, FaAward, FaEnvelope, FaChevronDown
+  FaBars, FaTimes, FaHome, FaGraduationCap, FaBriefcase,
+  FaCode, FaLaptopCode, FaTrophy, FaFileAlt, FaCertificate,
+  FaHeart, FaAward, FaEnvelope, FaEllipsisH, FaChevronDown,
+  FaRocket, FaBrain
 } from "react-icons/fa";
 
 const Navbar = () => {
@@ -19,23 +20,27 @@ const Navbar = () => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 1024);
   const navRef = useRef(null);
 
-  // Mouse-following subtle glow
+  // Mouse-following glow effect
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
-  const springX = useSpring(mouseX, { damping: 50, stiffness: 300 });
-  const springY = useSpring(mouseY, { damping: 50, stiffness: 300 });
+  const glowX = useSpring(mouseX, { damping: 40, stiffness: 280 });
+  const glowY = useSpring(mouseY, { damping: 40, stiffness: 280 });
 
   const currentPath = location.pathname === "/" ? "/home" : location.pathname;
 
+  // Handle resize & scroll events
   useEffect(() => {
     const handleResize = () => {
       const mobile = window.innerWidth <= 1024;
       setIsMobile(mobile);
-      if (!mobile) setMenuOpen(false);
+      if (!mobile) {
+        setMenuOpen(false);
+        setMoreDropdownOpen(false);
+      }
     };
 
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 60);
+      setIsScrolled(window.scrollY > 80);
     };
 
     window.addEventListener("resize", handleResize);
@@ -50,6 +55,7 @@ const Navbar = () => {
     };
   }, []);
 
+  // Mouse movement handler for glow effect
   const handleMouseMove = useCallback(
     (e) => {
       if (!isMobile && navRef.current) {
@@ -61,23 +67,31 @@ const Navbar = () => {
     [isMobile, mouseX, mouseY]
   );
 
+  // Navigation items (ordered logically)
   const navItems = [
-    { label: "Home", path: "/home", icon: <FaHome /> },
-    { label: "Education", path: "/education", icon: <FaGraduationCap /> },
-    { label: "Skills", path: "/myskills", icon: <FaCode /> },
-    { label: "Internships", path: "/internships", icon: <FaBriefcase /> },
-    { label: "Projects", path: "/projects", icon: <FaLaptopCode /> },
-    { label: "Hackathons", path: "/hackathons", icon: <FaTrophy /> },
-    { label: "Workshops", path: "/workshops", icon: <FaLaptopCode /> },
-    { label: "Resume", path: "/resume", icon: <FaFileAlt /> },
-    { label: "Certifications", path: "/certifications", icon: <FaCertificate /> },
-    { label: "Beyond Coding", path: "/beyondcoding", icon: <FaHeart /> },
-    { label: "Achievements", path: "/achivements", icon: <FaAward /> },
-    { label: "Contact", path: "/contact", icon: <FaEnvelope /> },
+    { label: "Home",          path: "/home",          icon: <FaHome /> },
+    { label: "Education",     path: "/education",     icon: <FaGraduationCap /> },
+    { label: "Skills",        path: "/myskills",      icon: <FaCode /> },
+    { label: "Projects",      path: "/projects",      icon: <FaLaptopCode /> },
+    { label: "Internships",   path: "/internships",   icon: <FaBriefcase /> },
+    { label: "Hackathons",    path: "/hackathons",    icon: <FaTrophy /> },
+    { label: "Certifications",path: "/certifications",icon: <FaCertificate /> },
+    { label: "Workshops",     path: "/workshops",     icon: <FaBrain /> },
+    { label: "Achievements",  path: "/achivements",   icon: <FaAward /> },
+    { label: "Beyond Coding", path: "/beyondcoding",  icon: <FaHeart /> },
+    { label: "Resume",        path: "/resume",        icon: <FaFileAlt /> },
+    { label: "Contact",       path: "/contact",       icon: <FaEnvelope /> },
   ];
 
-  const visibleItems = navItems.slice(0, 6);
-  const moreItems = navItems.slice(6);
+  // Only these 5 links will be visible on desktop
+  const visibleItems = navItems.filter(item => 
+    ["Home", "Education", "Skills", "Projects", "Contact"].includes(item.label)
+  );
+
+  // All remaining items go to "More" dropdown
+  const moreItems = navItems.filter(item => 
+    !["Home", "Education", "Skills", "Projects", "Contact"].includes(item.label)
+  );
 
   const handleNavClick = (path) => {
     if (path !== currentPath) {
@@ -89,183 +103,200 @@ const Navbar = () => {
 
   return (
     <>
+      {/* ===================== GLOBAL STYLES ===================== */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;900&family=Roboto+Mono:wght@300;400;500;600&display=swap');
 
         :root {
-          --neon-cyan: #00ffff;
-          --neon-purple: #8a2be2;
-          --bg-dark: #000000;
-          --glass: rgba(8,8,22,0.84);
-          --border-glow: rgba(0,255,255,0.24);
+          --neon-cyan:    #00f0ff;
+          --neon-purple:  #c300ff;
+          --neon-pink:    #ff00aa;
+          --bg-dark:      #0a0a1a;
+          --glass:        rgba(15, 15, 35, 0.78);
+          --glass-border: rgba(0, 240, 255, 0.28);
+          --text-light:   #e0f7ff;
+          --text-dim:     #a0d0ff;
         }
 
-        @keyframes scan {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
+        body {
+          margin: 0;
+          background: var(--bg-dark);
+          font-family: 'Roboto Mono', monospace;
+        }
+
+        @keyframes scanline {
+          0%   { transform: translateY(-120%); }
+          100% { transform: translateY(120%); }
         }
 
         @keyframes float {
-          0%,100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
+          0%, 100% { transform: translateY(0) rotate(0deg); }
+          50%      { transform: translateY(-8px) rotate(3deg); }
         }
 
-        @keyframes pulse {
-          0%,100% { opacity: 1; }
-          50% { opacity: 0.7; }
+        .nav-container {
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          z-index: 1000;
+          height: 90px;
+          transition: all 0.6s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .nav-item {
           position: relative;
           overflow: hidden;
-          transition: all 0.45s cubic-bezier(0.23,1,0.32,1);
+          border-radius: 16px;
+          transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
         }
 
         .nav-item:hover {
-          transform: translateY(-4px) scale(1.05);
+          transform: translateY(-4px) scale(1.06);
+          box-shadow: 0 0 30px rgba(0, 240, 255, 0.4);
         }
 
         .nav-item::before {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(135deg, transparent 35%, rgba(0,255,255,0.18) 50%, transparent 65%);
-          animation: scan 7s linear infinite;
+          background: linear-gradient(135deg, transparent 40%, rgba(0,240,255,0.25) 50%, transparent 60%);
+          animation: scanline 8s linear infinite;
           pointer-events: none;
-          z-index: 1;
           opacity: 0;
           transition: opacity 0.4s;
+          z-index: 1;
         }
 
         .nav-item:hover::before,
         .nav-active::before {
-          opacity: 0.8;
+          opacity: 0.9;
         }
 
         .nav-active {
-          background: rgba(0,255,255,0.18) !important;
-          border-color: var(--neon-cyan) !important;
-          box-shadow: 0 0 40px var(--neon-cyan) !important;
+          background: rgba(0, 240, 255, 0.22) !important;
+          border: 2px solid var(--neon-cyan) !important;
           color: var(--neon-cyan) !important;
-          font-weight: 700 !important;
+          box-shadow: 0 0 35px rgba(0,240,255,0.6), inset 0 0 20px rgba(0,240,255,0.3);
+          transform: translateY(-3px) scale(1.04);
         }
 
         .nav-active .icon {
-          animation: float 3s ease-in-out infinite;
-        }
-
-        .mobile-menu {
-          background: rgba(0,0,0,0.92);
-          backdrop-filter: blur(16px);
-          border-top: 2px solid rgba(0,255,255,0.3);
+          animation: float 3.2s ease-in-out infinite;
         }
 
         .logo-glow {
-          text-shadow: 0 0 20px var(--neon-cyan), 0 0 40px var(--neon-cyan);
+          text-shadow: 0 0 25px var(--neon-cyan), 0 0 50px var(--neon-purple);
         }
 
-        .blink {
-          animation: blink 1s step-end infinite;
+        .mobile-menu {
+          background: rgba(10,10,26,0.96);
+          backdrop-filter: blur(24px);
+          border-top: 3px solid rgba(0,240,255,0.45);
         }
 
-        @keyframes blink {
-          50% { opacity: 0; }
+        .dropdown {
+          background: rgba(15,15,35,0.92);
+          backdrop-filter: blur(22px);
+          border: 2px solid rgba(0,240,255,0.45);
+          box-shadow: 0 25px 90px rgba(0,0,0,0.85), 0 0 70px rgba(0,240,255,0.35);
         }
       `}</style>
 
+      {/* ===================== MAIN NAVBAR ===================== */}
       <motion.nav
         ref={navRef}
         onMouseMove={handleMouseMove}
+        className="nav-container"
         style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          right: 0,
-          zIndex: 1000,
-          height: "88px",
-          background: 'var(--bg-dark)',
+          background: isScrolled ? "rgba(10,10,26,0.92)" : "rgba(10,10,26,0.78)",
           backdropFilter: isScrolled ? "blur(32px) saturate(180%)" : "blur(24px) saturate(160%)",
           borderBottom: isScrolled
-            ? "2px solid rgba(0,255,255,0.35)"
-            : "1px solid rgba(0,255,255,0.18)",
+            ? "3px solid rgba(0,240,255,0.45)"
+            : "2px solid rgba(0,240,255,0.28)",
           boxShadow: isScrolled
-            ? "0 16px 60px rgba(0,0,0,0.9), 0 0 100px rgba(0,255,255,0.22)"
-            : "0 10px 40px rgba(0,0,0,0.75)",
-          transition: "all 0.7s cubic-bezier(0.22, 1, 0.36, 1)",
+            ? "0 20px 80px rgba(0,0,0,0.9), 0 0 120px rgba(0,240,255,0.3)"
+            : "0 12px 50px rgba(0,0,0,0.8)",
         }}
       >
-        {/* Subtle mouse-follow glow */}
+        {/* Mouse-following glow effect */}
         {!isMobile && isScrolled && (
           <motion.div
             style={{
               position: "absolute",
               inset: 0,
-              background: `radial-gradient(circle 600px at ${springX}px ${springY}px, rgba(0,255,255,0.12), transparent 60%)`,
+              background: `radial-gradient(circle 800px at ${glowX}px ${glowY}px, rgba(0,240,255,0.18), transparent 65%)`,
               pointerEvents: "none",
-              opacity: 0.7,
+              opacity: 0.85,
             }}
           />
         )}
 
         <div
           style={{
-            maxWidth: "1680px",
+            maxWidth: "1720px",
             margin: "0 auto",
             padding: "0 40px",
             height: "100%",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            position: "relative",
           }}
         >
           {/* Logo */}
           <motion.button
             onClick={() => handleNavClick("/home")}
-            whileHover={{ scale: 1.08 }}
-            whileTap={{ scale: 0.96 }}
+            whileHover={{ scale: 1.12 }}
+            whileTap={{ scale: 0.94 }}
             style={{
               background: "none",
               border: "none",
               cursor: "pointer",
-              fontSize: isMobile ? "2.2rem" : "2.6rem",
-              fontWeight: "900",
-              letterSpacing: "-1.2px",
               display: "flex",
               alignItems: "center",
-              gap: "14px",
+              gap: "12px",
               padding: 0,
+              marginRight: "30px",
             }}
           >
             <motion.span
               animate={{
-                rotate: [0, 12, -12, 0],
-                y: [0, -6, 0],
-                scale: [1, 1.1, 1],
+                rotate: [0, 15, -15, 0],
+                scale: [1, 1.18, 1],
+                y: [0, -8, 0],
               }}
               transition={{
-                duration: 4.2,
+                duration: 5.5,
                 repeat: Infinity,
-                repeatDelay: 2.8,
+                repeatDelay: 3,
                 ease: "easeInOut",
               }}
               className="logo-glow"
-              style={{ color: "#00ffff" }}
+              style={{
+                fontSize: isMobile ? "2.4rem" : "2.8rem",
+                color: "#00f0ff",
+              }}
             >
-              ⚡
+              <FaRocket />
             </motion.span>
-            <span style={{
-              background: "linear-gradient(90deg, #00ffff, #8a2be2, #00ffff)",
-              WebkitBackgroundClip: "text",
-              backgroundClip: "text",
-              color: "transparent",
-              fontSize: isMobile ? "1.8rem" : "2.2rem",
-            }}>
-              Bhagavan 
-            </span>
+
+            <motion.span
+              style={{
+                fontFamily: "'Orbitron', sans-serif",
+                fontSize: isMobile ? "1.9rem" : "2.2rem",
+                fontWeight: 900,
+                letterSpacing: "-1px",
+                background: "linear-gradient(90deg, #00f0ff, #c300ff, #00f0ff)",
+                WebkitBackgroundClip: "text",
+                backgroundClip: "text",
+                color: "transparent",
+              }}
+            >
+              Bhagavan
+            </motion.span>
           </motion.button>
 
-          {/* Desktop Nav */}
+          {/* Desktop Navigation - Only 5 main items */}
           {!isMobile && (
             <div style={{
               display: "flex",
@@ -279,23 +310,25 @@ const Navbar = () => {
                   <motion.button
                     key={item.path}
                     onClick={() => handleNavClick(item.path)}
-                    whileHover={{ scale: 1.06, y: -3 }}
-                    whileTap={{ scale: 0.97 }}
+                    whileHover={{ scale: 1.08, y: -4 }}
+                    whileTap={{ scale: 0.96 }}
                     className={`nav-item ${isActive ? "nav-active" : ""}`}
                     style={{
                       display: "flex",
                       alignItems: "center",
                       gap: "10px",
                       padding: "12px 22px",
-                      color: "#ffffff",
+                      color: isActive ? "var(--neon-cyan)" : "var(--text-light)",
                       fontSize: "0.98rem",
-                      fontWeight: isActive ? "700" : "500",
-                      borderRadius: "14px",
-                      background: isActive ? "rgba(0,255,255,0.16)" : "rgba(255,255,255,0.04)",
+                      fontWeight: isActive ? 700 : 500,
                       border: isActive
-                        ? "1.5px solid rgba(0,255,255,0.5)"
-                        : "1px solid rgba(0,255,255,0.18)",
+                        ? "2px solid var(--neon-cyan)"
+                        : "1.5px solid rgba(0,240,255,0.3)",
+                      background: isActive
+                        ? "rgba(0,240,255,0.22)"
+                        : "rgba(255,255,255,0.05)",
                       backdropFilter: "blur(12px)",
+                      borderRadius: "16px",
                       cursor: "pointer",
                       whiteSpace: "nowrap",
                       position: "relative",
@@ -303,23 +336,22 @@ const Navbar = () => {
                     }}
                   >
                     <motion.span
-                      animate={isActive ? { rotate: [0, 12, -12, 0], scale: [1, 1.15, 1] } : {}}
-                      transition={{ duration: 0.7 }}
-                      style={{ fontSize: "1.2rem", color: isActive ? "#00ffff" : "#e0e0ff" }}
+                      animate={isActive ? { rotate: [0, 15, -15, 0], scale: [1, 1.2, 1] } : {}}
+                      transition={{ duration: 0.8 }}
+                      style={{ fontSize: "1.3rem" }}
+                      className="icon"
                     >
                       {item.icon}
                     </motion.span>
-                    <span style={{ color: isActive ? "#00ffff" : "#e0e0ff" }}>
-                      {item.label}
-                    </span>
+                    <span>{item.label}</span>
                   </motion.button>
                 );
               })}
 
-              {/* More Dropdown */}
+              {/* More Dropdown - contains all remaining items */}
               <div style={{ position: "relative" }}>
                 <motion.button
-                  whileHover={{ scale: 1.07 }}
+                  whileHover={{ scale: 1.08 }}
                   whileTap={{ scale: 0.96 }}
                   onClick={() => setMoreDropdownOpen(!moreDropdownOpen)}
                   className={`nav-item ${moreDropdownOpen ? "nav-active" : ""}`}
@@ -328,49 +360,46 @@ const Navbar = () => {
                     alignItems: "center",
                     gap: "10px",
                     padding: "12px 22px",
-                    color: "#ffffff",
+                    color: moreDropdownOpen ? "var(--neon-cyan)" : "var(--text-light)",
                     fontSize: "0.98rem",
-                    fontWeight: moreDropdownOpen ? "700" : "500",
-                    borderRadius: "14px",
-                    background: moreDropdownOpen ? "rgba(0,255,255,0.16)" : "rgba(255,255,255,0.04)",
+                    fontWeight: moreDropdownOpen ? 700 : 500,
+                    borderRadius: "16px",
+                    background: moreDropdownOpen
+                      ? "rgba(0,240,255,0.22)"
+                      : "rgba(255,255,255,0.05)",
                     border: moreDropdownOpen
-                      ? "1.5px solid rgba(0,255,255,0.5)"
-                      : "1px solid rgba(0,255,255,0.18)",
+                      ? "2px solid var(--neon-cyan)"
+                      : "1.5px solid rgba(0,240,255,0.3)",
                     backdropFilter: "blur(12px)",
                     cursor: "pointer",
                   }}
                 >
                   <motion.span
                     animate={{ rotate: moreDropdownOpen ? 180 : 0 }}
-                    transition={{ duration: 0.4 }}
-                    style={{ color: moreDropdownOpen ? "#00ffff" : "#e0e0ff" }}
+                    transition={{ duration: 0.5 }}
+                    style={{ fontSize: "1.3rem" }}
                   >
                     <FaEllipsisH />
                   </motion.span>
-                  <span style={{ color: moreDropdownOpen ? "#00ffff" : "#e0e0ff" }}>
-                    More
-                  </span>
-                  <FaChevronDown style={{ fontSize: "0.8rem" }} />
+                  <span>More</span>
+                  <FaChevronDown style={{ fontSize: "0.85rem" }} />
                 </motion.button>
 
                 <AnimatePresence>
                   {moreDropdownOpen && (
                     <motion.div
-                      initial={{ opacity: 0, y: -20, scale: 0.95 }}
+                      initial={{ opacity: 0, y: -30, scale: 0.92 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -20, scale: 0.95 }}
-                      transition={{ duration: 0.25 }}
+                      exit={{ opacity: 0, y: -30, scale: 0.92 }}
+                      transition={{ duration: 0.3 }}
+                      className="dropdown"
                       style={{
                         position: "absolute",
-                        top: "calc(100% + 16px)",
+                        top: "calc(100% + 18px)",
                         right: 0,
-                        minWidth: "280px",
-                        background: "rgba(8,8,22,0.94)",
-                        backdropFilter: "blur(20px)",
-                        border: "2px solid rgba(0,255,255,0.4)",
-                        borderRadius: "16px",
-                        boxShadow: "0 20px 80px rgba(0,0,0,0.9), 0 0 60px rgba(0,255,255,0.25)",
-                        padding: "1rem",
+                        minWidth: "300px",
+                        borderRadius: "18px",
+                        padding: "1.2rem",
                         zIndex: 1001,
                       }}
                     >
@@ -381,19 +410,19 @@ const Navbar = () => {
                           <motion.button
                             key={item.path}
                             onClick={() => handleNavClick(item.path)}
-                            whileHover={{ x: 8, scale: 1.03 }}
-                            whileTap={{ scale: 0.97 }}
+                            whileHover={{ x: 12, scale: 1.04 }}
+                            whileTap={{ scale: 0.96 }}
                             className={`nav-item ${isActive ? "nav-active" : ""}`}
                             style={{
                               width: "100%",
                               display: "flex",
                               alignItems: "center",
                               gap: "16px",
-                              padding: "14px 20px",
-                              color: isActive ? "#00ffff" : "#e0e0ff",
-                              fontSize: "0.98rem",
-                              fontWeight: isActive ? "700" : "500",
-                              borderRadius: "12px",
+                              padding: "14px 22px",
+                              color: isActive ? "var(--neon-cyan)" : "var(--text-light)",
+                              fontSize: "1.02rem",
+                              fontWeight: isActive ? 700 : 500,
+                              borderRadius: "14px",
                               background: "transparent",
                               border: "none",
                               cursor: "pointer",
@@ -401,7 +430,7 @@ const Navbar = () => {
                               marginBottom: "6px",
                             }}
                           >
-                            <motion.span style={{ fontSize: "1.3rem", color: isActive ? "#00ffff" : "#e0e0ff" }}>
+                            <motion.span style={{ fontSize: "1.4rem" }}>
                               {item.icon}
                             </motion.span>
                             <span>{item.label}</span>
@@ -415,91 +444,87 @@ const Navbar = () => {
             </div>
           )}
 
-          {/* Right Side - Hamburger (only) */}
-          <div style={{ display: "flex", alignItems: "center" }}>
-            {isMobile && (
-              <motion.button
-                onClick={() => setMenuOpen(!menuOpen)}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                style={{
-                  background: menuOpen
-                    ? "linear-gradient(135deg, rgba(0,255,255,0.35), rgba(138,43,226,0.3))"
-                    : "rgba(255,255,255,0.08)",
-                  border: menuOpen
-                    ? "2px solid rgba(0,255,255,0.6)"
-                    : "1.5px solid rgba(0,255,255,0.3)",
-                  color: "#00ffff",
-                  fontSize: "1.8rem",
-                  padding: "14px",
-                  borderRadius: "14px",
-                  cursor: "pointer",
-                  boxShadow: menuOpen
-                    ? "0 0 50px rgba(0,255,255,0.5)"
-                    : "0 6px 20px rgba(0,0,0,0.4)",
-                }}
-                aria-label="Toggle menu"
-              >
-                <AnimatePresence mode="wait">
-                  {menuOpen ? (
-                    <motion.div
-                      key="close"
-                      initial={{ rotate: -180, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: 180, opacity: 0 }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <FaTimes />
-                    </motion.div>
-                  ) : (
-                    <motion.div
-                      key="open"
-                      initial={{ rotate: 180, opacity: 0 }}
-                      animate={{ rotate: 0, opacity: 1 }}
-                      exit={{ rotate: -180, opacity: 0 }}
-                      transition={{ duration: 0.4 }}
-                    >
-                      <FaBars />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </motion.button>
-            )}
-          </div>
+          {/* Mobile Hamburger Menu Button */}
+          {isMobile && (
+            <motion.button
+              onClick={() => setMenuOpen(!menuOpen)}
+              whileHover={{ scale: 1.25 }}
+              whileTap={{ scale: 0.88 }}
+              style={{
+                background: menuOpen
+                  ? "linear-gradient(135deg, rgba(0,240,255,0.4), rgba(195,0,255,0.35))"
+                  : "rgba(255,255,255,0.08)",
+                border: menuOpen
+                  ? "2.5px solid var(--neon-cyan)"
+                  : "2px solid rgba(0,240,255,0.4)",
+                color: "var(--neon-cyan)",
+                fontSize: "2rem",
+                padding: "14px 18px",
+                borderRadius: "16px",
+                cursor: "pointer",
+                boxShadow: menuOpen
+                  ? "0 0 60px rgba(0,240,255,0.6)"
+                  : "0 8px 25px rgba(0,0,0,0.5)",
+              }}
+              aria-label="Toggle menu"
+            >
+              <AnimatePresence mode="wait">
+                {menuOpen ? (
+                  <motion.div
+                    key="close"
+                    initial={{ rotate: -180, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: 180, opacity: 0 }}
+                    transition={{ duration: 0.45 }}
+                  >
+                    <FaTimes />
+                  </motion.div>
+                ) : (
+                  <motion.div
+                    key="open"
+                    initial={{ rotate: 180, opacity: 0 }}
+                    animate={{ rotate: 0, opacity: 1 }}
+                    exit={{ rotate: -180, opacity: 0 }}
+                    transition={{ duration: 0.45 }}
+                  >
+                    <FaBars />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.button>
+          )}
         </div>
       </motion.nav>
 
-      {/* Mobile Menu Overlay */}
+      {/* ===================== MOBILE FULL-SCREEN MENU ===================== */}
       <AnimatePresence>
         {menuOpen && isMobile && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
+            transition={{ duration: 0.4 }}
+            className="mobile-menu"
             style={{
               position: "fixed",
-              inset: "88px 0 0 0",
-              background: "rgba(0,0,0,0.94)",
-              backdropFilter: "blur(20px)",
+              inset: "90px 0 0 0",
               zIndex: 999,
               overflowY: "auto",
-              padding: "2.5rem 1.8rem",
-              borderTop: "2px solid rgba(0,255,255,0.4)",
+              padding: "3rem 2rem",
             }}
             onClick={(e) => e.target === e.currentTarget && setMenuOpen(false)}
           >
             <motion.div
-              initial={{ opacity: 0, y: 40 }}
+              initial={{ opacity: 0, y: 60 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1, duration: 0.5 }}
+              transition={{ delay: 0.15, duration: 0.6 }}
               style={{
                 display: "flex",
                 flexDirection: "column",
-                gap: "1.2rem",
-                maxWidth: "540px",
+                gap: "1.4rem",
+                maxWidth: "600px",
                 margin: "0 auto",
-                paddingBottom: "5rem",
+                paddingBottom: "6rem",
               }}
             >
               {navItems.map((item) => {
@@ -509,29 +534,34 @@ const Navbar = () => {
                   <motion.button
                     key={item.path}
                     onClick={() => handleNavClick(item.path)}
-                    whileHover={{ scale: 1.04, x: 10 }}
-                    whileTap={{ scale: 0.97 }}
+                    whileHover={{ scale: 1.06, x: 14 }}
+                    whileTap={{ scale: 0.94 }}
                     className={`nav-item ${isActive ? "nav-active" : ""}`}
                     style={{
                       display: "flex",
                       alignItems: "center",
-                      gap: "18px",
-                      padding: "22px 28px",
-                      background: isActive ? "rgba(0,255,255,0.22)" : "rgba(255,255,255,0.06)",
-                      borderRadius: "18px",
-                      color: isActive ? "#00ffff" : "#e0e0ff",
-                      fontSize: "1.15rem",
-                      fontWeight: isActive ? "700" : "500",
+                      gap: "20px",
+                      padding: "24px 32px",
+                      background: isActive
+                        ? "rgba(0,240,255,0.28)"
+                        : "rgba(255,255,255,0.07)",
+                      borderRadius: "20px",
+                      color: isActive ? "var(--neon-cyan)" : "var(--text-light)",
+                      fontSize: "1.25rem",
+                      fontWeight: isActive ? 700 : 500,
                       border: isActive
-                        ? "1.5px solid rgba(0,255,255,0.6)"
-                        : "1px solid rgba(0,255,255,0.22)",
-                      backdropFilter: "blur(12px)",
+                        ? "2.5px solid var(--neon-cyan)"
+                        : "2px solid rgba(0,240,255,0.35)",
+                      backdropFilter: "blur(14px)",
                       cursor: "pointer",
                       width: "100%",
                       textAlign: "left",
+                      boxShadow: isActive
+                        ? "0 0 40px rgba(0,240,255,0.5)"
+                        : "none",
                     }}
                   >
-                    <motion.span style={{ fontSize: "1.7rem", color: isActive ? "#00ffff" : "#e0e0ff" }}>
+                    <motion.span style={{ fontSize: "1.9rem" }}>
                       {item.icon}
                     </motion.span>
                     <span>{item.label}</span>
@@ -544,6 +574,6 @@ const Navbar = () => {
       </AnimatePresence>
     </>
   );
-}
+};
 
-export default Navbar; 
+export default Navbar;
