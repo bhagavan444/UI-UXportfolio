@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback, useMemo } from "react";
 import {
   Smartphone, Code, Brain, Cpu, Shield, GitBranch,
   Calendar, Users, Sparkles, Zap, Star, Award,
@@ -6,7 +6,9 @@ import {
   GraduationCap, Layers, Terminal, Database, Server, Lock,
   Globe, TrendingUp, Target, Clock, Trophy, Flame,
   Microscope, Workflow, Network, Binary, ChevronRight,
-  Play, Pause, Filter, Search, BarChart3
+  Play, Pause, Filter, Search, BarChart3, Eye, Heart,
+  Share2, Bookmark, Download, FileText, MonitorPlay,
+  Code2, Lightbulb, Briefcase, Medal, Activity
 } from "lucide-react";
 
 const workshops = [
@@ -39,7 +41,10 @@ const workshops = [
     difficulty: 95,
     completionRate: 68,
     avgSalaryBoost: "+45%",
-    certifications: ["IBM Quantum Developer", "Quantum Computing Specialist"]
+    certifications: ["IBM Quantum Developer", "Quantum Computing Specialist"],
+    videos: 48,
+    rating: 4.9,
+    reviews: 284
   },
   {
     title: "Advanced Blockchain Architecture",
@@ -70,7 +75,10 @@ const workshops = [
     difficulty: 88,
     completionRate: 72,
     avgSalaryBoost: "+52%",
-    certifications: ["Certified Blockchain Developer", "Smart Contract Auditor"]
+    certifications: ["Certified Blockchain Developer", "Smart Contract Auditor"],
+    videos: 56,
+    rating: 4.8,
+    reviews: 412
   },
   {
     title: "AI/ML System Design at Scale",
@@ -101,7 +109,10 @@ const workshops = [
     difficulty: 92,
     completionRate: 65,
     avgSalaryBoost: "+58%",
-    certifications: ["ML Systems Engineer", "MLOps Professional"]
+    certifications: ["ML Systems Engineer", "MLOps Professional"],
+    videos: 64,
+    rating: 4.9,
+    reviews: 356
   },
   {
     title: "Distributed Systems Engineering",
@@ -132,7 +143,10 @@ const workshops = [
     difficulty: 89,
     completionRate: 71,
     avgSalaryBoost: "+48%",
-    certifications: ["Distributed Systems Architect", "Cloud Native Developer"]
+    certifications: ["Distributed Systems Architect", "Cloud Native Developer"],
+    videos: 52,
+    rating: 4.7,
+    reviews: 489
   },
   {
     title: "Advanced Computer Vision",
@@ -163,7 +177,10 @@ const workshops = [
     difficulty: 87,
     completionRate: 74,
     avgSalaryBoost: "+44%",
-    certifications: ["Computer Vision Expert", "Deep Learning Specialist"]
+    certifications: ["Computer Vision Expert", "Deep Learning Specialist"],
+    videos: 46,
+    rating: 4.8,
+    reviews: 378
   },
   {
     title: "Cloud Native Security",
@@ -194,7 +211,10 @@ const workshops = [
     difficulty: 82,
     completionRate: 79,
     avgSalaryBoost: "+41%",
-    certifications: ["Cloud Security Professional", "Kubernetes Security Specialist"]
+    certifications: ["Cloud Security Professional", "Kubernetes Security Specialist"],
+    videos: 42,
+    rating: 4.6,
+    reviews: 312
   },
   {
     title: "Real-Time Data Engineering",
@@ -225,7 +245,10 @@ const workshops = [
     difficulty: 86,
     completionRate: 73,
     avgSalaryBoost: "+46%",
-    certifications: ["Streaming Data Engineer", "Real-time Systems Architect"]
+    certifications: ["Streaming Data Engineer", "Real-time Systems Architect"],
+    videos: 50,
+    rating: 4.7,
+    reviews: 445
   },
   {
     title: "Advanced System Design",
@@ -256,7 +279,10 @@ const workshops = [
     difficulty: 94,
     completionRate: 67,
     avgSalaryBoost: "+62%",
-    certifications: ["Solutions Architect", "Distinguished Engineer Track"]
+    certifications: ["Solutions Architect", "Distinguished Engineer Track"],
+    videos: 68,
+    rating: 5.0,
+    reviews: 621
   }
 ];
 
@@ -273,14 +299,37 @@ export default function EliteWorkshops() {
   const [filterCategory, setFilterCategory] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("featured");
-  const [showFilters, setShowFilters] = useState(false);
+  const [viewMode, setViewMode] = useState("grid");
+  const [savedWorkshops, setSavedWorkshops] = useState(new Set());
+  const [isLoading, setIsLoading] = useState(false);
   const canvasRef = useRef(null);
+  const heroRef = useRef(null);
+  const [scrollY, setScrollY] = useState(0);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
 
+  // Hollywood-style parallax effect
+  useEffect(() => {
+    const handleScroll = () => setScrollY(window.scrollY);
+    const handleMouseMove = (e) => {
+      setMousePos({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    window.addEventListener('mousemove', handleMouseMove);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('mousemove', handleMouseMove);
+    };
+  }, []);
+
+  // Advanced Developer/Designer Background System
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animationId;
+    let time = 0;
 
     const resize = () => {
       canvas.width = window.innerWidth;
@@ -288,34 +337,288 @@ export default function EliteWorkshops() {
     };
     resize();
 
-    const particles = Array.from({ length: 80 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: (Math.random() - 0.5) * 0.6,
-      size: Math.random() * 2.5 + 1,
-      color: ['#00f0ff', '#a78bfa', '#ff61d2'][Math.floor(Math.random() * 3)]
-    }));
+    // Code snippets that float around
+    const codeSnippets = [
+      '{ }', '< />', '( )', '[ ]', '=>', '::',
+      'fn', 'def', 'var', 'let', 'const',
+      '===', '!==', '&&', '||', '++',
+      'import', 'export', 'async', 'await',
+      'class', 'extends', 'return', 'new'
+    ];
+
+    class CodeParticle {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * canvas.height;
+        this.opacity = Math.random() * 0.5 + 0.3;
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() < 0.5 ? -20 : canvas.height + 20;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.8;
+        this.text = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+        this.color = ['#00f0ff', '#a78bfa', '#ff61d2', '#00ff88', '#ffd700'][Math.floor(Math.random() * 5)];
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.02;
+        this.size = Math.random() * 8 + 12;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+
+        if (this.x < -50 || this.x > canvas.width + 50 || 
+            this.y < -50 || this.y > canvas.height + 50) {
+          this.reset();
+        }
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.font = `${this.size}px 'Fira Code', monospace`;
+        ctx.fillStyle = this.color;
+        ctx.globalAlpha = this.opacity;
+        ctx.textAlign = 'center';
+        ctx.fillText(this.text, 0, 0);
+        ctx.restore();
+      }
+    }
+
+    class GeometricShape {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * canvas.height;
+      }
+
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.size = Math.random() * 40 + 20;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.01;
+        this.color = ['#00f0ff', '#a78bfa', '#ff61d2', '#00ff88'][Math.floor(Math.random() * 4)];
+        this.type = Math.floor(Math.random() * 4); // 0: triangle, 1: square, 2: hexagon, 3: circle
+        this.opacity = Math.random() * 0.15 + 0.05;
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.rotation += this.rotationSpeed;
+
+        if (this.x < -100) this.x = canvas.width + 100;
+        if (this.x > canvas.width + 100) this.x = -100;
+        if (this.y < -100) this.y = canvas.height + 100;
+        if (this.y > canvas.height + 100) this.y = -100;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 2;
+        ctx.globalAlpha = this.opacity;
+
+        ctx.beginPath();
+        if (this.type === 0) {
+          // Triangle
+          ctx.moveTo(0, -this.size / 2);
+          ctx.lineTo(this.size / 2, this.size / 2);
+          ctx.lineTo(-this.size / 2, this.size / 2);
+          ctx.closePath();
+        } else if (this.type === 1) {
+          // Square
+          ctx.rect(-this.size / 2, -this.size / 2, this.size, this.size);
+        } else if (this.type === 2) {
+          // Hexagon
+          for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i;
+            const x = Math.cos(angle) * this.size / 2;
+            const y = Math.sin(angle) * this.size / 2;
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+        } else {
+          // Circle
+          ctx.arc(0, 0, this.size / 2, 0, Math.PI * 2);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    class BinaryStream {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * -500;
+        this.speed = Math.random() * 2 + 1;
+        this.characters = Array.from({ length: 20 }, () => Math.random() > 0.5 ? '1' : '0');
+        this.color = ['#00f0ff', '#a78bfa'][Math.floor(Math.random() * 2)];
+      }
+
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height + 100) {
+          this.y = -100;
+          this.x = Math.random() * canvas.width;
+        }
+      }
+
+      draw() {
+        ctx.font = '14px "Fira Code", monospace';
+        ctx.fillStyle = this.color;
+        this.characters.forEach((char, i) => {
+          ctx.globalAlpha = 1 - (i / this.characters.length) * 0.8;
+          ctx.fillText(char, this.x, this.y + i * 20);
+        });
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    class GridLine {
+      constructor(isVertical) {
+        this.isVertical = isVertical;
+        this.position = Math.random() * (isVertical ? canvas.width : canvas.height);
+        this.speed = Math.random() * 0.5 + 0.2;
+        this.opacity = Math.random() * 0.1 + 0.05;
+        this.color = ['#00f0ff', '#a78bfa', '#ff61d2'][Math.floor(Math.random() * 3)];
+      }
+
+      update() {
+        if (this.isVertical) {
+          this.position += this.speed;
+          if (this.position > canvas.width) this.position = 0;
+        } else {
+          this.position += this.speed;
+          if (this.position > canvas.height) this.position = 0;
+        }
+      }
+
+      draw() {
+        ctx.strokeStyle = this.color;
+        ctx.lineWidth = 1;
+        ctx.globalAlpha = this.opacity;
+        ctx.beginPath();
+        if (this.isVertical) {
+          ctx.moveTo(this.position, 0);
+          ctx.lineTo(this.position, canvas.height);
+        } else {
+          ctx.moveTo(0, this.position);
+          ctx.lineTo(canvas.width, this.position);
+        }
+        ctx.stroke();
+        ctx.globalAlpha = 1;
+      }
+    }
+
+    const codeParticles = Array.from({ length: 40 }, () => new CodeParticle());
+    const geometricShapes = Array.from({ length: 15 }, () => new GeometricShape());
+    const binaryStreams = Array.from({ length: 8 }, () => new BinaryStream());
+    const gridLines = [
+      ...Array.from({ length: 5 }, () => new GridLine(true)),
+      ...Array.from({ length: 5 }, () => new GridLine(false))
+    ];
+
+    const drawWaveform = () => {
+      ctx.strokeStyle = 'rgba(0,240,255,0.2)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let x = 0; x < canvas.width; x += 5) {
+        const y = canvas.height / 2 + Math.sin((x + time) * 0.01) * 30 + Math.sin((x + time) * 0.02) * 20;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+    };
+
+    const drawCircuitPattern = () => {
+      ctx.strokeStyle = 'rgba(167,139,250,0.1)';
+      ctx.lineWidth = 1;
+      
+      for (let i = 0; i < 5; i++) {
+        const x = (time * 0.5 + i * 200) % canvas.width;
+        const y = Math.sin(time * 0.001 + i) * 100 + canvas.height / 2;
+        
+        ctx.beginPath();
+        ctx.arc(x, y, 30, 0, Math.PI * 2);
+        ctx.stroke();
+        
+        ctx.beginPath();
+        ctx.moveTo(x + 30, y);
+        ctx.lineTo(x + 80, y);
+        ctx.stroke();
+      }
+    };
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      // Dark gradient background
+      const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      bgGradient.addColorStop(0, '#000000');
+      bgGradient.addColorStop(0.5, '#0a0a1e');
+      bgGradient.addColorStop(1, '#000000');
+      ctx.fillStyle = bgGradient;
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 6);
-        gradient.addColorStop(0, `${p.color}40`);
-        gradient.addColorStop(1, 'transparent');
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 6, 0, Math.PI * 2);
-        ctx.fill();
+      // Draw animated grid lines
+      gridLines.forEach(line => {
+        line.update();
+        line.draw();
       });
 
+      // Draw waveform
+      drawWaveform();
+
+      // Draw circuit pattern
+      drawCircuitPattern();
+
+      // Draw geometric shapes
+      geometricShapes.forEach(shape => {
+        shape.update();
+        shape.draw();
+      });
+
+      // Draw binary streams
+      binaryStreams.forEach(stream => {
+        stream.update();
+        stream.draw();
+      });
+
+      // Draw code particles
+      codeParticles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      // Connection network
+      ctx.strokeStyle = 'rgba(0,240,255,0.15)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i < codeParticles.length; i++) {
+        for (let j = i + 1; j < codeParticles.length; j++) {
+          const dx = codeParticles[i].x - codeParticles[j].x;
+          const dy = codeParticles[i].y - codeParticles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 200) {
+            ctx.globalAlpha = (1 - distance / 200) * 0.3;
+            ctx.beginPath();
+            ctx.moveTo(codeParticles[i].x, codeParticles[i].y);
+            ctx.lineTo(codeParticles[j].x, codeParticles[j].y);
+            ctx.stroke();
+          }
+        }
+      }
+      ctx.globalAlpha = 1;
+
+      time += 1;
       animationId = requestAnimationFrame(animate);
     };
 
@@ -328,11 +631,11 @@ export default function EliteWorkshops() {
     };
   }, []);
 
-  const Counter = ({ target }) => {
+  const Counter = ({ target, suffix = "" }) => {
     const [count, setCount] = useState(0);
     useEffect(() => {
       let start = 0;
-      const duration = 1500;
+      const duration = 2000;
       const step = target / (duration / 16);
       const timer = setInterval(() => {
         start += step;
@@ -345,127 +648,418 @@ export default function EliteWorkshops() {
       }, 16);
       return () => clearInterval(timer);
     }, [target]);
-    return <span>{count}</span>;
+    return <span>{count}{suffix}</span>;
   };
 
-  const filteredWorkshops = workshops
-    .filter(w => filterCategory === "All" || w.category === filterCategory)
-    .filter(w => w.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                 w.desc.toLowerCase().includes(searchQuery.toLowerCase()))
-    .sort((a, b) => {
-      if (sortBy === "featured") return b.featured - a.featured;
-      if (sortBy === "difficulty") return b.difficulty - a.difficulty;
-      if (sortBy === "enrolled") return b.enrolled - a.enrolled;
-      return 0;
+  const toggleSave = useCallback((index) => {
+    setSavedWorkshops(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(index)) {
+        newSet.delete(index);
+      } else {
+        newSet.add(index);
+      }
+      return newSet;
     });
+  }, []);
+
+  const filteredWorkshops = useMemo(() => {
+    return workshops
+      .filter(w => filterCategory === "All" || w.category === filterCategory)
+      .filter(w => 
+        w.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
+        w.desc.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        w.skills.some(s => s.toLowerCase().includes(searchQuery.toLowerCase()))
+      )
+      .sort((a, b) => {
+        if (sortBy === "featured") return b.featured - a.featured;
+        if (sortBy === "difficulty") return b.difficulty - a.difficulty;
+        if (sortBy === "enrolled") return b.enrolled - a.enrolled;
+        if (sortBy === "rating") return b.rating - a.rating;
+        return 0;
+      });
+  }, [filterCategory, searchQuery, sortBy]);
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { 
+          background: linear-gradient(180deg, #00f0ff, #a78bfa); 
+          border-radius: 10px;
+        }
 
         :root {
           --neon-cyan: #00f0ff;
           --neon-purple: #a78bfa;
           --neon-pink: #ff61d2;
           --neon-gold: #ffd700;
+          --neon-green: #00ff88;
           --neon-gradient: linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2);
+          --hollywood-glow: drop-shadow(0 0 20px currentColor);
         }
 
-        @keyframes slideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes glow { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
-        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
-        @keyframes shimmer { 0% { background-position: -200%; } 100% { background-position: 200%; } }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes slideUp { 
+          from { opacity: 0; transform: translateY(60px) scale(0.95); } 
+          to { opacity: 1; transform: translateY(0) scale(1); } 
+        }
+        
+        @keyframes slideInLeft { 
+          from { opacity: 0; transform: translateX(-60px); } 
+          to { opacity: 1; transform: translateX(0); } 
+        }
+        
+        @keyframes slideInRight { 
+          from { opacity: 0; transform: translateX(60px); } 
+          to { opacity: 1; transform: translateX(0); } 
+        }
+        
+        @keyframes glow { 
+          0%, 100% { opacity: 1; filter: brightness(1); } 
+          50% { opacity: 0.7; filter: brightness(1.3); } 
+        }
+        
+        @keyframes float { 
+          0%, 100% { transform: translateY(0) rotate(0deg); } 
+          50% { transform: translateY(-20px) rotate(5deg); } 
+        }
+        
+        @keyframes shimmer { 
+          0% { background-position: -200% center; } 
+          100% { background-position: 200% center; } 
+        }
+        
+        @keyframes rotate { 
+          from { transform: rotate(0deg); } 
+          to { transform: rotate(360deg); } 
+        }
+
+        @keyframes pulse { 
+          0%, 100% { transform: scale(1); } 
+          50% { transform: scale(1.05); } 
+        }
+
+        @keyframes neonPulse {
+          0%, 100% { 
+            box-shadow: 0 0 10px currentColor, 0 0 20px currentColor, 0 0 30px currentColor; 
+          }
+          50% { 
+            box-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor; 
+          }
+        }
+
+        @keyframes textGlow {
+          0%, 100% { text-shadow: 0 0 10px currentColor, 0 0 20px currentColor; }
+          50% { text-shadow: 0 0 20px currentColor, 0 0 40px currentColor, 0 0 60px currentColor; }
+        }
 
         .workshop-card {
           position: relative;
-          background: rgba(10,10,30,0.95);
+          background: linear-gradient(135deg, rgba(10,10,30,0.98) 0%, rgba(20,10,40,0.95) 100%);
           border: 2px solid rgba(0,240,255,0.3);
-          border-radius: 24px;
+          border-radius: 28px;
           overflow: hidden;
-          transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
           cursor: pointer;
+          backdrop-filter: blur(10px);
         }
 
         .workshop-card:hover {
-          transform: translateY(-12px);
+          transform: translateY(-16px) scale(1.02);
           border-color: var(--neon-cyan);
-          box-shadow: 0 20px 60px rgba(0,240,255,0.4);
+          box-shadow: 
+            0 25px 70px rgba(0,240,255,0.5),
+            inset 0 0 60px rgba(0,240,255,0.1);
         }
 
         .workshop-card::before {
           content: '';
           position: absolute;
+          inset: -2px;
+          background: linear-gradient(135deg, transparent 30%, rgba(0,240,255,0.2) 50%, transparent 70%);
+          background-size: 300% 300%;
+          animation: shimmer 4s infinite;
+          pointer-events: none;
+          border-radius: 28px;
+          opacity: 0;
+          transition: opacity 0.5s;
+        }
+
+        .workshop-card:hover::before {
+          opacity: 1;
+        }
+
+        .workshop-card::after {
+          content: '';
+          position: absolute;
           inset: 0;
-          background: linear-gradient(135deg, transparent 30%, rgba(0,240,255,0.1) 50%, transparent 70%);
-          background-size: 200% 200%;
-          animation: shimmer 3s infinite;
+          background: radial-gradient(circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(0,240,255,0.15) 0%, transparent 50%);
+          opacity: 0;
+          transition: opacity 0.3s;
           pointer-events: none;
         }
 
+        .workshop-card:hover::after {
+          opacity: 1;
+        }
+
         .rarity-badge {
-          padding: 0.4rem 1rem;
+          padding: 0.5rem 1.2rem;
           border-radius: 999px;
           font-size: 0.75rem;
-          font-weight: 800;
+          font-weight: 900;
           text-transform: uppercase;
-          letter-spacing: 1px;
+          letter-spacing: 1.5px;
           display: inline-flex;
           align-items: center;
-          gap: 0.4rem;
+          gap: 0.5rem;
+          animation: neonPulse 2s infinite;
+          backdrop-filter: blur(10px);
         }
 
         .filter-btn {
-          padding: 0.7rem 1.5rem;
-          background: rgba(0,0,0,0.6);
+          padding: 0.8rem 1.8rem;
+          background: rgba(0,0,0,0.7);
           border: 2px solid rgba(0,240,255,0.3);
           border-radius: 999px;
           color: #fff;
           cursor: pointer;
-          transition: all 0.3s;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
           font-family: 'Fira Code', monospace;
           font-size: 0.9rem;
+          font-weight: 600;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .filter-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: var(--neon-gradient);
+          opacity: 0;
+          transition: opacity 0.4s;
         }
 
         .filter-btn:hover, .filter-btn.active {
           background: rgba(0,240,255,0.2);
           border-color: var(--neon-cyan);
-          transform: scale(1.05);
+          transform: translateY(-2px) scale(1.05);
+          box-shadow: 0 10px 30px rgba(0,240,255,0.4);
+        }
+
+        .filter-btn.active {
+          color: #000;
+          font-weight: 800;
+        }
+
+        .filter-btn.active::before {
+          opacity: 1;
         }
 
         .search-input {
           width: 100%;
-          padding: 1rem 1.5rem 1rem 3.5rem;
-          background: rgba(0,0,0,0.6);
+          padding: 1.2rem 1.8rem 1.2rem 4rem;
+          background: rgba(0,0,0,0.7);
           border: 2px solid rgba(0,240,255,0.3);
           border-radius: 999px;
           color: #fff;
           font-family: 'Fira Code', monospace;
-          font-size: 1rem;
+          font-size: 1.05rem;
           outline: none;
-          transition: all 0.3s;
+          transition: all 0.4s;
+          backdrop-filter: blur(10px);
         }
 
         .search-input:focus {
           border-color: var(--neon-cyan);
-          box-shadow: 0 0 20px rgba(0,240,255,0.3);
+          box-shadow: 0 0 30px rgba(0,240,255,0.4), inset 0 0 20px rgba(0,240,255,0.1);
+          transform: scale(1.02);
+        }
+
+        .search-input::placeholder {
+          color: rgba(255,255,255,0.4);
         }
 
         .stat-card {
-          background: rgba(0,0,0,0.4);
-          border: 2px solid rgba(0,240,255,0.2);
-          border-radius: 16px;
-          padding: 1.5rem;
+          background: linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(20,20,60,0.4) 100%);
+          border: 2px solid rgba(0,240,255,0.3);
+          border-radius: 20px;
+          padding: 2rem;
           text-align: center;
-          transition: all 0.3s;
+          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+          backdrop-filter: blur(10px);
+          position: relative;
+          overflow: hidden;
+        }
+
+        .stat-card::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: var(--neon-gradient);
+          opacity: 0;
+          transition: opacity 0.4s;
         }
 
         .stat-card:hover {
           border-color: var(--neon-cyan);
-          transform: translateY(-4px);
+          transform: translateY(-8px) scale(1.05);
+          box-shadow: 0 20px 50px rgba(0,240,255,0.4);
+        }
+
+        .stat-card:hover::before {
+          opacity: 0.1;
+        }
+
+        .icon-wrapper {
+          width: 140px;
+          height: 140px;
+          border-radius: 28px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          position: relative;
+          transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .icon-wrapper::before {
+          content: '';
+          position: absolute;
+          inset: -4px;
+          background: conic-gradient(from 0deg, var(--icon-color), transparent, var(--icon-color));
+          border-radius: 28px;
+          animation: rotate 4s linear infinite;
+          opacity: 0;
+          transition: opacity 0.4s;
+        }
+
+        .workshop-card:hover .icon-wrapper::before {
+          opacity: 1;
+        }
+
+        .icon-wrapper::after {
+          content: '';
+          position: absolute;
+          inset: 2px;
+          background: rgba(0,0,0,0.9);
+          border-radius: 24px;
+        }
+
+        .action-btn {
+          padding: 0.6rem;
+          background: rgba(0,0,0,0.6);
+          border: 2px solid rgba(255,255,255,0.2);
+          border-radius: 12px;
+          color: #fff;
+          cursor: pointer;
+          transition: all 0.3s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        .action-btn:hover {
+          background: rgba(0,240,255,0.2);
+          border-color: var(--neon-cyan);
+          transform: scale(1.1);
+        }
+
+        .action-btn.active {
+          background: rgba(255,0,100,0.3);
+          border-color: #ff0066;
+          color: #ff0066;
+        }
+
+        .skill-tag {
+          padding: 0.6rem 1.2rem;
+          background: rgba(0,0,0,0.6);
+          border: 2px solid currentColor;
+          border-radius: 999px;
+          font-size: 0.85rem;
+          font-family: 'Fira Code', monospace;
+          font-weight: 600;
+          transition: all 0.3s;
+          cursor: default;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .skill-tag::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: currentColor;
+          opacity: 0;
+          transition: opacity 0.3s;
+        }
+
+        .skill-tag:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px currentColor;
+        }
+
+        .skill-tag:hover::before {
+          opacity: 0.2;
+        }
+
+        .progress-bar {
+          height: 8px;
+          background: rgba(255,255,255,0.1);
+          border-radius: 999px;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .progress-fill {
+          height: 100%;
+          background: var(--neon-gradient);
+          border-radius: 999px;
+          position: relative;
+          transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .progress-fill::after {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+          animation: shimmer 2s infinite;
+        }
+
+        .modal-backdrop {
+          backdrop-filter: blur(20px) saturate(180%);
+          background: rgba(0,0,0,0.98);
+        }
+
+        .modal-content {
+          background: linear-gradient(135deg, rgba(10,10,30,0.98) 0%, rgba(20,10,40,0.95) 100%);
+          border-radius: 32px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .modal-content::before {
+          content: '';
+          position: absolute;
+          inset: -2px;
+          background: conic-gradient(from 0deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink), var(--neon-cyan));
+          animation: rotate 8s linear infinite;
+          z-index: -1;
+        }
+
+        .modal-content::after {
+          content: '';
+          position: absolute;
+          inset: 4px;
+          background: linear-gradient(135deg, rgba(10,10,30,0.98) 0%, rgba(20,10,40,0.95) 100%);
+          border-radius: 28px;
+          z-index: -1;
         }
 
         @media (max-width: 768px) {
@@ -473,18 +1067,17 @@ export default function EliteWorkshops() {
             grid-template-columns: 1fr !important;
             padding: 0 0.5rem;
           }
-          .filter-container { flex-direction: column !important; }
-          .search-container { margin-bottom: 1rem; }
-          .workshop-card {
-            max-width: 100%;
-            margin: 0 auto;
+          .filter-container { 
+            flex-direction: column !important; 
+            gap: 1rem !important;
           }
+          .stat-card { padding: 1.5rem; }
+          .icon-wrapper { width: 100px; height: 100px; }
         }
 
         @media (max-width: 480px) {
-          .workshop-grid {
-            gap: 2rem !important;
-          }
+          .workshop-grid { gap: 2rem !important; }
+          .modal-content { margin: 1rem; }
         }
       `}</style>
 
@@ -497,23 +1090,34 @@ export default function EliteWorkshops() {
         padding: 'clamp(4rem, 10vw, 8rem) 1.5rem 6rem',
         fontFamily: "'Outfit', sans-serif"
       }}>
+        {/* Radial Gradient Accents */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(0,240,255,0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px)
+          background: `
+            radial-gradient(ellipse at 10% 20%, rgba(0,240,255,0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 90% 80%, rgba(167,139,250,0.08) 0%, transparent 50%),
+            radial-gradient(ellipse at 50% 50%, rgba(255,97,210,0.05) 0%, transparent 50%)
           `,
-          backgroundSize: '60px 60px',
-          opacity: 0.3,
-          pointerEvents: 'none'
+          pointerEvents: 'none',
+          opacity: 0.7
         }} />
 
+        {/* Animated Canvas */}
         <canvas ref={canvasRef} style={{
           position: 'absolute',
           inset: 0,
           pointerEvents: 'none',
           zIndex: 1
+        }} />
+
+        {/* Dynamic Mouse Light */}
+        <div style={{
+          position: 'absolute',
+          inset: 0,
+          background: `radial-gradient(circle 600px at ${mousePos.x}px ${mousePos.y}px, rgba(0,240,255,0.08) 0%, transparent 50%)`,
+          pointerEvents: 'none',
+          opacity: 0.5
         }} />
 
         <div style={{
@@ -522,69 +1126,121 @@ export default function EliteWorkshops() {
           maxWidth: '1600px',
           margin: '0 auto'
         }}>
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
+          {/* Cinematic Header */}
+          <div ref={heroRef} style={{ 
+            textAlign: 'center', 
+            marginBottom: '6rem',
+            transform: `translateY(${scrollY * 0.3}px)`
+          }}>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.8rem',
-              padding: '0.6rem 1.5rem',
-              background: 'rgba(0,240,255,0.1)',
-              border: '2px solid rgba(0,240,255,0.4)',
+              gap: '1rem',
+              padding: '0.8rem 2rem',
+              background: 'rgba(0,240,255,0.15)',
+              border: '2px solid rgba(0,240,255,0.5)',
               borderRadius: '999px',
-              marginBottom: '1.5rem',
-              animation: 'glow 2s infinite'
+              marginBottom: '2rem',
+              animation: 'glow 3s infinite, slideUp 0.6s ease-out',
+              backdropFilter: 'blur(10px)',
+              boxShadow: '0 0 40px rgba(0,240,255,0.3)'
             }}>
-              <Flame size={20} color="#ffd700" />
-              <span style={{ fontFamily: "'Fira Code', monospace", fontSize: '0.9rem', fontWeight: 600 }}>
+              <Flame size={24} color="#ffd700" style={{ animation: 'float 2s ease-in-out infinite' }} />
+              <span style={{ 
+                fontFamily: "'Orbitron', monospace", 
+                fontSize: '1rem', 
+                fontWeight: 700,
+                letterSpacing: '3px',
+                background: 'var(--neon-gradient)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent'
+              }}>
                 ELITE DEVELOPER PROGRAMS
               </span>
+              <Flame size={24} color="#ffd700" style={{ animation: 'float 2s ease-in-out infinite' }} />
             </div>
 
             <h1 style={{
-              fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+              fontSize: 'clamp(4rem, 12vw, 8rem)',
               fontWeight: 900,
               background: 'var(--neon-gradient)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              letterSpacing: '2px',
-              marginBottom: '1.5rem',
-              textTransform: 'uppercase'
+              letterSpacing: '4px',
+              marginBottom: '2rem',
+              textTransform: 'uppercase',
+              fontFamily: "'Orbitron', sans-serif",
+              animation: 'slideUp 0.8s ease-out, textGlow 3s infinite',
+              lineHeight: 1.1,
+              textShadow: '0 0 80px rgba(0,240,255,0.5)'
             }}>
-              LEGENDARY WORKSHOPS
+              LEGENDARY<br />WORKSHOPS
             </h1>
 
             <p style={{
-              fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)',
-              color: '#a0a0d0',
-              maxWidth: '900px',
-              margin: '0 auto 3rem',
-              lineHeight: 1.8
+              fontSize: 'clamp(1.2rem, 3vw, 1.6rem)',
+              color: '#b0b0e0',
+              maxWidth: '1000px',
+              margin: '0 auto 4rem',
+              lineHeight: 1.9,
+              animation: 'slideUp 1s ease-out',
+              fontWeight: 300,
+              letterSpacing: '0.5px'
             }}>
-              Master cutting-edge technologies through intensive, hands-on programs designed for elite developers. 
-              Join the top 1% of engineering talent worldwide.
+              Master cutting-edge technologies through intensive, hands-on programs designed 
+              for elite developers. Join the top 1% of engineering talent worldwide and 
+              transform your career trajectory.
             </p>
 
-            {/* Global Stats */}
+            {/* Hollywood Stats Grid */}
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-              gap: '1.5rem',
-              maxWidth: '1000px',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+              gap: '2rem',
+              maxWidth: '1200px',
               margin: '0 auto'
             }}>
               {[
-                { icon: Users, label: "Elite Students", value: 4500, suffix: "+" },
-                { icon: Trophy, label: "Completion Rate", value: 73, suffix: "%" },
-                { icon: Rocket, label: "Avg Salary Boost", value: 48, suffix: "%" },
-                { icon: Award, label: "Industry Certs", value: 16, suffix: "" }
+                { icon: Users, label: "Elite Students", value: 4500, suffix: "+", color: "#00f0ff" },
+                { icon: Trophy, label: "Completion Rate", value: 73, suffix: "%", color: "#ffd700" },
+                { icon: TrendingUp, label: "Avg Salary Boost", value: 48, suffix: "%", color: "#00ff88" },
+                { icon: Award, label: "Industry Certs", value: 16, suffix: "", color: "#a78bfa" }
               ].map((stat, i) => (
-                <div key={i} className="stat-card" style={{ animation: `slideUp ${0.3 + i * 0.1}s ease-out` }}>
-                  <stat.icon size={32} color="#00f0ff" style={{ margin: '0 auto 0.8rem' }} />
-                  <div style={{ fontSize: '2.5rem', fontWeight: 900, color: '#fff', marginBottom: '0.3rem' }}>
-                    <Counter target={stat.value} />{stat.suffix}
+                <div 
+                  key={i} 
+                  className="stat-card" 
+                  style={{ 
+                    animation: `slideUp ${0.4 + i * 0.15}s ease-out`,
+                    animationDelay: `${i * 0.1}s`,
+                    animationFillMode: 'both'
+                  }}
+                >
+                  <stat.icon 
+                    size={40} 
+                    color={stat.color} 
+                    style={{ 
+                      margin: '0 auto 1rem',
+                      filter: 'var(--hollywood-glow)',
+                      animation: 'float 3s ease-in-out infinite'
+                    }} 
+                  />
+                  <div style={{ 
+                    fontSize: '3rem', 
+                    fontWeight: 900, 
+                    color: stat.color, 
+                    marginBottom: '0.5rem',
+                    fontFamily: "'Orbitron', sans-serif",
+                    textShadow: `0 0 20px ${stat.color}`
+                  }}>
+                    <Counter target={stat.value} suffix={stat.suffix} />
                   </div>
-                  <div style={{ fontSize: '0.9rem', color: '#888', fontFamily: "'Fira Code', monospace" }}>
+                  <div style={{ 
+                    fontSize: '1rem', 
+                    color: '#888', 
+                    fontFamily: "'Fira Code', monospace",
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase'
+                  }}>
                     {stat.label}
                   </div>
                 </div>
@@ -592,35 +1248,49 @@ export default function EliteWorkshops() {
             </div>
           </div>
 
-          {/* Filters & Search */}
+          {/* Advanced Filters & Search */}
           <div style={{
-            marginBottom: '4rem',
+            marginBottom: '5rem',
             display: 'flex',
             flexDirection: 'column',
-            gap: '2rem'
+            gap: '2.5rem'
           }}>
-            <div style={{ position: 'relative', maxWidth: '600px', margin: '0 auto', width: '100%' }}>
-              <Search size={20} style={{
-                position: 'absolute',
-                left: '1.5rem',
-                top: '50%',
-                transform: 'translateY(-50%)',
-                color: '#00f0ff'
-              }} />
+            {/* Search Bar */}
+            <div style={{ 
+              position: 'relative', 
+              maxWidth: '700px', 
+              margin: '0 auto', 
+              width: '100%',
+              animation: 'slideUp 1.2s ease-out'
+            }}>
+              <Search 
+                size={24} 
+                style={{
+                  position: 'absolute',
+                  left: '2rem',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  color: '#00f0ff',
+                  filter: 'var(--hollywood-glow)',
+                  zIndex: 10
+                }} 
+              />
               <input
                 type="text"
-                placeholder="Search workshops..."
+                placeholder="Search workshops, skills, technologies..."
                 className="search-input"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
             </div>
 
+            {/* Category Filters */}
             <div style={{
               display: 'flex',
               justifyContent: 'center',
               flexWrap: 'wrap',
-              gap: '1rem'
+              gap: '1.2rem',
+              animation: 'slideUp 1.4s ease-out'
             }}>
               {categories.map(cat => (
                 <button
@@ -628,44 +1298,72 @@ export default function EliteWorkshops() {
                   className={`filter-btn ${filterCategory === cat ? 'active' : ''}`}
                   onClick={() => setFilterCategory(cat)}
                 >
-                  {cat}
+                  <span style={{ position: 'relative', zIndex: 1 }}>{cat}</span>
                 </button>
               ))}
             </div>
 
+            {/* Sort Options */}
             <div style={{
               display: 'flex',
               justifyContent: 'center',
-              gap: '1rem',
-              fontSize: '0.9rem'
+              alignItems: 'center',
+              gap: '2rem',
+              flexWrap: 'wrap',
+              fontSize: '1rem',
+              animation: 'slideUp 1.6s ease-out'
             }}>
-              <span style={{ color: '#888' }}>Sort by:</span>
-              {['featured', 'difficulty', 'enrolled'].map(sort => (
-                <button
-                  key={sort}
-                  onClick={() => setSortBy(sort)}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    color: sortBy === sort ? '#00f0ff' : '#666',
-                    cursor: 'pointer',
-                    fontFamily: "'Fira Code', monospace",
-                    textTransform: 'capitalize',
-                    fontWeight: sortBy === sort ? 700 : 400
-                  }}
-                >
-                  {sort}
-                </button>
-              ))}
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                gap: '1.5rem',
+                color: '#888',
+                fontFamily: "'Fira Code', monospace"
+              }}>
+                <Filter size={20} />
+                <span>Sort by:</span>
+                {['featured', 'difficulty', 'enrolled', 'rating'].map(sort => (
+                  <button
+                    key={sort}
+                    onClick={() => setSortBy(sort)}
+                    style={{
+                      background: sortBy === sort ? 'rgba(0,240,255,0.2)' : 'none',
+                      border: sortBy === sort ? '2px solid #00f0ff' : '2px solid transparent',
+                      borderRadius: '999px',
+                      padding: '0.6rem 1.5rem',
+                      color: sortBy === sort ? '#00f0ff' : '#666',
+                      cursor: 'pointer',
+                      fontFamily: "'Fira Code', monospace",
+                      textTransform: 'capitalize',
+                      fontWeight: sortBy === sort ? 700 : 400,
+                      transition: 'all 0.3s',
+                      fontSize: '0.95rem'
+                    }}
+                  >
+                    {sort}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Results Count */}
+            <div style={{
+              textAlign: 'center',
+              color: '#666',
+              fontFamily: "'Fira Code', monospace",
+              fontSize: '1rem',
+              animation: 'slideUp 1.8s ease-out'
+            }}>
+              Showing {filteredWorkshops.length} of {workshops.length} elite programs
             </div>
           </div>
 
           {/* Workshops Grid */}
           <div className="workshop-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))',
-            gap: '2.5rem',
-            marginBottom: '6rem',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(min(400px, 100%), 1fr))',
+            gap: '3rem',
+            marginBottom: '8rem',
             width: '100%',
             maxWidth: '100%'
           }}>
@@ -676,37 +1374,73 @@ export default function EliteWorkshops() {
                 onMouseEnter={() => setHoveredId(i)}
                 onMouseLeave={() => setHoveredId(null)}
                 onClick={() => setSelected(ws)}
-                style={{ animation: `slideUp ${0.4 + i * 0.1}s ease-out` }}
+                style={{ 
+                  animation: `slideUp ${0.5 + i * 0.1}s ease-out`,
+                  animationDelay: `${i * 0.05}s`,
+                  animationFillMode: 'both',
+                  '--icon-color': ws.color
+                }}
+                onMouseMove={(e) => {
+                  const rect = e.currentTarget.getBoundingClientRect();
+                  const x = ((e.clientX - rect.left) / rect.width) * 100;
+                  const y = ((e.clientY - rect.top) / rect.height) * 100;
+                  e.currentTarget.style.setProperty('--mouse-x', `${x}%`);
+                  e.currentTarget.style.setProperty('--mouse-y', `${y}%`);
+                }}
               >
+                {/* Card Header with Icon */}
                 <div style={{
-                  height: '200px',
-                  background: `linear-gradient(135deg, ${ws.color}20, transparent)`,
+                  height: '240px',
+                  background: `linear-gradient(135deg, ${ws.color}25, rgba(0,0,0,0.5))`,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  position: 'relative'
+                  position: 'relative',
+                  overflow: 'hidden'
                 }}>
+                  {/* Animated background effect */}
                   <div style={{
-                    width: '120px',
-                    height: '120px',
-                    border: `3px solid ${ws.color}`,
-                    borderRadius: '24px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    animation: hoveredId === i ? 'float 2s ease-in-out infinite' : 'none',
-                    boxShadow: hoveredId === i ? `0 0 40px ${ws.color}` : 'none'
-                  }}>
-                    <ws.icon size={60} color={ws.color} />
+                    position: 'absolute',
+                    inset: 0,
+                    background: `radial-gradient(circle at 50% 50%, ${ws.color}40 0%, transparent 70%)`,
+                    animation: hoveredId === i ? 'pulse 2s ease-in-out infinite' : 'none'
+                  }} />
+
+                  <div 
+                    className="icon-wrapper"
+                    style={{
+                      border: `4px solid ${ws.color}`,
+                      animation: hoveredId === i ? 'float 2s ease-in-out infinite' : 'none',
+                      boxShadow: hoveredId === i ? `0 0 60px ${ws.color}` : `0 0 20px ${ws.color}`,
+                      '--icon-color': ws.color
+                    }}
+                  >
+                    <ws.icon 
+                      size={70} 
+                      color={ws.color} 
+                      style={{ 
+                        position: 'relative', 
+                        zIndex: 1,
+                        filter: `drop-shadow(0 0 10px ${ws.color})`
+                      }} 
+                    />
                   </div>
 
-                  <div style={{ position: 'absolute', top: '1rem', left: '1rem' }}>
+                  {/* Badges */}
+                  <div style={{ 
+                    position: 'absolute', 
+                    top: '1.5rem', 
+                    left: '1.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.8rem'
+                  }}>
                     <div className="rarity-badge" style={{
-                      background: `${rarityColors[ws.rarity]}20`,
+                      background: `${rarityColors[ws.rarity]}25`,
                       border: `2px solid ${rarityColors[ws.rarity]}`,
                       color: rarityColors[ws.rarity]
                     }}>
-                      <Star size={14} fill={rarityColors[ws.rarity]} />
+                      <Star size={16} fill={rarityColors[ws.rarity]} />
                       {ws.rarity}
                     </div>
                   </div>
@@ -714,132 +1448,251 @@ export default function EliteWorkshops() {
                   {ws.featured && (
                     <div style={{
                       position: 'absolute',
-                      top: '1rem',
-                      right: '1rem',
-                      padding: '0.4rem 1rem',
-                      background: 'rgba(255,215,0,0.2)',
+                      top: '1.5rem',
+                      right: '1.5rem',
+                      padding: '0.6rem 1.3rem',
+                      background: 'rgba(255,215,0,0.25)',
                       border: '2px solid #ffd700',
                       borderRadius: '999px',
                       fontSize: '0.75rem',
-                      fontWeight: 700,
-                      color: '#ffd700'
+                      fontWeight: 900,
+                      color: '#ffd700',
+                      letterSpacing: '2px',
+                      animation: 'neonPulse 2s infinite',
+                      fontFamily: "'Orbitron', sans-serif"
                     }}>
-                      FEATURED
+                      ⚡ FEATURED
                     </div>
                   )}
+
+                  {/* Action Buttons */}
+                  <div style={{
+                    position: 'absolute',
+                    bottom: '1.5rem',
+                    right: '1.5rem',
+                    display: 'flex',
+                    gap: '0.8rem'
+                  }}>
+                    <button 
+                      className={`action-btn ${savedWorkshops.has(i) ? 'active' : ''}`}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleSave(i);
+                      }}
+                    >
+                      <Heart 
+                        size={18} 
+                        fill={savedWorkshops.has(i) ? '#ff0066' : 'none'}
+                      />
+                    </button>
+                    <button 
+                      className="action-btn"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      <Share2 size={18} />
+                    </button>
+                  </div>
                 </div>
 
-                <div style={{ padding: '2rem' }}>
+                {/* Card Content */}
+                <div style={{ padding: '2.5rem' }}>
                   <div style={{
-                    fontSize: '0.85rem',
+                    fontSize: '0.9rem',
                     color: ws.color,
                     fontFamily: "'Fira Code', monospace",
-                    marginBottom: '0.8rem',
-                    fontWeight: 600
+                    marginBottom: '1rem',
+                    fontWeight: 700,
+                    letterSpacing: '1.5px',
+                    textTransform: 'uppercase'
                   }}>
                     {ws.category}
                   </div>
 
                   <h3 style={{
-                    fontSize: '1.6rem',
+                    fontSize: '1.8rem',
                     fontWeight: 800,
                     color: '#fff',
-                    marginBottom: '1rem'
+                    marginBottom: '1.2rem',
+                    fontFamily: "'Outfit', sans-serif",
+                    lineHeight: 1.3
                   }}>
                     {ws.title}
                   </h3>
 
                   <p style={{
-                    fontSize: '0.95rem',
-                    color: '#a0a0c0',
-                    lineHeight: 1.6,
-                    marginBottom: '1.5rem'
+                    fontSize: '1rem',
+                    color: '#b0b0d0',
+                    lineHeight: 1.7,
+                    marginBottom: '1.8rem'
                   }}>
                     {ws.desc}
                   </p>
 
+                  {/* Meta Info */}
                   <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '0.8rem',
-                    marginBottom: '1.5rem'
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '1rem',
+                    marginBottom: '1.8rem'
                   }}>
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 1rem',
+                      gap: '0.6rem',
+                      padding: '0.8rem 1.2rem',
                       background: 'rgba(0,0,0,0.5)',
-                      borderRadius: '999px',
-                      fontSize: '0.85rem',
+                      borderRadius: '12px',
+                      fontSize: '0.9rem',
                       border: `1px solid ${ws.color}30`
                     }}>
-                      <Clock size={14} color={ws.color} />
-                      {ws.duration}
+                      <Clock size={16} color={ws.color} />
+                      <span>{ws.duration}</span>
                     </div>
 
                     <div style={{
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '0.5rem',
-                      padding: '0.5rem 1rem',
+                      gap: '0.6rem',
+                      padding: '0.8rem 1.2rem',
                       background: 'rgba(0,0,0,0.5)',
-                      borderRadius: '999px',
-                      fontSize: '0.85rem',
+                      borderRadius: '12px',
+                      fontSize: '0.9rem',
                       border: `1px solid ${ws.color}30`
                     }}>
-                      <Target size={14} color={ws.color} />
-                      {ws.difficulty}% Difficulty
+                      <MonitorPlay size={16} color={ws.color} />
+                      <span>{ws.videos} Videos</span>
+                    </div>
+
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                      padding: '0.8rem 1.2rem',
+                      background: 'rgba(0,0,0,0.5)',
+                      borderRadius: '12px',
+                      fontSize: '0.9rem',
+                      border: `1px solid ${ws.color}30`
+                    }}>
+                      <Target size={16} color={ws.color} />
+                      <span>{ws.difficulty}% Difficulty</span>
+                    </div>
+
+                    <div style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem',
+                      padding: '0.8rem 1.2rem',
+                      background: 'rgba(0,0,0,0.5)',
+                      borderRadius: '12px',
+                      fontSize: '0.9rem',
+                      border: `1px solid ${ws.color}30`
+                    }}>
+                      <Star size={16} color="#ffd700" fill="#ffd700" />
+                      <span>{ws.rating} ({ws.reviews})</span>
                     </div>
                   </div>
 
+                  {/* Progress Bar */}
+                  <div style={{ marginBottom: '1.8rem' }}>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      marginBottom: '0.8rem',
+                      fontSize: '0.9rem',
+                      color: '#888'
+                    }}>
+                      <span>Completion Rate</span>
+                      <span style={{ color: ws.color, fontWeight: 700 }}>{ws.completionRate}%</span>
+                    </div>
+                    <div className="progress-bar">
+                      <div 
+                        className="progress-fill" 
+                        style={{ 
+                          width: hoveredId === i ? `${ws.completionRate}%` : '0%',
+                          background: `linear-gradient(90deg, ${ws.color}, ${ws.color}80)`
+                        }} 
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stats Grid */}
                   <div style={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    marginBottom: '1.5rem',
-                    padding: '1rem',
-                    background: 'rgba(0,0,0,0.3)',
-                    borderRadius: '12px',
-                    border: `1px solid ${ws.color}20`
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    marginBottom: '2rem',
+                    padding: '1.5rem',
+                    background: 'rgba(0,0,0,0.4)',
+                    borderRadius: '16px',
+                    border: `1px solid ${ws.color}20`,
+                    gap: '1rem'
                   }}>
                     <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: ws.color }}>
+                      <div style={{ 
+                        fontSize: '1.8rem', 
+                        fontWeight: 900, 
+                        color: ws.color,
+                        fontFamily: "'Orbitron', sans-serif"
+                      }}>
                         {ws.enrolled}+
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#666' }}>Students</div>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: ws.color }}>
-                        {ws.completionRate}%
+                      <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.3rem' }}>
+                        Students
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#666' }}>Complete</div>
                     </div>
                     <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 800, color: ws.color }}>
+                      <div style={{ 
+                        fontSize: '1.8rem', 
+                        fontWeight: 900, 
+                        color: ws.color,
+                        fontFamily: "'Orbitron', sans-serif"
+                      }}>
+                        {ws.projects}
+                      </div>
+                      <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.3rem' }}>
+                        Projects
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ 
+                        fontSize: '1.8rem', 
+                        fontWeight: 900, 
+                        color: ws.color,
+                        fontFamily: "'Orbitron', sans-serif"
+                      }}>
                         {ws.avgSalaryBoost}
                       </div>
-                      <div style={{ fontSize: '0.75rem', color: '#666' }}>Salary ↑</div>
+                      <div style={{ fontSize: '0.75rem', color: '#666', marginTop: '0.3rem' }}>
+                        Salary ↑
+                      </div>
                     </div>
                   </div>
 
+                  {/* CTA Button */}
                   <button style={{
                     width: '100%',
-                    padding: '1rem',
-                    background: `linear-gradient(90deg, ${ws.color}, #fff)`,
+                    padding: '1.2rem',
+                    background: `linear-gradient(90deg, ${ws.color}, ${ws.color}CC)`,
                     color: '#000',
                     border: 'none',
                     borderRadius: '999px',
-                    fontWeight: 800,
-                    fontSize: '1rem',
+                    fontWeight: 900,
+                    fontSize: '1.05rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    gap: '0.8rem',
-                    transition: 'all 0.3s'
+                    gap: '1rem',
+                    transition: 'all 0.4s',
+                    fontFamily: "'Outfit', sans-serif",
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
+                    boxShadow: `0 10px 30px ${ws.color}40`
                   }}>
-                    <ChevronRight size={20} />
+                    <Eye size={22} />
                     View Details
+                    <ChevronRight size={22} />
                   </button>
                 </div>
               </div>
@@ -849,52 +1702,74 @@ export default function EliteWorkshops() {
           {filteredWorkshops.length === 0 && (
             <div style={{
               textAlign: 'center',
-              padding: '4rem',
+              padding: '6rem 2rem',
               color: '#666',
-              fontSize: '1.2rem'
+              fontSize: '1.4rem',
+              animation: 'slideUp 0.6s ease-out'
             }}>
-              No workshops found matching your criteria
+              <Search size={80} color="#333" style={{ marginBottom: '2rem' }} />
+              <div style={{ marginBottom: '1rem', fontSize: '1.8rem', fontWeight: 700 }}>
+                No workshops found
+              </div>
+              <div>Try adjusting your search or filters</div>
             </div>
           )}
 
-          {/* CTA Section */}
+          {/* Hollywood CTA Section */}
           <div style={{
-            padding: '4rem 2rem',
-            background: 'rgba(0,0,0,0.8)',
-            border: '3px solid rgba(0,240,255,0.3)',
-            borderRadius: '32px',
+            padding: '5rem 3rem',
+            background: 'linear-gradient(135deg, rgba(0,0,0,0.9) 0%, rgba(20,10,40,0.8) 100%)',
+            border: '4px solid rgba(0,240,255,0.4)',
+            borderRadius: '40px',
             textAlign: 'center',
             position: 'relative',
-            overflow: 'hidden'
+            overflow: 'hidden',
+            animation: 'slideUp 2s ease-out'
           }}>
             <div style={{
               position: 'absolute',
               inset: 0,
               background: 'var(--neon-gradient)',
-              opacity: 0.05,
-              pointerEvents: 'none'
+              opacity: 0.08,
+              pointerEvents: 'none',
+              animation: 'shimmer 5s infinite'
             }} />
 
+            <Rocket 
+              size={80} 
+              color="#00f0ff" 
+              style={{ 
+                margin: '0 auto 2rem',
+                animation: 'float 3s ease-in-out infinite',
+                filter: 'drop-shadow(0 0 30px #00f0ff)'
+              }} 
+            />
+
             <h2 style={{
-              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontSize: 'clamp(3rem, 8vw, 5rem)',
               fontWeight: 900,
               background: 'var(--neon-gradient)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              marginBottom: '1.5rem'
+              marginBottom: '2rem',
+              fontFamily: "'Orbitron', sans-serif",
+              letterSpacing: '4px',
+              animation: 'textGlow 3s infinite'
             }}>
               JOIN THE ELITE
             </h2>
 
             <p style={{
-              fontSize: '1.2rem',
-              color: '#a0a0d0',
-              maxWidth: '700px',
-              margin: '0 auto 3rem',
-              lineHeight: 1.8
+              fontSize: '1.4rem',
+              color: '#b0b0e0',
+              maxWidth: '800px',
+              margin: '0 auto 4rem',
+              lineHeight: 2,
+              fontWeight: 300
             }}>
-              These programs are designed for serious developers ready to master cutting-edge technologies 
-              and accelerate their careers to the next level.
+              These programs are designed for serious developers ready to master cutting-edge 
+              technologies and accelerate their careers to the next level. Your transformation 
+              starts here.
             </p>
 
             <div style={{
@@ -903,74 +1778,103 @@ export default function EliteWorkshops() {
               justifyContent: 'center',
               flexWrap: 'wrap'
             }}>
-              <a href="https://github.com/bhagavan444" target="_blank" rel="noopener noreferrer" style={{
-                padding: '1.2rem 3rem',
-                background: 'rgba(0,240,255,0.1)',
-                border: '3px solid var(--neon-cyan)',
-                borderRadius: '999px',
-                color: 'var(--neon-cyan)',
-                fontWeight: 800,
-                fontSize: '1.1rem',
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                transition: 'all 0.3s'
-              }}>
-                <Code size={24} />
-                VIEW PORTFOLIO
+              <a 
+                href="https://github.com/bhagavan444" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                style={{
+                  padding: '1.5rem 3.5rem',
+                  background: 'rgba(0,240,255,0.15)',
+                  border: '3px solid var(--neon-cyan)',
+                  borderRadius: '999px',
+                  color: 'var(--neon-cyan)',
+                  fontWeight: 900,
+                  fontSize: '1.2rem',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  transition: 'all 0.4s',
+                  fontFamily: "'Outfit', sans-serif",
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase',
+                  backdropFilter: 'blur(10px)'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,240,255,0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
+              >
+                <Code size={28} />
+                View Portfolio
               </a>
 
-              <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{
-                padding: '1.2rem 3rem',
-                background: 'var(--neon-gradient)',
-                borderRadius: '999px',
-                color: '#000',
-                fontWeight: 900,
-                fontSize: '1.1rem',
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                boxShadow: '0 0 30px rgba(0,240,255,0.5)',
-                transition: 'all 0.3s'
-              }}>
-                <Rocket size={24} />
-                START YOUR JOURNEY
+              <a 
+                href="mailto:g.sivasatyasaibhagavan@gmail.com" 
+                style={{
+                  padding: '1.5rem 3.5rem',
+                  background: 'var(--neon-gradient)',
+                  borderRadius: '999px',
+                  color: '#000',
+                  fontWeight: 900,
+                  fontSize: '1.2rem',
+                  textDecoration: 'none',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  boxShadow: '0 20px 50px rgba(0,240,255,0.6)',
+                  transition: 'all 0.4s',
+                  fontFamily: "'Outfit', sans-serif",
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 30px 70px rgba(0,240,255,0.8)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 20px 50px rgba(0,240,255,0.6)';
+                }}
+              >
+                <Rocket size={28} />
+                Start Your Journey
               </a>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Workshop Detail Modal */}
+      {/* Enhanced Workshop Detail Modal */}
       {selected && (
         <div
+          className="modal-backdrop"
           onClick={() => setSelected(null)}
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.97)',
-            backdropFilter: 'blur(20px)',
             zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
             padding: '1.5rem',
-            overflowY: 'auto'
+            overflowY: 'auto',
+            animation: 'slideUp 0.4s ease-out'
           }}
         >
           <div
+            className="modal-content"
             onClick={e => e.stopPropagation()}
             style={{
-              background: 'rgba(10,10,30,0.98)',
-              border: `4px solid ${selected.color}`,
-              borderRadius: '32px',
               maxWidth: '1400px',
               width: '100%',
               maxHeight: '95vh',
               overflowY: 'auto',
-              boxShadow: `0 0 100px ${selected.color}80`,
+              boxShadow: `0 0 100px ${selected.color}CC`,
               position: 'relative'
             }}
           >
@@ -978,46 +1882,69 @@ export default function EliteWorkshops() {
               onClick={() => setSelected(null)}
               style={{
                 position: 'absolute',
-                top: '1.5rem',
-                right: '1.5rem',
-                background: 'rgba(255,0,0,0.2)',
+                top: '2rem',
+                right: '2rem',
+                background: 'rgba(255,0,0,0.3)',
                 border: '2px solid #ff4444',
                 borderRadius: '50%',
-                width: '48px',
-                height: '48px',
+                width: '56px',
+                height: '56px',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
                 color: '#ff4444',
                 cursor: 'pointer',
                 zIndex: 10,
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                backdropFilter: 'blur(10px)'
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)';
+                e.currentTarget.style.background = 'rgba(255,0,0,0.5)';
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = 'scale(1) rotate(0deg)';
+                e.currentTarget.style.background = 'rgba(255,0,0,0.3)';
               }}
             >
-              <X size={24} />
+              <X size={28} />
             </button>
 
+            {/* Modal Header */}
             <div style={{
-              height: '280px',
-              background: `linear-gradient(135deg, ${selected.color}30, transparent)`,
+              height: '320px',
+              background: `linear-gradient(135deg, ${selected.color}35, rgba(0,0,0,0.7))`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
               position: 'relative',
-              borderBottom: `2px solid ${selected.color}50`
+              borderBottom: `3px solid ${selected.color}70`,
+              overflow: 'hidden'
             }}>
               <div style={{
-                width: '160px',
-                height: '160px',
-                border: `4px solid ${selected.color}`,
-                borderRadius: '32px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
+                position: 'absolute',
+                inset: 0,
+                background: `radial-gradient(circle at 50% 50%, ${selected.color}50 0%, transparent 70%)`,
+                animation: 'pulse 3s ease-in-out infinite'
+              }} />
+
+              <div className="icon-wrapper" style={{
+                width: '180px',
+                height: '180px',
+                border: `5px solid ${selected.color}`,
                 animation: 'float 3s ease-in-out infinite',
-                boxShadow: `0 0 60px ${selected.color}`
+                boxShadow: `0 0 80px ${selected.color}`,
+                '--icon-color': selected.color
               }}>
-                <selected.icon size={80} color={selected.color} />
+                <selected.icon 
+                  size={90} 
+                  color={selected.color} 
+                  style={{ 
+                    position: 'relative', 
+                    zIndex: 1,
+                    filter: `drop-shadow(0 0 20px ${selected.color})`
+                  }} 
+                />
               </div>
 
               <div style={{
@@ -1025,115 +1952,184 @@ export default function EliteWorkshops() {
                 top: '2rem',
                 left: '2rem',
                 display: 'flex',
-                gap: '1rem'
+                gap: '1rem',
+                flexWrap: 'wrap'
               }}>
                 <div className="rarity-badge" style={{
-                  background: `${rarityColors[selected.rarity]}20`,
+                  background: `${rarityColors[selected.rarity]}25`,
                   border: `2px solid ${rarityColors[selected.rarity]}`,
                   color: rarityColors[selected.rarity]
                 }}>
-                  <Star size={16} fill={rarityColors[selected.rarity]} />
+                  <Star size={18} fill={rarityColors[selected.rarity]} />
                   {selected.rarity}
                 </div>
                 <div style={{
-                  padding: '0.5rem 1.2rem',
-                  background: `${selected.color}20`,
+                  padding: '0.6rem 1.4rem',
+                  background: `${selected.color}25`,
                   border: `2px solid ${selected.color}`,
                   borderRadius: '999px',
-                  fontSize: '0.85rem',
-                  fontWeight: 700,
-                  color: selected.color
+                  fontSize: '0.9rem',
+                  fontWeight: 800,
+                  color: selected.color,
+                  letterSpacing: '1px',
+                  fontFamily: "'Fira Code', monospace"
                 }}>
                   {selected.category}
                 </div>
               </div>
             </div>
 
-            <div style={{ padding: '3rem' }}>
-              <h2 style={{
-                fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
-                fontWeight: 900,
-                background: 'var(--neon-gradient)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                marginBottom: '1rem',
-                textAlign: 'center'
+            {/* Modal Content */}
+            <div style={{ padding: '4rem 3rem' }}>
+              <div style={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                justifyContent: 'space-between',
+                marginBottom: '1.5rem',
+                flexWrap: 'wrap',
+                gap: '1rem'
               }}>
-                {selected.title}
-              </h2>
+                <h2 style={{
+                  fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+                  fontWeight: 900,
+                  background: 'var(--neon-gradient)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontFamily: "'Orbitron', sans-serif",
+                  letterSpacing: '2px'
+                }}>
+                  {selected.title}
+                </h2>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star 
+                      key={i} 
+                      size={24} 
+                      color="#ffd700"
+                      fill={i < Math.floor(selected.rating) ? '#ffd700' : 'none'}
+                    />
+                  ))}
+                  <span style={{ 
+                    marginLeft: '0.5rem', 
+                    fontSize: '1.2rem',
+                    fontWeight: 700,
+                    color: '#ffd700'
+                  }}>
+                    {selected.rating} ({selected.reviews} reviews)
+                  </span>
+                </div>
+              </div>
 
               <p style={{
-                fontSize: '1.3rem',
+                fontSize: '1.4rem',
                 color: '#c0c0e0',
-                textAlign: 'center',
-                marginBottom: '3rem',
-                lineHeight: 1.8
+                marginBottom: '4rem',
+                lineHeight: 1.9,
+                fontWeight: 300
               }}>
                 {selected.fullDesc}
               </p>
 
-              {/* Stats Grid */}
+              {/* Enhanced Stats Grid */}
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1.5rem',
-                marginBottom: '3rem'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
+                gap: '2rem',
+                marginBottom: '4rem'
               }}>
                 {[
-                  { icon: Calendar, label: "Duration", value: selected.duration },
-                  { icon: Users, label: "Students", value: `${selected.enrolled}+` },
-                  { icon: Target, label: "Difficulty", value: `${selected.difficulty}%` },
-                  { icon: CheckCircle2, label: "Completion", value: `${selected.completionRate}%` },
-                  { icon: Layers, label: "Projects", value: selected.projects },
-                  { icon: TrendingUp, label: "Salary Boost", value: selected.avgSalaryBoost }
+                  { icon: Calendar, label: "Duration", value: selected.duration, color: "#00f0ff" },
+                  { icon: Users, label: "Students", value: `${selected.enrolled}+`, color: "#a78bfa" },
+                  { icon: Target, label: "Difficulty", value: `${selected.difficulty}%`, color: "#ff61d2" },
+                  { icon: CheckCircle2, label: "Completion", value: `${selected.completionRate}%`, color: "#00ff88" },
+                  { icon: Layers, label: "Projects", value: selected.projects, color: "#ffd700" },
+                  { icon: TrendingUp, label: "Salary Boost", value: selected.avgSalaryBoost, color: "#ff9500" }
                 ].map((stat, i) => (
                   <div key={i} style={{
-                    padding: '1.5rem',
-                    background: 'rgba(0,0,0,0.4)',
-                    border: `2px solid ${selected.color}30`,
-                    borderRadius: '16px',
-                    textAlign: 'center'
-                  }}>
-                    <stat.icon size={28} color={selected.color} style={{ margin: '0 auto 0.8rem' }} />
-                    <div style={{ fontSize: '1.8rem', fontWeight: 900, color: '#fff', marginBottom: '0.3rem' }}>
+                    padding: '2rem',
+                    background: 'linear-gradient(135deg, rgba(0,0,0,0.6) 0%, rgba(20,20,60,0.4) 100%)',
+                    border: `2px solid ${stat.color}40`,
+                    borderRadius: '20px',
+                    textAlign: 'center',
+                    transition: 'all 0.4s',
+                    cursor: 'default'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-8px)';
+                    e.currentTarget.style.borderColor = stat.color;
+                    e.currentTarget.style.boxShadow = `0 20px 40px ${stat.color}40`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0)';
+                    e.currentTarget.style.borderColor = `${stat.color}40`;
+                    e.currentTarget.style.boxShadow = 'none';
+                  }}
+                  >
+                    <stat.icon 
+                      size={36} 
+                      color={stat.color} 
+                      style={{ 
+                        margin: '0 auto 1rem',
+                        filter: `drop-shadow(0 0 10px ${stat.color})`
+                      }} 
+                    />
+                    <div style={{ 
+                      fontSize: '2.2rem', 
+                      fontWeight: 900, 
+                      color: '#fff', 
+                      marginBottom: '0.5rem',
+                      fontFamily: "'Orbitron', sans-serif",
+                      textShadow: `0 0 20px ${stat.color}`
+                    }}>
                       {stat.value}
                     </div>
-                    <div style={{ fontSize: '0.9rem', color: '#666' }}>{stat.label}</div>
+                    <div style={{ 
+                      fontSize: '1rem', 
+                      color: '#888',
+                      fontFamily: "'Fira Code', monospace",
+                      letterSpacing: '1px'
+                    }}>
+                      {stat.label}
+                    </div>
                   </div>
                 ))}
               </div>
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                gap: '2.5rem',
-                marginBottom: '3rem'
+                gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                gap: '3rem',
+                marginBottom: '4rem'
               }}>
                 {/* Skills */}
                 <div>
                   <h3 style={{
-                    fontSize: '2rem',
+                    fontSize: '2.2rem',
                     background: 'var(--neon-gradient)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    marginBottom: '1.5rem',
-                    fontWeight: 800
+                    marginBottom: '2rem',
+                    fontWeight: 900,
+                    fontFamily: "'Orbitron', sans-serif",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem'
                   }}>
-                    <Terminal size={24} style={{ display: 'inline', marginRight: '0.5rem' }} />
+                    <Terminal size={28} style={{ color: selected.color }} />
                     Core Skills
                   </h3>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1.2rem' }}>
                     {selected.skills.map(skill => (
-                      <span key={skill} style={{
-                        padding: '0.7rem 1.3rem',
-                        background: `${selected.color}15`,
-                        border: `2px solid ${selected.color}40`,
-                        borderRadius: '999px',
-                        fontSize: '0.95rem',
-                        fontFamily: "'Fira Code', monospace",
-                        fontWeight: 600
-                      }}>
-                        {skill}
+                      <span 
+                        key={skill} 
+                        className="skill-tag"
+                        style={{
+                          color: selected.color,
+                          borderColor: `${selected.color}60`
+                        }}
+                      >
+                        <span style={{ position: 'relative', zIndex: 1 }}>{skill}</span>
                       </span>
                     ))}
                   </div>
@@ -1142,65 +2138,103 @@ export default function EliteWorkshops() {
                 {/* Certifications */}
                 <div>
                   <h3 style={{
-                    fontSize: '2rem',
+                    fontSize: '2.2rem',
                     background: 'var(--neon-gradient)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
-                    marginBottom: '1.5rem',
-                    fontWeight: 800
+                    marginBottom: '2rem',
+                    fontWeight: 900,
+                    fontFamily: "'Orbitron', sans-serif",
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem'
                   }}>
-                    <Award size={24} style={{ display: 'inline', marginRight: '0.5rem' }} />
+                    <Award size={28} style={{ color: selected.color }} />
                     Certifications
                   </h3>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.2rem' }}>
                     {selected.certifications.map(cert => (
                       <div key={cert} style={{
-                        padding: '1rem 1.5rem',
-                        background: 'rgba(0,0,0,0.4)',
-                        border: `2px solid ${selected.color}50`,
-                        borderRadius: '12px',
+                        padding: '1.3rem 1.8rem',
+                        background: 'rgba(0,0,0,0.5)',
+                        border: `2px solid ${selected.color}60`,
+                        borderRadius: '16px',
                         display: 'flex',
                         alignItems: 'center',
-                        gap: '1rem'
-                      }}>
-                        <CheckCircle2 size={20} color={selected.color} />
-                        <span style={{ fontWeight: 600 }}>{cert}</span>
+                        gap: '1.2rem',
+                        transition: 'all 0.3s'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = 'translateX(8px)';
+                        e.currentTarget.style.borderColor = selected.color;
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = 'translateX(0)';
+                        e.currentTarget.style.borderColor = `${selected.color}60`;
+                      }}
+                      >
+                        <Medal size={24} color={selected.color} />
+                        <span style={{ fontWeight: 600, fontSize: '1.05rem' }}>{cert}</span>
                       </div>
                     ))}
                   </div>
                 </div>
               </div>
 
-              {/* What You'll Learn */}
-              <div style={{ marginBottom: '3rem' }}>
+              {/* What You'll Master */}
+              <div style={{ marginBottom: '4rem' }}>
                 <h3 style={{
-                  fontSize: '2rem',
+                  fontSize: '2.2rem',
                   background: 'var(--neon-gradient)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  marginBottom: '1.5rem',
-                  fontWeight: 800
+                  marginBottom: '2rem',
+                  fontWeight: 900,
+                  fontFamily: "'Orbitron', sans-serif",
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem'
                 }}>
-                  <GraduationCap size={24} style={{ display: 'inline', marginRight: '0.5rem' }} />
+                  <GraduationCap size={28} style={{ color: selected.color }} />
                   What You'll Master
                 </h3>
                 <div style={{
                   display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                  gap: '1rem'
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+                  gap: '1.5rem'
                 }}>
                   {selected.whatILearned.map((item, i) => (
                     <div key={i} style={{
-                      padding: '1.2rem',
-                      background: 'rgba(0,0,0,0.3)',
-                      border: `1px solid ${selected.color}30`,
-                      borderRadius: '12px',
+                      padding: '1.5rem',
+                      background: 'rgba(0,0,0,0.4)',
+                      border: `2px solid ${selected.color}30`,
+                      borderRadius: '16px',
                       display: 'flex',
                       alignItems: 'flex-start',
-                      gap: '1rem'
-                    }}>
-                      <CheckCircle2 size={20} color={selected.color} style={{ flexShrink: 0, marginTop: '0.2rem' }} />
-                      <span style={{ lineHeight: 1.6 }}>{item}</span>
+                      gap: '1.2rem',
+                      transition: 'all 0.3s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateX(8px)';
+                      e.currentTarget.style.borderColor = selected.color;
+                      e.currentTarget.style.background = `${selected.color}10`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateX(0)';
+                      e.currentTarget.style.borderColor = `${selected.color}30`;
+                      e.currentTarget.style.background = 'rgba(0,0,0,0.4)';
+                    }}
+                    >
+                      <CheckCircle2 
+                        size={24} 
+                        color={selected.color} 
+                        style={{ 
+                          flexShrink: 0, 
+                          marginTop: '0.2rem',
+                          filter: `drop-shadow(0 0 8px ${selected.color})`
+                        }} 
+                      />
+                      <span style={{ lineHeight: 1.7, fontSize: '1.05rem' }}>{item}</span>
                     </div>
                   ))}
                 </div>
@@ -1208,37 +2242,69 @@ export default function EliteWorkshops() {
 
               {/* Outcomes */}
               <div style={{
-                padding: '2.5rem',
-                background: `${selected.color}10`,
-                border: `2px solid ${selected.color}40`,
-                borderRadius: '24px',
-                marginBottom: '3rem'
+                padding: '3rem',
+                background: `linear-gradient(135deg, ${selected.color}15, rgba(0,0,0,0.6))`,
+                border: `3px solid ${selected.color}50`,
+                borderRadius: '28px',
+                marginBottom: '4rem',
+                position: 'relative',
+                overflow: 'hidden'
               }}>
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: `radial-gradient(circle at 50% 50%, ${selected.color}20 0%, transparent 70%)`,
+                  pointerEvents: 'none'
+                }} />
+
                 <h3 style={{
-                  fontSize: '2rem',
+                  fontSize: '2.2rem',
                   background: 'var(--neon-gradient)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
-                  marginBottom: '1.5rem',
-                  fontWeight: 800,
-                  textAlign: 'center'
+                  marginBottom: '2rem',
+                  fontWeight: 900,
+                  textAlign: 'center',
+                  fontFamily: "'Orbitron', sans-serif",
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '1rem'
                 }}>
-                  <Trophy size={24} style={{ display: 'inline', marginRight: '0.5rem' }} />
+                  <Trophy size={28} style={{ color: selected.color }} />
                   Expected Outcomes
                 </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
                   {selected.outcomes.map((outcome, i) => (
                     <div key={i} style={{
-                      padding: '1.2rem 1.5rem',
-                      background: 'rgba(0,0,0,0.5)',
-                      borderRadius: '12px',
+                      padding: '1.5rem 2rem',
+                      background: 'rgba(0,0,0,0.6)',
+                      borderRadius: '16px',
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '1rem',
-                      fontSize: '1.1rem'
-                    }}>
-                      <Star size={20} color={selected.color} fill={selected.color} />
-                      <span>{outcome}</span>
+                      gap: '1.5rem',
+                      fontSize: '1.15rem',
+                      border: `2px solid ${selected.color}40`,
+                      transition: 'all 0.3s'
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.transform = 'translateX(10px)';
+                      e.currentTarget.style.borderColor = selected.color;
+                      e.currentTarget.style.background = `${selected.color}15`;
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.transform = 'translateX(0)';
+                      e.currentTarget.style.borderColor = `${selected.color}40`;
+                      e.currentTarget.style.background = 'rgba(0,0,0,0.6)';
+                    }}
+                    >
+                      <Star 
+                        size={24} 
+                        color={selected.color} 
+                        fill={selected.color}
+                        style={{ filter: `drop-shadow(0 0 10px ${selected.color})` }}
+                      />
+                      <span style={{ fontWeight: 600 }}>{outcome}</span>
                     </div>
                   ))}
                 </div>
@@ -1252,36 +2318,62 @@ export default function EliteWorkshops() {
                 flexWrap: 'wrap'
               }}>
                 <button style={{
-                  padding: '1.5rem 3.5rem',
-                  background: `linear-gradient(90deg, ${selected.color}, #fff)`,
+                  padding: '1.8rem 4rem',
+                  background: `linear-gradient(90deg, ${selected.color}, ${selected.color}DD)`,
                   color: '#000',
                   border: 'none',
                   borderRadius: '999px',
                   fontWeight: 900,
-                  fontSize: '1.2rem',
+                  fontSize: '1.3rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
-                  gap: '1rem',
-                  boxShadow: `0 0 40px ${selected.color}80`,
-                  transition: 'all 0.3s'
-                }}>
-                  <Rocket size={28} />
+                  gap: '1.2rem',
+                  boxShadow: `0 20px 50px ${selected.color}80`,
+                  transition: 'all 0.4s',
+                  fontFamily: "'Outfit', sans-serif",
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase'
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = `0 30px 70px ${selected.color}`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = `0 20px 50px ${selected.color}80`;
+                }}
+                >
+                  <Rocket size={32} />
                   ENROLL NOW
                 </button>
 
                 <button
                   onClick={() => setSelected(null)}
                   style={{
-                    padding: '1.5rem 3.5rem',
-                    background: 'rgba(0,0,0,0.6)',
+                    padding: '1.8rem 4rem',
+                    background: 'rgba(0,0,0,0.7)',
                     color: '#fff',
-                    border: `2px solid ${selected.color}`,
+                    border: `3px solid ${selected.color}`,
                     borderRadius: '999px',
-                    fontWeight: 800,
-                    fontSize: '1.2rem',
+                    fontWeight: 900,
+                    fontSize: '1.3rem',
                     cursor: 'pointer',
-                    transition: 'all 0.3s'
+                    transition: 'all 0.4s',
+                    fontFamily: "'Outfit', sans-serif",
+                    letterSpacing: '1px',
+                    textTransform: 'uppercase',
+                    backdropFilter: 'blur(10px)'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = 'translateY(-4px) scale(1.05)';
+                    e.currentTarget.style.background = `${selected.color}20`;
+                    e.currentTarget.style.boxShadow = `0 20px 40px ${selected.color}40`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                    e.currentTarget.style.background = 'rgba(0,0,0,0.7)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
                   BACK TO WORKSHOPS

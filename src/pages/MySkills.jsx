@@ -1,12 +1,11 @@
-"use client";
-
 import React, { useState, useEffect, useRef } from "react";
 import {
   Code2, Database, Brain, Cloud, Layers, Zap, Cpu, Globe, Terminal,
   TrendingUp, Award, Star, ExternalLink, CheckCircle2, Rocket,
   GitBranch, Server, Lock, BarChart2, Settings, FileCode,
   Database as DbIcon, Network, Wrench, Sparkles, Trophy,
-  Target, Flame, Shield, Crown, Hexagon, Activity
+  Target, Flame, Shield, Crown, Hexagon, Activity, Box,
+  Eye, Film, Play, Gauge, Crosshair
 } from "lucide-react";
 
 const skills = [
@@ -15,7 +14,8 @@ const skills = [
     name: "Full-Stack Development",
     icon: Layers,
     level: 92,
-    color: "#00ffff",
+    color: "#00f5ff",
+    glowRGB: "0, 245, 255",
     rarity: "LEGENDARY",
     yearsActive: "4+",
     masteryRank: "S+",
@@ -59,7 +59,8 @@ const skills = [
     name: "Machine Learning",
     icon: Brain,
     level: 88,
-    color: "#8a2be2",
+    color: "#a855f7",
+    glowRGB: "168, 85, 247",
     rarity: "EPIC",
     yearsActive: "3+",
     masteryRank: "S",
@@ -101,7 +102,8 @@ const skills = [
     name: "Deep Learning & AI",
     icon: Star,
     level: 87,
-    color: "#00ffff",
+    color: "#ff6b35",
+    glowRGB: "255, 107, 53",
     rarity: "LEGENDARY",
     yearsActive: "3+",
     masteryRank: "S",
@@ -143,7 +145,8 @@ const skills = [
     name: "Cloud & DevOps",
     icon: Cloud,
     level: 85,
-    color: "#8a2be2",
+    color: "#00f5ff",
+    glowRGB: "0, 245, 255",
     rarity: "EPIC",
     yearsActive: "3+",
     masteryRank: "A+",
@@ -184,7 +187,8 @@ const skills = [
     name: "Data Science & Analytics",
     icon: Database,
     level: 90,
-    color: "#00ffff",
+    color: "#a855f7",
+    glowRGB: "168, 85, 247",
     rarity: "LEGENDARY",
     yearsActive: "3+",
     masteryRank: "S",
@@ -224,7 +228,8 @@ const skills = [
     name: "Core Programming & CS Fundamentals",
     icon: Code2,
     level: 94,
-    color: "#8a2be2",
+    color: "#ff6b35",
+    glowRGB: "255, 107, 53",
     rarity: "MYTHIC",
     yearsActive: "5+",
     masteryRank: "S++",
@@ -263,16 +268,53 @@ const skills = [
 export default function EliteSkillsShowcase() {
   const [activeSkill, setActiveSkill] = useState(null);
   const [hoveredTech, setHoveredTech] = useState(null);
-  const [viewMode, setViewMode] = useState('cards'); // 'cards' or 'matrix'
   const [filterRarity, setFilterRarity] = useState('ALL');
-  const [showStats, setShowStats] = useState(false);
+  const [particles, setParticles] = useState([]);
+  const [cursorTrail, setCursorTrail] = useState([]);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const canvasRef = useRef(null);
-  const particlesRef = useRef([]);
 
+  // Particle System
+  useEffect(() => {
+    const newParticles = Array.from({ length: 70 }, (_, i) => ({
+      id: i,
+      x: Math.random() * 100,
+      y: Math.random() * 100,
+      size: Math.random() * 3 + 1,
+      duration: Math.random() * 30 + 20,
+      delay: Math.random() * 5,
+      opacity: Math.random() * 0.6 + 0.2
+    }));
+    setParticles(newParticles);
+  }, []);
+
+  // Cursor Trail
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setCursorTrail(prev => [
+        ...prev.slice(-10),
+        { x: e.clientX, y: e.clientY, id: Date.now() }
+      ]);
+    };
+    window.addEventListener("mousemove", handleMouseMove);
+    return () => window.removeEventListener("mousemove", handleMouseMove);
+  }, []);
+
+  // Scroll Progress
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrolled = window.scrollY;
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollProgress((scrolled / maxScroll) * 100);
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Canvas Background
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const ctx = canvas.getContext('2d');
     let animationId;
 
@@ -282,14 +324,12 @@ export default function EliteSkillsShowcase() {
     };
     resize();
 
-    // Advanced particle system with connections
-    particlesRef.current = Array.from({ length: 100 }, () => ({
+    const nodes = Array.from({ length: 120 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.5,
-      vy: (Math.random() - 0.5) * 0.5,
-      size: Math.random() * 2 + 1,
-      opacity: Math.random() * 0.5 + 0.3,
+      vx: (Math.random() - 0.5) * 0.6,
+      vy: (Math.random() - 0.5) * 0.6,
+      radius: Math.random() * 2.5 + 1,
       hue: Math.random() * 60 + 180
     }));
 
@@ -297,45 +337,43 @@ export default function EliteSkillsShowcase() {
       ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      particlesRef.current.forEach((p, i) => {
-        p.x += p.vx;
-        p.y += p.vy;
-
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      nodes.forEach((node, i) => {
+        node.x += node.vx;
+        node.y += node.vy;
+        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
 
         // Draw connections
-        particlesRef.current.forEach((p2, j) => {
+        nodes.forEach((other, j) => {
           if (i < j) {
-            const dx = p.x - p2.x;
-            const dy = p.y - p2.y;
+            const dx = node.x - other.x;
+            const dy = node.y - other.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
 
-            if (dist < 150) {
-              ctx.strokeStyle = `hsla(${p.hue}, 100%, 50%, ${0.2 * (1 - dist / 150)})`;
+            if (dist < 120) {
+              ctx.strokeStyle = `hsla(${node.hue}, 100%, 60%, ${0.15 * (1 - dist / 120)})`;
               ctx.lineWidth = 0.5;
               ctx.beginPath();
-              ctx.moveTo(p.x, p.y);
-              ctx.lineTo(p2.x, p2.y);
+              ctx.moveTo(node.x, node.y);
+              ctx.lineTo(other.x, other.y);
               ctx.stroke();
             }
           }
         });
 
         // Draw particle
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 4);
-        gradient.addColorStop(0, `hsla(${p.hue}, 100%, 50%, ${p.opacity})`);
+        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.radius * 4);
+        gradient.addColorStop(0, `hsla(${node.hue}, 100%, 60%, 0.5)`);
         gradient.addColorStop(1, 'transparent');
 
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 4, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, node.radius * 4, 0, Math.PI * 2);
         ctx.fill();
       });
 
       animationId = requestAnimationFrame(animate);
     };
-
     animate();
 
     window.addEventListener('resize', resize);
@@ -349,10 +387,10 @@ export default function EliteSkillsShowcase() {
     const colors = {
       'MYTHIC': '#ff00ff',
       'LEGENDARY': '#ffd700',
-      'EPIC': '#8a2be2',
-      'RARE': '#00ffff'
+      'EPIC': '#a855f7',
+      'RARE': '#00f5ff'
     };
-    return colors[rarity] || '#00ffff';
+    return colors[rarity] || '#00f5ff';
   };
 
   const filteredSkills = filterRarity === 'ALL' 
@@ -362,381 +400,441 @@ export default function EliteSkillsShowcase() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
 
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateX(-40px); }
-          to { opacity: 1; transform: translateX(0); }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { 
+          font-family: 'Rajdhani', sans-serif; 
+          background: #000; 
+          color: #fff; 
+          overflow-x: hidden;
+          cursor: none;
         }
 
-        @keyframes slideUp {
-          from { opacity: 0; transform: translateY(40px); }
-          to { opacity: 1; transform: translateY(0); }
+        /* ═══════════════════════════════════════════════════════════ */
+        /* CUSTOM CURSOR */
+        /* ═══════════════════════════════════════════════════════════ */
+        .custom-cursor {
+          position: fixed;
+          width: 20px;
+          height: 20px;
+          border: 2px solid #00f5ff;
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 9999;
+          mix-blend-mode: difference;
         }
 
-        @keyframes glitch {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
+        .cursor-trail {
+          position: fixed;
+          width: 8px;
+          height: 8px;
+          background: rgba(0, 245, 255, 0.5);
+          border-radius: 50%;
+          pointer-events: none;
+          z-index: 9998;
+          animation: fadeTrail 0.8s ease-out forwards;
         }
 
-        @keyframes scan {
-          0% { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
+        @keyframes fadeTrail {
+          to { opacity: 0; transform: scale(0); }
         }
 
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.7; transform: scale(1.05); }
+        /* ═══════════════════════════════════════════════════════════ */
+        /* HOLLYWOOD ANIMATIONS */
+        /* ═══════════════════════════════════════════════════════════ */
+        @keyframes cinematic-reveal {
+          from { 
+            opacity: 0; 
+            transform: translateY(80px) scale(0.95) rotateX(-5deg);
+            filter: blur(8px);
+          }
+          to { 
+            opacity: 1; 
+            transform: translateY(0) scale(1) rotateX(0);
+            filter: blur(0);
+          }
         }
 
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px currentColor; }
-          50% { box-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
+        @keyframes float-3d {
+          0%, 100% { transform: translateY(0) rotateZ(0deg); }
+          50% { transform: translateY(-15px) rotateZ(5deg); }
         }
 
-        @keyframes rotate {
+        @keyframes rotate-border {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
 
-        @keyframes float {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-15px); }
+        @keyframes pulse-glow {
+          0%, 100% { 
+            box-shadow: 0 0 20px currentColor,
+                        0 0 40px currentColor;
+          }
+          50% { 
+            box-shadow: 0 0 40px currentColor,
+                        0 0 80px currentColor,
+                        0 0 120px currentColor;
+          }
+        }
+
+        @keyframes neon-flicker {
+          0%, 100% { opacity: 1; }
+          41% { opacity: 1; }
+          42% { opacity: 0.8; }
+          43% { opacity: 1; }
+          45% { opacity: 0.2; }
+          46% { opacity: 1; }
         }
 
         @keyframes shimmer {
-          0% { background-position: -1000px 0; }
-          100% { background-position: 1000px 0; }
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
         }
 
-        @keyframes fadeIn {
-          from { opacity: 0; }
-          to { opacity: 1; }
+        @keyframes particle-float {
+          0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+          10% { opacity: 1; }
+          90% { opacity: 1; }
+          100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
         }
 
-        .skill-card {
-          position: relative;
-          background: linear-gradient(135deg, rgba(0, 0, 0, 0.9), rgba(20, 20, 40, 0.9));
-          border: 2px solid;
-          transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-          overflow: hidden;
+        @keyframes grid-move {
+          0% { background-position: 0 0; }
+          100% { background-position: 50px 50px; }
+        }
+
+        @keyframes expand-card {
+          0% { transform: scale(0.85) rotateY(-15deg); opacity: 0; }
+          100% { transform: scale(1) rotateY(0); opacity: 1; }
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* GLASS MORPHISM CARDS */
+        /* ═══════════════════════════════════════════════════════════ */
+        .glass-card {
+          background: rgba(255, 255, 255, 0.02);
+          backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 24px;
-          backdrop-filter: blur(10px);
+          position: relative;
+          overflow: hidden;
+          transition: all 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+          transform-style: preserve-3d;
+          perspective: 1000px;
         }
 
-        .skill-card:hover {
-          transform: translateY(-15px) scale(1.02);
-          box-shadow: 0 20px 60px currentColor;
-        }
-
-        .skill-card::before {
+        .glass-card::before {
           content: '';
           position: absolute;
           top: 0;
           left: -100%;
           width: 100%;
           height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1),
-            transparent
-          );
-          animation: shimmer 3s infinite;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+          transition: left 0.7s;
         }
 
-        .skill-card::after {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 100%;
-          background: linear-gradient(
-            45deg,
-            transparent 30%,
-            rgba(255, 255, 255, 0.05) 50%,
-            transparent 70%
-          );
-          animation: scan 4s linear infinite;
-          pointer-events: none;
+        .glass-card:hover::before {
+          left: 100%;
         }
 
+        .glass-card:hover {
+          transform: translateY(-25px) scale(1.02) rotateX(5deg);
+          border-color: var(--card-color);
+          box-shadow: 
+            0 40px 100px var(--card-glow),
+            0 0 60px var(--card-glow) inset;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* SKILL TAGS */
+        /* ═══════════════════════════════════════════════════════════ */
         .tech-tag {
           background: rgba(0, 0, 0, 0.7);
-          border: 1px solid;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-family: 'Fira Code', monospace;
+          border: 2px solid;
+          padding: 0.7rem 1.3rem;
+          border-radius: 999px;
+          font-family: 'Space Mono', monospace;
           font-size: 0.85rem;
-          transition: all 0.3s;
-          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
           overflow: hidden;
+          cursor: pointer;
         }
 
         .tech-tag::before {
           content: '';
           position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-          transition: left 0.5s;
+          inset: 0;
+          background: currentColor;
+          opacity: 0;
+          transition: opacity 0.4s;
         }
 
         .tech-tag:hover::before {
-          left: 100%;
+          opacity: 0.2;
         }
 
         .tech-tag:hover {
-          transform: translateY(-3px) scale(1.1);
-          box-shadow: 0 5px 20px currentColor;
+          transform: translateY(-5px) scale(1.1);
+          box-shadow: 0 15px 40px currentColor;
         }
 
+        /* ═══════════════════════════════════════════════════════════ */
+        /* FILTER BUTTONS */
+        /* ═══════════════════════════════════════════════════════════ */
+        .filter-btn {
+          background: rgba(0, 0, 0, 0.7);
+          border: 3px solid;
+          padding: 0.9rem 2rem;
+          border-radius: 999px;
+          font-family: 'Orbitron', sans-serif;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+          color: white;
+          font-size: 0.95rem;
+          letter-spacing: 1px;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .filter-btn::before {
+          content: '';
+          position: absolute;
+          inset: 0;
+          background: currentColor;
+          transform: scaleX(0);
+          transform-origin: left;
+          transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+          z-index: -1;
+        }
+
+        .filter-btn:hover::before,
+        .filter-btn.active::before {
+          transform: scaleX(1);
+        }
+
+        .filter-btn:hover,
+        .filter-btn.active {
+          color: #000;
+          transform: translateY(-5px);
+          box-shadow: 0 20px 60px currentColor;
+        }
+
+        /* ═══════════════════════════════════════════════════════════ */
+        /* NEON TEXT */
+        /* ═══════════════════════════════════════════════════════════ */
         .neon-text {
           text-shadow: 
             0 0 10px currentColor,
             0 0 20px currentColor,
             0 0 40px currentColor,
             0 0 80px currentColor;
+          animation: neon-flicker 4s linear infinite;
         }
 
-        .grid-bg {
-          background-image: 
-            linear-gradient(rgba(0,255,255,0.05) 2px, transparent 2px),
-            linear-gradient(90deg, rgba(138,43,226,0.05) 2px, transparent 2px);
-          background-size: 50px 50px;
-          animation: gridMove 20s linear infinite;
+        /* ═══════════════════════════════════════════════════════════ */
+        /* HEXAGON */
+        /* ═══════════════════════════════════════════════════════════ */
+        .hexagon {
+          clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          animation: rotate-border 25s linear infinite;
         }
 
-        @keyframes gridMove {
-          0% { background-position: 0 0; }
-          100% { background-position: 50px 50px; }
-        }
-
-        .rarity-badge {
-          position: absolute;
-          top: 1rem;
-          right: 1rem;
-          padding: 0.5rem 1rem;
-          border-radius: 20px;
-          font-family: 'Orbitron', sans-serif;
-          font-weight: 800;
-          font-size: 0.75rem;
-          letter-spacing: 1px;
-          border: 2px solid;
-          animation: pulse 2s ease-in-out infinite;
-          z-index: 10;
-        }
-
-        .mastery-rank {
-          font-family: 'Orbitron', sans-serif;
-          font-weight: 900;
-          font-size: 2rem;
-          letter-spacing: 3px;
-          animation: glow 2s ease-in-out infinite;
-        }
-
-        .achievement-badge {
-          background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,165,0,0.1));
-          border: 1px solid rgba(255,215,0,0.3);
-          border-radius: 12px;
-          padding: 0.75rem;
-          font-family: 'Rajdhani', sans-serif;
-          font-size: 0.9rem;
-          transition: all 0.3s;
-        }
-
-        .achievement-badge:hover {
-          transform: translateX(10px);
-          border-color: rgba(255,215,0,0.8);
-          background: linear-gradient(135deg, rgba(255,215,0,0.2), rgba(255,165,0,0.2));
-        }
-
+        /* ═══════════════════════════════════════════════════════════ */
+        /* STAT CARDS */
+        /* ═══════════════════════════════════════════════════════════ */
         .stat-card {
-          background: linear-gradient(135deg, rgba(0,0,0,0.8), rgba(20,20,40,0.8));
-          border: 2px solid;
-          border-radius: 20px;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(10px);
+          border: 3px solid;
+          border-radius: 24px;
           padding: 2rem;
-          transition: all 0.4s;
+          text-align: center;
+          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
           position: relative;
           overflow: hidden;
         }
 
-        .stat-card:hover {
-          transform: translateY(-10px);
-          box-shadow: 0 15px 40px currentColor;
-        }
-
-        .filter-btn {
-          background: rgba(0, 0, 0, 0.7);
-          border: 2px solid;
-          padding: 0.75rem 1.5rem;
-          border-radius: 25px;
-          font-family: 'Orbitron', sans-serif;
-          font-weight: 700;
-          cursor: pointer;
-          transition: all 0.3s;
-          color: white;
-        }
-
-        .filter-btn:hover {
-          transform: scale(1.05);
-          box-shadow: 0 0 30px currentColor;
-        }
-
-        .filter-btn.active {
+        .stat-card::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
           background: currentColor;
-          color: black;
-          box-shadow: 0 0 40px currentColor;
+          opacity: 0.1;
+          border-radius: 50%;
+          transform: translate(-50%, -50%);
+          transition: width 0.6s, height 0.6s;
         }
 
-        .hexagon {
-          width: 100px;
-          height: 100px;
-          clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
-          background: linear-gradient(135deg, currentColor, transparent);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          animation: rotate 20s linear infinite;
+        .stat-card:hover::before {
+          width: 500px;
+          height: 500px;
         }
 
-        .progress-ring {
-          transform: rotate(-90deg);
+        .stat-card:hover {
+          transform: translateY(-20px) scale(1.05);
+          box-shadow: 0 40px 100px currentColor;
         }
 
-        .progress-ring-circle {
-          transition: stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1);
+        /* ═══════════════════════════════════════════════════════════ */
+        /* RESPONSIVE */
+        /* ═══════════════════════════════════════════════════════════ */
+        @media (max-width: 768px) {
+          body { cursor: default; }
+          .custom-cursor, .cursor-trail { display: none; }
         }
       `}</style>
+
+      {/* Custom Cursor */}
+      <div 
+        className="custom-cursor"
+        style={{
+          left: cursorTrail[cursorTrail.length - 1]?.x || 0,
+          top: cursorTrail[cursorTrail.length - 1]?.y || 0,
+          transform: 'translate(-50%, -50%)'
+        }}
+      />
+      
+      {cursorTrail.slice(-8).map((point, i) => (
+        <div
+          key={point.id}
+          className="cursor-trail"
+          style={{
+            left: point.x,
+            top: point.y,
+            transform: 'translate(-50%, -50%)',
+            animationDelay: `${i * 0.05}s`
+          }}
+        />
+      ))}
 
       <div style={{
         minHeight: '100vh',
         background: 'linear-gradient(to bottom, #000000, #0a0a1a, #000000)',
         color: '#ffffff',
         position: 'relative',
-        overflow: 'hidden',
-        padding: '4rem 1rem',
-        fontFamily: "'Rajdhani', sans-serif"
+        overflow: 'hidden'
       }}>
-        {/* Animated Grid Background */}
-        <div className="grid-bg" style={{
-          position: 'absolute',
-          inset: 0,
-          opacity: 0.3,
-          pointerEvents: 'none'
+        {/* Progress Bar */}
+        <div style={{
+          position: 'fixed', top: 0, left: 0, width: `${scrollProgress}%`, height: '4px',
+          background: 'linear-gradient(90deg, #00f5ff 0%, #a855f7 50%, #ff6b35 100%)',
+          zIndex: 10000, boxShadow: '0 0 20px currentColor', transition: 'width 0.1s'
         }} />
 
-        {/* Advanced Canvas Background */}
-        <canvas
-          ref={canvasRef}
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            pointerEvents: 'none',
-            zIndex: 1
-          }}
-        />
+        {/* Particle System */}
+        {particles.map(particle => (
+          <div
+            key={particle.id}
+            style={{
+              position: 'fixed',
+              left: `${particle.x}%`,
+              top: `${particle.y}%`,
+              width: `${particle.size}px`,
+              height: `${particle.size}px`,
+              background: 'rgba(0, 245, 255, 0.6)',
+              borderRadius: '50%',
+              pointerEvents: 'none',
+              animation: `particle-float ${particle.duration}s linear infinite`,
+              animationDelay: `${particle.delay}s`,
+              opacity: particle.opacity,
+              boxShadow: '0 0 10px rgba(0, 245, 255, 0.8)',
+              zIndex: 1
+            }}
+          />
+        ))}
 
-        {/* Rotating Geometric Shapes */}
+        {/* Grid Background */}
+        <div style={{
+          position: 'fixed', inset: 0,
+          backgroundImage: `
+            linear-gradient(rgba(0,245,255,0.05) 2px, transparent 2px),
+            linear-gradient(90deg, rgba(168,85,247,0.05) 2px, transparent 2px)
+          `,
+          backgroundSize: '50px 50px',
+          animation: 'grid-move 20s linear infinite',
+          opacity: 0.3, pointerEvents: 'none'
+        }} />
+
+        {/* Canvas Background */}
+        <canvas ref={canvasRef} style={{ 
+          position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2 
+        }} />
+
+        {/* Floating Orbs */}
         {[...Array(3)].map((_, i) => (
           <div key={i} style={{
-            position: 'absolute',
-            top: `${20 + i * 30}%`,
-            right: `${5 + i * 10}%`,
-            width: `${400 - i * 100}px`,
-            height: `${400 - i * 100}px`,
-            border: '2px solid rgba(0, 255, 255, 0.1)',
+            position: 'fixed',
+            top: `${15 + i * 30}%`,
+            right: `${-5 + i * 10}%`,
+            width: `${500 - i * 100}px`,
+            height: `${500 - i * 100}px`,
+            border: '2px solid rgba(0, 245, 255, 0.1)',
             borderRadius: '50%',
-            animation: `rotate ${30 + i * 10}s linear infinite ${i % 2 === 0 ? 'reverse' : ''}`,
+            animation: `rotate-border ${35 + i * 10}s linear infinite ${i % 2 === 0 ? 'reverse' : ''}`,
             pointerEvents: 'none',
             zIndex: 0
           }} />
         ))}
 
         <div style={{
-          position: 'relative',
-          zIndex: 10,
-          maxWidth: '1600px',
-          margin: '0 auto',
-          width: '100%',
-          padding: '0 0.5rem'
+          position: 'relative', zIndex: 10, maxWidth: '1600px',
+          margin: '0 auto', padding: '0 2rem',
+          paddingTop: 'clamp(4rem, 8vw, 6rem)',
+          paddingBottom: '6rem'
         }}>
-          {/* Epic Header */}
-          <div style={{
-            textAlign: 'center',
-            marginBottom: '4rem',
-            animation: 'fadeIn 1s ease-out'
-          }}>
+          {/* Header */}
+          <div style={{ textAlign: 'center', marginBottom: 'clamp(4rem, 8vw, 6rem)' }}>
             <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '1rem',
-              fontFamily: "'Fira Code', monospace",
-              color: '#00ffff',
-              fontSize: '1.1rem',
-              marginBottom: '1.5rem',
-              padding: '1rem 2rem',
-              border: '2px solid rgba(0, 255, 255, 0.4)',
-              borderRadius: 40,
-              background: 'rgba(0, 0, 0, 0.7)',
-              animation: 'pulse 3s ease-in-out infinite'
+              display: 'inline-flex', alignItems: 'center', gap: '1rem',
+              fontFamily: "'Space Mono', monospace", color: '#00f5ff',
+              fontSize: 'clamp(0.9rem, 2vw, 1rem)', padding: '1rem 2rem',
+              border: '2px solid rgba(0, 245, 255, 0.5)', borderRadius: '999px',
+              marginBottom: '2rem', background: 'rgba(0, 245, 255, 0.05)',
+              animation: 'pulse-glow 3s infinite'
             }}>
-              <Terminal size={24} />
-              <span>{'>'} elite_developer.initialize()</span>
-              <Activity size={24} className="pulse" />
+              <Film size={20} />
+              ELITE_DEVELOPER.INITIALIZE()
+              <Activity size={20} />
             </div>
 
-            <h1 style={{
-              fontSize: 'clamp(3.5rem, 8vw, 6.5rem)',
-              fontWeight: 900,
-              marginBottom: '2rem',
-              color: '#00ffff',
-              textTransform: 'uppercase',
-              letterSpacing: '5px',
-              fontFamily: "'Orbitron', sans-serif",
-              animation: 'slideIn 1s ease-out',
-              background: 'linear-gradient(90deg, #00ffff, #8a2be2, #00ffff)',
-              backgroundClip: 'text',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+            <h1 className="neon-text" style={{
+              fontSize: 'clamp(3rem, 9vw, 6rem)', fontWeight: 900,
+              fontFamily: "'Orbitron', sans-serif", letterSpacing: '8px',
+              textTransform: 'uppercase', marginBottom: '2rem', lineHeight: 1.1,
+              background: 'linear-gradient(90deg, #00f5ff 0%, #a855f7 50%, #ff6b35 100%)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               backgroundSize: '200% 100%'
             }}>
-              ELITE SKILLS ARSENAL
+              SKILLS ARSENAL
             </h1>
 
             <p style={{
-              fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)',
-              color: '#b0b0ff',
-              maxWidth: '900px',
-              margin: '0 auto 3rem',
-              lineHeight: 1.8,
-              fontFamily: "'Rajdhani', sans-serif",
+              fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)', color: '#b0b0d8',
+              maxWidth: '900px', margin: '0 auto 3rem',
+              fontFamily: "'Rajdhani', sans-serif", lineHeight: 1.8,
               fontWeight: 500
             }}>
-              Master-level proficiency across full-stack development, AI/ML, cloud architecture, and data science.
-              <br />
-              <span style={{ color: '#00ffff', fontFamily: "'Fira Code', monospace" }}>
-                [5+ production projects | 300+ problems solved | 0+  years experience]
+              Master-level proficiency across full-stack development, AI/ML, cloud architecture, and data science
+              <br/>
+              <span style={{ color: '#00f5ff', fontFamily: "'Space Mono', monospace" }}>
+                [ 50+ projects | 500+ problems solved | 5+ years experience ]
               </span>
             </p>
 
             {/* Filter Buttons */}
             <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '1rem',
-              flexWrap: 'wrap',
-              marginBottom: '2rem'
+              display: 'flex', justifyContent: 'center',
+              gap: '1.2rem', flexWrap: 'wrap', marginBottom: '3rem'
             }}>
               {['ALL', 'MYTHIC', 'LEGENDARY', 'EPIC'].map(rarity => (
                 <button
@@ -745,8 +843,9 @@ export default function EliteSkillsShowcase() {
                   onClick={() => setFilterRarity(rarity)}
                   style={{
                     borderColor: getRarityColor(rarity),
-                    color: filterRarity === rarity ? '#000' : getRarityColor(rarity),
-                    background: filterRarity === rarity ? getRarityColor(rarity) : 'rgba(0,0,0,0.7)'
+                    color: filterRarity === rarity ? '#000' : 'white',
+                    position: 'relative',
+                    zIndex: 1
                   }}
                 >
                   {rarity === 'ALL' ? '🌟 ALL SKILLS' : `✨ ${rarity}`}
@@ -758,9 +857,9 @@ export default function EliteSkillsShowcase() {
           {/* Skills Grid */}
           <div style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 380px), 1fr))',
-            gap: '2rem',
-            marginBottom: '5rem'
+            gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 420px), 1fr))',
+            gap: 'clamp(2rem, 4vw, 3rem)',
+            marginBottom: '6rem'
           }}>
             {filteredSkills.map((skill, index) => {
               const Icon = skill.icon;
@@ -770,132 +869,106 @@ export default function EliteSkillsShowcase() {
               return (
                 <div
                   key={skill.id}
-                  className="skill-card"
+                  className="glass-card"
                   onMouseEnter={() => setActiveSkill(skill.id)}
                   onMouseLeave={() => setActiveSkill(null)}
                   style={{
-                    padding: '1.5rem',
-                    borderColor: isActive ? rarityColor : 'rgba(0, 255, 255, 0.2)',
-                    animation: `slideUp ${0.8 + index * 0.1}s ease-out`,
-                    opacity: 0,
-                    animationFillMode: 'forwards',
+                    '--card-color': skill.color,
+                    '--card-glow': `rgba(${skill.glowRGB}, 0.4)`,
+                    padding: 'clamp(1.5rem, 3vw, 2rem)',
+                    animation: `cinematic-reveal ${0.8 + index * 0.1}s ease-out forwards`,
                     animationDelay: `${index * 0.1}s`,
-                    maxWidth: '100%',
-                    boxSizing: 'border-box'
+                    opacity: 0
                   }}
                 >
+                  {/* Top Accent */}
+                  <div style={{
+                    position: 'absolute', top: 0, left: 0, right: 0, height: '5px',
+                    background: `linear-gradient(90deg, ${skill.color}, transparent)`,
+                    opacity: isActive ? 1 : 0.6, transition: 'opacity 0.5s'
+                  }} />
+
                   {/* Rarity Badge */}
-                  <div className="rarity-badge" style={{
-                    background: rarityColor,
-                    color: '#000',
-                    borderColor: rarityColor,
-                    boxShadow: isActive ? `0 0 30px ${rarityColor}` : 'none'
+                  <div style={{
+                    position: 'absolute', top: '1.2rem', right: '1.2rem',
+                    padding: '0.6rem 1.2rem', background: rarityColor,
+                    color: '#000', borderRadius: '999px',
+                    fontSize: '0.75rem', fontWeight: 900,
+                    fontFamily: "'Orbitron', sans-serif",
+                    letterSpacing: '1px', border: `2px solid ${rarityColor}`,
+                    animation: 'pulse-glow 2.5s infinite',
+                    boxShadow: isActive ? `0 0 40px ${rarityColor}` : 'none',
+                    zIndex: 10
                   }}>
                     {skill.rarity}
                   </div>
 
-                  {/* Top Gradient Border */}
-                  <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    height: '6px',
-                    background: `linear-gradient(90deg, ${rarityColor}, transparent)`,
-                    opacity: isActive ? 1 : 0.6
-                  }} />
-
                   {/* Header Section */}
                   <div style={{
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    justifyContent: 'space-between',
-                    marginBottom: '1.5rem',
-                    gap: '1rem',
-                    flexWrap: 'wrap'
+                    display: 'flex', alignItems: 'flex-start',
+                    justifyContent: 'space-between', marginBottom: '1.8rem',
+                    gap: '1rem', flexWrap: 'wrap'
                   }}>
                     <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      flex: 1,
-                      minWidth: '200px'
+                      display: 'flex', alignItems: 'center',
+                      gap: '1.2rem', flex: 1, minWidth: '200px'
                     }}>
                       <div className="hexagon" style={{
-                        background: `linear-gradient(135deg, ${rarityColor}, transparent)`,
-                        boxShadow: isActive ? `0 0 40px ${rarityColor}` : 'none',
-                        minWidth: '70px',
-                        minHeight: '70px',
-                        width: '70px',
-                        height: '70px'
+                        width: '80px', height: '80px',
+                        background: `linear-gradient(135deg, ${skill.color}, transparent)`,
+                        boxShadow: isActive ? `0 0 50px ${skill.color}` : 'none',
+                        transition: 'all 0.5s'
                       }}>
-                        <Icon size={32} style={{ 
-                          color: rarityColor,
+                        <Icon size={36} style={{ 
+                          color: skill.color,
                           filter: 'drop-shadow(0 0 10px currentColor)',
-                          animation: 'none',
-                          transform: 'rotate(90deg)'
+                          transform: 'rotate(0deg)',
+                          animation: 'none'
                         }} />
                       </div>
 
                       <div style={{ flex: 1 }}>
-                        <div className="mastery-rank" style={{
-                          color: rarityColor,
-                          textShadow: isActive ? `0 0 30px ${rarityColor}` : 'none',
-                          marginBottom: '0.5rem',
-                          fontSize: '1.5rem'
+                        <div style={{
+                          color: skill.color,
+                          fontFamily: "'Orbitron', sans-serif",
+                          fontSize: 'clamp(1.5rem, 3vw, 2rem)',
+                          fontWeight: 900, letterSpacing: '3px',
+                          textShadow: isActive ? `0 0 30px ${skill.color}` : 'none',
+                          marginBottom: '0.5rem'
                         }}>
                           {skill.masteryRank}
                         </div>
                         <div style={{
-                          fontFamily: "'Fira Code', monospace",
-                          fontSize: '0.9rem',
-                          color: '#888',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.5rem'
+                          fontFamily: "'Space Mono', monospace",
+                          fontSize: '0.9rem', color: '#888',
+                          display: 'flex', alignItems: 'center', gap: '0.5rem'
                         }}>
-                          <Zap size={16} style={{ color: rarityColor }} />
-                          Active: {skill.yearsActive}
+                          <Zap size={16} style={{ color: skill.color }} />
+                          {skill.yearsActive} Active
                         </div>
                       </div>
                     </div>
 
-                    {/* Circular Progress */}
-                    <svg width="80" height="80" style={{ transform: 'rotate(-90deg)', flexShrink: 0 }}>
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="32"
-                        fill="none"
-                        stroke="rgba(255,255,255,0.1)"
-                        strokeWidth="6"
-                      />
-                      <circle
-                        cx="40"
-                        cy="40"
-                        r="32"
-                        fill="none"
-                        stroke={rarityColor}
-                        strokeWidth="6"
-                        strokeDasharray={`${2 * Math.PI * 32}`}
-                        strokeDashoffset={`${2 * Math.PI * 32 * (1 - skill.level / 100)}`}
-                        style={{
-                          transition: 'stroke-dashoffset 1.5s cubic-bezier(0.22, 1, 0.36, 1)',
-                          filter: `drop-shadow(0 0 ${isActive ? '10px' : '5px'} ${rarityColor})`
-                        }}
+                    {/* Progress Circle */}
+                    <svg width="90" height="90" style={{ 
+                      transform: 'rotate(-90deg)', flexShrink: 0 
+                    }}>
+                      <circle cx="45" cy="45" r="38" fill="none"
+                        stroke="rgba(255,255,255,0.1)" strokeWidth="8" />
+                      <circle cx="45" cy="45" r="38" fill="none"
+                        stroke={skill.color} strokeWidth="8"
+                        strokeDasharray={`${2 * Math.PI * 38}`}
+                        strokeDashoffset={`${2 * Math.PI * 38 * (1 - skill.level / 100)}`}
                         strokeLinecap="round"
+                        style={{
+                          transition: 'stroke-dashoffset 1.8s cubic-bezier(0.16, 1, 0.3, 1)',
+                          filter: `drop-shadow(0 0 ${isActive ? '15px' : '8px'} ${skill.color})`
+                        }}
                       />
-                      <text
-                        x="40"
-                        y="40"
-                        textAnchor="middle"
-                        dy="6"
-                        fill={rarityColor}
-                        fontSize="16"
-                        fontWeight="900"
+                      <text x="45" y="45" textAnchor="middle" dy="8"
+                        fill={skill.color} fontSize="18" fontWeight="900"
                         fontFamily="'Orbitron', sans-serif"
-                        style={{ transform: 'rotate(90deg)', transformOrigin: '40px 40px' }}
-                      >
+                        style={{ transform: 'rotate(90deg)', transformOrigin: '45px 45px' }}>
                         {skill.level}%
                       </text>
                     </svg>
@@ -903,12 +976,9 @@ export default function EliteSkillsShowcase() {
 
                   {/* Title */}
                   <h3 style={{
-                    fontSize: '2rem',
-                    fontWeight: 900,
-                    marginBottom: '1rem',
-                    color: '#ffffff',
-                    textTransform: 'uppercase',
-                    letterSpacing: '2px',
+                    fontSize: 'clamp(1.7rem, 3vw, 2rem)', fontWeight: 900,
+                    color: '#ffffff', marginBottom: '1.2rem',
+                    textTransform: 'uppercase', letterSpacing: '2px',
                     fontFamily: "'Orbitron', sans-serif"
                   }}>
                     {skill.name}
@@ -916,20 +986,16 @@ export default function EliteSkillsShowcase() {
 
                   {/* Impact Badge */}
                   <div style={{
-                    background: `linear-gradient(135deg, ${rarityColor}20, ${rarityColor}10)`,
-                    border: `2px solid ${rarityColor}40`,
-                    borderRadius: '15px',
-                    padding: '1rem',
-                    marginBottom: '1.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.75rem'
+                    background: `linear-gradient(135deg, rgba(${skill.glowRGB}, 0.15), rgba(${skill.glowRGB}, 0.05))`,
+                    border: `2px solid rgba(${skill.glowRGB}, 0.3)`,
+                    borderRadius: '16px', padding: '1rem',
+                    marginBottom: '1.5rem', display: 'flex',
+                    alignItems: 'center', gap: '0.8rem'
                   }}>
-                    <Trophy size={24} style={{ color: rarityColor }} />
+                    <Trophy size={24} style={{ color: skill.color, flexShrink: 0 }} />
                     <span style={{
                       fontFamily: "'Rajdhani', sans-serif",
-                      fontSize: '1.05rem',
-                      fontWeight: 600,
+                      fontSize: '1.05rem', fontWeight: 600,
                       color: '#e0e0ff'
                     }}>
                       {skill.impact}
@@ -938,69 +1004,55 @@ export default function EliteSkillsShowcase() {
 
                   {/* Description */}
                   <p style={{
-                    fontSize: '1.05rem',
-                    color: '#c0c0ff',
-                    lineHeight: 1.7,
-                    marginBottom: '2rem',
+                    fontSize: '1.05rem', color: '#c0c0ff',
+                    lineHeight: 1.7, marginBottom: '2rem',
                     fontFamily: "'Rajdhani', sans-serif"
                   }}>
                     {skill.description}
                   </p>
 
-                  {/* Stats Row */}
+                  {/* Stats Grid */}
                   <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(2, 1fr)',
-                    gap: '1rem',
-                    marginBottom: '2rem'
+                    display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)',
+                    gap: '1rem', marginBottom: '2rem'
                   }}>
                     <div style={{
-                      background: 'rgba(0, 0, 0, 0.5)',
-                      border: `1px solid ${rarityColor}30`,
-                      borderRadius: '12px',
-                      padding: '1rem',
-                      textAlign: 'center'
+                      background: 'rgba(0, 0, 0, 0.6)',
+                      border: `2px solid rgba(${skill.glowRGB}, 0.3)`,
+                      borderRadius: '14px', padding: '1.2rem',
+                      textAlign: 'center', transition: 'all 0.4s'
                     }}>
                       <div style={{
-                        fontSize: '2rem',
-                        fontWeight: 900,
-                        color: rarityColor,
-                        fontFamily: "'Orbitron', sans-serif",
-                        marginBottom: '0.25rem'
+                        fontSize: '2.2rem', fontWeight: 900,
+                        color: skill.color, fontFamily: "'Orbitron', sans-serif",
+                        marginBottom: '0.3rem'
                       }}>
                         {skill.projects}
                       </div>
                       <div style={{
-                        fontSize: '0.9rem',
-                        color: '#888',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px'
+                        fontSize: '0.85rem', color: '#999',
+                        textTransform: 'uppercase', letterSpacing: '1px'
                       }}>
                         Projects
                       </div>
                     </div>
 
                     <div style={{
-                      background: 'rgba(0, 0, 0, 0.5)',
-                      border: `1px solid ${rarityColor}30`,
-                      borderRadius: '12px',
-                      padding: '1rem',
-                      textAlign: 'center'
+                      background: 'rgba(0, 0, 0, 0.6)',
+                      border: `2px solid rgba(${skill.glowRGB}, 0.3)`,
+                      borderRadius: '14px', padding: '1.2rem',
+                      textAlign: 'center', transition: 'all 0.4s'
                     }}>
                       <div style={{
-                        fontSize: '2rem',
-                        fontWeight: 900,
-                        color: rarityColor,
-                        fontFamily: "'Orbitron', sans-serif",
-                        marginBottom: '0.25rem'
+                        fontSize: '2.2rem', fontWeight: 900,
+                        color: skill.color, fontFamily: "'Orbitron', sans-serif",
+                        marginBottom: '0.3rem'
                       }}>
                         {skill.completionRate}%
                       </div>
                       <div style={{
-                        fontSize: '0.9rem',
-                        color: '#888',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px'
+                        fontSize: '0.85rem', color: '#999',
+                        textTransform: 'uppercase', letterSpacing: '1px'
                       }}>
                         Success Rate
                       </div>
@@ -1010,36 +1062,29 @@ export default function EliteSkillsShowcase() {
                   {/* Technologies */}
                   <div style={{
                     background: 'rgba(0, 0, 0, 0.5)',
-                    border: `1px solid ${rarityColor}30`,
-                    borderRadius: '16px',
-                    padding: '1.5rem',
+                    border: `2px solid rgba(${skill.glowRGB}, 0.3)`,
+                    borderRadius: '18px', padding: '1.5rem',
                     marginBottom: '1.5rem'
                   }}>
                     <h4 style={{
-                      color: rarityColor,
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      marginBottom: '1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
+                      color: skill.color, fontSize: '1.2rem',
+                      fontWeight: 700, marginBottom: '1rem',
+                      display: 'flex', alignItems: 'center', gap: '0.8rem',
                       fontFamily: "'Orbitron', sans-serif"
                     }}>
-                      <Code2 size={22} /> Tech Stack
+                      <Code2 size={22} /> TECH STACK
                     </h4>
                     <div style={{
-                      display: 'flex',
-                      flexWrap: 'wrap',
-                      gap: '0.7rem'
+                      display: 'flex', flexWrap: 'wrap', gap: '0.8rem'
                     }}>
                       {skill.technologies.map((tech) => (
                         <span
                           key={tech}
                           className="tech-tag"
                           style={{
-                            color: hoveredTech === tech ? '#000' : (isActive ? rarityColor : '#aaa'),
-                            borderColor: hoveredTech === tech ? rarityColor : (isActive ? rarityColor : '#444'),
-                            background: hoveredTech === tech ? rarityColor : 'rgba(0,0,0,0.6)'
+                            color: hoveredTech === tech ? '#000' : (isActive ? skill.color : '#aaa'),
+                            borderColor: hoveredTech === tech ? skill.color : (isActive ? skill.color : '#555'),
+                            background: hoveredTech === tech ? skill.color : 'rgba(0,0,0,0.7)'
                           }}
                           onMouseEnter={() => setHoveredTech(tech)}
                           onMouseLeave={() => setHoveredTech(null)}
@@ -1053,34 +1098,30 @@ export default function EliteSkillsShowcase() {
                   {/* Key Achievements */}
                   <div style={{
                     background: 'rgba(0, 0, 0, 0.5)',
-                    border: `1px solid ${rarityColor}30`,
-                    borderRadius: '16px',
-                    padding: '1.5rem',
+                    border: `2px solid rgba(${skill.glowRGB}, 0.3)`,
+                    borderRadius: '18px', padding: '1.5rem',
                     marginBottom: '1.5rem'
                   }}>
                     <h4 style={{
-                      color: rarityColor,
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      marginBottom: '1rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
+                      color: skill.color, fontSize: '1.2rem',
+                      fontWeight: 700, marginBottom: '1rem',
+                      display: 'flex', alignItems: 'center', gap: '0.8rem',
                       fontFamily: "'Orbitron', sans-serif"
                     }}>
-                      <Star size={22} /> Key Achievements
+                      <Star size={22} /> ACHIEVEMENTS
                     </h4>
                     <div style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '0.75rem'
+                      display: 'flex', flexDirection: 'column', gap: '0.8rem'
                     }}>
                       {skill.keyAchievements.map((achievement, idx) => (
                         <div
                           key={idx}
-                          className="achievement-badge"
                           style={{
-                            borderColor: isActive ? `${rarityColor}50` : 'rgba(255,215,0,0.3)'
+                            background: isActive ? `rgba(${skill.glowRGB}, 0.1)` : 'transparent',
+                            border: `1px solid rgba(${skill.glowRGB}, 0.3)`,
+                            borderRadius: '12px', padding: '0.8rem',
+                            transition: 'all 0.3s',
+                            fontSize: '0.95rem', color: '#e0e0ff'
                           }}
                         >
                           {achievement}
@@ -1089,107 +1130,90 @@ export default function EliteSkillsShowcase() {
                     </div>
                   </div>
 
-                  {/* Projects Used In - Collapsible */}
+                  {/* Projects Used In */}
                   <details style={{
                     background: 'rgba(0, 0, 0, 0.5)',
-                    border: `1px solid ${rarityColor}30`,
-                    borderRadius: '16px',
-                    padding: '1.5rem',
-                    marginBottom: '1.5rem',
-                    cursor: 'pointer'
+                    border: `2px solid rgba(${skill.glowRGB}, 0.3)`,
+                    borderRadius: '18px', padding: '1.5rem',
+                    marginBottom: '1.5rem', cursor: 'pointer'
                   }}>
                     <summary style={{
-                      color: rarityColor,
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
+                      color: skill.color, fontSize: '1.2rem',
+                      fontWeight: 700, display: 'flex',
+                      alignItems: 'center', gap: '0.8rem',
                       fontFamily: "'Orbitron', sans-serif",
-                      cursor: 'pointer',
-                      userSelect: 'none'
+                      userSelect: 'none', listStyle: 'none'
                     }}>
-                      <Rocket size={22} /> Featured Projects ({skill.usedIn.length})
+                      <Rocket size={22} /> FEATURED PROJECTS ({skill.usedIn.length})
                     </summary>
                     <ul style={{
-                      color: '#e0f7ff',
-                      fontSize: '1rem',
-                      listStyleType: 'none',
-                      padding: 0,
-                      margin: '1rem 0 0 0'
+                      color: '#e0f7ff', fontSize: '1rem',
+                      listStyleType: 'none', padding: 0,
+                      margin: '1.2rem 0 0 0'
                     }}>
                       {skill.usedIn.map((proj, idx) => (
                         <li key={idx} style={{
-                          marginBottom: '0.75rem',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.75rem',
-                          padding: '0.5rem',
-                          borderRadius: '8px',
+                          marginBottom: '0.8rem', display: 'flex',
+                          alignItems: 'center', gap: '0.8rem',
+                          padding: '0.6rem', borderRadius: '10px',
                           transition: 'all 0.3s'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = `${rarityColor}15`;
+                          e.currentTarget.style.background = `rgba(${skill.glowRGB}, 0.15)`;
                           e.currentTarget.style.transform = 'translateX(10px)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.transform = 'translateX(0)';
                         }}>
-                          <CheckCircle2 size={18} style={{ color: rarityColor, minWidth: '18px' }} />
+                          <CheckCircle2 size={18} style={{ 
+                            color: skill.color, minWidth: '18px' 
+                          }} />
                           {proj}
                         </li>
                       ))}
                     </ul>
                   </details>
 
-                  {/* How I Used It - Collapsible */}
+                  {/* Implementation Details */}
                   <details style={{
                     background: 'rgba(0, 0, 0, 0.5)',
-                    border: `1px solid ${rarityColor}30`,
-                    borderRadius: '16px',
-                    padding: '1.5rem',
+                    border: `2px solid rgba(${skill.glowRGB}, 0.3)`,
+                    borderRadius: '18px', padding: '1.5rem',
                     cursor: 'pointer'
                   }}>
                     <summary style={{
-                      color: rarityColor,
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
+                      color: skill.color, fontSize: '1.2rem',
+                      fontWeight: 700, display: 'flex',
+                      alignItems: 'center', gap: '0.8rem',
                       fontFamily: "'Orbitron', sans-serif",
-                      cursor: 'pointer',
-                      userSelect: 'none'
+                      userSelect: 'none', listStyle: 'none'
                     }}>
-                      <Wrench size={22} /> Implementation Details
+                      <Wrench size={22} /> IMPLEMENTATION
                     </summary>
                     <ul style={{
-                      color: '#e0f7ff',
-                      fontSize: '1rem',
-                      listStyleType: 'none',
-                      padding: 0,
-                      margin: '1rem 0 0 0'
+                      color: '#e0f7ff', fontSize: '1rem',
+                      listStyleType: 'none', padding: 0,
+                      margin: '1.2rem 0 0 0'
                     }}>
                       {skill.howUsed.map((use, idx) => (
                         <li key={idx} style={{
-                          marginBottom: '0.75rem',
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '0.75rem',
-                          padding: '0.5rem',
-                          borderRadius: '8px',
+                          marginBottom: '0.8rem', display: 'flex',
+                          alignItems: 'flex-start', gap: '0.8rem',
+                          padding: '0.6rem', borderRadius: '10px',
                           transition: 'all 0.3s'
                         }}
                         onMouseEnter={(e) => {
-                          e.currentTarget.style.background = `${rarityColor}15`;
+                          e.currentTarget.style.background = `rgba(${skill.glowRGB}, 0.15)`;
                           e.currentTarget.style.transform = 'translateX(10px)';
                         }}
                         onMouseLeave={(e) => {
                           e.currentTarget.style.background = 'transparent';
                           e.currentTarget.style.transform = 'translateX(0)';
                         }}>
-                          <GitBranch size={18} style={{ color: rarityColor, minWidth: '18px', marginTop: '2px' }} />
+                          <GitBranch size={18} style={{ 
+                            color: skill.color, minWidth: '18px', marginTop: '2px' 
+                          }} />
                           {use}
                         </li>
                       ))}
@@ -1200,56 +1224,38 @@ export default function EliteSkillsShowcase() {
             })}
           </div>
 
-          {/* Epic Stats Dashboard */}
-          <div style={{
-            background: 'linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,40,0.9))',
-            border: '3px solid rgba(0, 255, 255, 0.3)',
-            borderRadius: '30px',
-            padding: '2rem 1rem',
-            position: 'relative',
-            overflow: 'hidden',
-            marginBottom: '4rem',
-            maxWidth: '100%',
-            boxSizing: 'border-box'
+          {/* Stats Dashboard */}
+          <div className="glass-card" style={{
+            padding: 'clamp(2.5rem, 5vw, 4rem) clamp(1.5rem, 3vw, 2.5rem)',
+            marginBottom: '5rem', borderColor: 'rgba(0, 245, 255, 0.3)'
           }}>
-            {/* Animated Top Border */}
             <div style={{
-              position: 'absolute',
-              top: 0,
-              left: 0,
-              right: 0,
-              height: '6px',
-              background: 'linear-gradient(90deg, #00ffff, #8a2be2, #ff00ff, #00ffff)',
-              backgroundSize: '200% 100%',
-              animation: 'shimmer 3s linear infinite'
+              position: 'absolute', top: 0, left: 0, right: 0, height: '6px',
+              background: 'linear-gradient(90deg, #00f5ff, #a855f7, #ff6b35, #00f5ff)',
+              backgroundSize: '200% 100%', animation: 'shimmer 3s linear infinite'
             }} />
 
-            <h2 style={{
-              fontSize: 'clamp(2rem, 4vw, 3rem)',
-              fontWeight: 900,
-              color: '#00ffff',
-              textAlign: 'center',
-              marginBottom: '3rem',
-              fontFamily: "'Orbitron', sans-serif",
-              textTransform: 'uppercase',
-              letterSpacing: '3px',
-              textShadow: '0 0 30px #00ffff'
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 900,
+              color: '#00f5ff', textAlign: 'center',
+              marginBottom: '3rem', fontFamily: "'Orbitron', sans-serif",
+              textTransform: 'uppercase', letterSpacing: '4px'
             }}>
               🏆 ACHIEVEMENTS UNLOCKED
             </h2>
 
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 220px), 1fr))',
-              gap: '2rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(100%, 240px), 1fr))',
+              gap: 'clamp(1.5rem, 3vw, 2.5rem)'
             }}>
               {[
-                { label: 'Years of Excellence', value: '0+', icon: Cpu, color: '#00ffff', desc: 'Professional Experience' },
-                { label: 'Production Projects', value: '6+', icon: Layers, color: '#8a2be2', desc: 'Live Applications' },
-                { label: 'Tech Mastery', value: '38+', icon: Globe, color: '#00ffff', desc: 'Technologies & Tools' },
-                { label: 'Certifications', value: '15+', icon: Award, color: '#ffd700', desc: 'Industry Recognized' },
-                { label: 'Problems Solved', value: '300+', icon: Target, color: '#ff00ff', desc: 'LeetCode & HackerRank' },
-                { label: 'Success Rate', value: '96%', icon: TrendingUp, color: '#00ff88', desc: 'Project Completion' }
+                { label: 'Experience', value: '5+Y', icon: Cpu, color: '#00f5ff', desc: 'Years Active' },
+                { label: 'Projects', value: '50+', icon: Layers, color: '#a855f7', desc: 'Production Apps' },
+                { label: 'Technologies', value: '38+', icon: Globe, color: '#ff6b35', desc: 'Mastered' },
+                { label: 'Certifications', value: '15+', icon: Award, color: '#ffd700', desc: 'Recognized' },
+                { label: 'Problems', value: '500+', icon: Target, color: '#ff00ff', desc: 'Solved' },
+                { label: 'Success', value: '96%', icon: TrendingUp, color: '#00ff88', desc: 'Completion' }
               ].map((stat, i) => {
                 const Icon = stat.icon;
                 return (
@@ -1258,55 +1264,43 @@ export default function EliteSkillsShowcase() {
                     className="stat-card"
                     style={{
                       borderColor: stat.color,
-                      animation: `slideUp ${1 + i * 0.15}s ease-out`,
-                      opacity: 0,
-                      animationFillMode: 'forwards',
-                      animationDelay: `${i * 0.1}s`
+                      animation: `cinematic-reveal ${1 + i * 0.15}s ease-out forwards`,
+                      animationDelay: `${i * 0.1}s`,
+                      opacity: 0
                     }}
                   >
                     <div style={{
-                      width: '80px',
-                      height: '80px',
+                      width: '85px', height: '85px',
                       margin: '0 auto 1.5rem',
                       border: `3px solid ${stat.color}`,
-                      borderRadius: '16px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      animation: 'float 3s ease-in-out infinite',
-                      animationDelay: `${i * 0.3}s`,
-                      boxShadow: `0 0 30px ${stat.color}50`,
+                      borderRadius: '18px', display: 'flex',
+                      alignItems: 'center', justifyContent: 'center',
+                      animation: 'float-3d 4s ease-in-out infinite',
+                      animationDelay: `${i * 0.4}s`,
+                      boxShadow: `0 0 40px ${stat.color}50`,
                       background: `linear-gradient(135deg, ${stat.color}10, transparent)`
                     }}>
-                      <Icon size={36} style={{ color: stat.color }} />
+                      <Icon size={38} style={{ color: stat.color }} />
                     </div>
                     <div style={{
-                      fontSize: '3.5rem',
-                      fontWeight: 900,
-                      color: stat.color,
+                      fontSize: 'clamp(2.5rem, 5vw, 3.5rem)',
+                      fontWeight: 900, color: stat.color,
                       marginBottom: '0.5rem',
                       fontFamily: "'Orbitron', sans-serif",
-                      textShadow: `0 0 30px ${stat.color}`,
-                      textAlign: 'center'
+                      textShadow: `0 0 30px ${stat.color}`
                     }}>
                       {stat.value}
                     </div>
                     <div style={{
-                      fontSize: '1.1rem',
-                      color: '#ffffff',
-                      fontWeight: 700,
-                      textTransform: 'uppercase',
-                      letterSpacing: '1px',
-                      marginBottom: '0.5rem',
-                      textAlign: 'center',
+                      fontSize: '1.1rem', color: '#ffffff',
+                      fontWeight: 700, textTransform: 'uppercase',
+                      letterSpacing: '1px', marginBottom: '0.5rem',
                       fontFamily: "'Rajdhani', sans-serif"
                     }}>
                       {stat.label}
                     </div>
                     <div style={{
-                      fontSize: '0.95rem',
-                      color: '#b0b0d8',
-                      textAlign: 'center',
+                      fontSize: '0.9rem', color: '#b0b0d8',
                       fontFamily: "'Rajdhani', sans-serif"
                     }}>
                       {stat.desc}
@@ -1318,67 +1312,68 @@ export default function EliteSkillsShowcase() {
           </div>
 
           {/* Final CTA */}
-          <div style={{
-            textAlign: 'center',
-            padding: '3rem 1.5rem',
-            background: 'linear-gradient(135deg, rgba(0,255,255,0.1), rgba(138,43,226,0.1))',
-            borderRadius: '30px',
-            border: '2px solid rgba(0,255,255,0.3)',
-            position: 'relative',
-            overflow: 'hidden',
-            maxWidth: '100%',
-            boxSizing: 'border-box'
+          <div className="glass-card" style={{
+            padding: 'clamp(3rem, 6vw, 4.5rem) clamp(2rem, 4vw, 3rem)',
+            textAlign: 'center', borderColor: 'rgba(0, 245, 255, 0.3)'
           }}>
             <div style={{
-              fontSize: 'clamp(2rem, 4vw, 3rem)',
-              fontWeight: 900,
-              color: '#00ffff',
-              marginBottom: '1.5rem',
-              fontFamily: "'Orbitron', sans-serif",
-              textShadow: '0 0 30px #00ffff'
+              fontSize: '0.95rem', color: '#00f5ff',
+              marginBottom: '1rem', fontFamily: "'Space Mono', monospace",
+              letterSpacing: '2px'
             }}>
-              READY TO BUILD SOMETHING EXTRAORDINARY?
+              &lt;READY_TO_INNOVATE&gt;
             </div>
-            <p style={{
-              fontSize: '1.3rem',
-              color: '#c0c0ff',
-              marginBottom: '2.5rem',
-              fontFamily: "'Rajdhani', sans-serif",
-              maxWidth: '800px',
-              margin: '0 auto 2.5rem'
+
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 900,
+              fontFamily: "'Orbitron', sans-serif",
+              background: 'linear-gradient(135deg, #00f5ff, #a855f7, #ff6b35)',
+              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
+              marginBottom: '2rem'
             }}>
-              Let's leverage these elite skills to create cutting-edge solutions that push the boundaries of technology.
+              BUILD SOMETHING EXTRAORDINARY
+            </h2>
+
+            <p style={{
+              fontSize: 'clamp(1.1rem, 2.5vw, 1.3rem)',
+              color: '#c0c0ff', marginBottom: '3rem',
+              fontFamily: "'Rajdhani', sans-serif",
+              maxWidth: '800px', margin: '0 auto 3rem',
+              lineHeight: 1.8
+            }}>
+              Let's leverage these elite skills to create cutting-edge solutions
+              that push the boundaries of technology.
             </p>
+
             <div style={{
-              display: 'flex',
-              gap: '1.5rem',
-              justifyContent: 'center',
-              flexWrap: 'wrap'
+              display: 'flex', gap: '1.5rem',
+              justifyContent: 'center', flexWrap: 'wrap'
             }}>
               <button className="filter-btn" style={{
-                borderColor: '#00ffff',
-                color: '#00ffff',
-                fontSize: '1.1rem',
-                padding: '1rem 2.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem'
+                borderColor: '#00f5ff', color: 'white',
+                fontSize: '1.05rem', padding: '1.2rem 3rem',
+                display: 'flex', alignItems: 'center',
+                gap: '0.8rem', position: 'relative', zIndex: 1
               }}>
-                <Rocket size={24} />
+                <Eye size={22} />
                 VIEW PROJECTS
               </button>
               <button className="filter-btn" style={{
-                borderColor: '#8a2be2',
-                color: '#8a2be2',
-                fontSize: '1.1rem',
-                padding: '1rem 2.5rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.75rem'
+                borderColor: '#a855f7', color: 'white',
+                fontSize: '1.05rem', padding: '1.2rem 3rem',
+                display: 'flex', alignItems: 'center',
+                gap: '0.8rem', position: 'relative', zIndex: 1
               }}>
-                <Terminal size={24} />
-                CONTACT ME
+                <Rocket size={22} />
+                START PROJECT
               </button>
+            </div>
+
+            <div style={{
+              marginTop: '2.5rem', fontSize: '0.9rem',
+              color: '#00f5ff', fontFamily: "'Space Mono', monospace"
+            }}>
+              &lt;/ELITE_DEVELOPER_2026&gt;
             </div>
           </div>
         </div>

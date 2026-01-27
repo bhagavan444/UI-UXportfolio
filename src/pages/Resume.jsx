@@ -16,51 +16,136 @@ export default function EliteResume() {
   const [showModal, setShowModal] = useState(false);
   const [hoveredStat, setHoveredStat] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [achievements, setAchievements] = useState([]);
   const [selectedSkillCategory, setSelectedSkillCategory] = useState('All');
   const canvasRef = useRef(null);
-  const audioRef = useRef(null);
 
+  // ─── ELEGANT DEVELOPER BACKGROUND ────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
     let animationId;
+    let time = 0;
 
     const resize = () => {
       canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
+      canvas.height = document.documentElement.scrollHeight;
     };
     resize();
 
-    const particles = Array.from({ length: 80 }, () => ({
+    // Neural network nodes
+    const nodes = Array.from({ length: 50 }, () => ({
       x: Math.random() * canvas.width,
       y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.6,
-      vy: (Math.random() - 0.5) * 0.6,
-      size: Math.random() * 2.5 + 1,
-      color: ['#00f0ff', '#a78bfa', '#ff61d2', '#ffd700'][Math.floor(Math.random() * 4)]
+      vx: (Math.random() - 0.5) * 0.4,
+      vy: (Math.random() - 0.5) * 0.4,
+      radius: Math.random() * 2 + 1,
+      color: ['#00f0ff', '#a78bfa', '#ff61d2', '#00ff88'][Math.floor(Math.random() * 4)],
+      pulse: Math.random() * Math.PI * 2
     }));
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      time += 0.01;
+      
+      // Clear with fade
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-      particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+      // Draw DNA helix in background
+      const helixCenterX = canvas.width / 2;
+      const helixAmplitude = 150;
+      const helixFrequency = 0.02;
+      
+      for (let y = 0; y < canvas.height; y += 10) {
+        const x1 = helixCenterX + Math.sin(y * helixFrequency + time) * helixAmplitude;
+        const x2 = helixCenterX - Math.sin(y * helixFrequency + time) * helixAmplitude;
+        
+        const alpha = Math.abs(Math.sin(y * 0.01 + time)) * 0.08;
+        ctx.fillStyle = `rgba(0, 240, 255, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x1, y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        ctx.fillStyle = `rgba(167, 139, 250, ${alpha})`;
+        ctx.beginPath();
+        ctx.arc(x2, y, 2, 0, Math.PI * 2);
+        ctx.fill();
+        
+        // Connect strands
+        if (y % 50 === 0) {
+          ctx.strokeStyle = `rgba(255, 97, 210, ${alpha * 0.5})`;
+          ctx.lineWidth = 1;
+          ctx.beginPath();
+          ctx.moveTo(x1, y);
+          ctx.lineTo(x2, y);
+          ctx.stroke();
+        }
+      }
 
-        const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.size * 6);
-        gradient.addColorStop(0, `${p.color}50`);
+      // Update and draw nodes
+      nodes.forEach((node, i) => {
+        node.x += node.vx;
+        node.y += node.vy;
+        node.pulse += 0.03;
+
+        // Boundary bounce
+        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
+        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+
+        // Draw connections
+        nodes.slice(i + 1).forEach(other => {
+          const dx = other.x - node.x;
+          const dy = other.y - node.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < 150) {
+            const alpha = (1 - dist / 150) * 0.15;
+            ctx.strokeStyle = `${node.color}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(other.x, other.y);
+            ctx.stroke();
+          }
+        });
+
+        // Draw node
+        const pulseSize = node.radius * (1 + Math.sin(node.pulse) * 0.5);
+        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, pulseSize * 6);
+        gradient.addColorStop(0, `${node.color}80`);
+        gradient.addColorStop(0.5, `${node.color}40`);
         gradient.addColorStop(1, 'transparent');
+        
         ctx.fillStyle = gradient;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * 6, 0, Math.PI * 2);
+        ctx.arc(node.x, node.y, pulseSize * 6, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.fillStyle = node.color;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, pulseSize, 0, Math.PI * 2);
         ctx.fill();
       });
+
+      // Draw flowing waves at edges
+      ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      for (let x = 0; x < canvas.width; x += 5) {
+        const y = Math.sin(x * 0.01 + time * 2) * 30 + 50;
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
+
+      ctx.strokeStyle = 'rgba(167, 139, 250, 0.08)';
+      ctx.beginPath();
+      for (let x = 0; x < canvas.width; x += 5) {
+        const y = canvas.height - (Math.sin(x * 0.01 - time * 2) * 30 + 50);
+        if (x === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.stroke();
 
       animationId = requestAnimationFrame(animate);
     };
@@ -167,30 +252,10 @@ export default function EliteResume() {
     { name: 'Full-Stack Open', issuer: 'University of Helsinki', year: '2023' }
   ];
 
-  const Counter = ({ target, suffix = '' }) => {
-    const [count, setCount] = useState(0);
-    useEffect(() => {
-      let start = 0;
-      const duration = 1500;
-      const increment = target / (duration / 16);
-      const timer = setInterval(() => {
-        start += increment;
-        if (start >= target) {
-          setCount(target);
-          clearInterval(timer);
-        } else {
-          setCount(Math.floor(start));
-        }
-      }, 16);
-      return () => clearInterval(timer);
-    }, [target]);
-    return <span>{count}{suffix}</span>;
-  };
-
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -199,6 +264,7 @@ export default function EliteResume() {
           --neon-purple: #a78bfa;
           --neon-pink: #ff61d2;
           --neon-gold: #ffd700;
+          --neon-green: #00ff88;
           --neon-gradient: linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2);
         }
 
@@ -207,14 +273,13 @@ export default function EliteResume() {
         @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
         @keyframes shimmer { 0% { background-position: -200%; } 100% { background-position: 200%; } }
         @keyframes scan { 0% { transform:translateY(-100%); } 100% { transform:translateY(100%); } }
-        @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 1; } 100% { transform: scale(1.4); opacity: 0; } }
 
         .stat-card {
           position: relative;
-          background: rgba(10,10,30,0.95);
+          background: linear-gradient(135deg, rgba(10,10,30,0.95), rgba(20,10,40,0.9));
           border: 2px solid rgba(0,240,255,0.3);
           border-radius: 20px;
-          transition: all 0.4s cubic-bezier(0.4,0,0.2,1);
+          transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
           cursor: pointer;
           overflow: hidden;
         }
@@ -231,25 +296,30 @@ export default function EliteResume() {
 
         .stat-card:hover {
           transform: translateY(-12px) scale(1.05);
-          box-shadow: 0 20px 60px rgba(0,240,255,0.4);
+          border-color: var(--neon-cyan);
+          box-shadow: 0 20px 60px rgba(0,240,255,0.5);
         }
 
         .tab-btn {
           padding: 1rem 2rem;
-          background: rgba(0,0,0,0.6);
+          background: rgba(0,0,0,0.7);
           border: 2px solid rgba(0,240,255,0.3);
-          border-radius: 12px;
+          border-radius: 16px;
           color: #fff;
           cursor: pointer;
-          transition: all 0.3s;
-          font-family: 'Fira Code', monospace;
-          font-weight: 600;
+          transition: all 0.4s;
+          font-family: 'Rajdhani', sans-serif;
+          font-weight: 700;
+          font-size: 1.05rem;
+          letter-spacing: 1px;
+          text-transform: uppercase;
         }
 
         .tab-btn:hover, .tab-btn.active {
-          background: rgba(0,240,255,0.2);
+          background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(167,139,250,0.2));
           border-color: var(--neon-cyan);
-          transform: scale(1.05);
+          transform: scale(1.05) translateY(-2px);
+          box-shadow: 0 10px 30px rgba(0,240,255,0.3);
         }
 
         .skill-badge {
@@ -271,18 +341,27 @@ export default function EliteResume() {
         }
 
         .progress-bar {
-          height: 8px;
-          background: rgba(0,0,0,0.5);
+          height: 10px;
+          background: rgba(0,0,0,0.6);
           border-radius: 999px;
           overflow: hidden;
           position: relative;
+          border: 1px solid rgba(0,240,255,0.2);
         }
 
         .progress-fill {
           height: 100%;
           background: var(--neon-gradient);
           border-radius: 999px;
-          transition: width 1s ease-out;
+          transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+          box-shadow: 0 0 15px rgba(0,240,255,0.6);
+        }
+
+        .glass-card {
+          background: linear-gradient(135deg, rgba(10,10,30,0.95), rgba(20,10,40,0.9));
+          backdrop-filter: blur(15px);
+          border: 2px solid rgba(0,240,255,0.3);
+          border-radius: 24px;
         }
 
         @media (max-width: 1024px) {
@@ -292,35 +371,39 @@ export default function EliteResume() {
         @media (max-width: 768px) {
           .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
           .tab-container { flex-wrap: wrap !important; }
-          .action-buttons { flex-direction: column !important; }
         }
 
         @media (max-width: 480px) {
           .stat-grid { grid-template-columns: 1fr !important; }
         }
+
+        ::-webkit-scrollbar { width: 12px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
+        ::-webkit-scrollbar-thumb { 
+          background: linear-gradient(var(--neon-cyan), var(--neon-purple)); 
+          border-radius: 10px;
+          box-shadow: 0 0 10px var(--neon-cyan);
+        }
       `}</style>
 
       <div style={{
         minHeight: '100vh',
-        background: '#000000',
+        background: 'linear-gradient(to bottom, #000000, #0a0a15, #000000)',
         color: '#e0e0ff',
         position: 'relative',
         overflow: 'hidden',
-        padding: 'clamp(4rem, 10vw, 8rem) clamp(1rem, 3vw, 1.5rem) 6rem',
-        fontFamily: "'Outfit', sans-serif",
-        width: '100%',
-        maxWidth: '100vw',
-        boxSizing: 'border-box'
+        padding: 'clamp(5rem, 12vw, 8rem) clamp(1.5rem, 4vw, 2rem) 6rem',
+        fontFamily: "'Rajdhani', sans-serif",
+        width: '100%'
       }}>
+        {/* Clean Gradient Background */}
         <div style={{
           position: 'absolute',
           inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(0,240,255,0.05) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,240,255,0.05) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-          opacity: 0.3,
+          background: 
+            'radial-gradient(ellipse at top, rgba(0,240,255,0.06) 0%, transparent 50%), ' +
+            'radial-gradient(ellipse at bottom left, rgba(167,139,250,0.06) 0%, transparent 50%), ' +
+            'radial-gradient(ellipse at bottom right, rgba(255,97,210,0.06) 0%, transparent 50%)',
           pointerEvents: 'none'
         }} />
 
@@ -334,49 +417,53 @@ export default function EliteResume() {
         <div style={{
           position: 'relative',
           zIndex: 10,
-          maxWidth: '1600px',
+          maxWidth: '1700px',
           margin: '0 auto',
-          width: '100%',
-          boxSizing: 'border-box'
+          width: '100%'
         }}>
           {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
-              gap: '0.8rem',
-              padding: '0.6rem 1.5rem',
-              background: 'rgba(0,240,255,0.1)',
-              border: '2px solid rgba(0,240,255,0.4)',
+              gap: '1rem',
+              padding: '0.8rem 2rem',
+              background: 'rgba(0,240,255,0.12)',
+              border: '2px solid rgba(0,240,255,0.5)',
               borderRadius: '999px',
-              marginBottom: '1.5rem',
-              animation: 'glow 2s infinite'
+              marginBottom: '2rem',
+              animation: 'glow 3s infinite',
+              backdropFilter: 'blur(10px)'
             }}>
-              <Flame size={20} color="#ffd700" />
-              <span style={{ fontFamily: "'Fira Code', monospace", fontSize: '0.9rem', fontWeight: 600 }}>
+              <Flame size={24} color="#ffd700" />
+              <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: '1rem', fontWeight: 700, letterSpacing: '2px' }}>
                 ELITE DEVELOPER PROFILE
               </span>
+              <Flame size={24} color="#ffd700" />
             </div>
 
             <h1 style={{
-              fontSize: 'clamp(3.5rem, 10vw, 7rem)',
+              fontSize: 'clamp(3.5rem, 10vw, 6rem)',
               fontWeight: 900,
+              fontFamily: "'Orbitron', sans-serif",
               background: 'var(--neon-gradient)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              letterSpacing: '2px',
-              marginBottom: '1rem',
-              textTransform: 'uppercase'
+              letterSpacing: '4px',
+              marginBottom: '1.5rem',
+              textTransform: 'uppercase',
+              textShadow: '0 0 60px rgba(0,240,255,0.5)'
             }}>
               PROFESSIONAL RESUME
             </h1>
 
             <p style={{
-              fontSize: 'clamp(1.2rem, 2.5vw, 1.5rem)',
-              color: '#a0a0d0',
+              fontSize: 'clamp(1.3rem, 3vw, 1.6rem)',
+              color: '#b0b0d8',
               maxWidth: '900px',
-              margin: '0 auto 1rem',
-              lineHeight: 1.8
+              margin: '0 auto 2rem',
+              lineHeight: 1.8,
+              fontWeight: 500
             }}>
               AI & Data Science Engineer | Full-Stack Developer
             </p>
@@ -385,60 +472,60 @@ export default function EliteResume() {
               display: 'flex',
               justifyContent: 'center',
               gap: '1.5rem',
-              marginBottom: '3rem',
+              marginBottom: '4rem',
               flexWrap: 'wrap'
             }}>
               <a href="https://linkedin.com/in/your-profile" target="_blank" rel="noopener noreferrer" style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.6rem 1.2rem',
+                gap: '0.6rem',
+                padding: '0.8rem 1.6rem',
                 background: 'rgba(0,119,181,0.2)',
                 border: '2px solid #0077b5',
                 borderRadius: '999px',
                 color: '#0077b5',
                 textDecoration: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 600,
+                fontSize: '1rem',
+                fontWeight: 700,
                 transition: 'all 0.3s'
               }}>
-                <Linkedin size={18} />
+                <Linkedin size={20} />
                 LinkedIn
               </a>
 
               <a href="https://github.com/bhagavan444" target="_blank" rel="noopener noreferrer" style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.6rem 1.2rem',
+                gap: '0.6rem',
+                padding: '0.8rem 1.6rem',
                 background: 'rgba(255,255,255,0.1)',
                 border: '2px solid #fff',
                 borderRadius: '999px',
                 color: '#fff',
                 textDecoration: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 600,
+                fontSize: '1rem',
+                fontWeight: 700,
                 transition: 'all 0.3s'
               }}>
-                <Github size={18} />
+                <Github size={20} />
                 GitHub
               </a>
 
               <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem',
-                padding: '0.6rem 1.2rem',
-                background: 'rgba(0,240,255,0.1)',
+                gap: '0.6rem',
+                padding: '0.8rem 1.6rem',
+                background: 'rgba(0,240,255,0.15)',
                 border: '2px solid var(--neon-cyan)',
                 borderRadius: '999px',
                 color: 'var(--neon-cyan)',
                 textDecoration: 'none',
-                fontSize: '0.9rem',
-                fontWeight: 600,
+                fontSize: '1rem',
+                fontWeight: 700,
                 transition: 'all 0.3s'
               }}>
-                <Mail size={18} />
+                <Mail size={20} />
                 Email
               </a>
             </div>
@@ -446,9 +533,9 @@ export default function EliteResume() {
             {/* Stats Grid */}
             <div className="stat-grid" style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(180px, 100%), 1fr))',
-              gap: '1.5rem',
-              marginBottom: '3rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))',
+              gap: '2rem',
+              marginBottom: '4rem'
             }}>
               {stats.map((stat, i) => (
                 <div
@@ -457,28 +544,50 @@ export default function EliteResume() {
                   onMouseEnter={() => setHoveredStat(i)}
                   onMouseLeave={() => setHoveredStat(null)}
                   style={{
-                    padding: '1.8rem',
+                    padding: '2rem 1.5rem',
                     textAlign: 'center',
                     animation: `slideUp ${0.3 + i * 0.1}s ease-out`
                   }}
                 >
-                  <stat.icon size={36} style={{ color: stat.color, marginBottom: '0.8rem' }} />
                   <div style={{
-                    fontSize: '2.2rem',
+                    width: '70px',
+                    height: '70px',
+                    margin: '0 auto 1.2rem',
+                    background: `linear-gradient(135deg, ${stat.color}30, transparent)`,
+                    border: `3px solid ${stat.color}`,
+                    borderRadius: '50%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    transition: 'all 0.4s'
+                  }}>
+                    <stat.icon size={32} style={{ color: stat.color }} strokeWidth={2.5} />
+                  </div>
+                  <div style={{
+                    fontSize: '2.5rem',
                     fontWeight: 900,
+                    fontFamily: "'Orbitron', sans-serif",
                     color: stat.color,
-                    marginBottom: '0.3rem'
+                    marginBottom: '0.5rem',
+                    textShadow: `0 0 20px ${stat.color}60`
                   }}>
                     {stat.value}
                   </div>
-                  <div style={{ color: '#b0b0d0', fontSize: '1rem', marginBottom: '0.5rem' }}>
+                  <div style={{ 
+                    color: '#c0c0e0', 
+                    fontSize: '1.05rem', 
+                    marginBottom: '0.5rem',
+                    fontWeight: 600,
+                    letterSpacing: '0.5px'
+                  }}>
                     {stat.label}
                   </div>
                   {hoveredStat === i && (
                     <div style={{
-                      fontSize: '0.85rem',
+                      fontSize: '0.9rem',
                       color: '#888',
-                      fontFamily: "'Fira Code', monospace"
+                      fontFamily: "'Fira Code', monospace",
+                      marginTop: '0.5rem'
                     }}>
                       {stat.detail}
                     </div>
@@ -492,8 +601,8 @@ export default function EliteResume() {
           <div className="tab-container" style={{
             display: 'flex',
             justifyContent: 'center',
-            gap: '1rem',
-            marginBottom: '3rem',
+            gap: '1.2rem',
+            marginBottom: '4rem',
             flexWrap: 'wrap'
           }}>
             {['overview', 'skills', 'experience', 'projects', 'certifications'].map(tab => (
@@ -512,82 +621,86 @@ export default function EliteResume() {
             <div className="main-grid" style={{
               display: 'grid',
               gridTemplateColumns: '1fr 2fr',
-              gap: '2.5rem',
-              marginBottom: '3rem'
+              gap: '3rem',
+              marginBottom: '4rem'
             }}>
               {/* Action Buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <a
                   href={RESUME_DOWNLOAD}
                   style={{
-                    padding: '1.5rem',
-                    background: 'var(--neon-gradient)',
+                    padding: '1.6rem',
+                    background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink))',
                     borderRadius: '999px',
                     color: '#000',
                     fontWeight: 900,
-                    fontSize: '1.2rem',
+                    fontSize: '1.3rem',
+                    fontFamily: "'Orbitron', sans-serif",
                     textDecoration: 'none',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '1rem',
-                    boxShadow: '0 0 50px rgba(0,240,255,0.6)',
-                    transition: 'all 0.3s'
+                    boxShadow: '0 0 60px rgba(0,240,255,0.7)',
+                    transition: 'all 0.4s',
+                    letterSpacing: '1px'
                   }}
                 >
-                  <Download size={28} />
+                  <Download size={30} />
                   Download PDF
                 </a>
 
                 <button
                   onClick={() => setShowModal(true)}
                   style={{
-                    padding: '1.5rem',
-                    background: 'rgba(0,240,255,0.1)',
+                    padding: '1.6rem',
+                    background: 'rgba(0,240,255,0.12)',
                     border: '3px solid var(--neon-cyan)',
                     borderRadius: '999px',
                     color: 'var(--neon-cyan)',
-                    fontWeight: 800,
-                    fontSize: '1.2rem',
+                    fontWeight: 900,
+                    fontSize: '1.3rem',
+                    fontFamily: "'Orbitron', sans-serif",
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
                     gap: '1rem',
                     cursor: 'pointer',
-                    transition: 'all 0.3s'
+                    transition: 'all 0.4s',
+                    letterSpacing: '1px',
+                    backdropFilter: 'blur(10px)'
                   }}
                 >
-                  <Eye size={28} />
+                  <Eye size={30} />
                   View Fullscreen
                 </button>
 
                 {/* Quick Info */}
-                <div style={{
-                  padding: '2rem',
-                  background: 'rgba(10,10,30,0.95)',
-                  border: '2px solid rgba(0,240,255,0.3)',
-                  borderRadius: '20px'
+                <div className="glass-card" style={{
+                  padding: '2.5rem 2rem'
                 }}>
                   <h3 style={{
-                    fontSize: '1.5rem',
+                    fontSize: '1.8rem',
                     fontWeight: 800,
+                    fontFamily: "'Orbitron', sans-serif",
                     color: 'var(--neon-cyan)',
-                    marginBottom: '1.5rem'
+                    marginBottom: '2rem',
+                    letterSpacing: '1px'
                   }}>
                     Quick Info
                   </h3>
 
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <MapPin size={20} color="#a78bfa" />
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '1.05rem' }}>
+                      <MapPin size={22} color="#a78bfa" />
                       <span>Gudivada, India</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <Briefcase size={20} color="#ff61d2" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '1.05rem' }}>
+                      <Briefcase size={22} color="#ff61d2" />
                       <span>Open to Opportunities</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                      <CheckCircle2 size={20} color="#00ff88" />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '1.05rem' }}>
+                      <CheckCircle2 size={22} color="#00ff88" />
                       <span>Available Immediately</span>
                     </div>
                   </div>
@@ -596,11 +709,11 @@ export default function EliteResume() {
 
               {/* Resume Preview */}
               <div style={{
-                borderRadius: '24px',
+                borderRadius: '28px',
                 overflow: 'hidden',
-                border: '3px solid rgba(0,240,255,0.4)',
+                border: '4px solid rgba(0,240,255,0.5)',
                 background: '#000',
-                boxShadow: '0 0 80px rgba(0,240,255,0.3)',
+                boxShadow: '0 0 100px rgba(0,240,255,0.4)',
                 position: 'relative',
                 height: 'clamp(600px, 80vh, 1000px)'
               }}>
@@ -609,33 +722,37 @@ export default function EliteResume() {
                   top: 0,
                   left: 0,
                   right: 0,
-                  padding: '1rem 1.5rem',
-                  background: 'rgba(0,0,0,0.9)',
-                  backdropFilter: 'blur(12px)',
+                  padding: '1.2rem 2rem',
+                  background: 'rgba(0,0,0,0.95)',
+                  backdropFilter: 'blur(15px)',
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
                   zIndex: 20,
-                  borderBottom: '2px solid rgba(0,240,255,0.3)'
+                  borderBottom: '2px solid rgba(0,240,255,0.4)'
                 }}>
                   <div style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '0.8rem',
-                    fontSize: '0.95rem'
+                    gap: '1rem',
+                    fontSize: '1.05rem',
+                    fontFamily: "'Fira Code', monospace",
+                    fontWeight: 600
                   }}>
-                    <CheckCircle2 size={18} color="var(--neon-cyan)" />
-                    <span style={{ fontFamily: "'Fira Code', monospace" }}>ATS Score: 92%</span>
+                    <CheckCircle2 size={20} color="var(--neon-cyan)" />
+                    <span>ATS Score: 92%</span>
                   </div>
 
                   <div style={{
-                    padding: '0.4rem 1rem',
-                    background: 'rgba(0,255,136,0.2)',
+                    padding: '0.5rem 1.3rem',
+                    background: 'rgba(0,255,136,0.25)',
                     border: '2px solid #00ff88',
                     borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 700,
-                    color: '#00ff88'
+                    fontSize: '0.9rem',
+                    fontWeight: 800,
+                    fontFamily: "'Orbitron', sans-serif",
+                    color: '#00ff88',
+                    letterSpacing: '1px'
                   }}>
                     VERIFIED
                   </div>
@@ -658,20 +775,20 @@ export default function EliteResume() {
                   inset: 0,
                   pointerEvents: 'none',
                   background: 'linear-gradient(to bottom, transparent, rgba(0,240,255,0.05), transparent)',
-                  height: '100px',
-                  animation: 'scan 6s linear infinite'
+                  height: '120px',
+                  animation: 'scan 8s linear infinite'
                 }} />
               </div>
             </div>
           )}
 
           {activeTab === 'skills' && (
-            <div style={{ marginBottom: '3rem' }}>
+            <div style={{ marginBottom: '4rem' }}>
               <div style={{
                 display: 'flex',
                 justifyContent: 'center',
-                gap: '1rem',
-                marginBottom: '2.5rem',
+                gap: '1.2rem',
+                marginBottom: '3rem',
                 flexWrap: 'wrap'
               }}>
                 {Object.keys(skillCategories).map(cat => (
@@ -679,15 +796,17 @@ export default function EliteResume() {
                     key={cat}
                     onClick={() => setSelectedSkillCategory(cat)}
                     style={{
-                      padding: '0.7rem 1.5rem',
-                      background: selectedSkillCategory === cat ? 'rgba(0,240,255,0.2)' : 'rgba(0,0,0,0.6)',
+                      padding: '0.9rem 2rem',
+                      background: selectedSkillCategory === cat ? 'linear-gradient(135deg, rgba(0,240,255,0.25), rgba(167,139,250,0.25))' : 'rgba(0,0,0,0.7)',
                       border: `2px solid ${selectedSkillCategory === cat ? 'var(--neon-cyan)' : 'rgba(0,240,255,0.3)'}`,
                       borderRadius: '999px',
                       color: '#fff',
                       cursor: 'pointer',
-                      fontSize: '0.9rem',
-                      fontWeight: 600,
-                      transition: 'all 0.3s'
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      fontFamily: "'Rajdhani', sans-serif",
+                      transition: 'all 0.4s',
+                      letterSpacing: '0.5px'
                     }}
                   >
                     {cat}
@@ -697,27 +816,30 @@ export default function EliteResume() {
 
               <div style={{
                 display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))',
-                gap: '1.5rem'
+                gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))',
+                gap: '2rem'
               }}>
                 {filteredSkills.map((skill, i) => (
                   <div
                     key={i}
+                    className="glass-card"
                     style={{
-                      padding: '1.5rem',
-                      background: 'rgba(10,10,30,0.95)',
-                      border: '2px solid rgba(0,240,255,0.3)',
-                      borderRadius: '16px',
+                      padding: '2rem',
                       animation: `slideUp ${0.2 + i * 0.05}s ease-out`
                     }}
                   >
                     <div style={{
                       display: 'flex',
                       justifyContent: 'space-between',
-                      marginBottom: '1rem'
+                      marginBottom: '1.2rem'
                     }}>
-                      <span style={{ fontWeight: 700, fontSize: '1.1rem' }}>{skill.name}</span>
-                      <span style={{ color: 'var(--neon-cyan)', fontWeight: 800 }}>
+                      <span style={{ fontWeight: 800, fontSize: '1.2rem', fontFamily: "'Rajdhani', sans-serif" }}>{skill.name}</span>
+                      <span style={{ 
+                        color: 'var(--neon-cyan)', 
+                        fontWeight: 900,
+                        fontSize: '1.2rem',
+                        fontFamily: "'Orbitron', sans-serif"
+                      }}>
                         {skill.proficiency}%
                       </span>
                     </div>
@@ -730,10 +852,11 @@ export default function EliteResume() {
                     </div>
 
                     <div style={{
-                      marginTop: '0.8rem',
-                      fontSize: '0.8rem',
+                      marginTop: '1rem',
+                      fontSize: '0.85rem',
                       color: '#888',
-                      fontFamily: "'Fira Code', monospace"
+                      fontFamily: "'Fira Code', monospace",
+                      letterSpacing: '0.5px'
                     }}>
                       {skill.category}
                     </div>
@@ -747,89 +870,92 @@ export default function EliteResume() {
             <div style={{
               display: 'flex',
               flexDirection: 'column',
-              gap: '2rem',
-              marginBottom: '3rem'
+              gap: '2.5rem',
+              marginBottom: '4rem'
             }}>
               {experiences.map((exp, i) => (
                 <div
                   key={i}
+                  className="glass-card"
                   style={{
-                    padding: '2.5rem',
-                    background: 'rgba(10,10,30,0.95)',
-                    border: '2px solid rgba(0,240,255,0.3)',
-                    borderRadius: '20px',
+                    padding: '3rem',
                     animation: `slideUp ${0.3 + i * 0.15}s ease-out`,
-                    position: 'relative',
-                    overflow: 'hidden'
+                    position: 'relative'
                   }}
                 >
                   <div style={{
                     position: 'absolute',
-                    top: '1rem',
-                    right: '1rem',
-                    padding: '0.4rem 1rem',
-                    background: exp.type === 'Internship' ? 'rgba(0,240,255,0.2)' : 'rgba(255,97,210,0.2)',
+                    top: '2rem',
+                    right: '2rem',
+                    padding: '0.6rem 1.3rem',
+                    background: exp.type === 'Internship' ? 'rgba(0,240,255,0.25)' : 'rgba(255,97,210,0.25)',
                     border: `2px solid ${exp.type === 'Internship' ? 'var(--neon-cyan)' : '#ff61d2'}`,
                     borderRadius: '999px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
-                    color: exp.type === 'Internship' ? 'var(--neon-cyan)' : '#ff61d2'
+                    fontSize: '0.85rem',
+                    fontWeight: 800,
+                    fontFamily: "'Orbitron', sans-serif",
+                    color: exp.type === 'Internship' ? 'var(--neon-cyan)' : '#ff61d2',
+                    letterSpacing: '1px'
                   }}>
                     {exp.type}
                   </div>
 
                   <h3 style={{
-                    fontSize: '1.8rem',
-                    fontWeight: 800,
+                    fontSize: '2rem',
+                    fontWeight: 900,
+                    fontFamily: "'Orbitron', sans-serif",
                     color: '#fff',
-                    marginBottom: '0.5rem'
+                    marginBottom: '0.8rem'
                   }}>
                     {exp.title}
                   </h3>
 
                   <div style={{
-                    fontSize: '1.2rem',
+                    fontSize: '1.4rem',
                     color: 'var(--neon-cyan)',
-                    marginBottom: '1rem',
-                    fontWeight: 600
+                    marginBottom: '1.5rem',
+                    fontWeight: 700,
+                    fontFamily: "'Rajdhani', sans-serif"
                   }}>
                     {exp.company}
                   </div>
 
                   <div style={{
                     display: 'flex',
-                    gap: '2rem',
-                    marginBottom: '1.5rem',
+                    gap: '2.5rem',
+                    marginBottom: '2rem',
                     flexWrap: 'wrap',
-                    fontSize: '0.95rem',
-                    color: '#888'
+                    fontSize: '1rem',
+                    color: '#999',
+                    fontWeight: 600
                   }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Calendar size={16} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                      <Calendar size={18} />
                       {exp.duration}
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <MapPin size={16} />
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                      <MapPin size={18} />
                       {exp.location}
                     </div>
                   </div>
 
-                  <div style={{ marginBottom: '1.5rem' }}>
+                  <div style={{ marginBottom: '2rem' }}>
                     {exp.highlights.map((highlight, idx) => (
                       <div
                         key={idx}
                         style={{
                           display: 'flex',
                           alignItems: 'flex-start',
-                          gap: '1rem',
-                          marginBottom: '0.8rem',
-                          padding: '0.8rem',
-                          background: 'rgba(0,0,0,0.3)',
-                          borderRadius: '8px'
+                          gap: '1.2rem',
+                          marginBottom: '1rem',
+                          padding: '1rem',
+                          background: 'rgba(0,0,0,0.4)',
+                          borderRadius: '12px',
+                          border: '1px solid rgba(0,240,255,0.2)'
                         }}
                       >
-                        <CheckCircle2 size={18} color="var(--neon-cyan)" style={{ flexShrink: 0, marginTop: '0.2rem' }} />
-                        <span style={{ lineHeight: 1.6 }}>{highlight}</span>
+                        <CheckCircle2 size={20} color="var(--neon-cyan)" style={{ flexShrink: 0, marginTop: '0.2rem' }} strokeWidth={2.5} />
+                        <span style={{ lineHeight: 1.7, fontSize: '1.05rem' }}>{highlight}</span>
                       </div>
                     ))}
                   </div>
@@ -837,18 +963,19 @@ export default function EliteResume() {
                   <div style={{
                     display: 'flex',
                     flexWrap: 'wrap',
-                    gap: '0.8rem'
+                    gap: '1rem'
                   }}>
                     {exp.tech.map((t, idx) => (
                       <span
                         key={idx}
                         style={{
-                          padding: '0.5rem 1rem',
-                          background: 'rgba(0,240,255,0.1)',
-                          border: '1px solid rgba(0,240,255,0.3)',
+                          padding: '0.6rem 1.3rem',
+                          background: 'rgba(0,240,255,0.12)',
+                          border: '2px solid rgba(0,240,255,0.4)',
                           borderRadius: '999px',
-                          fontSize: '0.85rem',
-                          fontFamily: "'Fira Code', monospace"
+                          fontSize: '0.9rem',
+                          fontFamily: "'Fira Code', monospace",
+                          fontWeight: 600
                         }}
                       >
                         {t}
@@ -863,27 +990,24 @@ export default function EliteResume() {
           {activeTab === 'projects' && (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(min(350px, 100%), 1fr))',
-              gap: '2rem',
-              marginBottom: '3rem'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))',
+              gap: '2.5rem',
+              marginBottom: '4rem'
             }}>
               {projects.map((project, i) => (
                 <div
                   key={i}
+                  className="glass-card"
                   style={{
-                    padding: '2rem',
-                    background: 'rgba(10,10,30,0.95)',
-                    border: '2px solid rgba(0,240,255,0.3)',
-                    borderRadius: '20px',
+                    padding: '2.5rem',
                     animation: `slideUp ${0.3 + i * 0.1}s ease-out`,
                     position: 'relative',
-                    overflow: 'hidden',
                     cursor: 'pointer',
-                    transition: 'all 0.3s'
+                    transition: 'all 0.4s'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-8px)';
-                    e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,240,255,0.4)';
+                    e.currentTarget.style.transform = 'translateY(-10px)';
+                    e.currentTarget.style.boxShadow = '0 25px 70px rgba(0,240,255,0.5)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
@@ -892,52 +1016,62 @@ export default function EliteResume() {
                 >
                   <div style={{
                     position: 'absolute',
-                    top: '1rem',
-                    right: '1rem',
-                    padding: '0.4rem 1rem',
-                    background: project.status === 'Live' ? 'rgba(0,255,136,0.2)' : 'rgba(255,215,0,0.2)',
+                    top: '1.5rem',
+                    right: '1.5rem',
+                    padding: '0.5rem 1.2rem',
+                    background: project.status === 'Live' ? 'rgba(0,255,136,0.25)' : 'rgba(255,215,0,0.25)',
                     border: `2px solid ${project.status === 'Live' ? '#00ff88' : '#ffd700'}`,
                     borderRadius: '999px',
-                    fontSize: '0.75rem',
-                    fontWeight: 700,
+                    fontSize: '0.8rem',
+                    fontWeight: 800,
+                    fontFamily: "'Orbitron', sans-serif",
                     color: project.status === 'Live' ? '#00ff88' : '#ffd700',
-                    animation: 'glow 2s infinite'
+                    animation: 'glow 2s infinite',
+                    letterSpacing: '1px'
                   }}>
                     {project.status}
                   </div>
 
                   <h3 style={{
-                    fontSize: '1.6rem',
-                    fontWeight: 800,
+                    fontSize: '1.8rem',
+                    fontWeight: 900,
+                    fontFamily: "'Orbitron', sans-serif",
                     color: '#fff',
-                    marginBottom: '1rem',
-                    paddingRight: '5rem'
+                    marginBottom: '1.2rem',
+                    paddingRight: '6rem'
                   }}>
                     {project.name}
                   </h3>
 
                   <p style={{
-                    fontSize: '1rem',
-                    color: '#a0a0c0',
-                    lineHeight: 1.6,
-                    marginBottom: '1.5rem'
+                    fontSize: '1.05rem',
+                    color: '#b0b0d0',
+                    lineHeight: 1.7,
+                    marginBottom: '2rem'
                   }}>
                     {project.desc}
                   </p>
 
                   <div style={{
-                    padding: '1rem',
-                    background: 'rgba(0,0,0,0.4)',
-                    borderRadius: '12px',
-                    marginBottom: '1.5rem',
+                    padding: '1.3rem',
+                    background: 'rgba(0,0,0,0.5)',
+                    borderRadius: '16px',
+                    marginBottom: '2rem',
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '1rem'
+                    gap: '1.2rem',
+                    border: '2px solid rgba(0,240,255,0.3)'
                   }}>
-                    <TrendingUp size={24} color="var(--neon-cyan)" />
+                    <TrendingUp size={28} color="var(--neon-cyan)" strokeWidth={2.5} />
                     <div>
-                      <div style={{ fontSize: '0.8rem', color: '#888' }}>Impact</div>
-                      <div style={{ fontSize: '1.2rem', fontWeight: 800, color: 'var(--neon-cyan)' }}>
+                      <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '0.3rem' }}>Impact</div>
+                      <div style={{ 
+                        fontSize: '1.4rem', 
+                        fontWeight: 900, 
+                        fontFamily: "'Orbitron', sans-serif",
+                        color: 'var(--neon-cyan)',
+                        textShadow: '0 0 20px rgba(0,240,255,0.6)'
+                      }}>
                         {project.impact}
                       </div>
                     </div>
@@ -946,19 +1080,20 @@ export default function EliteResume() {
                   <div style={{
                     display: 'flex',
                     flexWrap: 'wrap',
-                    gap: '0.6rem'
+                    gap: '0.8rem'
                   }}>
                     {project.tech.map((t, idx) => (
                       <span
                         key={idx}
                         style={{
-                          padding: '0.4rem 0.9rem',
-                          background: 'rgba(167,139,250,0.1)',
-                          border: '1px solid rgba(167,139,250,0.4)',
+                          padding: '0.5rem 1.1rem',
+                          background: 'rgba(167,139,250,0.15)',
+                          border: '2px solid rgba(167,139,250,0.5)',
                           borderRadius: '999px',
-                          fontSize: '0.8rem',
+                          fontSize: '0.85rem',
                           fontFamily: "'Fira Code', monospace",
-                          color: '#a78bfa'
+                          color: '#a78bfa',
+                          fontWeight: 600
                         }}
                       >
                         {t}
@@ -973,52 +1108,56 @@ export default function EliteResume() {
           {activeTab === 'certifications' && (
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(min(400px, 100%), 1fr))',
-              gap: '1.5rem',
-              marginBottom: '3rem'
+              gridTemplateColumns: 'repeat(auto-fill, minmax(min(420px, 100%), 1fr))',
+              gap: '2rem',
+              marginBottom: '4rem'
             }}>
               {certifications.map((cert, i) => (
                 <div
                   key={i}
+                  className="glass-card"
                   style={{
-                    padding: '2rem',
-                    background: 'rgba(10,10,30,0.95)',
-                    border: '2px solid rgba(255,215,0,0.3)',
-                    borderRadius: '16px',
+                    padding: '2.5rem',
                     animation: `slideUp ${0.2 + i * 0.08}s ease-out`,
                     display: 'flex',
                     alignItems: 'flex-start',
-                    gap: '1.5rem',
-                    transition: 'all 0.3s',
+                    gap: '2rem',
+                    transition: 'all 0.4s',
                     cursor: 'pointer'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-6px)';
+                    e.currentTarget.style.transform = 'translateY(-8px)';
                     e.currentTarget.style.borderColor = '#ffd700';
-                    e.currentTarget.style.boxShadow = '0 10px 40px rgba(255,215,0,0.3)';
+                    e.currentTarget.style.boxShadow = '0 15px 50px rgba(255,215,0,0.4)';
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = 'rgba(255,215,0,0.3)';
+                    e.currentTarget.style.borderColor = 'rgba(0,240,255,0.3)';
                     e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
-                  <Award size={32} color="#ffd700" style={{ flexShrink: 0 }} />
+                  <Award size={36} color="#ffd700" style={{ flexShrink: 0 }} strokeWidth={2.5} />
                   <div>
                     <h3 style={{
-                      fontSize: '1.2rem',
-                      fontWeight: 700,
+                      fontSize: '1.3rem',
+                      fontWeight: 800,
+                      fontFamily: "'Rajdhani', sans-serif",
                       color: '#fff',
-                      marginBottom: '0.5rem'
+                      marginBottom: '0.7rem'
                     }}>
                       {cert.name}
                     </h3>
-                    <div style={{ fontSize: '0.95rem', color: '#a0a0c0', marginBottom: '0.3rem' }}>
+                    <div style={{ 
+                      fontSize: '1.05rem', 
+                      color: '#b0b0d0', 
+                      marginBottom: '0.5rem',
+                      fontWeight: 600
+                    }}>
                       {cert.issuer}
                     </div>
                     <div style={{
-                      fontSize: '0.85rem',
-                      color: '#666',
+                      fontSize: '0.9rem',
+                      color: '#777',
                       fontFamily: "'Fira Code', monospace"
                     }}>
                       Issued {cert.year}
@@ -1030,11 +1169,8 @@ export default function EliteResume() {
           )}
 
           {/* Bottom CTA */}
-          <div style={{
-            padding: '3rem 2rem',
-            background: 'rgba(0,0,0,0.8)',
-            border: '3px solid rgba(0,240,255,0.4)',
-            borderRadius: '32px',
+          <div className="glass-card" style={{
+            padding: '4rem 3rem',
             textAlign: 'center',
             position: 'relative',
             overflow: 'hidden'
@@ -1047,23 +1183,28 @@ export default function EliteResume() {
               pointerEvents: 'none'
             }} />
 
+            <Rocket size={60} color="#ffd700" style={{ marginBottom: '2rem' }} strokeWidth={2.5} />
+
             <h2 style={{
-              fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+              fontSize: 'clamp(2.8rem, 7vw, 4.5rem)',
               fontWeight: 900,
+              fontFamily: "'Orbitron', sans-serif",
               background: 'var(--neon-gradient)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
-              marginBottom: '1.5rem'
+              marginBottom: '2rem',
+              letterSpacing: '2px'
             }}>
               LET'S BUILD SOMETHING AMAZING
             </h2>
 
             <p style={{
-              fontSize: '1.2rem',
-              color: '#a0a0d0',
-              maxWidth: '700px',
-              margin: '0 auto 2.5rem',
-              lineHeight: 1.8
+              fontSize: '1.3rem',
+              color: '#b0b0d8',
+              maxWidth: '800px',
+              margin: '0 auto 3rem',
+              lineHeight: 1.9,
+              fontWeight: 500
             }}>
               Open to full-time opportunities, internships, and exciting collaborations.
               Let's connect and create impact together!
@@ -1071,49 +1212,54 @@ export default function EliteResume() {
 
             <div style={{
               display: 'flex',
-              gap: '2rem',
+              gap: '2.5rem',
               justifyContent: 'center',
               flexWrap: 'wrap'
             }}>
               <a
                 href={RESUME_DOWNLOAD}
                 style={{
-                  padding: '1.3rem 3rem',
-                  background: 'var(--neon-gradient)',
+                  padding: '1.5rem 3.5rem',
+                  background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink))',
                   borderRadius: '999px',
                   color: '#000',
                   fontWeight: 900,
-                  fontSize: '1.15rem',
+                  fontSize: '1.2rem',
+                  fontFamily: "'Orbitron', sans-serif",
                   textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '1rem',
-                  boxShadow: '0 0 40px rgba(0,240,255,0.6)',
-                  transition: 'all 0.3s'
+                  boxShadow: '0 0 50px rgba(0,240,255,0.7)',
+                  transition: 'all 0.4s',
+                  letterSpacing: '1px'
                 }}
               >
-                <Download size={24} />
+                <Download size={26} />
                 GET RESUME
               </a>
 
               <a
                 href="mailto:g.sivasatyasaibhagavan@gmail.com"
                 style={{
-                  padding: '1.3rem 3rem',
-                  background: 'rgba(0,240,255,0.1)',
+                  padding: '1.5rem 3.5rem',
+                  background: 'rgba(0,240,255,0.12)',
                   border: '3px solid var(--neon-cyan)',
                   borderRadius: '999px',
                   color: 'var(--neon-cyan)',
-                  fontWeight: 800,
-                  fontSize: '1.15rem',
+                  fontWeight: 900,
+                  fontSize: '1.2rem',
+                  fontFamily: "'Orbitron', sans-serif",
                   textDecoration: 'none',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '1rem',
-                  transition: 'all 0.3s'
+                  transition: 'all 0.4s',
+                  letterSpacing: '1px',
+                  backdropFilter: 'blur(10px)'
                 }}
               >
-                <Rocket size={24} />
+                <Mail size={26} />
                 GET IN TOUCH
               </a>
             </div>
@@ -1128,8 +1274,8 @@ export default function EliteResume() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.97)',
-            backdropFilter: 'blur(20px)',
+            background: 'rgba(0,0,0,0.98)',
+            backdropFilter: 'blur(25px)',
             zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
@@ -1162,8 +1308,8 @@ export default function EliteResume() {
                 position: 'absolute',
                 top: '2rem',
                 right: '2rem',
-                width: '60px',
-                height: '60px',
+                width: '70px',
+                height: '70px',
                 background: 'rgba(255,80,80,0.95)',
                 borderRadius: '50%',
                 border: '3px solid #ff5050',
@@ -1171,12 +1317,13 @@ export default function EliteResume() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 cursor: 'pointer',
-                boxShadow: '0 0 40px rgba(255,80,80,0.6)',
+                boxShadow: '0 0 50px rgba(255,80,80,0.7)',
                 zIndex: 10,
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                backdropFilter: 'blur(10px)'
               }}
             >
-              <X size={32} color="#fff" />
+              <X size={36} color="#fff" strokeWidth={3} />
             </button>
 
             <a
@@ -1185,20 +1332,23 @@ export default function EliteResume() {
                 position: 'absolute',
                 bottom: '2rem',
                 right: '2rem',
-                padding: '1rem 2rem',
-                background: 'var(--neon-gradient)',
+                padding: '1.2rem 2.5rem',
+                background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))',
                 borderRadius: '999px',
                 color: '#000',
                 fontWeight: 900,
+                fontFamily: "'Orbitron', sans-serif",
                 textDecoration: 'none',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.8rem',
-                boxShadow: '0 0 40px rgba(0,240,255,0.6)',
-                zIndex: 10
+                gap: '1rem',
+                boxShadow: '0 0 50px rgba(0,240,255,0.7)',
+                zIndex: 10,
+                fontSize: '1.1rem',
+                letterSpacing: '1px'
               }}
             >
-              <Download size={24} />
+              <Download size={26} />
               Download
             </a>
           </div>

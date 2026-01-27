@@ -7,10 +7,10 @@ import {
   Download, TrendingUp, Layers, CheckCircle2, ArrowRight, Terminal,
   Server, Lock, Brain, Eye, Heart, Coffee, Mic, Volume2, Play, Pause,
   ChevronDown, ChevronUp, Calendar, MapPin, Mail, Github, Linkedin,
-  Globe, MessageSquare, Send, BarChart3, PieChart, Activity, AlertCircle
+  Globe, MessageSquare, Send, BarChart3, PieChart, Activity, AlertCircle,
+  Fingerprint, Boxes, Network, Webhook, Container, Shuffle
 } from "lucide-react";
 
-// Lookup object for phase icons
 const phaseIcons = {
   1: Terminal,
   2: Code,
@@ -18,184 +18,10 @@ const phaseIcons = {
   4: Rocket
 };
 
-export default function EliteHackathonShowcase() {
-  const [activePhase, setActivePhase] = useState(null);
-  const [hoveredId, setHoveredId] = useState(null);
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [soundEnabled, setSoundEnabled] = useState(false);
-  const [timelineExpanded, setTimelineExpanded] = useState(false);
-  const [statsAnimated, setStatsAnimated] = useState(false);
-  const [messageForm, setMessageForm] = useState({ name: '', email: '', message: '' });
-  const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 });
-  const [activeFilter, setActiveFilter] = useState('all');
-  const [showCertificate, setShowCertificate] = useState(false);
-
+// Developer Animated Background Component
+function DeveloperBackground() {
   const canvasRef = useRef(null);
-  const audioRef = useRef(null);
-  const statsRef = useRef(null);
 
-  // Use direct Google Drive link for certificate (public view & download)
-  const certificateImage = "https://lh3.googleusercontent.com/d/1bkXJCzHQPbSSovbaLs4EPeKT1f9ERl5O";
-
-  const phases = [
-    {
-      id: 1,
-      hour: "0–6h",
-      icon: Terminal,
-      title: "Foundation Sprint",
-      desc: "Designed overall system architecture, finalized use-cases, modeled MongoDB schemas, implemented JWT authentication core, and scaffolded backend & frontend projects.",
-      color: "#00f0ff",
-      achievements: [
-        "System Architecture Blueprint",
-        "MongoDB Schema Design",
-        "JWT Authentication Core",
-        "Backend & Frontend Setup"
-      ],
-      techUsed: ["Node.js", "Express", "MongoDB", "JWT"],
-      challenges: "Tight deadline required rapid prototyping without compromising security",
-      solutions: "Implemented modular architecture with reusable authentication middleware"
-    },
-    {
-      id: 2,
-      hour: "6–14h",
-      icon: Code,
-      title: "Core Development",
-      desc: "Implemented RESTful APIs, developed reusable React components, set up state management, routing, and integrated core application workflows.",
-      color: "#a78bfa",
-      achievements: [
-        "15+ REST API Endpoints",
-        "Reusable UI Component Library",
-        "State Management Architecture",
-        "Client-Side Routing"
-      ],
-      techUsed: ["React", "Redux", "React Router", "Axios"],
-      challenges: "Complex state management across multiple interconnected components",
-      solutions: "Centralized state with Redux Toolkit and custom hooks for data fetching"
-    },
-    {
-      id: 3,
-      hour: "14–20h",
-      icon: Zap,
-      title: "Integration & Security",
-      desc: "Integrated real-time features using Socket.io, implemented role-based access control, added validation layers, middleware, and centralized error handling.",
-      color: "#ff61d2",
-      achievements: [
-        "Real-Time Chat System",
-        "Role-Based Authorization",
-        "Security Hardening",
-        "Robust Error Handling"
-      ],
-      techUsed: ["Socket.io", "bcrypt", "Helmet.js", "express-validator"],
-      challenges: "Ensuring secure real-time communication with proper authorization",
-      solutions: "JWT token validation on WebSocket connections with role-based room access"
-    },
-    {
-      id: 4,
-      hour: "20–24h",
-      icon: Rocket,
-      title: "Launch & Demo",
-      desc: "Optimized performance, tested core flows, prepared live demo, deployed to cloud, and documented system for presentation and evaluation.",
-      color: "#10b981",
-      achievements: [
-        "Production Deployment",
-        "Performance Optimization",
-        "Live Demo Preparation",
-        "Technical Documentation"
-      ],
-      techUsed: ["Docker", "AWS/Heroku", "Jest", "Lighthouse"],
-      challenges: "Last-minute bugs and performance bottlenecks before presentation",
-      solutions: "Implemented code splitting, lazy loading, and caching strategies"
-    }
-  ];
-
-  const techStack = [
-    { icon: Database, name: "MongoDB", desc: "NoSQL database for scalable data storage", color: "#10b981", proficiency: 95 },
-    { icon: Server, name: "Express.js", desc: "Backend framework for REST APIs", color: "#00f0ff", proficiency: 92 },
-    { icon: Sparkles, name: "React", desc: "Frontend UI library for dynamic components", color: "#8b5cf6", proficiency: 98 },
-    { icon: Layers, name: "Node.js", desc: "JavaScript runtime for backend services", color: "#ec4899", proficiency: 90 },
-    { icon: Lock, name: "JWT", desc: "Secure authentication & authorization", color: "#f59e0b", proficiency: 88 },
-    { icon: Zap, name: "Socket.io", desc: "Real-time communication engine", color: "#3b82f6", proficiency: 85 }
-  ];
-
-  const stats = [
-    { label: "Duration", value: "24", unit: "hours", icon: Clock, color: "#00f0ff", target: 24 },
-    { label: "Team Size", value: "4", unit: "members", icon: Users, color: "#a78bfa", target: 4 },
-    { label: "Code Written", value: "5000+", unit: "lines", icon: Code, color: "#ff61d2", target: 5000 },
-    { label: "Achievement", value: "1st", unit: "place", icon: Trophy, color: "#10b981", target: 1 }
-  ];
-
-  const teamMembers = [
-    { name: "Bhagavan", role: "Full-Stack Lead", avatar: "🧑‍💻", contribution: "Architecture & Backend" },
-    { name: "Dhanus Chandra", role: "Frontend Specialist", avatar: "👩‍💻", contribution: "UI/UX & Components" },
-    { name: "Pavan", role: "backend Engineer", avatar: "👨‍💻", contribution: "Deployment & Infrastructure" },
-    { name: "Rahul", role: "Security Expert", avatar: "👩‍💻", contribution: "Authentication & Security" }
-  ];
-
-  const milestones = [
-    { time: "00:00", event: "Hackathon Kickoff - Team Formation", icon: Users },
-    { time: "02:00", event: "Architecture Design Complete", icon: Brain },
-    { time: "06:00", event: "Database Schema Finalized", icon: Database },
-    { time: "10:00", event: "API Endpoints Functional", icon: Server },
-    { time: "14:00", event: "Frontend Components Ready", icon: Code },
-    { time: "18:00", event: "Real-Time Features Integrated", icon: Zap },
-    { time: "22:00", event: "Testing & Bug Fixes", icon: Shield },
-    { time: "24:00", event: "Final Presentation & Victory!", icon: Trophy }
-  ];
-
-  const [displayStats, setDisplayStats] = useState(stats.map(() => 0));
-
-  // Animated counter for stats
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting && !statsAnimated) {
-          setStatsAnimated(true);
-          stats.forEach((stat, index) => {
-            let current = 0;
-            const increment = stat.target / 50;
-            const timer = setInterval(() => {
-              current += increment;
-              if (current >= stat.target) {
-                current = stat.target;
-                clearInterval(timer);
-              }
-              setDisplayStats(prev => {
-                const newStats = [...prev];
-                newStats[index] = Math.floor(current);
-                return newStats;
-              });
-            }, 30);
-          });
-        }
-      },
-      { threshold: 0.5 }
-    );
-    if (statsRef.current) observer.observe(statsRef.current);
-    return () => observer.disconnect();
-  }, [statsAnimated]);
-
-  // Scroll progress tracker
-  useEffect(() => {
-    const handleScroll = () => {
-      const windowHeight = window.innerHeight;
-      const documentHeight = document.documentElement.scrollHeight - windowHeight;
-      const scrolled = (window.scrollY / documentHeight) * 100;
-      setScrollProgress(scrolled);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Custom cursor tracking
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      setCursorPos({ x: e.clientX, y: e.clientY });
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Advanced particle system
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -208,48 +34,244 @@ export default function EliteHackathonShowcase() {
     };
     resize();
 
-    class Particle {
+    // Code snippets that scroll
+    const codeSnippets = [
+      'const app = express();',
+      'app.use(middleware);',
+      'mongoose.connect(URI);',
+      'JWT.verify(token);',
+      'socket.on("message");',
+      'async function fetch()',
+      'return response.json()',
+      'if (authenticated) {',
+      'const [state, setState]',
+      'useEffect(() => {',
+      'router.get("/api")',
+      'app.listen(PORT);',
+      'try { await axios',
+      'Redux.dispatch()',
+      'React.createElement',
+      'npm run build',
+      'docker-compose up',
+      'git commit -m',
+      'export default App',
+      'import { useState }',
+    ];
+
+    // Binary rain characters
+    const binaryChars = ['0', '1'];
+    
+    // Terminal commands
+    const terminalCommands = [
+      '$ npm install',
+      '$ node server.js',
+      '$ git push origin',
+      '$ docker build',
+      '$ kubectl apply',
+      '$ yarn start',
+    ];
+
+    class CodeLine {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height - canvas.height;
+        this.speed = Math.random() * 1 + 0.5;
+        this.text = codeSnippets[Math.floor(Math.random() * codeSnippets.length)];
+        this.opacity = Math.random() * 0.3 + 0.1;
+        this.color = ['#00f0ff', '#a78bfa', '#ff61d2', '#10b981'][Math.floor(Math.random() * 4)];
+      }
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height + 50) this.reset();
+      }
+      draw() {
+        ctx.font = '14px "JetBrains Mono", monospace';
+        ctx.fillStyle = `${this.color}${Math.floor(this.opacity * 255).toString(16).padStart(2, '0')}`;
+        ctx.fillText(this.text, this.x, this.y);
+      }
+    }
+
+    class BinaryRain {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height - canvas.height;
+        this.speed = Math.random() * 3 + 2;
+        this.chars = Array(20).fill(0).map(() => 
+          binaryChars[Math.floor(Math.random() * binaryChars.length)]
+        );
+        this.opacity = Math.random() * 0.4 + 0.2;
+      }
+      update() {
+        this.y += this.speed;
+        if (this.y > canvas.height + 100) this.reset();
+      }
+      draw() {
+        ctx.font = '12px "JetBrains Mono", monospace';
+        this.chars.forEach((char, i) => {
+          const alpha = Math.max(0, this.opacity - (i * 0.02));
+          ctx.fillStyle = `rgba(0, 240, 255, ${alpha})`;
+          ctx.fillText(char, this.x, this.y - (i * 16));
+        });
+      }
+    }
+
+    class TerminalLine {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = -500;
+        this.y = Math.random() * canvas.height;
+        this.speed = Math.random() * 2 + 1;
+        this.text = terminalCommands[Math.floor(Math.random() * terminalCommands.length)];
+        this.opacity = Math.random() * 0.25 + 0.1;
+      }
+      update() {
+        this.x += this.speed;
+        if (this.x > canvas.width + 200) this.reset();
+      }
+      draw() {
+        ctx.font = '16px "JetBrains Mono", monospace';
+        ctx.fillStyle = `rgba(16, 185, 129, ${this.opacity})`;
+        ctx.fillText(this.text, this.x, this.y);
+      }
+    }
+
+    class GeometricShape {
       constructor() {
         this.reset();
       }
       reset() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.6;
-        this.vy = (Math.random() - 0.5) * 0.6;
-        this.size = Math.random() * 2.5 + 1;
-        this.life = 1;
-        this.decay = Math.random() * 0.001 + 0.0005;
+        this.size = Math.random() * 100 + 50;
+        this.rotation = Math.random() * Math.PI * 2;
+        this.rotationSpeed = (Math.random() - 0.5) * 0.01;
+        this.opacity = Math.random() * 0.1 + 0.05;
+        this.type = Math.floor(Math.random() * 3); // 0: square, 1: triangle, 2: hexagon
+        this.color = ['#00f0ff', '#a78bfa', '#ff61d2'][Math.floor(Math.random() * 3)];
       }
       update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        this.life -= this.decay;
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-        if (this.life <= 0) this.reset();
+        this.rotation += this.rotationSpeed;
       }
       draw() {
-        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * 6);
-        gradient.addColorStop(0, `rgba(0, 240, 255, ${0.4 * this.life})`);
-        gradient.addColorStop(0.5, `rgba(167, 139, 250, ${0.2 * this.life})`);
-        gradient.addColorStop(1, 'transparent');
-        ctx.fillStyle = gradient;
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rotation);
+        ctx.strokeStyle = `${this.color}${Math.floor(this.opacity * 255).toString(16).padStart(2, '0')}`;
+        ctx.lineWidth = 2;
         ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 6, 0, Math.PI * 2);
+        
+        if (this.type === 0) {
+          // Square
+          ctx.rect(-this.size/2, -this.size/2, this.size, this.size);
+        } else if (this.type === 1) {
+          // Triangle
+          ctx.moveTo(0, -this.size/2);
+          ctx.lineTo(this.size/2, this.size/2);
+          ctx.lineTo(-this.size/2, this.size/2);
+          ctx.closePath();
+        } else {
+          // Hexagon
+          for (let i = 0; i < 6; i++) {
+            const angle = (Math.PI / 3) * i;
+            const x = (this.size/2) * Math.cos(angle);
+            const y = (this.size/2) * Math.sin(angle);
+            if (i === 0) ctx.moveTo(x, y);
+            else ctx.lineTo(x, y);
+          }
+          ctx.closePath();
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+    }
+
+    class CircuitLine {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.startX = Math.random() * canvas.width;
+        this.startY = Math.random() * canvas.height;
+        this.endX = this.startX + (Math.random() - 0.5) * 300;
+        this.endY = this.startY + (Math.random() - 0.5) * 300;
+        this.progress = 0;
+        this.speed = Math.random() * 0.01 + 0.005;
+        this.color = ['#00f0ff', '#a78bfa'][Math.floor(Math.random() * 2)];
+        this.opacity = Math.random() * 0.3 + 0.1;
+      }
+      update() {
+        this.progress += this.speed;
+        if (this.progress > 1) this.reset();
+      }
+      draw() {
+        const currentX = this.startX + (this.endX - this.startX) * this.progress;
+        const currentY = this.startY + (this.endY - this.startY) * this.progress;
+        
+        ctx.strokeStyle = `${this.color}${Math.floor(this.opacity * 255).toString(16).padStart(2, '0')}`;
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.moveTo(this.startX, this.startY);
+        ctx.lineTo(currentX, currentY);
+        ctx.stroke();
+        
+        // Draw node at end
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(currentX, currentY, 3, 0, Math.PI * 2);
         ctx.fill();
       }
     }
 
-    const particles = Array.from({ length: 100 }, () => new Particle());
+    // Create elements
+    const codeLines = Array.from({ length: 15 }, () => new CodeLine());
+    const binaryRains = Array.from({ length: 10 }, () => new BinaryRain());
+    const terminalLines = Array.from({ length: 8 }, () => new TerminalLine());
+    const geometricShapes = Array.from({ length: 6 }, () => new GeometricShape());
+    const circuitLines = Array.from({ length: 12 }, () => new CircuitLine());
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0,0,0,0.08)';
+      // Dark background with slight transparency for trail effect
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => {
-        p.update();
-        p.draw();
+
+      // Draw geometric shapes (background layer)
+      geometricShapes.forEach(shape => {
+        shape.update();
+        shape.draw();
       });
+
+      // Draw circuit lines
+      circuitLines.forEach(line => {
+        line.update();
+        line.draw();
+      });
+
+      // Draw binary rain
+      binaryRains.forEach(rain => {
+        rain.update();
+        rain.draw();
+      });
+
+      // Draw code lines
+      codeLines.forEach(line => {
+        line.update();
+        line.draw();
+      });
+
+      // Draw terminal commands
+      terminalLines.forEach(line => {
+        line.update();
+        line.draw();
+      });
+
       animationId = requestAnimationFrame(animate);
     };
     animate();
@@ -261,7 +283,370 @@ export default function EliteHackathonShowcase() {
     };
   }, []);
 
-  // Certificate Download Function
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: 'absolute',
+        inset: 0,
+        pointerEvents: 'none',
+        zIndex: 0,
+        opacity: 0.6
+      }}
+    />
+  );
+}
+
+
+export default function EliteHackathonShowcase() {
+  const [activePhase, setActivePhase] = useState(null);
+  const [hoveredId, setHoveredId] = useState(null);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [soundEnabled, setSoundEnabled] = useState(false);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [showCertificate, setShowCertificate] = useState(false);
+  const [activeTab, setActiveTab] = useState('overview');
+  const [statsAnimated, setStatsAnimated] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const canvasRef = useRef(null);
+  const heroRef = useRef(null);
+  const statsRef = useRef(null);
+
+  const certificateImage = "https://lh3.googleusercontent.com/d/1bkXJCzHQPbSSovbaLs4EPeKT1f9ERl5O";
+
+  const phases = [
+    {
+      id: 1,
+      hour: "0–6h",
+      icon: Terminal,
+      title: "Foundation Sprint",
+      desc: "Designed system architecture with microservices approach, implemented MongoDB sharding strategy, created JWT authentication with refresh tokens, and established CI/CD pipeline foundation.",
+      color: "#00f0ff",
+      gradient: "linear-gradient(135deg, #00f0ff 0%, #0099cc 100%)",
+      achievements: [
+        "Microservices Architecture Design",
+        "MongoDB Sharding & Indexing Strategy",
+        "JWT + Refresh Token Authentication",
+        "Docker Containerization Setup"
+      ],
+      techUsed: ["Node.js", "Express", "MongoDB Atlas", "JWT", "Docker"],
+      challenges: "Designing scalable architecture under extreme time pressure while ensuring security best practices",
+      solutions: "Implemented modular microservices with API gateway pattern and comprehensive middleware authentication layer",
+      metrics: { linesOfCode: 1200, apis: 5, tests: 15 }
+    },
+    {
+      id: 2,
+      hour: "6–14h",
+      icon: Code,
+      title: "Core Development",
+      desc: "Built RESTful APIs with advanced error handling, implemented Redux Toolkit for state management, created reusable component library with TypeScript, and integrated real-time data synchronization.",
+      color: "#a78bfa",
+      gradient: "linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)",
+      achievements: [
+        "20+ REST API Endpoints with Validation",
+        "TypeScript Component Library (30+ components)",
+        "Redux Toolkit + RTK Query Integration",
+        "Advanced Client-Side Routing & Guards"
+      ],
+      techUsed: ["React 18", "TypeScript", "Redux Toolkit", "React Router v6", "Axios Interceptors"],
+      challenges: "Managing complex async state with multiple data sources while maintaining type safety and performance",
+      solutions: "Leveraged RTK Query for automatic caching, Redux Toolkit for normalized state, and React.memo for optimization",
+      metrics: { linesOfCode: 2100, apis: 10, tests: 35 }
+    },
+    {
+      id: 3,
+      hour: "14–20h",
+      icon: Zap,
+      title: "Integration & Security",
+      desc: "Integrated Socket.io with Redis adapter for horizontal scaling, implemented OAuth 2.0 flow, added rate limiting and DDoS protection, created comprehensive logging system with Winston.",
+      color: "#ff61d2",
+      gradient: "linear-gradient(135deg, #ff61d2 0%, #e91e63 100%)",
+      achievements: [
+        "WebSocket + Redis Pub/Sub Architecture",
+        "OAuth 2.0 & RBAC Authorization",
+        "Rate Limiting + Helmet.js Security",
+        "Winston Logger + Error Tracking"
+      ],
+      techUsed: ["Socket.io", "Redis", "OAuth 2.0", "Helmet.js", "Winston", "express-rate-limit"],
+      challenges: "Securing WebSocket connections with authentication while maintaining real-time performance at scale",
+      solutions: "Implemented Redis-backed Socket.io adapter with JWT middleware for connection authentication and room-based authorization",
+      metrics: { linesOfCode: 1500, apis: 4, tests: 28 }
+    },
+    {
+      id: 4,
+      hour: "20–24h",
+      icon: Rocket,
+      title: "Launch & Demo",
+      desc: "Deployed to AWS ECS with auto-scaling, implemented CDN for static assets, added comprehensive monitoring with Prometheus, created interactive demo with live metrics dashboard.",
+      color: "#10b981",
+      gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
+      achievements: [
+        "AWS ECS Production Deployment",
+        "CloudFront CDN + S3 Integration",
+        "Prometheus + Grafana Monitoring",
+        "Live Demo with Real-time Analytics"
+      ],
+      techUsed: ["Docker", "AWS ECS", "CloudFront", "Nginx", "Prometheus", "Grafana"],
+      challenges: "Optimizing bundle size and achieving sub-second load times while deploying complex microservices architecture",
+      solutions: "Implemented code splitting, lazy loading, aggressive caching strategies, and containerized services with orchestration",
+      metrics: { linesOfCode: 200, apis: 1, tests: 12 }
+    }
+  ];
+
+  const techStack = [
+    { 
+      icon: Database, 
+      name: "MongoDB", 
+      desc: "Distributed NoSQL with sharding & replication", 
+      color: "#10b981", 
+      proficiency: 95,
+      features: ["Sharding", "Atlas Search", "Aggregation Pipeline"]
+    },
+    { 
+      icon: Server, 
+      name: "Express.js", 
+      desc: "High-performance REST API framework", 
+      color: "#00f0ff", 
+      proficiency: 92,
+      features: ["Middleware", "Routing", "Error Handling"]
+    },
+    { 
+      icon: Sparkles, 
+      name: "React", 
+      desc: "Component-based UI with hooks & context", 
+      color: "#8b5cf6", 
+      proficiency: 98,
+      features: ["Hooks", "Context API", "Suspense"]
+    },
+    { 
+      icon: Layers, 
+      name: "Node.js", 
+      desc: "Async I/O runtime with event-driven architecture", 
+      color: "#ec4899", 
+      proficiency: 90,
+      features: ["Event Loop", "Streams", "Cluster"]
+    },
+    { 
+      icon: Lock, 
+      name: "JWT & OAuth", 
+      desc: "Token-based authentication & authorization", 
+      color: "#f59e0b", 
+      proficiency: 88,
+      features: ["Access Tokens", "Refresh Tokens", "RBAC"]
+    },
+    { 
+      icon: Zap, 
+      name: "Socket.io", 
+      desc: "Bidirectional real-time communication", 
+      color: "#3b82f6", 
+      proficiency: 85,
+      features: ["WebSocket", "Redis Adapter", "Rooms"]
+    },
+    { 
+      icon: Container, 
+      name: "Docker", 
+      desc: "Containerization & orchestration", 
+      color: "#06b6d4", 
+      proficiency: 87,
+      features: ["Multi-stage", "Compose", "Swarm"]
+    },
+    { 
+      icon: Network, 
+      name: "Redis", 
+      desc: "In-memory data structure store", 
+      color: "#dc2626", 
+      proficiency: 84,
+      features: ["Caching", "Pub/Sub", "Sessions"]
+    }
+  ];
+
+  const stats = [
+    { label: "Duration", value: "24", unit: "hours", icon: Clock, color: "#00f0ff", target: 24 },
+    { label: "Team Size", value: "4", unit: "developers", icon: Users, color: "#a78bfa", target: 4 },
+    { label: "Code Written", value: "5000", unit: "lines", icon: Code, color: "#ff61d2", target: 5000 },
+    { label: "Achievement", value: "1st", unit: "place", icon: Trophy, color: "#10b981", target: 1 },
+    { label: "API Endpoints", value: "20", unit: "routes", icon: Server, color: "#f59e0b", target: 20 },
+    { label: "Test Coverage", value: "90", unit: "percent", icon: Shield, color: "#3b82f6", target: 90 }
+  ];
+
+  const teamMembers = [
+    { 
+      name: "Bhagavan", 
+      role: "Full-Stack Architect", 
+      avatar: "🧑‍💻", 
+      contribution: "System Design & Backend Infrastructure",
+      skills: ["Node.js", "MongoDB", "AWS", "Docker"],
+      github: "https://github.com/bhagavan444"
+    },
+    { 
+      name: "Dhanus Chandra", 
+      role: "Frontend Engineer", 
+      avatar: "👩‍💻", 
+      contribution: "UI/UX & Component Architecture",
+      skills: ["React", "TypeScript", "Redux", "Tailwind"]
+    },
+    { 
+      name: "Pavan", 
+      role: "DevOps Engineer", 
+      avatar: "👨‍💻", 
+      contribution: "CI/CD & Cloud Infrastructure",
+      skills: ["Docker", "Kubernetes", "AWS", "Nginx"]
+    },
+    { 
+      name: "Rahul", 
+      role: "Security Specialist", 
+      avatar: "👩‍💻", 
+      contribution: "Authentication & Authorization Systems",
+      skills: ["JWT", "OAuth", "Security", "Encryption"]
+    }
+  ];
+
+  const milestones = [
+    { time: "00:00", event: "Kickoff - Team Formation & Ideation", icon: Users, status: "completed" },
+    { time: "02:00", event: "Architecture Design & Tech Stack Selection", icon: Brain, status: "completed" },
+    { time: "06:00", event: "Database Schema & API Contracts Finalized", icon: Database, status: "completed" },
+    { time: "10:00", event: "Core API Endpoints Implemented", icon: Server, status: "completed" },
+    { time: "14:00", event: "Frontend Components & State Management", icon: Code, status: "completed" },
+    { time: "18:00", event: "Real-Time Features & WebSocket Integration", icon: Zap, status: "completed" },
+    { time: "22:00", event: "Security Hardening & Performance Testing", icon: Shield, status: "completed" },
+    { time: "24:00", event: "Deployment & Final Presentation - Victory!", icon: Trophy, status: "completed" }
+  ];
+
+  const [displayStats, setDisplayStats] = useState(stats.map(() => 0));
+
+  // Advanced Particle System with 3D effect
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationId;
+
+    const resize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resize();
+
+    class Particle3D {
+      constructor() {
+        this.reset();
+      }
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.z = Math.random() * 1000;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.vz = Math.random() * 2 + 1;
+        this.size = Math.random() * 2 + 1;
+        this.life = 1;
+        this.hue = Math.random() * 60 + 180; // Blue to cyan range
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.z -= this.vz;
+        
+        if (this.z <= 0) this.reset();
+        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
+        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
+      }
+      draw() {
+        const scale = 1000 / (1000 + this.z);
+        const x2d = (this.x - canvas.width / 2) * scale + canvas.width / 2;
+        const y2d = (this.y - canvas.height / 2) * scale + canvas.height / 2;
+        const size = this.size * scale;
+        const alpha = (1 - this.z / 1000) * 0.6;
+
+        const gradient = ctx.createRadialGradient(x2d, y2d, 0, x2d, y2d, size * 8);
+        gradient.addColorStop(0, `hsla(${this.hue}, 100%, 60%, ${alpha})`);
+        gradient.addColorStop(0.5, `hsla(${this.hue}, 100%, 50%, ${alpha * 0.5})`);
+        gradient.addColorStop(1, 'transparent');
+        
+        ctx.fillStyle = gradient;
+        ctx.beginPath();
+        ctx.arc(x2d, y2d, size * 8, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+
+    const particles = Array.from({ length: 150 }, () => new Particle3D());
+
+    const animate = () => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      
+      animationId = requestAnimationFrame(animate);
+    };
+    animate();
+
+    window.addEventListener('resize', resize);
+    return () => {
+      cancelAnimationFrame(animationId);
+      window.removeEventListener('resize', resize);
+    };
+  }, []);
+
+  // Mouse parallax effect
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      setMousePosition({
+        x: (e.clientX / window.innerWidth - 0.5) * 20,
+        y: (e.clientY / window.innerHeight - 0.5) * 20
+      });
+    };
+    window.addEventListener('mousemove', handleMouseMove);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
+
+  // Scroll progress
+  useEffect(() => {
+    const handleScroll = () => {
+      const windowHeight = window.innerHeight;
+      const documentHeight = document.documentElement.scrollHeight - windowHeight;
+      const scrolled = (window.scrollY / documentHeight) * 100;
+      setScrollProgress(scrolled);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Animated stats counter
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !statsAnimated) {
+          setStatsAnimated(true);
+          stats.forEach((stat, index) => {
+            let current = 0;
+            const increment = stat.target / 60;
+            const timer = setInterval(() => {
+              current += increment;
+              if (current >= stat.target) {
+                current = stat.target;
+                clearInterval(timer);
+              }
+              setDisplayStats(prev => {
+                const newStats = [...prev];
+                newStats[index] = Math.floor(current);
+                return newStats;
+              });
+            }, 25);
+          });
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (statsRef.current) observer.observe(statsRef.current);
+    return () => observer.disconnect();
+  }, [statsAnimated]);
+
   const handleCertificateDownload = () => {
     const link = document.createElement("a");
     link.href = certificateImage;
@@ -271,209 +656,212 @@ export default function EliteHackathonShowcase() {
     document.body.removeChild(link);
   };
 
-  const handleMessageSubmit = (e) => {
-    e.preventDefault();
-    alert(`Message sent! We'll get back to you soon, ${messageForm.name}!`);
-    setMessageForm({ name: '', email: '', message: '' });
-  };
-
-  const playSound = () => {
-    setSoundEnabled(!soundEnabled);
-    if (audioRef.current) {
-      soundEnabled ? audioRef.current.pause() : audioRef.current.play();
-    }
-  };
-
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Fira+Code:wght@400;500;600&family=Space+Grotesk:wght@300;400;500;600;700&family=Orbitron:wght@500;700;900&display=swap');
-
-        :root {
-          --neon-primary: #00f0ff;
-          --neon-secondary: #a78bfa;
-          --neon-accent: #ff61d2;
-          --neon-success: #10b981;
-          --neon-gradient: linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2);
-          --neon-glow: 0 0 35px rgba(0, 240, 255, 0.9);
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&family=Space+Grotesk:wght@300;400;500;600;700;800&family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        @keyframes slideIn { from { opacity:0; transform:translateY(60px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes scan { 0% { transform:translateY(-100%); } 100% { transform:translateY(100%); } }
-        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-15px); } }
-        @keyframes pulse { 0%,100% { opacity:1; transform:scale(1); } 50% { opacity:0.8; transform:scale(1.05); } }
-        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        @keyframes glitch {
-          0%, 100% { transform: translate(0); }
-          20% { transform: translate(-2px, 2px); }
-          40% { transform: translate(-2px, -2px); }
-          60% { transform: translate(2px, 2px); }
-          80% { transform: translate(2px, -2px); }
+        :root {
+          --cyber-blue: #00f0ff;
+          --cyber-purple: #a78bfa;
+          --cyber-pink: #ff61d2;
+          --cyber-green: #10b981;
+          --cyber-orange: #f59e0b;
+          --cyber-red: #ef4444;
         }
+
+        @keyframes fadeInUp {
+          from { opacity: 0; transform: translateY(40px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideInRight {
+          from { opacity: 0; transform: translateX(100px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.8); }
+          to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes glow {
+          0%, 100% { filter: drop-shadow(0 0 5px currentColor); }
+          50% { filter: drop-shadow(0 0 20px currentColor); }
+        }
+
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+
+        @keyframes pulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.8; transform: scale(1.05); }
+        }
+
         @keyframes shimmer {
           0% { background-position: -1000px 0; }
           100% { background-position: 1000px 0; }
         }
-        @keyframes countUp {
-          from { opacity: 0; transform: translateY(20px); }
-          to { opacity: 1; transform: translateY(0); }
+
+        @keyframes rotate3d {
+          from { transform: rotateY(0deg); }
+          to { transform: rotateY(360deg); }
         }
 
-        .hack-card {
-          position: relative;
-          background: rgba(8,8,22,0.95);
-          border: 2px solid rgba(0,240,255,0.35);
+        @keyframes scanline {
+          0% { transform: translateY(-100%); }
+          100% { transform: translateY(100%); }
+        }
+
+        .glass-card {
+          background: rgba(15, 15, 35, 0.7);
+          backdrop-filter: blur(20px) saturate(180%);
+          border: 1px solid rgba(255, 255, 255, 0.1);
           border-radius: 24px;
+          box-shadow: 
+            0 8px 32px 0 rgba(0, 0, 0, 0.37),
+            inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+          transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+          position: relative;
           overflow: hidden;
-          transition: all 0.6s cubic-bezier(0.23,1,0.32,1);
         }
 
-        .hack-card:hover {
-          transform: translateY(-20px) scale(1.04);
-          border-color: var(--neon-primary);
-          box-shadow: var(--neon-glow), 0 20px 60px rgba(0,0,0,0.4);
-        }
-
-        .hack-card::before {
+        .glass-card::before {
           content: '';
           position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, transparent 30%, rgba(0,240,255,0.15) 50%, transparent 70%);
-          animation: scan 8s linear infinite;
-          pointer-events: none;
-          z-index: 1;
+          top: 0;
+          left: -100%;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+          transition: left 0.5s;
         }
 
-        .tech-pill {
-          background: rgba(0,0,0,0.8);
-          border: 2px solid var(--neon-primary);
-          padding: 0.65rem 1.3rem;
-          border-radius: 999px;
-          font-family: 'Fira Code',monospace;
-          font-size: 0.95rem;
-          transition: all 0.4s;
-          color: #e0f7ff;
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
+        .glass-card:hover::before {
+          left: 100%;
         }
 
-        .tech-pill:hover {
-          transform: scale(1.1) translateY(-3px);
-          box-shadow: 0 0 25px var(--neon-primary);
-          background: rgba(0,240,255,0.1);
+        .glass-card:hover {
+          transform: translateY(-10px) scale(1.02);
+          border-color: rgba(0, 240, 255, 0.5);
+          box-shadow: 
+            0 20px 60px 0 rgba(0, 240, 255, 0.3),
+            0 0 80px rgba(0, 240, 255, 0.2),
+            inset 0 0 0 1px rgba(0, 240, 255, 0.2);
         }
 
-        .neon-title {
-          background: var(--neon-gradient);
+        .neon-text {
+          background: linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2, #10b981);
+          background-size: 300% 300%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
           background-clip: text;
-          animation: shimmer 3s infinite linear;
-          background-size: 1000px 100%;
+          animation: shimmer 8s ease infinite;
         }
 
-        .progress-bar {
-          position: fixed;
+        .tech-badge {
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(10px);
+          border: 2px solid var(--cyber-blue);
+          padding: 0.5rem 1rem;
+          border-radius: 999px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 0.9rem;
+          color: var(--cyber-blue);
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          transition: all 0.3s;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .tech-badge::before {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          background: rgba(0, 240, 255, 0.3);
+          transform: translate(-50%, -50%);
+          transition: width 0.3s, height 0.3s;
+        }
+
+        .tech-badge:hover::before {
+          width: 300px;
+          height: 300px;
+        }
+
+        .tech-badge:hover {
+          transform: scale(1.1);
+          box-shadow: 0 0 30px var(--cyber-blue);
+          border-color: var(--cyber-blue);
+        }
+
+        .progress-ring {
+          transform: rotate(-90deg);
+          transition: stroke-dashoffset 1s ease;
+        }
+
+        .holographic {
+          background: linear-gradient(135deg, 
+            rgba(0, 240, 255, 0.1) 0%,
+            rgba(167, 139, 250, 0.1) 25%,
+            rgba(255, 97, 210, 0.1) 50%,
+            rgba(16, 185, 129, 0.1) 75%,
+            rgba(0, 240, 255, 0.1) 100%);
+          background-size: 400% 400%;
+          animation: shimmer 10s ease infinite;
+        }
+
+        .scanline {
+          position: absolute;
           top: 0;
           left: 0;
-          height: 4px;
-          background: var(--neon-gradient);
-          z-index: 10000;
-          transition: width 0.1s ease;
-        }
-
-        .custom-cursor {
-          position: fixed;
-          width: 20px;
-          height: 20px;
-          border: 2px solid var(--neon-primary);
-          border-radius: 50%;
+          right: 0;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, var(--cyber-blue), transparent);
+          animation: scanline 4s linear infinite;
           pointer-events: none;
-          z-index: 9999;
-          transition: transform 0.15s ease;
-          mix-blend-mode: difference;
-        }
-
-        .glassmorphism {
-          background: rgba(255, 255, 255, 0.05);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .certificate-preview {
-          width: 100%;
-          max-width: 900px;
-          border-radius: 16px;
-          box-shadow: 0 0 60px rgba(0,240,255,0.6);
-          border: 4px solid var(--neon-primary);
-          background: #000;
-          overflow: hidden;
-          transition: all 0.4s;
-          cursor: pointer;
-        }
-
-        .certificate-preview:hover {
-          transform: scale(1.02);
-          box-shadow: 0 0 80px rgba(0,240,255,0.8);
-        }
-
-        @media (max-width: 1024px) {
-          .hack-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)) !important; }
         }
 
         @media (max-width: 768px) {
-          .hack-grid { grid-template-columns: 1fr !important; gap: 2.5rem !important; }
-          h1.neon-title { font-size: clamp(3rem, 10vw, 5rem) !important; }
-          .modal-content { padding: 2rem 1.5rem !important; width: 95% !important; }
-        }
-
-        @media (max-width: 480px) {
-          .card-padding { padding: 1.5rem 1.2rem !important; }
-          .tech-pill { padding: 0.5rem 1rem; font-size: 0.85rem; }
-          .cta-buttons { flex-direction: column !important; }
+          .glass-card:hover {
+            transform: translateY(-5px) scale(1.01);
+          }
         }
       `}</style>
 
-      {/* Progress Bar */}
-      <div className="progress-bar" style={{ width: `${scrollProgress}%` }} />
-
-      {/* Custom Cursor */}
-      <div
-        className="custom-cursor"
-        style={{
-          left: `${cursorPos.x}px`,
-          top: `${cursorPos.y}px`,
-          transform: hoveredId ? 'scale(2)' : 'scale(1)'
-        }}
-      />
+      {/* Scroll Progress */}
+      <div style={{
+        position: 'fixed',
+        top: 0,
+        left: 0,
+        width: `${scrollProgress}%`,
+        height: '4px',
+        background: 'linear-gradient(90deg, #00f0ff, #a78bfa, #ff61d2, #10b981)',
+        zIndex: 10000,
+        transition: 'width 0.1s ease'
+      }} />
 
       <div style={{
         minHeight: '100vh',
         background: '#000000',
-        color: '#e0e0ff',
+        color: '#ffffff',
         position: 'relative',
         overflow: 'hidden',
-        padding: 'clamp(4rem, 10vw, 8rem) 1.5rem 6rem',
-        fontFamily: "'Outfit', sans-serif"
+        fontFamily: "'Inter', sans-serif"
       }}>
-        {/* Animated Grid Background */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(0,240,255,0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,240,255,0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '60px 60px',
-          opacity: 0.25,
-          pointerEvents: 'none',
-          animation: 'float 20s ease-in-out infinite'
-        }} />
+        {/* Developer Animated Background */}
+        <DeveloperBackground />
 
-        {/* Particle Canvas */}
+        {/* 3D Particle Canvas */}
         <canvas
           ref={canvasRef}
           style={{
@@ -487,547 +875,783 @@ export default function EliteHackathonShowcase() {
         <div style={{
           position: 'relative',
           zIndex: 10,
+          padding: '6rem 2rem',
           maxWidth: '1600px',
           margin: '0 auto'
         }}>
           {/* Hero Section */}
-          <div style={{ textAlign: 'center', marginBottom: 'clamp(5rem, 12vw, 8rem)' }}>
+          <div 
+            ref={heroRef}
+            style={{
+              textAlign: 'center',
+              marginBottom: '8rem',
+              animation: 'fadeInUp 1s ease-out',
+              transform: `translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0)`
+            }}
+          >
             <div style={{
               display: 'inline-flex',
               alignItems: 'center',
               gap: '1rem',
-              fontFamily: "'Fira Code', monospace",
+              fontFamily: "'JetBrains Mono', monospace",
               color: '#00f0ff',
-              fontSize: 'clamp(0.95rem, 2.5vw, 1.2rem)',
-              padding: '0.9rem 2rem',
-              border: '2.5px solid rgba(0,240,255,0.5)',
+              fontSize: 'clamp(1rem, 2.5vw, 1.2rem)',
+              padding: '1rem 2.5rem',
+              border: '2px solid rgba(0, 240, 255, 0.5)',
               borderRadius: '999px',
               marginBottom: '2rem',
-              animation: 'pulse 4s infinite',
-              background: 'rgba(0,240,255,0.05)'
+              animation: 'pulse 3s infinite',
+              background: 'rgba(0, 240, 255, 0.05)',
+              backdropFilter: 'blur(10px)'
             }}>
-              <Sparkles size={24} />
-              {'>'} hackathon.elite.execute()
-              <Sparkles size={24} />
+              <Terminal size={24} style={{ animation: 'glow 2s infinite' }} />
+              {'> system.hackathon.execute()'}
+              <Sparkles size={24} style={{ animation: 'glow 2s infinite' }} />
             </div>
 
-            <h1 className="neon-title" style={{
-              fontSize: 'clamp(4rem, 12vw, 8rem)',
+            <h1 className="neon-text" style={{
+              fontSize: 'clamp(4rem, 15vw, 10rem)',
               fontWeight: 900,
-              letterSpacing: '6px',
+              letterSpacing: '10px',
               textTransform: 'uppercase',
-              marginBottom: '1.5rem',
-              lineHeight: 1.1,
-              animation: 'glitch 5s infinite'
+              marginBottom: '1rem',
+              fontFamily: "'Space Grotesk', sans-serif",
+              lineHeight: 1,
+              textShadow: '0 0 80px rgba(0, 240, 255, 0.5)'
             }}>
               BRAINO VISION
             </h1>
 
             <div style={{
-              fontSize: 'clamp(2rem, 6vw, 3.8rem)',
-              fontWeight: 900,
-              background: 'var(--neon-gradient)',
+              fontSize: 'clamp(1.5rem, 5vw, 3rem)',
+              fontWeight: 700,
+              background: 'linear-gradient(135deg, #00f0ff, #a78bfa)',
               WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              color: 'transparent',
-              marginBottom: '2rem',
-              fontFamily: "'Space Grotesk', sans-serif"
+              WebkitTextFillColor: 'transparent',
+              marginBottom: '3rem',
+              fontFamily: "'Poppins', sans-serif"
             }}>
-              NATIONAL TALENT HUNT 2024
+              National Talent Hunt Championship 2024
             </div>
 
-            {/* Certificate Preview Card */}
+            {/* Floating achievement badges */}
             <div style={{
-              margin: '4rem auto',
-              maxWidth: '1000px',
-              padding: '2.5rem',
-              background: 'rgba(0,0,0,0.75)',
-              border: '3.5px solid var(--neon-primary)',
-              borderRadius: '28px',
-              boxShadow: '0 0 70px rgba(0,240,255,0.6)',
-              textAlign: 'center'
+              display: 'flex',
+              gap: '2rem',
+              justifyContent: 'center',
+              flexWrap: 'wrap',
+              marginBottom: '4rem'
             }}>
-              <h2 style={{
-                fontSize: 'clamp(2rem, 5vw, 3.2rem)',
-                color: '#00f0ff',
-                marginBottom: '2rem',
-                fontWeight: 900,
-                fontFamily: "'Orbitron', sans-serif"
+              {[
+                { icon: Trophy, text: '1st Place', color: '#ffd700' },
+                { icon: Users, text: '4 Developers', color: '#00f0ff' },
+                { icon: Clock, text: '24 Hours', color: '#a78bfa' },
+                { icon: Code, text: '5000+ Lines', color: '#ff61d2' }
+              ].map((badge, i) => (
+                <div key={i} className="glass-card" style={{
+                  padding: '1.5rem 2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '1rem',
+                  animation: `float 3s ease-in-out infinite`,
+                  animationDelay: `${i * 0.2}s`
+                }}>
+                  <badge.icon size={32} style={{ color: badge.color }} />
+                  <span style={{ fontSize: '1.2rem', fontWeight: 600 }}>{badge.text}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Certificate Showcase */}
+            <div className="glass-card holographic" style={{
+              margin: '4rem auto',
+              maxWidth: '1200px',
+              padding: '3rem',
+              position: 'relative'
+            }}>
+              <div className="scanline" />
+              
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '1.5rem',
+                marginBottom: '2rem'
               }}>
-                NATIONAL CHAMPIONSHIP CERTIFICATE
-              </h2>
+                <Award size={48} style={{ color: '#ffd700', animation: 'glow 2s infinite' }} />
+                <h2 style={{
+                  fontSize: 'clamp(2rem, 6vw, 3.5rem)',
+                  fontWeight: 900,
+                  background: 'linear-gradient(135deg, #ffd700, #ffed4e)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  fontFamily: "'Space Grotesk', sans-serif"
+                }}>
+                  NATIONAL CHAMPIONSHIP
+                </h2>
+                <Award size={48} style={{ color: '#ffd700', animation: 'glow 2s infinite' }} />
+              </div>
 
               <div 
-                className="certificate-preview"
                 onClick={() => setShowCertificate(true)}
-                style={{ cursor: 'pointer' }}
+                style={{
+                  cursor: 'pointer',
+                  borderRadius: '16px',
+                  overflow: 'hidden',
+                  border: '3px solid rgba(255, 215, 0, 0.5)',
+                  transition: 'all 0.4s',
+                  position: 'relative'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 0 60px rgba(255, 215, 0, 0.6)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                }}
               >
                 <img 
-                  src={certificateImage} 
-                  alt="Brainovision National Championship Certificate"
+                  src={certificateImage}
+                  alt="Certificate"
                   style={{
                     width: '100%',
                     height: 'auto',
-                    borderRadius: '12px',
-                    objectFit: 'cover'
+                    display: 'block'
                   }}
                 />
+                <div style={{
+                  position: 'absolute',
+                  inset: 0,
+                  background: 'linear-gradient(135deg, transparent, rgba(0, 240, 255, 0.1))',
+                  pointerEvents: 'none'
+                }} />
               </div>
-
-              <p style={{
-                marginTop: '2rem',
-                fontSize: '1.25rem',
-                color: '#b0b0d8'
-              }}>
-                Click the certificate to view full size • Download available
-              </p>
 
               <button
                 onClick={handleCertificateDownload}
                 style={{
-                  marginTop: '2.5rem',
+                  marginTop: '2rem',
                   padding: '1.2rem 3rem',
-                  background: 'var(--neon-gradient)',
+                  background: 'linear-gradient(135deg, #ffd700, #ffed4e)',
                   border: 'none',
                   borderRadius: '999px',
                   color: '#000',
-                  fontWeight: 900,
-                  fontSize: '1.25rem',
+                  fontWeight: 800,
+                  fontSize: '1.2rem',
                   cursor: 'pointer',
                   display: 'inline-flex',
                   alignItems: 'center',
                   gap: '1rem',
-                  boxShadow: '0 0 50px rgba(0,240,255,0.7)'
+                  transition: 'all 0.3s',
+                  fontFamily: "'Poppins', sans-serif",
+                  boxShadow: '0 10px 40px rgba(255, 215, 0, 0.4)'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 15px 60px rgba(255, 215, 0, 0.6)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(255, 215, 0, 0.4)';
                 }}
               >
-                <Download size={32} />
-                DOWNLOAD CERTIFICATE
+                <Download size={24} />
+                Download Certificate
               </button>
             </div>
-
-            {/* Sound Toggle */}
-            <button
-              onClick={playSound}
-              style={{
-                padding: '1rem 2.5rem',
-                background: soundEnabled ? 'var(--neon-gradient)' : 'rgba(0,0,0,0.6)',
-                border: '2.5px solid var(--neon-primary)',
-                borderRadius: '999px',
-                color: soundEnabled ? '#000' : 'var(--neon-primary)',
-                fontWeight: 700,
-                fontSize: '1.1rem',
-                cursor: 'pointer',
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '1rem',
-                marginTop: '4rem',
-                boxShadow: soundEnabled ? '0 0 50px rgba(0,240,255,0.7)' : 'none'
-              }}
-            >
-              {soundEnabled ? <Volume2 size={28} /> : <Mic size={28} />}
-              {soundEnabled ? 'Sound Enabled' : 'Enable Sound Effects'}
-            </button>
           </div>
 
-          {/* Animated Stats */}
+          {/* Live Stats Dashboard */}
           <div ref={statsRef} style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))',
-            gap: '2.8rem',
-            marginBottom: '7rem'
+            marginBottom: '8rem'
           }}>
-            {stats.map((stat, i) => (
-              <div key={i} style={{
-                padding: '2.8rem 2rem',
-                background: 'rgba(0,0,0,0.75)',
-                border: `3.5px solid ${stat.color}60`,
-                borderRadius: '28px',
-                textAlign: 'center',
-                transition: 'all 0.5s',
-                cursor: 'pointer',
-                animation: statsAnimated ? 'countUp 1s ease-out' : 'none'
-              }}
-              onMouseEnter={(e) => {
-                e.currentTarget.style.transform = 'translateY(-12px)';
-                e.currentTarget.style.boxShadow = `0 0 50px ${stat.color}90`;
-              }}
-              onMouseLeave={(e) => {
-                e.currentTarget.style.transform = 'translateY(0)';
-                e.currentTarget.style.boxShadow = 'none';
-              }}>
-                <stat.icon size={52} style={{ color: stat.color, marginBottom: '1.5rem' }} />
-                <div style={{
-                  fontSize: 'clamp(2.8rem, 7vw, 4rem)',
-                  fontWeight: 900,
-                  color: stat.color,
-                  marginBottom: '0.8rem',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}>
-                  {stat.label === "Achievement" ? stat.value : displayStats[i]}
-                  {stat.unit && <span style={{ fontSize: '1.5rem' }}> {stat.unit}</span>}
-                </div>
-                <div style={{
-                  color: '#c0c0e0',
-                  fontSize: '1.25rem',
-                  fontWeight: 600
-                }}>
-                  {stat.label}
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* Team Section */}
-          <div style={{ marginBottom: '9rem' }}>
-            <h2 className="neon-title" style={{
-              fontSize: 'clamp(3.2rem, 8vw, 5.5rem)',
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2.5rem, 8vw, 4rem)',
               fontWeight: 900,
               textAlign: 'center',
-              marginBottom: '5rem',
-              letterSpacing: '4px'
+              marginBottom: '4rem',
+              fontFamily: "'Space Grotesk', sans-serif"
             }}>
-              ELITE DEVELOPMENT TEAM
+              PERFORMANCE METRICS
             </h2>
+
             <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-              gap: '3rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '2rem'
             }}>
-              {teamMembers.map((member, i) => (
-                <div key={i} className="hack-card" style={{
-                  padding: '3rem 2rem',
-                  textAlign: 'center',
-                  cursor: 'pointer'
-                }}>
+              {stats.map((stat, i) => (
+                <div 
+                  key={i}
+                  className="glass-card"
+                  style={{
+                    padding: '2.5rem 2rem',
+                    textAlign: 'center',
+                    animation: 'scaleIn 0.6s ease-out',
+                    animationDelay: `${i * 0.1}s`,
+                    animationFillMode: 'backwards',
+                    position: 'relative'
+                  }}
+                >
                   <div style={{
-                    fontSize: '6rem',
-                    marginBottom: '2rem',
-                    animation: 'float 4.5s ease-in-out infinite',
-                    animationDelay: `${i * 0.3}s`
-                  }}>
-                    {member.avatar}
-                  </div>
-                  <h3 style={{
-                    fontSize: '2rem',
+                    position: 'absolute',
+                    top: '1rem',
+                    right: '1rem',
+                    width: '8px',
+                    height: '8px',
+                    borderRadius: '50%',
+                    background: stat.color,
+                    boxShadow: `0 0 20px ${stat.color}`,
+                    animation: 'pulse 2s infinite'
+                  }} />
+
+                  <stat.icon size={48} style={{ 
+                    color: stat.color, 
+                    marginBottom: '1.5rem',
+                    filter: `drop-shadow(0 0 10px ${stat.color})`
+                  }} />
+
+                  <div style={{
+                    fontSize: 'clamp(3rem, 8vw, 4.5rem)',
                     fontWeight: 900,
-                    color: '#fff',
-                    marginBottom: '1rem'
+                    color: stat.color,
+                    marginBottom: '0.5rem',
+                    fontFamily: "'Space Grotesk', sans-serif",
+                    textShadow: `0 0 20px ${stat.color}`
                   }}>
-                    {member.name}
-                  </h3>
-                  <div style={{
-                    color: '#00f0ff',
-                    fontSize: '1.3rem',
-                    fontWeight: 700,
-                    marginBottom: '1.2rem'
-                  }}>
-                    {member.role}
+                    {stat.label === "Achievement" ? stat.value : displayStats[i]}
+                    {stat.unit && stat.label !== "Achievement" && <span style={{ fontSize: '1.5rem', opacity: 0.7 }}>{stat.unit}</span>}
                   </div>
+
                   <div style={{
-                    color: '#b0b0d0',
                     fontSize: '1.1rem',
-                    fontFamily: "'Fira Code', monospace"
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    fontWeight: 600,
+                    textTransform: 'uppercase',
+                    letterSpacing: '2px'
                   }}>
-                    {member.contribution}
+                    {stat.label}
                   </div>
+
+                  {/* Progress bar for percentage stats */}
+                  {stat.label === "Test Coverage" && (
+                    <div style={{
+                      marginTop: '1.5rem',
+                      height: '6px',
+                      background: 'rgba(255, 255, 255, 0.1)',
+                      borderRadius: '3px',
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{
+                        width: `${displayStats[i]}%`,
+                        height: '100%',
+                        background: stat.color,
+                        transition: 'width 1s ease'
+                      }} />
+                    </div>
+                  )}
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Timeline Phases */}
-          <div style={{ marginBottom: '9rem' }}>
-            <h2 className="neon-title" style={{
-              fontSize: 'clamp(3.2rem, 8vw, 5.5rem)',
+          {/* Elite Team Section */}
+          <div style={{ marginBottom: '8rem' }}>
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2.5rem, 8vw, 4rem)',
               fontWeight: 900,
               textAlign: 'center',
-              marginBottom: '5rem',
-              letterSpacing: '4px'
+              marginBottom: '4rem',
+              fontFamily: "'Space Grotesk', sans-serif"
             }}>
-              24-HOUR BATTLE LOG
+              DEVELOPMENT TEAM
             </h2>
 
-            <div className="hack-grid" style={{
+            <div style={{
               display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(360px, 1fr))',
-              gap: '3.5rem'
+              gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+              gap: '2.5rem'
             }}>
-              {phases.map((phase) => (
-                <div
-                  key={phase.id}
-                  className="hack-card"
-                  onMouseEnter={() => setHoveredId(phase.id)}
-                  onMouseLeave={() => setHoveredId(null)}
-                  onClick={() => setActivePhase(phase.id)}
-                  style={{
-                    cursor: 'pointer',
-                    padding: '3rem 2.5rem',
-                    position: 'relative'
-                  }}
-                >
+              {teamMembers.map((member, i) => (
+                <div key={i} className="glass-card" style={{
+                  padding: '2.5rem',
+                  textAlign: 'center',
+                  animation: 'fadeInUp 0.8s ease-out',
+                  animationDelay: `${i * 0.15}s`,
+                  animationFillMode: 'backwards'
+                }}>
                   <div style={{
-                    width: '120px',
-                    height: '120px',
-                    border: `5px solid ${phase.color}`,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    margin: '0 auto 2rem',
-                    background: `${phase.color}20`,
-                    boxShadow: hoveredId === phase.id ? `0 0 50px ${phase.color}` : 'none',
-                    transition: 'all 0.5s'
+                    fontSize: '5rem',
+                    marginBottom: '1.5rem',
+                    animation: 'float 4s ease-in-out infinite',
+                    animationDelay: `${i * 0.3}s`,
+                    filter: 'drop-shadow(0 10px 30px rgba(0, 240, 255, 0.3))'
                   }}>
-                    <phase.icon size={56} style={{ color: phase.color }} />
-                  </div>
-
-                  <div style={{
-                    position: 'absolute',
-                    top: '1.5rem',
-                    right: '1.5rem',
-                    padding: '0.6rem 1.3rem',
-                    background: `${phase.color}25`,
-                    borderRadius: '999px',
-                    fontSize: '1rem',
-                    fontWeight: 800,
-                    color: phase.color
-                  }}>
-                    {phase.hour}
+                    {member.avatar}
                   </div>
 
                   <h3 style={{
-                    fontSize: '1.9rem',
-                    fontWeight: 900,
-                    color: '#fff',
-                    marginBottom: '1.2rem',
-                    textAlign: 'center'
+                    fontSize: '1.8rem',
+                    fontWeight: 800,
+                    marginBottom: '0.5rem',
+                    background: 'linear-gradient(135deg, #fff, #00f0ff)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent'
                   }}>
-                    {phase.title}
+                    {member.name}
                   </h3>
 
-                  <p style={{
-                    color: '#d0d0ff',
-                    fontSize: '1.15rem',
-                    lineHeight: 1.7,
-                    marginBottom: '2rem',
-                    textAlign: 'center'
+                  <div style={{
+                    color: '#00f0ff',
+                    fontSize: '1.1rem',
+                    fontWeight: 600,
+                    marginBottom: '1rem'
                   }}>
-                    {phase.desc}
+                    {member.role}
+                  </div>
+
+                  <p style={{
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    fontSize: '0.95rem',
+                    marginBottom: '1.5rem',
+                    fontFamily: "'JetBrains Mono', monospace"
+                  }}>
+                    {member.contribution}
                   </p>
 
                   <div style={{
                     display: 'flex',
                     flexWrap: 'wrap',
-                    gap: '1rem',
-                    justifyContent: 'center',
-                    marginBottom: '2rem'
+                    gap: '0.5rem',
+                    justifyContent: 'center'
                   }}>
-                    {phase.achievements.map((ach, idx) => (
-                      <div key={idx} style={{
-                        padding: '0.7rem 1.4rem',
-                        background: `${phase.color}20`,
-                        border: `1.5px solid ${phase.color}50`,
-                        borderRadius: '14px',
-                        fontSize: '1rem',
-                        color: phase.color
-                      }}>
-                        {ach}
-                      </div>
+                    {member.skills.map((skill, idx) => (
+                      <span key={idx} className="tech-badge">
+                        {skill}
+                      </span>
                     ))}
                   </div>
 
-                  <div style={{
-                    textAlign: 'center',
-                    marginTop: '1.5rem'
-                  }}>
-                    <button
-                      onClick={() => setActivePhase(phase.id)}
+                  {member.github && (
+                    <a 
+                      href={member.github}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       style={{
-                        padding: '1rem 2rem',
-                        background: 'transparent',
-                        border: `2.5px solid ${phase.color}`,
+                        marginTop: '1.5rem',
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        padding: '0.8rem 1.5rem',
+                        background: 'rgba(0, 240, 255, 0.1)',
+                        border: '2px solid rgba(0, 240, 255, 0.3)',
                         borderRadius: '999px',
-                        color: phase.color,
-                        fontWeight: 800,
-                        cursor: 'pointer',
-                        transition: 'all 0.4s',
-                        fontSize: '1.1rem'
+                        color: '#00f0ff',
+                        textDecoration: 'none',
+                        fontSize: '0.95rem',
+                        fontWeight: 600,
+                        transition: 'all 0.3s'
+                      }}
+                      onMouseEnter={e => {
+                        e.currentTarget.style.background = 'rgba(0, 240, 255, 0.2)';
+                        e.currentTarget.style.transform = 'scale(1.05)';
+                      }}
+                      onMouseLeave={e => {
+                        e.currentTarget.style.background = 'rgba(0, 240, 255, 0.1)';
+                        e.currentTarget.style.transform = 'scale(1)';
                       }}
                     >
-                      View Phase Details
-                    </button>
+                      <Github size={18} />
+                      GitHub Profile
+                    </a>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Battle Log - Phases */}
+          <div style={{ marginBottom: '8rem' }}>
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2.5rem, 8vw, 4rem)',
+              fontWeight: 900,
+              textAlign: 'center',
+              marginBottom: '4rem',
+              fontFamily: "'Space Grotesk', sans-serif"
+            }}>
+              24-HOUR BATTLE LOG
+            </h2>
+
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
+              gap: '2.5rem'
+            }}>
+              {phases.map((phase, i) => (
+                <div
+                  key={phase.id}
+                  className="glass-card"
+                  onClick={() => setActivePhase(phase.id)}
+                  onMouseEnter={() => setHoveredId(phase.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  style={{
+                    padding: '2.5rem',
+                    cursor: 'pointer',
+                    animation: 'slideInRight 0.8s ease-out',
+                    animationDelay: `${i * 0.15}s`,
+                    animationFillMode: 'backwards',
+                    borderColor: hoveredId === phase.id ? phase.color : 'rgba(255, 255, 255, 0.1)'
+                  }}
+                >
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    marginBottom: '2rem'
+                  }}>
+                    <div style={{
+                      width: '80px',
+                      height: '80px',
+                      borderRadius: '50%',
+                      background: phase.gradient,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      boxShadow: hoveredId === phase.id ? `0 0 40px ${phase.color}` : 'none',
+                      transition: 'all 0.4s'
+                    }}>
+                      <phase.icon size={40} style={{ color: '#000' }} />
+                    </div>
+
+                    <div style={{
+                      padding: '0.5rem 1.2rem',
+                      background: `${phase.color}20`,
+                      border: `2px solid ${phase.color}`,
+                      borderRadius: '999px',
+                      fontSize: '1rem',
+                      fontWeight: 700,
+                      color: phase.color,
+                      fontFamily: "'JetBrains Mono', monospace"
+                    }}>
+                      {phase.hour}
+                    </div>
                   </div>
+
+                  <h3 style={{
+                    fontSize: '1.8rem',
+                    fontWeight: 800,
+                    marginBottom: '1rem',
+                    color: '#fff'
+                  }}>
+                    {phase.title}
+                  </h3>
+
+                  <p style={{
+                    color: 'rgba(255, 255, 255, 0.7)',
+                    fontSize: '1rem',
+                    lineHeight: 1.6,
+                    marginBottom: '1.5rem'
+                  }}>
+                    {phase.desc}
+                  </p>
+
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(3, 1fr)',
+                    gap: '1rem',
+                    marginBottom: '1.5rem',
+                    padding: '1.5rem',
+                    background: 'rgba(0, 0, 0, 0.3)',
+                    borderRadius: '12px'
+                  }}>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ color: phase.color, fontSize: '1.8rem', fontWeight: 800 }}>
+                        {phase.metrics.linesOfCode}
+                      </div>
+                      <div style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8rem' }}>
+                        Lines
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ color: phase.color, fontSize: '1.8rem', fontWeight: 800 }}>
+                        {phase.metrics.apis}
+                      </div>
+                      <div style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8rem' }}>
+                        APIs
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'center' }}>
+                      <div style={{ color: phase.color, fontSize: '1.8rem', fontWeight: 800 }}>
+                        {phase.metrics.tests}
+                      </div>
+                      <div style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.8rem' }}>
+                        Tests
+                      </div>
+                    </div>
+                  </div>
+
+                  <div style={{
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.5rem',
+                    marginBottom: '1.5rem'
+                  }}>
+                    {phase.techUsed.slice(0, 3).map((tech, idx) => (
+                      <span key={idx} style={{
+                        padding: '0.4rem 0.8rem',
+                        background: `${phase.color}15`,
+                        border: `1px solid ${phase.color}40`,
+                        borderRadius: '6px',
+                        fontSize: '0.85rem',
+                        color: phase.color,
+                        fontFamily: "'JetBrains Mono', monospace"
+                      }}>
+                        {tech}
+                      </span>
+                    ))}
+                    {phase.techUsed.length > 3 && (
+                      <span style={{
+                        padding: '0.4rem 0.8rem',
+                        background: `${phase.color}15`,
+                        border: `1px solid ${phase.color}40`,
+                        borderRadius: '6px',
+                        fontSize: '0.85rem',
+                        color: phase.color
+                      }}>
+                        +{phase.techUsed.length - 3}
+                      </span>
+                    )}
+                  </div>
+
+                  <button
+                    onClick={() => setActivePhase(phase.id)}
+                    style={{
+                      width: '100%',
+                      padding: '1rem',
+                      background: 'transparent',
+                      border: `2px solid ${phase.color}`,
+                      borderRadius: '12px',
+                      color: phase.color,
+                      fontWeight: 700,
+                      fontSize: '1rem',
+                      cursor: 'pointer',
+                      transition: 'all 0.3s',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem'
+                    }}
+                    onMouseEnter={e => {
+                      e.currentTarget.style.background = phase.color;
+                      e.currentTarget.style.color = '#000';
+                    }}
+                    onMouseLeave={e => {
+                      e.currentTarget.style.background = 'transparent';
+                      e.currentTarget.style.color = phase.color;
+                    }}
+                  >
+                    View Details
+                    <ArrowRight size={20} />
+                  </button>
                 </div>
               ))}
             </div>
           </div>
 
           {/* Tech Stack */}
-          <div style={{ marginBottom: '9rem' }}>
-            <h2 className="neon-title" style={{
-              fontSize: 'clamp(3.2rem, 8vw, 5.5rem)',
+          <div style={{ marginBottom: '8rem' }}>
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2.5rem, 8vw, 4rem)',
               fontWeight: 900,
               textAlign: 'center',
-              marginBottom: '5rem',
-              letterSpacing: '4px'
+              marginBottom: '4rem',
+              fontFamily: "'Space Grotesk', sans-serif"
             }}>
-              TECH STACK MASTERY
+              TECHNOLOGY ARSENAL
             </h2>
 
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-              gap: '3rem'
+              gap: '2rem'
             }}>
               {techStack.map((tech, i) => (
-                <div key={i} className="hack-card" style={{
-                  padding: '3rem 2.5rem',
-                  textAlign: 'center'
+                <div key={i} className="glass-card" style={{
+                  padding: '2.5rem',
+                  animation: 'scaleIn 0.8s ease-out',
+                  animationDelay: `${i * 0.1}s`,
+                  animationFillMode: 'backwards'
                 }}>
                   <div style={{
-                    width: '110px',
-                    height: '110px',
-                    margin: '0 auto 2rem',
-                    border: `4px solid ${tech.color}`,
-                    borderRadius: '50%',
                     display: 'flex',
                     alignItems: 'center',
-                    justifyContent: 'center',
-                    background: `${tech.color}20`
+                    justifyContent: 'space-between',
+                    marginBottom: '1.5rem'
                   }}>
-                    <tech.icon size={52} style={{ color: tech.color }} />
+                    <div style={{
+                      width: '70px',
+                      height: '70px',
+                      borderRadius: '16px',
+                      background: `${tech.color}20`,
+                      border: `2px solid ${tech.color}40`,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <tech.icon size={36} style={{ color: tech.color }} />
+                    </div>
+
+                    <div style={{
+                      fontSize: '2rem',
+                      fontWeight: 800,
+                      color: tech.color,
+                      fontFamily: "'Space Grotesk', sans-serif"
+                    }}>
+                      {tech.proficiency}%
+                    </div>
                   </div>
 
                   <h3 style={{
-                    fontSize: '1.8rem',
-                    fontWeight: 900,
-                    color: '#fff',
-                    marginBottom: '1rem'
+                    fontSize: '1.5rem',
+                    fontWeight: 800,
+                    marginBottom: '0.5rem',
+                    color: '#fff'
                   }}>
                     {tech.name}
                   </h3>
 
                   <p style={{
-                    color: '#b0b0d0',
-                    fontSize: '1.1rem',
+                    color: 'rgba(255, 255, 255, 0.6)',
+                    fontSize: '0.95rem',
                     marginBottom: '1.5rem'
                   }}>
                     {tech.desc}
                   </p>
 
                   <div style={{
-                    height: '10px',
-                    background: 'rgba(255,255,255,0.12)',
-                    borderRadius: '5px',
-                    overflow: 'hidden'
+                    height: '8px',
+                    background: 'rgba(255, 255, 255, 0.1)',
+                    borderRadius: '4px',
+                    overflow: 'hidden',
+                    marginBottom: '1.5rem'
                   }}>
                     <div style={{
-                      width: `${tech.proficiency}%`,
+                      width: statsAnimated ? `${tech.proficiency}%` : '0%',
                       height: '100%',
                       background: tech.color,
-                      transition: 'width 1.8s ease-out',
-                      animation: statsAnimated ? 'slideIn 1.5s forwards' : 'none'
+                      transition: 'width 1.5s ease-out',
+                      boxShadow: `0 0 10px ${tech.color}`
                     }} />
                   </div>
+
                   <div style={{
-                    textAlign: 'right',
-                    fontSize: '1.1rem',
-                    color: tech.color,
-                    marginTop: '0.8rem',
-                    fontWeight: 800
+                    display: 'flex',
+                    flexWrap: 'wrap',
+                    gap: '0.5rem'
                   }}>
-                    {tech.proficiency}%
+                    {tech.features.map((feature, idx) => (
+                      <span key={idx} style={{
+                        padding: '0.4rem 0.8rem',
+                        background: 'rgba(0, 0, 0, 0.4)',
+                        border: `1px solid ${tech.color}30`,
+                        borderRadius: '6px',
+                        fontSize: '0.8rem',
+                        color: 'rgba(255, 255, 255, 0.8)',
+                        fontFamily: "'JetBrains Mono', monospace"
+                      }}>
+                        {feature}
+                      </span>
+                    ))}
                   </div>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Timeline Milestones */}
-          <div style={{ marginBottom: '9rem' }}>
-            <h2 className="neon-title" style={{
-              fontSize: 'clamp(3.2rem, 8vw, 5.5rem)',
+          {/* Timeline */}
+          <div style={{ marginBottom: '8rem' }}>
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2.5rem, 8vw, 4rem)',
               fontWeight: 900,
               textAlign: 'center',
-              marginBottom: '5rem',
-              letterSpacing: '4px'
+              marginBottom: '4rem',
+              fontFamily: "'Space Grotesk', sans-serif"
             }}>
-              TIMELINE MILESTONES
+              MISSION TIMELINE
             </h2>
 
             <div style={{
               position: 'relative',
-              maxWidth: '1000px',
+              maxWidth: '900px',
               margin: '0 auto'
             }}>
-              {/* Vertical Line */}
+              {/* Vertical line */}
               <div style={{
                 position: 'absolute',
                 left: '50%',
                 top: 0,
                 bottom: 0,
-                width: '5px',
-                background: 'var(--neon-gradient)',
+                width: '4px',
+                background: 'linear-gradient(180deg, #00f0ff, #a78bfa, #ff61d2, #10b981)',
                 transform: 'translateX(-50%)',
-                borderRadius: '3px'
+                borderRadius: '2px'
               }} />
 
               {milestones.map((milestone, i) => (
                 <div key={i} style={{
                   display: 'flex',
                   alignItems: 'center',
-                  marginBottom: '4rem',
+                  marginBottom: '3rem',
                   position: 'relative',
                   flexDirection: i % 2 === 0 ? 'row' : 'row-reverse'
                 }}>
                   <div style={{
                     width: '50%',
-                    padding: i % 2 === 0 ? '0 4rem 0 0' : '0 0 0 4rem',
+                    padding: i % 2 === 0 ? '0 3rem 0 0' : '0 0 0 3rem',
                     textAlign: i % 2 === 0 ? 'right' : 'left'
                   }}>
-                    <div style={{
-                      background: 'rgba(0,0,0,0.75)',
-                      border: `3px solid ${i % 2 === 0 ? '#00f0ff' : '#a78bfa'}`,
-                      borderRadius: '20px',
-                      padding: '2rem',
-                      boxShadow: '0 0 40px rgba(0,0,0,0.5)'
+                    <div className="glass-card" style={{
+                      padding: '1.5rem',
+                      animation: 'fadeInUp 0.8s ease-out',
+                      animationDelay: `${i * 0.1}s`,
+                      animationFillMode: 'backwards'
                     }}>
                       <div style={{
-                        fontSize: '1.6rem',
-                        fontWeight: 900,
-                        color: i % 2 === 0 ? '#00f0ff' : '#a78bfa',
-                        marginBottom: '0.8rem'
+                        fontSize: '1.2rem',
+                        fontWeight: 800,
+                        color: i % 2 === 0 ? '#00f0ff' : '#ff61d2',
+                        marginBottom: '0.5rem',
+                        fontFamily: "'JetBrains Mono', monospace"
                       }}>
                         {milestone.time}
                       </div>
                       <div style={{
-                        fontSize: '1.3rem',
-                        color: '#e0e0ff'
+                        color: 'rgba(255, 255, 255, 0.9)',
+                        fontSize: '1rem'
                       }}>
                         {milestone.event}
                       </div>
                     </div>
                   </div>
 
-                  {/* Dot */}
+                  {/* Center dot */}
                   <div style={{
-                    width: '30px',
-                    height: '30px',
-                    background: 'black',
-                    border: `5px solid ${i % 2 === 0 ? '#00f0ff' : '#a78bfa'}`,
+                    width: '50px',
+                    height: '50px',
                     borderRadius: '50%',
+                    background: i % 2 === 0 ? '#00f0ff' : '#ff61d2',
+                    border: '4px solid #000',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
                     position: 'absolute',
                     left: '50%',
                     transform: 'translateX(-50%)',
-                    boxShadow: `0 0 25px ${i % 2 === 0 ? '#00f0ff' : '#a78bfa'}`
+                    zIndex: 10,
+                    boxShadow: `0 0 30px ${i % 2 === 0 ? '#00f0ff' : '#ff61d2'}`
                   }}>
-                    <milestone.icon size={20} style={{
-                      color: i % 2 === 0 ? '#00f0ff' : '#a78bfa',
-                      position: 'absolute',
-                      top: '50%',
-                      left: '50%',
-                      transform: 'translate(-50%, -50%)'
-                    }} />
+                    <milestone.icon size={24} style={{ color: '#000' }} />
                   </div>
                 </div>
               ))}
@@ -1035,35 +1659,52 @@ export default function EliteHackathonShowcase() {
           </div>
 
           {/* CTA Section */}
-          <div style={{
-            padding: 'clamp(5rem, 10vw, 8rem) 3rem',
-            background: 'linear-gradient(135deg, rgba(0,240,255,0.12), rgba(167,139,250,0.12))',
-            border: '4px solid rgba(0,240,255,0.45)',
-            borderRadius: '36px',
+          <div className="glass-card holographic" style={{
+            padding: '5rem 3rem',
             textAlign: 'center',
-            marginBottom: '8rem'
+            marginBottom: '4rem',
+            position: 'relative'
           }}>
-            <h2 className="neon-title" style={{
-              fontSize: 'clamp(3.5rem, 9vw, 6rem)',
+            <div className="scanline" />
+
+            <div style={{
+              display: 'inline-block',
+              padding: '0.5rem 1.5rem',
+              background: 'rgba(0, 240, 255, 0.2)',
+              border: '2px solid rgba(0, 240, 255, 0.5)',
+              borderRadius: '999px',
+              marginBottom: '2rem',
+              fontSize: '0.9rem',
+              fontWeight: 700,
+              color: '#00f0ff',
+              textTransform: 'uppercase',
+              letterSpacing: '2px'
+            }}>
+              Let's Build Together
+            </div>
+
+            <h2 className="neon-text" style={{
+              fontSize: 'clamp(2.5rem, 8vw, 4.5rem)',
               fontWeight: 900,
-              marginBottom: '2.5rem'
+              marginBottom: '1.5rem',
+              fontFamily: "'Space Grotesk', sans-serif"
             }}>
               READY FOR THE NEXT CHALLENGE?
             </h2>
 
             <p style={{
-              fontSize: 'clamp(1.3rem, 4vw, 1.7rem)',
-              color: '#b0b0d8',
-              maxWidth: '900px',
-              margin: '0 auto 4rem',
-              lineHeight: 1.9
+              fontSize: 'clamp(1.1rem, 3vw, 1.4rem)',
+              color: 'rgba(255, 255, 255, 0.7)',
+              maxWidth: '800px',
+              margin: '0 auto 3rem',
+              lineHeight: 1.6
             }}>
-              Let's build something legendary together. Whether it's another hackathon domination or a production-grade project — I'm ready.
+              From hackathon domination to production-grade applications, I bring enterprise-level MERN stack expertise, cloud architecture, and real-time systems to every project.
             </p>
 
             <div style={{
               display: 'flex',
-              gap: '3rem',
+              gap: '2rem',
               justifyContent: 'center',
               flexWrap: 'wrap'
             }}>
@@ -1072,70 +1713,84 @@ export default function EliteHackathonShowcase() {
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  padding: '1.5rem 4rem',
-                  background: 'rgba(0,240,255,0.18)',
-                  border: '3.5px solid rgba(0,240,255,0.8)',
-                  borderRadius: '999px',
+                  padding: '1.2rem 3rem',
+                  background: 'rgba(0, 240, 255, 0.15)',
+                  border: '2px solid rgba(0, 240, 255, 0.6)',
+                  borderRadius: '12px',
                   color: '#00f0ff',
-                  fontWeight: 900,
-                  fontSize: '1.4rem',
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
                   textDecoration: 'none',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '1.5rem',
-                  transition: 'all 0.4s'
+                  gap: '1rem',
+                  transition: 'all 0.3s',
+                  fontFamily: "'Poppins', sans-serif"
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.transform = 'scale(1.1)';
-                  e.currentTarget.style.boxShadow = '0 0 60px #00f0ff';
+                  e.currentTarget.style.background = 'rgba(0, 240, 255, 0.3)';
+                  e.currentTarget.style.transform = 'translateY(-3px)';
+                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 240, 255, 0.4)';
                 }}
                 onMouseLeave={e => {
-                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.background = 'rgba(0, 240, 255, 0.15)';
+                  e.currentTarget.style.transform = 'translateY(0)';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <Github size={32} />
-                VIEW REPOSITORIES
+                <Github size={24} />
+                View GitHub
               </a>
 
               <a
                 href="mailto:g.sivasatyasaibhagavan@gmail.com"
                 style={{
-                  padding: '1.5rem 4rem',
-                  background: 'var(--neon-gradient)',
-                  borderRadius: '999px',
+                  padding: '1.2rem 3rem',
+                  background: 'linear-gradient(135deg, #00f0ff, #a78bfa)',
+                  borderRadius: '12px',
                   color: '#000',
-                  fontWeight: 900,
-                  fontSize: '1.4rem',
+                  fontWeight: 800,
+                  fontSize: '1.1rem',
                   textDecoration: 'none',
-                  display: 'flex',
+                  display: 'inline-flex',
                   alignItems: 'center',
-                  gap: '1.5rem',
-                  boxShadow: '0 0 60px rgba(0,240,255,0.7)'
+                  gap: '1rem',
+                  transition: 'all 0.3s',
+                  fontFamily: "'Poppins', sans-serif",
+                  boxShadow: '0 10px 40px rgba(0, 240, 255, 0.4)'
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.transform = 'translateY(-3px) scale(1.05)';
+                  e.currentTarget.style.boxShadow = '0 15px 60px rgba(0, 240, 255, 0.6)';
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
+                  e.currentTarget.style.boxShadow = '0 10px 40px rgba(0, 240, 255, 0.4)';
                 }}
               >
-                <Mail size={32} />
-                LET'S COLLABORATE
+                <Mail size={24} />
+                Let's Collaborate
               </a>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Certificate Full View Modal */}
+      {/* Certificate Modal */}
       {showCertificate && (
         <div
           onClick={() => setShowCertificate(false)}
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.96)',
-            backdropFilter: 'blur(25px)',
+            background: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(20px)',
             zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '2rem'
+            padding: '2rem',
+            animation: 'fadeInUp 0.3s ease-out'
           }}
         >
           <div
@@ -1144,38 +1799,42 @@ export default function EliteHackathonShowcase() {
               position: 'relative',
               maxWidth: '95vw',
               maxHeight: '95vh',
-              border: '5px solid var(--neon-primary)',
-              borderRadius: '28px',
+              borderRadius: '24px',
               overflow: 'hidden',
-              boxShadow: '0 0 120px rgba(0,240,255,0.8)'
+              border: '4px solid #ffd700',
+              boxShadow: '0 0 100px rgba(255, 215, 0, 0.6)',
+              animation: 'scaleIn 0.4s ease-out'
             }}
           >
             <button
               onClick={() => setShowCertificate(false)}
               style={{
                 position: 'absolute',
-                top: '1.8rem',
-                right: '1.8rem',
-                background: 'rgba(255,80,80,0.4)',
-                border: 'none',
+                top: '1.5rem',
+                right: '1.5rem',
+                width: '60px',
+                height: '60px',
                 borderRadius: '50%',
-                width: '65px',
-                height: '65px',
+                background: 'rgba(255, 0, 0, 0.8)',
+                border: 'none',
+                color: '#fff',
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fff',
-                cursor: 'pointer',
                 zIndex: 10,
-                transition: 'all 0.3s'
+                transition: 'all 0.3s',
+                backdropFilter: 'blur(10px)'
               }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
             >
-              <X size={36} strokeWidth={3} />
+              <X size={32} strokeWidth={3} />
             </button>
 
             <img
               src={certificateImage}
-              alt="Brainovision National Championship Certificate"
+              alt="Certificate"
               style={{
                 width: '100%',
                 height: 'auto',
@@ -1187,29 +1846,27 @@ export default function EliteHackathonShowcase() {
               position: 'absolute',
               bottom: '2rem',
               left: '50%',
-              transform: 'translateX(-50%)',
-              display: 'flex',
-              gap: '2.5rem'
+              transform: 'translateX(-50%)'
             }}>
               <button
                 onClick={handleCertificateDownload}
                 style={{
                   padding: '1.2rem 3rem',
-                  background: 'var(--neon-gradient)',
+                  background: 'linear-gradient(135deg, #ffd700, #ffed4e)',
                   border: 'none',
-                  borderRadius: '999px',
+                  borderRadius: '12px',
                   color: '#000',
-                  fontWeight: 900,
-                  fontSize: '1.3rem',
+                  fontWeight: 800,
+                  fontSize: '1.2rem',
                   cursor: 'pointer',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '1rem',
-                  boxShadow: '0 0 50px rgba(0,240,255,0.8)'
+                  boxShadow: '0 10px 40px rgba(255, 215, 0, 0.6)'
                 }}
               >
-                <Download size={32} />
-                Download Certificate
+                <Download size={24} />
+                Download
               </button>
             </div>
           </div>
@@ -1223,244 +1880,224 @@ export default function EliteHackathonShowcase() {
           style={{
             position: 'fixed',
             inset: 0,
-            background: 'rgba(0,0,0,0.96)',
-            backdropFilter: 'blur(25px)',
+            background: 'rgba(0, 0, 0, 0.95)',
+            backdropFilter: 'blur(20px)',
             zIndex: 9999,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            padding: '1.5rem'
+            padding: '2rem',
+            animation: 'fadeInUp 0.3s ease-out'
           }}
         >
           <div
             onClick={e => e.stopPropagation()}
+            className="glass-card"
             style={{
-              background: 'rgba(8,8,22,0.98)',
-              border: `5px solid ${phases[activePhase - 1].color}`,
-              borderRadius: '36px',
               maxWidth: '1200px',
-              width: '96%',
-              maxHeight: '92vh',
+              width: '95%',
+              maxHeight: '90vh',
               overflowY: 'auto',
-              boxShadow: `0 0 160px ${phases[activePhase - 1].color}80`,
-              position: 'relative'
+              padding: '3rem',
+              position: 'relative',
+              animation: 'scaleIn 0.4s ease-out'
             }}
           >
             <button
               onClick={() => setActivePhase(null)}
               style={{
                 position: 'absolute',
-                top: '1.8rem',
-                right: '1.8rem',
-                background: 'rgba(255,80,80,0.4)',
-                border: 'none',
+                top: '1.5rem',
+                right: '1.5rem',
+                width: '50px',
+                height: '50px',
                 borderRadius: '50%',
-                width: '65px',
-                height: '65px',
+                background: 'rgba(255, 0, 0, 0.3)',
+                border: '2px solid rgba(255, 0, 0, 0.6)',
+                color: '#ff4444',
+                cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: '#fff',
-                cursor: 'pointer',
-                zIndex: 10
+                transition: 'all 0.3s'
               }}
             >
-              <X size={36} strokeWidth={3} />
+              <X size={24} />
             </button>
 
-            <div style={{
-              padding: 'clamp(3rem, 7vw, 5.5rem) clamp(2.5rem, 6vw, 4.5rem) 6rem'
-            }}>
-              <div style={{
-                textAlign: 'center',
-                marginBottom: '4rem'
-              }}>
-                <div style={{
-                  width: '140px',
-                  height: '140px',
-                  margin: '0 auto 2rem',
-                  border: `5px solid ${phases[activePhase - 1].color}`,
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  background: `${phases[activePhase - 1].color}25`
-                }}>
-                  {(() => {
-                    const Icon = phaseIcons[activePhase];
-                    return <Icon size={70} style={{ color: phases[activePhase - 1].color }} />;
-                  })()}
-                </div>
-
-                <div style={{
-                  fontSize: '1.6rem',
-                  color: phases[activePhase - 1].color,
-                  fontWeight: 800,
-                  marginBottom: '1rem'
-                }}>
-                  {phases[activePhase - 1].hour}
-                </div>
-
-                <h2 style={{
-                  fontSize: 'clamp(2.8rem, 7vw, 4.8rem)',
-                  fontWeight: 900,
-                  background: `linear-gradient(135deg, ${phases[activePhase - 1].color}, #ffffff)`,
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  marginBottom: '1.5rem'
-                }}>
-                  {phases[activePhase - 1].title}
-                </h2>
-
-                <p style={{
-                  fontSize: '1.4rem',
-                  color: '#d0d0ff',
-                  maxWidth: '900px',
-                  margin: '0 auto 2.5rem',
-                  lineHeight: 1.8
-                }}>
-                  {phases[activePhase - 1].desc}
-                </p>
-              </div>
-
-              {/* Achievements */}
-              <div style={{ marginBottom: '4rem' }}>
-                <h3 style={{
-                  fontSize: '2.2rem',
-                  color: phases[activePhase - 1].color,
-                  marginBottom: '2rem',
-                  textAlign: 'center'
-                }}>
-                  Key Achievements
-                </h3>
-                <div style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                  gap: '1.5rem'
-                }}>
-                  {phases[activePhase - 1].achievements.map((ach, idx) => (
-                    <div key={idx} style={{
-                      padding: '1.5rem',
-                      background: `${phases[activePhase - 1].color}20`,
-                      border: `1.5px solid ${phases[activePhase - 1].color}50`,
-                      borderRadius: '20px',
+            {(() => {
+              const phase = phases[activePhase - 1];
+              return (
+                <>
+                  <div style={{
+                    textAlign: 'center',
+                    marginBottom: '3rem'
+                  }}>
+                    <div style={{
+                      width: '120px',
+                      height: '120px',
+                      margin: '0 auto 2rem',
+                      borderRadius: '50%',
+                      background: phase.gradient,
                       display: 'flex',
                       alignItems: 'center',
-                      gap: '1.2rem'
+                      justifyContent: 'center',
+                      boxShadow: `0 0 60px ${phase.color}`
                     }}>
-                      <CheckCircle2 size={28} style={{ color: phases[activePhase - 1].color }} />
-                      <span style={{ color: '#e0e0ff', fontSize: '1.1rem' }}>{ach}</span>
+                      <phase.icon size={60} style={{ color: '#000' }} />
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Tech Used */}
-              <div style={{ marginBottom: '4rem' }}>
-                <h3 style={{
-                  fontSize: '2.2rem',
-                  color: phases[activePhase - 1].color,
-                  marginBottom: '2rem',
-                  textAlign: 'center'
-                }}>
-                  Technologies Used
-                </h3>
-                <div style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '1.2rem',
-                  justifyContent: 'center'
-                }}>
-                  {phases[activePhase - 1].techUsed.map((tech, idx) => (
-                    <div key={idx} style={{
-                      padding: '1rem 2rem',
-                      background: `${phases[activePhase - 1].color}25`,
-                      border: `2.5px solid ${phases[activePhase - 1].color}60`,
-                      borderRadius: '999px',
-                      color: phases[activePhase - 1].color,
-                      fontWeight: 800,
-                      fontSize: '1.2rem'
+                    <div style={{
+                      fontSize: '1.3rem',
+                      color: phase.color,
+                      fontWeight: 700,
+                      marginBottom: '1rem',
+                      fontFamily: "'JetBrains Mono', monospace"
                     }}>
-                      {tech}
+                      {phase.hour}
                     </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Challenge & Solution */}
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: window.innerWidth > 768 ? '1fr 1fr' : '1fr',
-                gap: '2.5rem'
-              }}>
-                <div style={{
-                  padding: '2.5rem',
-                  background: 'rgba(255,100,100,0.12)',
-                  border: '3px solid rgba(255,100,100,0.5)',
-                  borderRadius: '24px'
-                }}>
-                  <h4 style={{
-                    color: '#ff6666',
-                    fontSize: '1.9rem',
-                    marginBottom: '1.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
+                    <h2 style={{
+                      fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+                      fontWeight: 900,
+                      marginBottom: '1rem',
+                      background: `linear-gradient(135deg, ${phase.color}, #ffffff)`,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent'
+                    }}>
+                      {phase.title}
+                    </h2>
+
+                    <p style={{
+                      fontSize: '1.2rem',
+                      color: 'rgba(255, 255, 255, 0.8)',
+                      lineHeight: 1.6
+                    }}>
+                      {phase.desc}
+                    </p>
+                  </div>
+
+                  {/* Achievements */}
+                  <div style={{ marginBottom: '3rem' }}>
+                    <h3 style={{
+                      fontSize: '1.8rem',
+                      color: phase.color,
+                      marginBottom: '1.5rem',
+                      fontWeight: 800
+                    }}>
+                      Key Achievements
+                    </h3>
+                    <div style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+                      gap: '1rem'
+                    }}>
+                      {phase.achievements.map((ach, idx) => (
+                        <div key={idx} style={{
+                          padding: '1.2rem',
+                          background: `${phase.color}15`,
+                          border: `2px solid ${phase.color}40`,
+                          borderRadius: '12px',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '1rem'
+                        }}>
+                          <CheckCircle2 size={24} style={{ color: phase.color, flexShrink: 0 }} />
+                          <span style={{ color: 'rgba(255, 255, 255, 0.9)' }}>{ach}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Tech Stack */}
+                  <div style={{ marginBottom: '3rem' }}>
+                    <h3 style={{
+                      fontSize: '1.8rem',
+                      color: phase.color,
+                      marginBottom: '1.5rem',
+                      fontWeight: 800
+                    }}>
+                      Technologies Used
+                    </h3>
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
+                      gap: '1rem'
+                    }}>
+                      {phase.techUsed.map((tech, idx) => (
+                        <span key={idx} className="tech-badge" style={{
+                          borderColor: phase.color,
+                          color: phase.color
+                        }}>
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Challenge & Solution */}
+                  <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: window.innerWidth > 768 ? '1fr 1fr' : '1fr',
+                    gap: '2rem'
                   }}>
-                    <AlertCircle size={32} />
-                    Challenge Faced
-                  </h4>
-                  <p style={{ color: '#ffcccc', lineHeight: 1.8, fontSize: '1.15rem' }}>
-                    {phases[activePhase - 1].challenges}
-                  </p>
-                </div>
+                    <div style={{
+                      padding: '2rem',
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      border: '2px solid rgba(239, 68, 68, 0.3)',
+                      borderRadius: '16px'
+                    }}>
+                      <h4 style={{
+                        color: '#ef4444',
+                        fontSize: '1.5rem',
+                        marginBottom: '1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontWeight: 700
+                      }}>
+                        <AlertCircle size={28} />
+                        Challenge
+                      </h4>
+                      <p style={{ 
+                        color: 'rgba(255, 255, 255, 0.8)', 
+                        lineHeight: 1.6,
+                        fontSize: '1.05rem'
+                      }}>
+                        {phase.challenges}
+                      </p>
+                    </div>
 
-                <div style={{
-                  padding: '2.5rem',
-                  background: 'rgba(0,200,0,0.12)',
-                  border: '3px solid rgba(0,200,0,0.5)',
-                  borderRadius: '24px'
-                }}>
-                  <h4 style={{
-                    color: '#00cc00',
-                    fontSize: '1.9rem',
-                    marginBottom: '1.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem'
-                  }}>
-                    <Zap size={32} />
-                    Solution Implemented
-                  </h4>
-                  <p style={{ color: '#ccffcc', lineHeight: 1.8, fontSize: '1.15rem' }}>
-                    {phases[activePhase - 1].solutions}
-                  </p>
-                </div>
-              </div>
-
-              {/* Close Button */}
-              <div style={{
-                textAlign: 'center',
-                marginTop: '4rem'
-              }}>
-                <button
-                  onClick={() => setActivePhase(null)}
-                  style={{
-                    padding: '1.2rem 3.5rem',
-                    background: 'rgba(255,100,100,0.25)',
-                    border: '3px solid #ff6666',
-                    borderRadius: '999px',
-                    color: '#ff6666',
-                    fontWeight: 900,
-                    fontSize: '1.3rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.4s'
-                  }}
-                >
-                  Close Phase Details
-                </button>
-              </div>
-            </div>
+                    <div style={{
+                      padding: '2rem',
+                      background: 'rgba(16, 185, 129, 0.1)',
+                      border: '2px solid rgba(16, 185, 129, 0.3)',
+                      borderRadius: '16px'
+                    }}>
+                      <h4 style={{
+                        color: '#10b981',
+                        fontSize: '1.5rem',
+                        marginBottom: '1rem',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '0.5rem',
+                        fontWeight: 700
+                      }}>
+                        <Zap size={28} />
+                        Solution
+                      </h4>
+                      <p style={{ 
+                        color: 'rgba(255, 255, 255, 0.8)', 
+                        lineHeight: 1.6,
+                        fontSize: '1.05rem'
+                      }}>
+                        {phase.solutions}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
           </div>
         </div>
       )}
