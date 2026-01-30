@@ -443,84 +443,11 @@ function ParticleBackground() {
   return <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0 }} />;
 }
 
-function TechIconOrb({ skill, index, total, isHovered }) {
-  const angle = (index / total) * Math.PI * 2;
-  const radius = 45;
-  const x = Math.cos(angle) * radius;
-  const y = Math.sin(angle) * radius;
-  
-  const iconUrl = techIcons[skill] || techIcons[Object.keys(techIcons).find(key => skill.toLowerCase().includes(key.toLowerCase()))];
-
-  return (
-    <div
-      style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: `translate(-50%, -50%) translate(${x}px, ${y}px) scale(${isHovered ? 1.2 : 1})`,
-        width: '35px',
-        height: '35px',
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.9), rgba(30, 15, 45, 0.8))',
-        border: '2px solid rgba(255, 255, 255, 0.2)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
-        animation: `float 3s ease-in-out ${index * 0.2}s infinite`,
-        boxShadow: isHovered 
-          ? '0 0 30px rgba(97, 218, 251, 0.6), inset 0 0 15px rgba(97, 218, 251, 0.2)' 
-          : '0 4px 15px rgba(0, 0, 0, 0.3)',
-        cursor: 'pointer',
-        zIndex: isHovered ? 10 : 1
-      }}
-    >
-      {iconUrl ? (
-        <img 
-          src={iconUrl} 
-          alt={skill} 
-          style={{ 
-            width: '22px', 
-            height: '22px', 
-            filter: isHovered ? 'drop-shadow(0 0 8px rgba(97, 218, 251, 0.8))' : 'none',
-            transition: 'filter 0.3s ease'
-          }} 
-        />
-      ) : (
-        <Hexagon size={18} style={{ color: '#61DAFB' }} />
-      )}
-      {isHovered && (
-        <div style={{
-          position: 'absolute',
-          bottom: '-30px',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          background: 'rgba(0, 0, 0, 0.9)',
-          padding: '4px 10px',
-          borderRadius: '6px',
-          fontSize: '11px',
-          fontWeight: 600,
-          color: '#61DAFB',
-          whiteSpace: 'nowrap',
-          border: '1px solid rgba(97, 218, 251, 0.3)',
-          animation: 'fadeUp 0.3s ease',
-          zIndex: 100
-        }}>
-          {skill}
-        </div>
-      )}
-    </div>
-  );
-}
-
 export default function CertificationsShowcase() {
   const [filter, setFilter] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [hoveredSkill, setHoveredSkill] = useState(null);
   const [sortBy, setSortBy] = useState("power");
-  const [viewMode, setViewMode] = useState("mastery");
-  const [hoveredStat, setHoveredStat] = useState(null);
+  const [viewMode, setViewMode] = useState("grid"); // grid, list, compact, masonry
 
   const filteredCerts = useMemo(() => {
     return certificationsData
@@ -571,10 +498,6 @@ export default function CertificationsShowcase() {
           0%, 100% { transform: translateY(0); } 
           50% { transform: translateY(-10px); } 
         }
-        @keyframes rotate { 
-          from { transform: rotate(0deg); } 
-          to { transform: rotate(360deg); } 
-        }
         @keyframes slideInLeft { 
           from { opacity: 0; transform: translateX(-50px); } 
           to { opacity: 1; transform: translateX(0); } 
@@ -587,73 +510,90 @@ export default function CertificationsShowcase() {
           0%, 100% { border-color: rgba(97, 218, 251, 0.3); box-shadow: 0 0 20px rgba(97, 218, 251, 0.2); } 
           50% { border-color: rgba(97, 218, 251, 0.8); box-shadow: 0 0 40px rgba(97, 218, 251, 0.5); } 
         }
-        @keyframes ripple { 
-          0% { transform: scale(1); opacity: 1; } 
-          100% { transform: scale(1.5); opacity: 0; } 
-        }
-        @keyframes orbitRotate {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes techPulse {
-          0%, 100% { box-shadow: 0 0 20px rgba(97, 218, 251, 0.3); }
-          50% { box-shadow: 0 0 40px rgba(97, 218, 251, 0.6); }
-        }
         
         .glass { 
           background: linear-gradient(135deg, rgba(15, 15, 35, 0.85), rgba(30, 15, 45, 0.7)); 
           backdrop-filter: blur(25px) saturate(180%); 
           border: 2px solid rgba(97, 218, 251, 0.2); 
           box-shadow: 0 8px 32px rgba(0, 0, 0, 0.7), inset 0 1px 0 rgba(97, 218, 251, 0.1); 
-          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          transition: all 0.3s ease;
           position: relative;
           overflow: hidden;
         }
-        .glass::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(97, 218, 251, 0.1), transparent);
-          transition: left 0.5s;
-        }
-        .glass:hover::before {
-          left: 100%;
-        }
-        .glass:hover { 
-          border-color: rgba(97, 218, 251, 0.5); 
-          box-shadow: 0 20px 60px rgba(97, 218, 251, 0.3), 0 0 80px rgba(97, 218, 251, 0.2); 
-          transform: translateY(-4px);
-        }
-
-        .mastery-card {
+        
+        .cert-card {
           background: linear-gradient(145deg, rgba(10, 10, 25, 0.95), rgba(20, 10, 35, 0.85));
           backdrop-filter: blur(30px);
-          border: 2px solid;
+          border: 2px solid rgba(97, 218, 251, 0.2);
+          border-radius: 20px;
           position: relative;
           overflow: hidden;
+          transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
-        .tech-orbit {
-          position: relative;
-          width: 140px;
-          height: 140px;
+        .cert-card:hover {
+          transform: translateY(-8px);
+          border-color: var(--category-color);
+          box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 80px var(--category-glow);
+        }
+
+        .cert-image {
+          width: 100%;
+          height: 280px;
+          object-fit: cover;
+          display: block;
+        }
+
+        .power-bar {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 5px;
+          background: rgba(0, 0, 0, 0.5);
+          overflow: hidden;
+          z-index: 10;
+        }
+
+        .power-fill {
+          height: 100%;
+          background: var(--category-gradient);
+          box-shadow: 0 0 20px var(--category-color);
+          transition: width 1.5s cubic-bezier(0.165, 0.84, 0.44, 1);
         }
 
         .mastery-badge {
           position: absolute;
-          top: -10px;
-          right: -10px;
-          width: 60px;
-          height: 60px;
+          top: 16px;
+          right: 16px;
+          width: 56px;
+          height: 56px;
           border-radius: 50%;
           display: flex;
           align-items: center;
           justify-content: center;
           z-index: 20;
+          border: 3px solid;
           animation: pulse 3s ease-in-out infinite;
+        }
+
+        .tech-badge {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          background: rgba(0, 0, 0, 0.6);
+          border: 1.5px solid rgba(97, 218, 251, 0.3);
+          border-radius: 20px;
+          font-size: 0.8rem;
+          font-weight: 600;
+          color: #61DAFB;
+          font-family: 'JetBrains Mono';
+        }
+
+        .tech-icon {
+          width: 18px;
+          height: 18px;
         }
       `}</style>
 
@@ -681,7 +621,7 @@ export default function CertificationsShowcase() {
 
         <div style={{ position: 'relative', zIndex: 10, maxWidth: '1600px', margin: '0 auto', padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem)' }}>
           
-          {/* Mastery Hero */}
+          {/* Hero Section */}
           <div style={{ textAlign: 'center', marginBottom: 'clamp(3rem, 6vw, 5rem)', animation: 'fadeUp 1s ease' }}>
             
             <div style={{ 
@@ -696,15 +636,12 @@ export default function CertificationsShowcase() {
               fontFamily: 'Orbitron', 
               fontSize: 'clamp(0.8rem, 1.8vw, 1rem)', 
               color: '#FFD700', 
-              animation: 'pulse 3s infinite, borderGlow 3s infinite',
-              boxShadow: '0 0 40px rgba(255, 215, 0, 0.3)',
-              position: 'relative',
-              overflow: 'hidden'
+              animation: 'borderGlow 3s infinite',
+              boxShadow: '0 0 40px rgba(255, 215, 0, 0.3)'
             }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(255, 215, 0, 0.2), transparent)', animation: 'shimmer 3s infinite' }} />
-              <Crown size={22} style={{ animation: 'glow 2s infinite', zIndex: 1 }} />
-              <span style={{ fontWeight: 700, letterSpacing: '3px', zIndex: 1 }}>MASTERY CREDENTIALS</span>
-              <Crown size={22} style={{ animation: 'glow 2s infinite', zIndex: 1 }} />
+              <Crown size={22} style={{ animation: 'glow 2s infinite' }} />
+              <span style={{ fontWeight: 700, letterSpacing: '3px' }}>PROFESSIONAL CREDENTIALS</span>
+              <Crown size={22} style={{ animation: 'glow 2s infinite' }} />
             </div>
 
             <h1 style={{ 
@@ -721,10 +658,9 @@ export default function CertificationsShowcase() {
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               animation: 'shimmer 4s ease infinite',
-              filter: 'drop-shadow(0 0 30px rgba(97, 218, 251, 0.5))',
-              textShadow: '0 0 80px rgba(97, 218, 251, 0.4)'
+              filter: 'drop-shadow(0 0 30px rgba(97, 218, 251, 0.5))'
             }}>
-              TECH MASTERY
+              TECH EXCELLENCE
             </h1>
 
             <p style={{
@@ -736,11 +672,11 @@ export default function CertificationsShowcase() {
               fontWeight: 400,
               fontFamily: 'Rajdhani'
             }}>
-              Elite-level technical certifications demonstrating mastery across cutting-edge technologies, 
-              frameworks, and platforms. Each credential validated through rigorous training and real-world application.
+              Industry-recognized certifications across cutting-edge technologies. 
+              Validated expertise through rigorous training and real-world application.
             </p>
 
-            {/* Premium Stats */}
+            {/* Stats Grid */}
             <div style={{ 
               display: 'grid', 
               gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', 
@@ -761,24 +697,9 @@ export default function CertificationsShowcase() {
                     padding: 'clamp(1.5rem, 3vw, 2rem)', 
                     borderRadius: '18px', 
                     textAlign: 'center', 
-                    animation: `scaleIn 0.6s ease ${i * 0.15}s both, float 6s ease-in-out ${i * 0.5}s infinite`,
-                    cursor: 'pointer',
-                    transform: hoveredStat === i ? 'scale(1.08) translateY(-8px)' : 'scale(1)',
-                    borderColor: hoveredStat === i ? stat.color : 'rgba(97, 218, 251, 0.2)'
+                    animation: `scaleIn 0.6s ease ${i * 0.15}s both, float 6s ease-in-out ${i * 0.5}s infinite`
                   }}
-                  onMouseEnter={() => setHoveredStat(i)}
-                  onMouseLeave={() => setHoveredStat(null)}
                 >
-                  {hoveredStat === i && (
-                    <div style={{ 
-                      position: 'absolute', 
-                      inset: 0, 
-                      border: `2px solid ${stat.color}`, 
-                      borderRadius: '18px', 
-                      animation: 'ripple 1.5s ease-out infinite' 
-                    }} />
-                  )}
-                  
                   <div style={{ 
                     width: 'clamp(60px, 10vw, 80px)', 
                     height: 'clamp(60px, 10vw, 80px)', 
@@ -788,8 +709,7 @@ export default function CertificationsShowcase() {
                     display: 'flex', 
                     alignItems: 'center', 
                     justifyContent: 'center', 
-                    boxShadow: `0 0 40px ${stat.color}70`,
-                    animation: 'pulse 3s ease-in-out infinite'
+                    boxShadow: `0 0 40px ${stat.color}70`
                   }}>
                     <stat.icon size={Math.min(40, window.innerWidth * 0.06)} style={{ color: '#000' }} />
                   </div>
@@ -822,13 +742,13 @@ export default function CertificationsShowcase() {
 
           {/* Controls */}
           <div style={{ marginBottom: '3rem' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1.5rem', marginBottom: '2rem' }}>
               <div className="glass" style={{ padding: '0.5rem', borderRadius: '16px', animation: 'slideInLeft 0.8s ease' }}>
                 <div style={{ position: 'relative' }}>
-                  <Search size={20} style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: '#61DAFB', animation: 'glow 3s infinite' }} />
+                  <Search size={20} style={{ position: 'absolute', left: '1.2rem', top: '50%', transform: 'translateY(-50%)', color: '#61DAFB' }} />
                   <input 
                     type="text" 
-                    placeholder="Search skills, technologies..." 
+                    placeholder="Search certifications..." 
                     value={searchQuery} 
                     onChange={(e) => setSearchQuery(e.target.value)} 
                     style={{ 
@@ -873,6 +793,45 @@ export default function CertificationsShowcase() {
                   </select>
                 </div>
               </div>
+
+              {/* View Mode Selector */}
+              <div className="glass" style={{ padding: '0.5rem', borderRadius: '16px', animation: 'fadeUp 0.8s ease 0.2s both' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', height: '100%' }}>
+                  {[
+                    { mode: 'grid', icon: LayoutGrid, label: 'Grid' },
+                    { mode: 'list', icon: List, label: 'List' },
+                    { mode: 'compact', icon: Grid3x3, label: 'Compact' },
+                    { mode: 'masonry', icon: Box, label: 'Masonry' }
+                  ].map(({ mode, icon: Icon, label }) => (
+                    <button
+                      key={mode}
+                      onClick={() => setViewMode(mode)}
+                      title={label}
+                      style={{
+                        flex: 1,
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        padding: '0.8rem',
+                        background: viewMode === mode ? 'linear-gradient(135deg, #61DAFB, #21A1F1)' : 'rgba(0, 0, 0, 0.3)',
+                        border: viewMode === mode ? '2px solid #61DAFB' : '2px solid rgba(97, 218, 251, 0.2)',
+                        borderRadius: '10px',
+                        color: viewMode === mode ? '#000' : '#61DAFB',
+                        cursor: 'pointer',
+                        transition: 'all 0.3s ease',
+                        fontFamily: 'Orbitron',
+                        fontWeight: 700,
+                        fontSize: '0.85rem',
+                        boxShadow: viewMode === mode ? '0 0 20px rgba(97, 218, 251, 0.4)' : 'none'
+                      }}
+                    >
+                      <Icon size={18} />
+                      <span style={{ display: window.innerWidth > 1200 ? 'inline' : 'none' }}>{label}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
 
             {/* Category Filters */}
@@ -893,7 +852,7 @@ export default function CertificationsShowcase() {
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.7rem',
-                      transition: 'all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                      transition: 'all 0.3s ease',
                       border: isActive ? `3px solid ${config?.color || '#61DAFB'}` : '3px solid rgba(97, 218, 251, 0.1)',
                       background: isActive 
                         ? `linear-gradient(135deg, ${config?.color || '#61DAFB'}30, ${config?.color || '#61DAFB'}10)` 
@@ -902,7 +861,7 @@ export default function CertificationsShowcase() {
                       boxShadow: isActive 
                         ? `0 0 40px ${config?.color || '#61DAFB'}50` 
                         : 'none',
-                      transform: isActive ? 'scale(1.08) translateY(-3px)' : 'scale(1)',
+                      transform: isActive ? 'scale(1.05)' : 'scale(1)',
                       cursor: 'pointer',
                       backdropFilter: 'blur(20px)',
                       fontFamily: 'Orbitron',
@@ -917,145 +876,58 @@ export default function CertificationsShowcase() {
             </div>
           </div>
 
-          {/* Mastery Cards Grid */}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '2.5rem' }}>
-            {filteredCerts.map((cert, idx) => {
-              const config = categoryConfig[cert.category];
-              const mastery = masteryColors[cert.masteryLevel];
-              const isHovered = hoveredCard === idx;
-              const MasteryIcon = mastery.icon;
-              
-              return (
-                <div 
-                  key={idx} 
-                  className="mastery-card"
-                  style={{ 
-                    borderRadius: '24px',
-                    borderColor: isHovered ? config.color : 'rgba(97, 218, 251, 0.2)',
-                    animation: `fadeUp 0.8s ease ${Math.min(idx * 0.05, 1)}s both`,
-                    cursor: 'pointer',
-                    transform: isHovered ? 'translateY(-12px) scale(1.03)' : 'none',
-                    boxShadow: isHovered 
-                      ? `0 30px 80px ${config.color}50, 0 0 60px ${mastery.color}40` 
-                      : '0 8px 32px rgba(0, 0, 0, 0.6)'
-                  }} 
-                  onMouseEnter={() => setHoveredCard(idx)} 
-                  onMouseLeave={() => setHoveredCard(null)} 
-                  onClick={() => window.open(cert.link, '_blank')}
-                >
-                  {/* Animated gradient border */}
-                  <div style={{
-                    position: 'absolute',
-                    inset: -2,
-                    borderRadius: '24px',
-                    background: `linear-gradient(135deg, ${config.color}, ${mastery.color}, ${config.color})`,
-                    backgroundSize: '200% 200%',
-                    animation: isHovered ? 'shimmer 3s ease infinite' : 'none',
-                    zIndex: -1,
-                    opacity: isHovered ? 1 : 0,
-                    transition: 'opacity 0.4s ease'
-                  }} />
-
-                  {/* Power indicator */}
-                  <div style={{ 
-                    position: 'absolute', 
-                    top: 0, 
-                    left: 0, 
-                    right: 0, 
-                    height: '6px', 
-                    background: 'rgba(0, 0, 0, 0.5)', 
-                    borderRadius: '24px 24px 0 0',
-                    overflow: 'hidden',
-                    zIndex: 10
-                  }}>
-                    <div style={{ 
-                      height: '100%', 
-                      width: `${cert.power}%`, 
-                      background: config.gradient,
-                      boxShadow: `0 0 20px ${config.color}`,
-                      transition: 'width 1.5s cubic-bezier(0.165, 0.84, 0.44, 1)',
-                      animation: 'techPulse 2s ease-in-out infinite'
-                    }} />
-                  </div>
-
-                  {/* Mastery Badge */}
-                  <div className="mastery-badge" style={{
-                    background: `linear-gradient(135deg, ${mastery.color}, ${mastery.color}80)`,
-                    border: `3px solid ${mastery.color}`,
-                    boxShadow: `0 0 30px ${mastery.glow}, inset 0 0 20px ${mastery.glow}`
-                  }}>
-                    <MasteryIcon size={28} style={{ color: '#000', animation: 'glow 2s infinite' }} />
-                  </div>
-
-                  <div style={{ padding: '2rem' }}>
-                    {/* Tech Icon Orbit */}
-                    <div style={{ 
-                      display: 'flex', 
-                      justifyContent: 'center', 
-                      marginBottom: '2rem',
-                      position: 'relative'
-                    }}>
-                      <div className="tech-orbit">
-                        {/* Center Category Icon */}
-                        <div style={{
-                          position: 'absolute',
-                          left: '50%',
-                          top: '50%',
-                          transform: 'translate(-50%, -50%)',
-                          width: '70px',
-                          height: '70px',
-                          borderRadius: '50%',
-                          background: config.gradient,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          boxShadow: `0 0 40px ${config.color}60, inset 0 0 20px ${config.color}30`,
-                          border: '3px solid rgba(255, 255, 255, 0.2)',
-                          zIndex: 5,
-                          animation: isHovered ? 'pulse 1.5s ease-in-out infinite' : 'none'
-                        }}>
-                          <config.icon size={36} style={{ color: '#000' }} />
-                        </div>
-
-                        {/* Orbiting Tech Icons */}
-                        <div style={{
-                          position: 'absolute',
-                          inset: 0,
-                          animation: isHovered ? 'orbitRotate 20s linear infinite' : 'none'
-                        }}>
-                          {cert.skills.map((skill, i) => (
-                            <TechIconOrb 
-                              key={i} 
-                              skill={skill} 
-                              index={i} 
-                              total={cert.skills.length}
-                              isHovered={hoveredSkill === `${idx}-${i}`}
-                            />
-                          ))}
-                        </div>
-
-                        {/* Orbit ring */}
-                        <div style={{
-                          position: 'absolute',
-                          inset: '-20px',
-                          borderRadius: '50%',
-                          border: '2px dashed rgba(97, 218, 251, 0.2)',
-                          animation: isHovered ? 'rotate 30s linear infinite reverse' : 'none'
-                        }} />
-                      </div>
+          {/* Certifications Display - Dynamic Based on View Mode */}
+          {viewMode === 'grid' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(380px, 1fr))', gap: '2.5rem' }}>
+              {filteredCerts.map((cert, idx) => {
+                const config = categoryConfig[cert.category];
+                const mastery = masteryColors[cert.masteryLevel];
+                const MasteryIcon = mastery.icon;
+                
+                return (
+                  <div 
+                    key={idx} 
+                    className="cert-card"
+                    style={{ 
+                      '--category-color': config.color,
+                      '--category-gradient': config.gradient,
+                      '--category-glow': config.bgGlow,
+                      animation: `fadeUp 0.8s ease ${Math.min(idx * 0.05, 1)}s both`,
+                      cursor: 'pointer'
+                    }} 
+                    onClick={() => window.open(cert.link, '_blank')}
+                  >
+                    <div className="power-bar">
+                      <div className="power-fill" style={{ width: `${cert.power}%` }} />
                     </div>
 
-                    {/* Content */}
-                    <div style={{ textAlign: 'center', marginBottom: '1.5rem' }}>
+                    <div 
+                      className="mastery-badge" 
+                      style={{
+                        background: `linear-gradient(135deg, ${mastery.color}, ${mastery.color}80)`,
+                        borderColor: mastery.color,
+                        boxShadow: `0 0 30px ${mastery.glow}`
+                      }}
+                    >
+                      <MasteryIcon size={26} style={{ color: '#000' }} />
+                    </div>
+
+                    <img 
+                      src={cert.image} 
+                      alt={cert.title} 
+                      className="cert-image"
+                    />
+
+                    <div style={{ padding: '2rem' }}>
                       <div style={{
                         display: 'inline-flex',
                         alignItems: 'center',
                         gap: '0.5rem',
-                        padding: '0.4rem 1rem',
+                        padding: '0.5rem 1.2rem',
                         background: `${config.color}20`,
                         border: `2px solid ${config.color}`,
                         borderRadius: '999px',
-                        marginBottom: '1rem',
+                        marginBottom: '1.2rem',
                         fontSize: '0.85rem',
                         fontWeight: 700,
                         color: config.color,
@@ -1066,13 +938,11 @@ export default function CertificationsShowcase() {
                       </div>
 
                       <h3 style={{ 
-                        fontSize: '1.5rem', 
+                        fontSize: '1.6rem', 
                         fontWeight: 800, 
-                        color: isHovered ? config.color : '#fff', 
+                        color: '#fff', 
                         marginBottom: '0.8rem', 
-                        fontFamily: 'Orbitron',
-                        transition: 'color 0.3s ease',
-                        textShadow: isHovered ? `0 0 20px ${config.color}60` : 'none'
+                        fontFamily: 'Orbitron'
                       }}>
                         {cert.title}
                       </h3>
@@ -1081,96 +951,566 @@ export default function CertificationsShowcase() {
                         fontSize: '0.95rem', 
                         color: 'rgba(255, 255, 255, 0.7)', 
                         lineHeight: 1.6,
-                        marginBottom: '1.2rem',
+                        marginBottom: '1.5rem',
                         fontFamily: 'Rajdhani'
                       }}>
                         {cert.desc}
                       </p>
 
-                      {/* Stats Grid */}
+                      <div style={{
+                        display: 'flex',
+                        flexWrap: 'wrap',
+                        gap: '0.6rem',
+                        marginBottom: '1.5rem'
+                      }}>
+                        {cert.skills.map((skill, i) => {
+                          const iconUrl = techIcons[skill] || techIcons[Object.keys(techIcons).find(key => skill.toLowerCase().includes(key.toLowerCase()))];
+                          return (
+                            <div key={i} className="tech-badge">
+                              {iconUrl && <img src={iconUrl} alt={skill} className="tech-icon" />}
+                              {skill}
+                            </div>
+                          );
+                        })}
+                      </div>
+
                       <div style={{
                         display: 'grid',
                         gridTemplateColumns: 'repeat(3, 1fr)',
                         gap: '1rem',
-                        marginBottom: '1.5rem',
                         padding: '1.2rem',
                         background: 'rgba(0, 0, 0, 0.3)',
                         borderRadius: '12px',
-                        border: '1px solid rgba(97, 218, 251, 0.1)'
+                        border: '1px solid rgba(97, 218, 251, 0.1)',
+                        marginBottom: '1.5rem'
                       }}>
                         <div style={{ textAlign: 'center' }}>
                           <Zap size={20} style={{ color: '#FFD700', marginBottom: '0.3rem' }} />
-                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#FFD700', fontFamily: 'Orbitron' }}>{cert.power}</div>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: '#FFD700', fontFamily: 'Orbitron' }}>{cert.power}</div>
                           <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Rajdhani' }}>Power</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <Calendar size={20} style={{ color: config.color, marginBottom: '0.3rem' }} />
-                          <div style={{ fontSize: '1.4rem', fontWeight: 900, color: config.color, fontFamily: 'Orbitron' }}>{cert.year}</div>
+                          <div style={{ fontSize: '1.5rem', fontWeight: 900, color: config.color, fontFamily: 'Orbitron' }}>{cert.year}</div>
                           <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Rajdhani' }}>Year</div>
                         </div>
                         <div style={{ textAlign: 'center' }}>
                           <Target size={20} style={{ color: mastery.color, marginBottom: '0.3rem' }} />
-                          <div style={{ fontSize: '0.9rem', fontWeight: 900, color: mastery.color, fontFamily: 'Orbitron' }}>{cert.level}</div>
+                          <div style={{ fontSize: '0.95rem', fontWeight: 900, color: mastery.color, fontFamily: 'Orbitron' }}>{cert.masteryLevel}</div>
                           <div style={{ fontSize: '0.75rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Rajdhani' }}>Level</div>
                         </div>
                       </div>
 
-                      {/* Issuer */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.5rem',
-                        padding: '0.8rem',
+                        justifyContent: 'space-between',
+                        padding: '1rem',
                         background: 'rgba(0, 0, 0, 0.3)',
                         borderRadius: '10px',
-                        marginBottom: '1.2rem',
-                        fontSize: '0.9rem',
-                        color: 'rgba(255, 255, 255, 0.7)',
-                        fontFamily: 'Rajdhani',
-                        fontWeight: 600
+                        marginBottom: '1.2rem'
                       }}>
-                        <Award size={16} style={{ color: config.color }} />
-                        {cert.issuer}
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          fontSize: '0.9rem',
+                          color: 'rgba(255, 255, 255, 0.7)',
+                          fontFamily: 'Rajdhani',
+                          fontWeight: 600
+                        }}>
+                          <Award size={16} style={{ color: config.color }} />
+                          {cert.issuer}
+                        </div>
+                        <div style={{
+                          fontSize: '0.85rem',
+                          color: 'rgba(255, 255, 255, 0.5)',
+                          fontFamily: 'Rajdhani'
+                        }}>
+                          {cert.duration}
+                        </div>
                       </div>
 
-                      {/* View Certificate Button */}
                       <div style={{
                         display: 'flex',
                         alignItems: 'center',
                         justifyContent: 'center',
                         gap: '0.6rem',
-                        padding: '1rem 2rem',
-                        background: isHovered ? config.gradient : 'rgba(0, 0, 0, 0.4)',
+                        padding: '1.1rem 2rem',
+                        background: config.gradient,
                         borderRadius: '12px',
                         border: `2px solid ${config.color}`,
-                        color: isHovered ? '#000' : config.color,
+                        color: '#000',
                         fontWeight: 700,
                         fontSize: '1rem',
                         fontFamily: 'Orbitron',
-                        transition: 'all 0.3s ease',
-                        boxShadow: isHovered ? `0 0 30px ${config.color}50` : 'none'
+                        boxShadow: `0 0 30px ${config.color}50`,
+                        transition: 'all 0.3s ease'
                       }}>
                         <ExternalLink size={18} />
                         <span>VIEW CREDENTIAL</span>
                       </div>
                     </div>
                   </div>
+                );
+              })}
+            </div>
+          )}
 
-                  {/* Glow effect */}
-                  <div style={{
-                    position: 'absolute',
-                    inset: 0,
-                    background: `radial-gradient(circle at 50% 50%, ${config.color}15, transparent 70%)`,
-                    opacity: isHovered ? 1 : 0,
-                    transition: 'opacity 0.6s ease',
-                    pointerEvents: 'none',
-                    borderRadius: '24px'
-                  }} />
-                </div>
-              );
-            })}
-          </div>
+          {/* List View */}
+          {viewMode === 'list' && (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+              {filteredCerts.map((cert, idx) => {
+                const config = categoryConfig[cert.category];
+                const mastery = masteryColors[cert.masteryLevel];
+                const MasteryIcon = mastery.icon;
+                
+                return (
+                  <div 
+                    key={idx}
+                    className="cert-card"
+                    style={{
+                      '--category-color': config.color,
+                      '--category-gradient': config.gradient,
+                      '--category-glow': config.bgGlow,
+                      animation: `fadeUp 0.6s ease ${Math.min(idx * 0.03, 0.5)}s both`,
+                      cursor: 'pointer',
+                      display: 'grid',
+                      gridTemplateColumns: '300px 1fr',
+                      gap: '2rem',
+                      alignItems: 'center'
+                    }}
+                    onClick={() => window.open(cert.link, '_blank')}
+                  >
+                    <div className="power-bar">
+                      <div className="power-fill" style={{ width: `${cert.power}%` }} />
+                    </div>
+
+                    <div style={{ position: 'relative' }}>
+                      <img 
+                        src={cert.image} 
+                        alt={cert.title}
+                        style={{
+                          width: '100%',
+                          height: '220px',
+                          objectFit: 'cover',
+                          borderRadius: '12px 0 0 12px'
+                        }}
+                      />
+                      <div 
+                        className="mastery-badge" 
+                        style={{
+                          background: `linear-gradient(135deg, ${mastery.color}, ${mastery.color}80)`,
+                          borderColor: mastery.color,
+                          boxShadow: `0 0 30px ${mastery.glow}`,
+                          top: '12px',
+                          right: '12px'
+                        }}
+                      >
+                        <MasteryIcon size={24} style={{ color: '#000' }} />
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '2rem 2rem 2rem 0' }}>
+                      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                        <div>
+                          <div style={{
+                            display: 'inline-flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
+                            padding: '0.4rem 1rem',
+                            background: `${config.color}20`,
+                            border: `2px solid ${config.color}`,
+                            borderRadius: '999px',
+                            marginBottom: '0.8rem',
+                            fontSize: '0.8rem',
+                            fontWeight: 700,
+                            color: config.color,
+                            fontFamily: 'Orbitron'
+                          }}>
+                            <config.icon size={14} />
+                            {cert.category}
+                          </div>
+                          
+                          <h3 style={{ 
+                            fontSize: '1.8rem', 
+                            fontWeight: 800, 
+                            color: '#fff', 
+                            marginBottom: '0.5rem', 
+                            fontFamily: 'Orbitron'
+                          }}>
+                            {cert.title}
+                          </h3>
+                        </div>
+
+                        <div style={{ 
+                          fontSize: '2rem', 
+                          fontWeight: 900, 
+                          color: '#FFD700', 
+                          fontFamily: 'Orbitron',
+                          textAlign: 'right'
+                        }}>
+                          {cert.power}
+                          <div style={{ fontSize: '0.7rem', color: 'rgba(255, 255, 255, 0.5)', fontFamily: 'Rajdhani' }}>POWER</div>
+                        </div>
+                      </div>
+
+                      <p style={{ 
+                        fontSize: '1rem', 
+                        color: 'rgba(255, 255, 255, 0.7)', 
+                        lineHeight: 1.6,
+                        marginBottom: '1.2rem',
+                        fontFamily: 'Rajdhani'
+                      }}>
+                        {cert.desc}
+                      </p>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.2rem' }}>
+                        {cert.skills.map((skill, i) => {
+                          const iconUrl = techIcons[skill] || techIcons[Object.keys(techIcons).find(key => skill.toLowerCase().includes(key.toLowerCase()))];
+                          return (
+                            <div key={i} className="tech-badge" style={{ fontSize: '0.75rem', padding: '4px 10px' }}>
+                              {iconUrl && <img src={iconUrl} alt={skill} className="tech-icon" style={{ width: '14px', height: '14px' }} />}
+                              {skill}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Award size={16} style={{ color: config.color }} />
+                          <span style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Rajdhani', fontWeight: 600 }}>
+                            {cert.issuer}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Calendar size={16} style={{ color: config.color }} />
+                          <span style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.7)', fontFamily: 'Rajdhani', fontWeight: 600 }}>
+                            {cert.year}
+                          </span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <Target size={16} style={{ color: mastery.color }} />
+                          <span style={{ fontSize: '0.9rem', color: mastery.color, fontFamily: 'Orbitron', fontWeight: 700 }}>
+                            {cert.masteryLevel}
+                          </span>
+                        </div>
+                        <div style={{
+                          marginLeft: 'auto',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '0.5rem',
+                          padding: '0.7rem 1.5rem',
+                          background: config.gradient,
+                          borderRadius: '10px',
+                          border: `2px solid ${config.color}`,
+                          color: '#000',
+                          fontWeight: 700,
+                          fontSize: '0.9rem',
+                          fontFamily: 'Orbitron'
+                        }}>
+                          <ExternalLink size={16} />
+                          <span>VIEW</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Compact View */}
+          {viewMode === 'compact' && (
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '1.5rem' }}>
+              {filteredCerts.map((cert, idx) => {
+                const config = categoryConfig[cert.category];
+                const mastery = masteryColors[cert.masteryLevel];
+                const MasteryIcon = mastery.icon;
+                
+                return (
+                  <div 
+                    key={idx}
+                    className="cert-card"
+                    style={{
+                      '--category-color': config.color,
+                      '--category-gradient': config.gradient,
+                      '--category-glow': config.bgGlow,
+                      animation: `fadeUp 0.6s ease ${Math.min(idx * 0.03, 0.8)}s both`,
+                      cursor: 'pointer'
+                    }}
+                    onClick={() => window.open(cert.link, '_blank')}
+                  >
+                    <div className="power-bar">
+                      <div className="power-fill" style={{ width: `${cert.power}%` }} />
+                    </div>
+
+                    <div style={{ position: 'relative' }}>
+                      <img 
+                        src={cert.image} 
+                        alt={cert.title}
+                        style={{
+                          width: '100%',
+                          height: '180px',
+                          objectFit: 'cover'
+                        }}
+                      />
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '10px',
+                          right: '10px',
+                          width: '40px',
+                          height: '40px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: `linear-gradient(135deg, ${mastery.color}, ${mastery.color}80)`,
+                          border: `2px solid ${mastery.color}`,
+                          boxShadow: `0 0 20px ${mastery.glow}`
+                        }}
+                      >
+                        <MasteryIcon size={20} style={{ color: '#000' }} />
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '1.5rem' }}>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        padding: '0.3rem 0.8rem',
+                        background: `${config.color}20`,
+                        border: `1.5px solid ${config.color}`,
+                        borderRadius: '999px',
+                        marginBottom: '0.8rem',
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        color: config.color,
+                        fontFamily: 'Orbitron'
+                      }}>
+                        <config.icon size={12} />
+                        {cert.category}
+                      </div>
+
+                      <h3 style={{ 
+                        fontSize: '1.1rem', 
+                        fontWeight: 800, 
+                        color: '#fff', 
+                        marginBottom: '0.5rem', 
+                        fontFamily: 'Orbitron',
+                        lineHeight: 1.3
+                      }}>
+                        {cert.title}
+                      </h3>
+
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          <Zap size={14} style={{ color: '#FFD700' }} />
+                          <span style={{ fontSize: '1.2rem', fontWeight: 900, color: '#FFD700', fontFamily: 'Orbitron' }}>{cert.power}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
+                          <Calendar size={14} style={{ color: config.color }} />
+                          <span style={{ fontSize: '0.9rem', fontWeight: 700, color: config.color, fontFamily: 'Orbitron' }}>{cert.year}</span>
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem' }}>
+                        {cert.skills.slice(0, 3).map((skill, i) => {
+                          const iconUrl = techIcons[skill] || techIcons[Object.keys(techIcons).find(key => skill.toLowerCase().includes(key.toLowerCase()))];
+                          return (
+                            <div key={i} className="tech-badge" style={{ fontSize: '0.65rem', padding: '3px 8px' }}>
+                              {iconUrl && <img src={iconUrl} alt={skill} className="tech-icon" style={{ width: '12px', height: '12px' }} />}
+                              {skill}
+                            </div>
+                          );
+                        })}
+                        {cert.skills.length > 3 && (
+                          <div className="tech-badge" style={{ fontSize: '0.65rem', padding: '3px 8px' }}>
+                            +{cert.skills.length - 3}
+                          </div>
+                        )}
+                      </div>
+
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.4rem',
+                        padding: '0.8rem',
+                        background: config.gradient,
+                        borderRadius: '8px',
+                        border: `2px solid ${config.color}`,
+                        color: '#000',
+                        fontWeight: 700,
+                        fontSize: '0.8rem',
+                        fontFamily: 'Orbitron'
+                      }}>
+                        <ExternalLink size={14} />
+                        <span>VIEW</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* Masonry View */}
+          {viewMode === 'masonry' && (
+            <div style={{ 
+              columnCount: window.innerWidth > 1400 ? 4 : window.innerWidth > 1000 ? 3 : window.innerWidth > 600 ? 2 : 1,
+              columnGap: '2rem'
+            }}>
+              {filteredCerts.map((cert, idx) => {
+                const config = categoryConfig[cert.category];
+                const mastery = masteryColors[cert.masteryLevel];
+                const MasteryIcon = mastery.icon;
+                
+                return (
+                  <div 
+                    key={idx}
+                    className="cert-card"
+                    style={{
+                      '--category-color': config.color,
+                      '--category-gradient': config.gradient,
+                      '--category-glow': config.bgGlow,
+                      animation: `fadeUp 0.6s ease ${Math.min(idx * 0.03, 0.8)}s both`,
+                      cursor: 'pointer',
+                      breakInside: 'avoid',
+                      marginBottom: '2rem',
+                      display: 'inline-block',
+                      width: '100%'
+                    }}
+                    onClick={() => window.open(cert.link, '_blank')}
+                  >
+                    <div className="power-bar">
+                      <div className="power-fill" style={{ width: `${cert.power}%` }} />
+                    </div>
+
+                    <div style={{ position: 'relative' }}>
+                      <img 
+                        src={cert.image} 
+                        alt={cert.title}
+                        style={{
+                          width: '100%',
+                          height: 'auto',
+                          objectFit: 'cover',
+                          maxHeight: '200px'
+                        }}
+                      />
+                      <div 
+                        style={{
+                          position: 'absolute',
+                          top: '12px',
+                          right: '12px',
+                          width: '48px',
+                          height: '48px',
+                          borderRadius: '50%',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          background: `linear-gradient(135deg, ${mastery.color}, ${mastery.color}80)`,
+                          border: `2px solid ${mastery.color}`,
+                          boxShadow: `0 0 25px ${mastery.glow}`
+                        }}
+                      >
+                        <MasteryIcon size={22} style={{ color: '#000' }} />
+                      </div>
+                    </div>
+
+                    <div style={{ padding: '1.5rem' }}>
+                      <div style={{
+                        display: 'inline-flex',
+                        alignItems: 'center',
+                        gap: '0.4rem',
+                        padding: '0.4rem 1rem',
+                        background: `${config.color}20`,
+                        border: `2px solid ${config.color}`,
+                        borderRadius: '999px',
+                        marginBottom: '1rem',
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        color: config.color,
+                        fontFamily: 'Orbitron'
+                      }}>
+                        <config.icon size={14} />
+                        {cert.category}
+                      </div>
+
+                      <h3 style={{ 
+                        fontSize: '1.3rem', 
+                        fontWeight: 800, 
+                        color: '#fff', 
+                        marginBottom: '0.8rem', 
+                        fontFamily: 'Orbitron',
+                        lineHeight: 1.3
+                      }}>
+                        {cert.title}
+                      </h3>
+
+                      <p style={{ 
+                        fontSize: '0.9rem', 
+                        color: 'rgba(255, 255, 255, 0.7)', 
+                        lineHeight: 1.5,
+                        marginBottom: '1rem',
+                        fontFamily: 'Rajdhani'
+                      }}>
+                        {cert.desc.length > 150 ? cert.desc.substring(0, 150) + '...' : cert.desc}
+                      </p>
+
+                      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1rem' }}>
+                        {cert.skills.map((skill, i) => {
+                          const iconUrl = techIcons[skill] || techIcons[Object.keys(techIcons).find(key => skill.toLowerCase().includes(key.toLowerCase()))];
+                          return (
+                            <div key={i} className="tech-badge" style={{ fontSize: '0.7rem', padding: '4px 10px' }}>
+                              {iconUrl && <img src={iconUrl} alt={skill} className="tech-icon" style={{ width: '14px', height: '14px' }} />}
+                              {skill}
+                            </div>
+                          );
+                        })}
+                      </div>
+
+                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '0.8rem', marginBottom: '1rem' }}>
+                        <div style={{ textAlign: 'center', padding: '0.8rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '8px' }}>
+                          <Zap size={16} style={{ color: '#FFD700', marginBottom: '0.2rem' }} />
+                          <div style={{ fontSize: '1.2rem', fontWeight: 900, color: '#FFD700', fontFamily: 'Orbitron' }}>{cert.power}</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '0.8rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '8px' }}>
+                          <Calendar size={16} style={{ color: config.color, marginBottom: '0.2rem' }} />
+                          <div style={{ fontSize: '1.2rem', fontWeight: 900, color: config.color, fontFamily: 'Orbitron' }}>{cert.year}</div>
+                        </div>
+                        <div style={{ textAlign: 'center', padding: '0.8rem', background: 'rgba(0, 0, 0, 0.3)', borderRadius: '8px' }}>
+                          <Target size={16} style={{ color: mastery.color, marginBottom: '0.2rem' }} />
+                          <div style={{ fontSize: '0.75rem', fontWeight: 900, color: mastery.color, fontFamily: 'Orbitron' }}>{cert.level}</div>
+                        </div>
+                      </div>
+
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '0.5rem',
+                        padding: '1rem',
+                        background: config.gradient,
+                        borderRadius: '10px',
+                        border: `2px solid ${config.color}`,
+                        color: '#000',
+                        fontWeight: 700,
+                        fontSize: '0.9rem',
+                        fontFamily: 'Orbitron'
+                      }}>
+                        <ExternalLink size={16} />
+                        <span>VIEW CREDENTIAL</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
 
           {/* No Results */}
           {filteredCerts.length === 0 && (
@@ -1217,14 +1557,14 @@ export default function CertificationsShowcase() {
               marginBottom: '1rem',
               fontFamily: 'Orbitron' 
             }}>
-              🚀 Ready for Elite Opportunities
+              🚀 Industry-Ready Professional
             </div>
             <div style={{ 
               fontSize: '1.1rem', 
               color: 'rgba(255, 255, 255, 0.7)',
               fontFamily: 'Rajdhani' 
             }}>
-              Industry-recognized mastery across multiple high-demand technology domains
+              Validated expertise across multiple high-demand technology domains
             </div>
           </div>
         </div>

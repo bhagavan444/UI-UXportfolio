@@ -8,9 +8,14 @@ import {
   BookOpen, Layers, Globe, Lock, Workflow, Binary, Network,
   Search, Filter, ChevronRight, Play, Pause, Volume2, VolumeX
 } from 'lucide-react';
+// Resume preview (for iframe / embed)
+const RESUME_URL =
+  "https://drive.google.com/file/d/1-Ph6umgQ6P0YfBgQGLj-9UPMX2UDoKu3/preview";
 
-const RESUME_URL = "https://drive.google.com/file/d/1BfrC-GloabR5mOXuPb8mjkKQmya5luDE/preview";
-const RESUME_DOWNLOAD = "https://drive.google.com/uc?export=download&id=1BfrC-GloabR5mOXuPb8mjkKQmya5luDE";
+// Resume direct download
+const RESUME_DOWNLOAD =
+  "https://drive.google.com/uc?export=download&id=1-Ph6umgQ6P0YfBgQGLj-9UPMX2UDoKu3";
+;
 
 export default function EliteResume() {
   const [showModal, setShowModal] = useState(false);
