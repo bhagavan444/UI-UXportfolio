@@ -14,7 +14,8 @@ import {
   BarChart3, GitBranch, BookOpen, Trophy, Calendar, ExternalLink, FileText,
   Code2, Box, Workflow, Maximize2, MessageSquare, Coffee, Headphones,
   Settings, Monitor, Smartphone, Lock, Unlock, Gauge, Binary, CircuitBoard,
-  Fingerprint, Radar, Blocks, Network, Wifi, CheckCircle2, Sparkle, Clock
+  Fingerprint, Radar, Blocks, Network, Wifi, CheckCircle2, Sparkle, Clock,
+  MousePointer2, Palette, Zap as Lightning, Command, Send, MapPin
 } from "lucide-react";
 
 export default function ModernDeveloperHome() {
@@ -27,47 +28,56 @@ export default function ModernDeveloperHome() {
   const [skillProgress, setSkillProgress] = useState({});
   const [visibleSections, setVisibleSections] = useState(new Set());
   const [activeMetric, setActiveMetric] = useState(0);
-  const [cursorTrail, setCursorTrail] = useState([]);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [magneticElements, setMagneticElements] = useState([]);
+  const [activeTestimonial, setActiveTestimonial] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
+  const [cursorVariant, setCursorVariant] = useState('default');
   
   const canvasRef = useRef(null);
   const observerRef = useRef(null);
+  const heroRef = useRef(null);
 
   const roles = useMemo(() => [
     "ELITE FULL-STACK ENGINEER",
     "AI/ML ARCHITECT", 
     "CLOUD SYSTEMS EXPERT",
-    "PRODUCTION-READY DEVELOPER"
+    "PRODUCTION-READY DEVELOPER",
+    "INNOVATION CATALYST"
   ], []);
 
   const metrics = useMemo(() => [
     { 
       label: "Production Projects", 
-      value: "5+", 
+      value: "15+", 
       icon: Rocket, 
       color: "#00f5ff",
-      subtitle: "Enterprise-grade solutions"
+      subtitle: "Enterprise-grade solutions",
+      countUp: true
     },
     { 
       label: "Industry Certifications", 
-      value: "15+", 
+      value: "20+", 
       icon: Award, 
       color: "#a855f7",
-      subtitle: "AWS, Azure, Google Cloud"
+      subtitle: "AWS, Azure, Google Cloud",
+      countUp: true
     },
     { 
       label: "Tech Stack Mastery", 
       value: "30+", 
       icon: Code2, 
       color: "#22c55e",
-      subtitle: "Modern frameworks & tools"
+      subtitle: "Modern frameworks & tools",
+      countUp: true
     },
     { 
-      label: "Project Success Rate", 
+      label: "Success Rate", 
       value: "100%", 
       icon: Target, 
       color: "#ffd700",
-      subtitle: "On-time delivery guaranteed"
+      subtitle: "On-time delivery guaranteed",
+      countUp: false
     }
   ], []);
 
@@ -77,21 +87,21 @@ export default function ModernDeveloperHome() {
       level: 95, 
       icon: Brain, 
       color: "#a855f7",
-      tech: "TensorFlow • PyTorch • Scikit-learn • NLP • Computer Vision"
+      tech: "TensorFlow • PyTorch • Scikit-learn • NLP • Computer Vision • Deep Learning"
     },
     { 
       name: "Full-Stack Development", 
       level: 93, 
       icon: Code, 
       color: "#00f5ff",
-      tech: "React • Node.js • Python • Next.js • TypeScript • REST/GraphQL"
+      tech: "React • Node.js • Python • Next.js • TypeScript • REST/GraphQL • Microservices"
     },
     { 
       name: "Cloud & DevOps", 
       level: 90, 
       icon: Cloud, 
       color: "#FF9900",
-      tech: "AWS • Azure • Docker • Kubernetes • CI/CD • Terraform"
+      tech: "AWS • Azure • Docker • Kubernetes • CI/CD • Terraform • Jenkins"
     },
     { 
       name: "Data Structures & Algorithms", 
@@ -105,111 +115,77 @@ export default function ModernDeveloperHome() {
       level: 88, 
       icon: Database, 
       color: "#ffd700",
-      tech: "PostgreSQL • MongoDB • Redis • Microservices • Scalable Systems"
+      tech: "PostgreSQL • MongoDB • Redis • Microservices • Scalable Systems • MySQL"
     }
   ], []);
 
   const achievements = useMemo(() => [
-    { icon: Trophy, label: "Top 5% on LeetCode", color: "#ffd700" },
-    { icon: Award, label: "AWS Certified", color: "#FF9900" },
-    { icon: Star, label: "Azure Expert", color: "#00a4ef" },
-    { icon: CheckCircle2, label: "Google Cloud Pro", color: "#4285f4" },
-    { icon: Flame, label: "100+ Days Coding Streak", color: "#ff6b35" },
-    { icon: Target, label: "Zero Bug Production", color: "#22c55e" }
+    { icon: Trophy, label: "Top 5% on LeetCode", color: "#ffd700", stat: "500+ Problems" },
+    { icon: Award, label: "AWS Certified Solutions Architect", color: "#FF9900", stat: "Professional" },
+    { icon: Star, label: "Azure AI Engineer", color: "#00a4ef", stat: "Expert Level" },
+    { icon: CheckCircle2, label: "Google Cloud Professional", color: "#4285f4", stat: "Certified" },
+    { icon: Flame, label: "365 Days Coding Streak", color: "#ff6b35", stat: "Active" },
+    { icon: Target, label: "Zero Bug Production", color: "#22c55e", stat: "100% Quality" },
+    { icon: GitBranch, label: "Open Source Contributor", color: "#fff", stat: "50+ PRs" },
+    { icon: Users, label: "Mentored Developers", color: "#a855f7", stat: "20+ Students" }
   ], []);
 
   const techStack = useMemo(() => [
-    { 
-      name: "React", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg",
-      color: "#61dafb" 
+    { name: "React", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg", color: "#61dafb", category: "Frontend" },
+    { name: "Node.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg", color: "#68a063", category: "Backend" },
+    { name: "Python", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg", color: "#3776ab", category: "Backend" },
+    { name: "TypeScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg", color: "#3178c6", category: "Language" },
+    { name: "JavaScript", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg", color: "#f7df1e", category: "Language" },
+    { name: "Docker", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg", color: "#2496ed", category: "DevOps" },
+    { name: "MongoDB", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg", color: "#47a248", category: "Database" },
+    { name: "PostgreSQL", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg", color: "#336791", category: "Database" },
+    { name: "TensorFlow", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg", color: "#ff6f00", category: "AI/ML" },
+    { name: "Kubernetes", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg", color: "#326ce5", category: "DevOps" },
+    { name: "Next.js", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg", color: "#000000", category: "Frontend" },
+    { name: "GraphQL", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg", color: "#e10098", category: "API" },
+    { name: "Redis", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg", color: "#dc382d", category: "Database" },
+    { name: "Git", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg", color: "#f05032", category: "Tools" },
+    { name: "AWS", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg", color: "#FF9900", category: "Cloud" },
+    { name: "Azure", icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg", color: "#0089d6", category: "Cloud" }
+  ], []);
+
+  const testimonials = useMemo(() => [
+    {
+      text: "Exceptional developer with deep expertise in cloud architecture. Delivered our ML pipeline 2 weeks ahead of schedule.",
+      author: "Sarah Chen",
+      role: "CTO, TechVision Inc",
+      avatar: "SC",
+      color: "#00f5ff"
     },
-    { 
-      name: "Node.js", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg",
-      color: "#68a063" 
+    {
+      text: "Rare combination of technical brilliance and communication skills. Best intern we've ever had.",
+      author: "Michael Rodriguez",
+      role: "Engineering Manager, CloudScale",
+      avatar: "MR",
+      color: "#a855f7"
     },
-    { 
-      name: "Python", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/python/python-original.svg",
-      color: "#3776ab" 
-    },
-    { 
-      name: "TypeScript", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/typescript/typescript-original.svg",
-      color: "#3178c6" 
-    },
-    { 
-      name: "JavaScript", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/javascript/javascript-original.svg",
-      color: "#f7df1e" 
-    },
-    { 
-      name: "Docker", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/docker/docker-original.svg",
-      color: "#2496ed" 
-    },
-    { 
-      name: "MongoDB", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/mongodb/mongodb-original.svg",
-      color: "#47a248" 
-    },
-    { 
-      name: "PostgreSQL", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/postgresql/postgresql-original.svg",
-      color: "#336791" 
-    },
-    { 
-      name: "TensorFlow", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/tensorflow/tensorflow-original.svg",
-      color: "#ff6f00" 
-    },
-    { 
-      name: "Kubernetes", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/kubernetes/kubernetes-plain.svg",
-      color: "#326ce5" 
-    },
-    { 
-      name: "Next.js", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nextjs/nextjs-original.svg",
-      color: "#000000" 
-    },
-    { 
-      name: "GraphQL", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/graphql/graphql-plain.svg",
-      color: "#e10098" 
-    },
-    { 
-      name: "Redis", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/redis/redis-original.svg",
-      color: "#dc382d" 
-    },
-    { 
-      name: "Git", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/git/git-original.svg",
-      color: "#f05032" 
-    },
-    { 
-      name: "AWS", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/amazonwebservices/amazonwebservices-plain-wordmark.svg",
-      color: "#FF9900" 
-    },
-    { 
-      name: "Azure", 
-      icon: "https://cdn.jsdelivr.net/gh/devicons/devicon/icons/azure/azure-original.svg",
-      color: "#0089d6" 
+    {
+      text: "Transformed our legacy systems into a modern microservices architecture. Truly impressive work.",
+      author: "Priya Sharma",
+      role: "VP Engineering, DataFlow",
+      avatar: "PS",
+      color: "#22c55e"
     }
   ], []);
 
+  // Loading animation
+  useEffect(() => {
+    const timer = setTimeout(() => setIsLoading(false), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Real-time clock
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
+    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
     return () => clearInterval(interval);
   }, []);
 
-  // Enhanced particle system with connections
+  // Enhanced particle system with interactive connections
   useEffect(() => {
     if (!canvasRef.current) return;
     
@@ -228,17 +204,30 @@ export default function ModernDeveloperHome() {
       constructor() {
         this.x = Math.random() * canvas.width;
         this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.4;
-        this.vy = (Math.random() - 0.5) * 0.4;
-        this.size = Math.random() * 2 + 0.5;
-        this.opacity = Math.random() * 0.4 + 0.2;
+        this.vx = (Math.random() - 0.5) * 0.5;
+        this.vy = (Math.random() - 0.5) * 0.5;
+        this.size = Math.random() * 2.5 + 0.5;
+        this.opacity = Math.random() * 0.5 + 0.2;
         this.pulseSpeed = Math.random() * 0.02 + 0.01;
         this.pulsePhase = Math.random() * Math.PI * 2;
+        this.color = ['#00f5ff', '#a855f7', '#ffd700'][Math.floor(Math.random() * 3)];
       }
 
-      update() {
+      update(mouseX, mouseY) {
+        // Mouse interaction
+        const dx = mouseX - this.x;
+        const dy = mouseY - this.y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+        
+        if (dist < 150) {
+          const force = (150 - dist) / 150;
+          this.x -= (dx / dist) * force * 2;
+          this.y -= (dy / dist) * force * 2;
+        }
+
         this.x += this.vx;
         this.y += this.vy;
+        
         if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
         if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
         this.pulsePhase += this.pulseSpeed;
@@ -249,14 +238,14 @@ export default function ModernDeveloperHome() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.size * pulse, 0, Math.PI * 2);
         const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.size * pulse);
-        gradient.addColorStop(0, `rgba(0, 245, 255, ${this.opacity * pulse})`);
-        gradient.addColorStop(1, `rgba(168, 85, 247, ${this.opacity * pulse * 0.3})`);
+        gradient.addColorStop(0, `${this.color}${Math.floor(this.opacity * pulse * 255).toString(16).padStart(2, '0')}`);
+        gradient.addColorStop(1, `${this.color}00`);
         ctx.fillStyle = gradient;
         ctx.fill();
       }
     }
 
-    for (let i = 0; i < 60; i++) particles.push(new Particle());
+    for (let i = 0; i < 80; i++) particles.push(new Particle());
 
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -267,18 +256,21 @@ export default function ModernDeveloperHome() {
           const dx = p1.x - p2.x;
           const dy = p1.y - p2.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
+          if (dist < 150) {
             ctx.beginPath();
             ctx.moveTo(p1.x, p1.y);
             ctx.lineTo(p2.x, p2.y);
-            ctx.strokeStyle = `rgba(0, 245, 255, ${(1 - dist / 120) * 0.15})`;
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = `rgba(0, 245, 255, ${(1 - dist / 150) * 0.2})`;
+            ctx.lineWidth = 1;
             ctx.stroke();
           }
         });
       });
 
-      particles.forEach(p => { p.update(); p.draw(); });
+      particles.forEach(p => { 
+        p.update(mousePos.x, mousePos.y); 
+        p.draw(); 
+      });
       animationId = requestAnimationFrame(animate);
     };
 
@@ -288,19 +280,18 @@ export default function ModernDeveloperHome() {
       cancelAnimationFrame(animationId);
       window.removeEventListener('resize', resize);
     };
-  }, []);
+  }, [mousePos]);
 
-  // Mouse trail effect
+  // Enhanced mouse tracking
   useEffect(() => {
     const handleMouseMove = (e) => {
       setMousePos({ x: e.clientX, y: e.clientY });
-      setCursorTrail(prev => [...prev.slice(-5), { x: e.clientX, y: e.clientY, id: Date.now() }]);
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  // Typing effect with faster speed
+  // Typing effect
   useEffect(() => {
     const role = roles[roleIndex];
     let char = 0;
@@ -311,14 +302,14 @@ export default function ModernDeveloperHome() {
         char++;
       } else {
         clearInterval(interval);
-        setTimeout(() => setRoleIndex((prev) => (prev + 1) % roles.length), 1200);
+        setTimeout(() => setRoleIndex((prev) => (prev + 1) % roles.length), 1500);
       }
-    }, 80);
+    }, 70);
     
     return () => clearInterval(interval);
   }, [roleIndex, roles]);
 
-  // Scroll handler
+  // Scroll handler with performance optimization
   useEffect(() => {
     let ticking = false;
     const handleScroll = () => {
@@ -371,9 +362,17 @@ export default function ModernDeveloperHome() {
   useEffect(() => {
     const interval = setInterval(() => {
       setActiveMetric(prev => (prev + 1) % metrics.length);
-    }, 3000);
+    }, 4000);
     return () => clearInterval(interval);
   }, [metrics.length]);
+
+  // Testimonial rotation
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setActiveTestimonial(prev => (prev + 1) % testimonials.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [testimonials.length]);
 
   const handleNavigation = useCallback((path) => {
     navigate(path);
@@ -383,12 +382,12 @@ export default function ModernDeveloperHome() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700;800;900&display=swap');
         
         * { margin:0; padding:0; box-sizing:border-box; }
         
         body { 
-          font-family:'Poppins',sans-serif; 
+          font-family:'Inter', 'Poppins', sans-serif; 
           background:#000; 
           color:#fff; 
           overflow-x:hidden;
@@ -398,50 +397,53 @@ export default function ModernDeveloperHome() {
 
         .custom-cursor {
           position:fixed;
-          width:20px;
-          height:20px;
+          width:24px;
+          height:24px;
           border:2px solid #00f5ff;
           border-radius:50%;
           pointer-events:none;
           z-index:10001;
-          transition:transform 0.15s ease;
+          transition:all 0.2s cubic-bezier(0.16,1,0.3,1);
           mix-blend-mode:difference;
+        }
+
+        .custom-cursor.hover {
+          width:50px;
+          height:50px;
+          background:rgba(0,245,255,0.1);
+          border-color:#a855f7;
         }
 
         .custom-cursor-dot {
           position:fixed;
-          width:4px;
-          height:4px;
+          width:6px;
+          height:6px;
           background:#00f5ff;
           border-radius:50%;
           pointer-events:none;
           z-index:10002;
-          box-shadow:0 0 10px #00f5ff;
+          box-shadow:0 0 15px #00f5ff;
+          transition:transform 0.15s cubic-bezier(0.16,1,0.3,1);
         }
 
         @keyframes fadeIn {
-          from { opacity:0; transform:translateY(30px); }
+          from { opacity:0; transform:translateY(40px); }
           to { opacity:1; transform:translateY(0); }
         }
 
         @keyframes slideIn {
-          from { opacity:0; transform:translateX(-50px); }
+          from { opacity:0; transform:translateX(-60px); }
           to { opacity:1; transform:translateX(0); }
         }
 
         @keyframes scaleIn {
-          from { opacity:0; transform:scale(0.9); }
+          from { opacity:0; transform:scale(0.85); }
           to { opacity:1; transform:scale(1); }
         }
 
-        @keyframes glow {
-          0%, 100% { box-shadow:0 0 15px currentColor; }
-          50% { box-shadow:0 0 30px currentColor, 0 0 50px currentColor; }
-        }
-
         @keyframes float {
-          0%, 100% { transform:translateY(0); }
-          50% { transform:translateY(-20px); }
+          0%, 100% { transform:translateY(0) rotate(0deg); }
+          50% { transform:translateY(-25px) rotate(2deg); }
         }
 
         @keyframes gradient-shift {
@@ -456,11 +458,11 @@ export default function ModernDeveloperHome() {
 
         @keyframes pulse {
           0%, 100% { transform:scale(1); opacity:1; }
-          50% { transform:scale(1.05); opacity:0.8; }
+          50% { transform:scale(1.08); opacity:0.7; }
         }
 
         @keyframes slideUp {
-          from { opacity:0; transform:translateY(20px); }
+          from { opacity:0; transform:translateY(30px); }
           to { opacity:1; transform:translateY(0); }
         }
 
@@ -474,20 +476,40 @@ export default function ModernDeveloperHome() {
           to { transform:rotate(360deg); }
         }
 
-        @keyframes spin {
-          from { transform:rotate(0deg); }
-          to { transform:rotate(360deg); }
-        }
-
         @keyframes bounce {
           0%, 100% { transform:translateY(0); }
-          50% { transform:translateY(-10px); }
+          50% { transform:translateY(-15px); }
+        }
+
+        @keyframes ripple {
+          0% { transform:scale(1); opacity:1; }
+          100% { transform:scale(1.5); opacity:0; }
+        }
+
+        @keyframes glow-pulse {
+          0%, 100% { box-shadow:0 0 20px currentColor; }
+          50% { box-shadow:0 0 40px currentColor, 0 0 60px currentColor; }
+        }
+
+        @keyframes slide-in-left {
+          from { opacity:0; transform:translateX(-100px); }
+          to { opacity:1; transform:translateX(0); }
+        }
+
+        @keyframes slide-in-right {
+          from { opacity:0; transform:translateX(100px); }
+          to { opacity:1; transform:translateX(0); }
+        }
+
+        @keyframes loading-spinner {
+          0% { transform:rotate(0deg); }
+          100% { transform:rotate(360deg); }
         }
 
         .glass {
-          background:rgba(255,255,255,0.03);
-          backdrop-filter:blur(25px) saturate(180%);
-          border:1px solid rgba(255,255,255,0.1);
+          background:rgba(255,255,255,0.04);
+          backdrop-filter:blur(30px) saturate(180%);
+          border:1px solid rgba(255,255,255,0.12);
           border-radius:24px;
           transition:all 0.4s cubic-bezier(0.16,1,0.3,1);
           position:relative;
@@ -501,8 +523,8 @@ export default function ModernDeveloperHome() {
           left:-100%;
           width:100%;
           height:100%;
-          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-          transition:left 0.5s;
+          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent);
+          transition:left 0.6s;
         }
 
         .glass:hover::before {
@@ -510,31 +532,38 @@ export default function ModernDeveloperHome() {
         }
 
         .glass:hover {
-          background:rgba(255,255,255,0.06);
-          border-color:rgba(0,245,255,0.4);
-          transform:translateY(-8px) scale(1.02);
-          box-shadow:0 25px 60px rgba(0,0,0,0.6), 0 0 40px rgba(0,245,255,0.3);
+          background:rgba(255,255,255,0.08);
+          border-color:rgba(0,245,255,0.5);
+          transform:translateY(-10px) scale(1.02);
+          box-shadow:0 30px 70px rgba(0,0,0,0.7), 0 0 50px rgba(0,245,255,0.4);
+        }
+
+        .glass-strong {
+          background:rgba(255,255,255,0.08);
+          backdrop-filter:blur(40px) saturate(200%);
+          border:1px solid rgba(255,255,255,0.2);
         }
 
         .btn-primary {
           background:linear-gradient(135deg, #00f5ff, #00c4ff);
           border:none;
           color:#000;
-          font-weight:700;
-          padding:1.1rem 2.5rem;
-          border-radius:12px;
+          font-weight:800;
+          padding:1.2rem 2.8rem;
+          border-radius:14px;
           cursor:pointer;
           font-family:'Rajdhani',sans-serif;
           text-transform:uppercase;
-          letter-spacing:1.5px;
+          letter-spacing:2px;
           font-size:1rem;
-          transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+          transition:all 0.4s cubic-bezier(0.16,1,0.3,1);
           display:inline-flex;
           align-items:center;
-          gap:0.6rem;
+          gap:0.7rem;
           text-decoration:none;
           position:relative;
           overflow:hidden;
+          box-shadow:0 10px 30px rgba(0,245,255,0.3);
         }
 
         .btn-primary::before {
@@ -544,8 +573,8 @@ export default function ModernDeveloperHome() {
           left:-100%;
           width:100%;
           height:100%;
-          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
-          transition:left 0.5s;
+          background:linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          transition:left 0.6s;
         }
 
         .btn-primary:hover::before {
@@ -553,26 +582,26 @@ export default function ModernDeveloperHome() {
         }
 
         .btn-primary:hover {
-          transform:translateY(-4px) scale(1.05);
-          box-shadow:0 15px 40px rgba(0,245,255,0.5);
+          transform:translateY(-5px) scale(1.05);
+          box-shadow:0 20px 50px rgba(0,245,255,0.6);
         }
 
         .btn-outline {
           background:transparent;
           border:2px solid currentColor;
           color:currentColor;
-          font-weight:600;
-          padding:1.1rem 2.5rem;
-          border-radius:12px;
+          font-weight:700;
+          padding:1.2rem 2.8rem;
+          border-radius:14px;
           cursor:pointer;
           font-family:'Rajdhani',sans-serif;
           text-transform:uppercase;
-          letter-spacing:1.5px;
+          letter-spacing:2px;
           font-size:1rem;
-          transition:all 0.3s cubic-bezier(0.16,1,0.3,1);
+          transition:all 0.4s cubic-bezier(0.16,1,0.3,1);
           display:inline-flex;
           align-items:center;
-          gap:0.6rem;
+          gap:0.7rem;
           text-decoration:none;
           position:relative;
           overflow:hidden;
@@ -588,18 +617,18 @@ export default function ModernDeveloperHome() {
           background:currentColor;
           border-radius:50%;
           transform:translate(-50%, -50%);
-          transition:width 0.5s, height 0.5s;
+          transition:width 0.6s, height 0.6s;
         }
 
         .btn-outline:hover::before {
-          width:300%;
-          height:300%;
+          width:400%;
+          height:400%;
         }
 
         .btn-outline:hover {
           color:#000;
-          transform:translateY(-4px) scale(1.05);
-          box-shadow:0 15px 40px rgba(0,0,0,0.3);
+          transform:translateY(-5px) scale(1.05);
+          box-shadow:0 20px 50px rgba(0,0,0,0.4);
         }
 
         .btn-outline span {
@@ -609,16 +638,16 @@ export default function ModernDeveloperHome() {
 
         .gradient-text {
           background:linear-gradient(135deg, #00f5ff 0%, #a855f7 35%, #ff6b35 65%, #ffd700 100%);
-          background-size:200% 200%;
+          background-size:250% 250%;
           -webkit-background-clip:text;
           -webkit-text-fill-color:transparent;
-          animation:gradient-shift 4s ease infinite;
+          animation:gradient-shift 5s ease infinite;
         }
 
-        .fade-in { animation:fadeIn 0.8s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
-        .slide-in { animation:slideIn 0.8s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
-        .scale-in { animation:scaleIn 0.8s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
-        .slide-up { animation:slideUp 0.6s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
+        .fade-in { animation:fadeIn 0.9s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
+        .slide-in { animation:slideIn 0.9s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
+        .scale-in { animation:scaleIn 0.9s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
+        .slide-up { animation:slideUp 0.7s cubic-bezier(0.16,1,0.3,1) forwards; opacity:0; }
 
         .delay-1 { animation-delay:0.1s; }
         .delay-2 { animation-delay:0.2s; }
@@ -629,14 +658,44 @@ export default function ModernDeveloperHome() {
         .delay-7 { animation-delay:0.7s; }
         .delay-8 { animation-delay:0.8s; }
 
-        ::-webkit-scrollbar { width:10px; }
+        ::-webkit-scrollbar { width:12px; }
         ::-webkit-scrollbar-track { background:#000; }
         ::-webkit-scrollbar-thumb { 
           background:linear-gradient(180deg, #00f5ff, #a855f7); 
-          border-radius:5px;
+          border-radius:6px;
         }
         ::-webkit-scrollbar-thumb:hover { 
           background:linear-gradient(180deg, #00c4ff, #8b3fc7); 
+        }
+
+        .loading-screen {
+          position:fixed;
+          inset:0;
+          background:#000;
+          display:flex;
+          align-items:center;
+          justify-content:center;
+          z-index:10000;
+          transition:opacity 0.5s, visibility 0.5s;
+        }
+
+        .loading-screen.hidden {
+          opacity:0;
+          visibility:hidden;
+        }
+
+        .tech-category-badge {
+          position:absolute;
+          top:8px;
+          right:8px;
+          padding:0.3rem 0.6rem;
+          background:rgba(0,0,0,0.7);
+          border:1px solid currentColor;
+          border-radius:6px;
+          font-size:0.65rem;
+          font-weight:700;
+          text-transform:uppercase;
+          letter-spacing:0.5px;
         }
 
         @media(max-width:1024px) {
@@ -650,25 +709,49 @@ export default function ModernDeveloperHome() {
 
         @media(max-width:768px) {
           h1 { font-size:2.5rem!important; }
-          .btn-primary, .btn-outline { padding:0.9rem 1.8rem!important; font-size:0.9rem!important; }
+          .btn-primary, .btn-outline { padding:1rem 2rem!important; font-size:0.9rem!important; }
           .tech-stack-grid { grid-template-columns:repeat(2, 1fr)!important; }
           .achievement-grid { grid-template-columns:1fr!important; }
         }
       `}</style>
 
+      {/* Loading Screen */}
+      <div className={`loading-screen ${!isLoading ? 'hidden' : ''}`}>
+        <div style={{ textAlign:'center' }}>
+          <div style={{
+            width:'80px',
+            height:'80px',
+            border:'4px solid rgba(0,245,255,0.2)',
+            borderTop:'4px solid #00f5ff',
+            borderRadius:'50%',
+            animation:'loading-spinner 1s linear infinite',
+            margin:'0 auto 1.5rem'
+          }} />
+          <div style={{
+            fontSize:'1.2rem',
+            fontWeight:700,
+            color:'#00f5ff',
+            fontFamily:"'Roboto Mono',monospace",
+            letterSpacing:'3px'
+          }}>
+            INITIALIZING...
+          </div>
+        </div>
+      </div>
+
       {/* Custom Cursor */}
       <div 
-        className="custom-cursor" 
+        className={`custom-cursor ${cursorVariant === 'hover' ? 'hover' : ''}`}
         style={{ 
-          left: mousePos.x - 10, 
-          top: mousePos.y - 10 
+          left: mousePos.x - (cursorVariant === 'hover' ? 25 : 12), 
+          top: mousePos.y - (cursorVariant === 'hover' ? 25 : 12)
         }} 
       />
       <div 
         className="custom-cursor-dot" 
         style={{ 
-          left: mousePos.x - 2, 
-          top: mousePos.y - 2 
+          left: mousePos.x - 3, 
+          top: mousePos.y - 3 
         }} 
       />
 
@@ -679,22 +762,24 @@ export default function ModernDeveloperHome() {
         overflow:"hidden"
       }}>
         
-        {/* Enhanced Progress Bar */}
+        {/* Enhanced Progress Bar with Gradient */}
         <div style={{
           position:"fixed",
           top:0,
           left:0,
           right:0,
-          height:"4px",
+          height:"5px",
           background:"rgba(255,255,255,0.05)",
           zIndex:10000
         }}>
           <div style={{
             width:`${scrollProgress}%`,
             height:"100%",
-            background:"linear-gradient(90deg, #00f5ff, #a855f7, #ffd700)",
+            background:"linear-gradient(90deg, #00f5ff, #a855f7, #ffd700, #00f5ff)",
+            backgroundSize:"200% 100%",
             transition:"width 0.1s",
-            boxShadow:"0 0 20px rgba(0,245,255,0.6)"
+            boxShadow:"0 0 25px rgba(0,245,255,0.8)",
+            animation:"gradient-shift 3s linear infinite"
           }} />
         </div>
 
@@ -706,7 +791,7 @@ export default function ModernDeveloperHome() {
             inset:0, 
             pointerEvents:'none', 
             zIndex:1,
-            opacity:0.6
+            opacity:0.7
           }} 
         />
 
@@ -715,13 +800,36 @@ export default function ModernDeveloperHome() {
           position:"fixed",
           inset:0,
           background:`
-            radial-gradient(circle at 20% 80%, rgba(0,245,255,0.12) 0%, transparent 50%),
-            radial-gradient(circle at 80% 20%, rgba(168,85,247,0.12) 0%, transparent 50%),
-            radial-gradient(circle at 50% 50%, rgba(255,215,0,0.05) 0%, transparent 70%)
+            radial-gradient(circle at 20% 80%, rgba(0,245,255,0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, rgba(168,85,247,0.15) 0%, transparent 50%),
+            radial-gradient(circle at 50% 50%, rgba(255,215,0,0.08) 0%, transparent 70%)
           `,
           pointerEvents:"none",
           zIndex:2
         }} />
+
+        {/* Floating Shapes Background */}
+        <div style={{
+          position:"fixed",
+          inset:0,
+          pointerEvents:"none",
+          zIndex:1
+        }}>
+          {[...Array(5)].map((_, i) => (
+            <div key={i} style={{
+              position:"absolute",
+              width:`${100 + i * 50}px`,
+              height:`${100 + i * 50}px`,
+              background:`radial-gradient(circle, ${['#00f5ff', '#a855f7', '#ffd700'][i % 3]}20, transparent)`,
+              borderRadius:"50%",
+              top:`${20 + i * 15}%`,
+              left:`${10 + i * 20}%`,
+              animation:`float ${8 + i * 2}s ease-in-out infinite`,
+              animationDelay:`${i * 0.5}s`,
+              opacity:0.3
+            }} />
+          ))}
+        </div>
 
         {/* Content */}
         <div style={{ 
@@ -732,8 +840,8 @@ export default function ModernDeveloperHome() {
           zIndex:10 
         }}>
           
-          {/* HERO - SWAPPED LAYOUT */}
-          <section style={{ 
+          {/* HERO SECTION */}
+          <section ref={heroRef} style={{ 
             minHeight:"100vh", 
             display:"grid", 
             gridTemplateColumns:"1fr 1.2fr", 
@@ -742,7 +850,7 @@ export default function ModernDeveloperHome() {
             paddingTop:"5rem"
           }} className="hero-grid">
             
-            {/* Enhanced Profile Card with Professional Ring - NOW ON LEFT */}
+            {/* Enhanced Profile Card - LEFT SIDE */}
             <div className="profile-card scale-in delay-2" style={{
               position:"relative",
               maxWidth:"450px",
@@ -753,17 +861,17 @@ export default function ModernDeveloperHome() {
                 aspectRatio:"4/5",
                 animation:"float 6s ease-in-out infinite"
               }}>
-                {/* Glowing Corners */}
+                {/* Glowing Animated Corners */}
                 {[
-                  { top:"-12px", left:"-12px", borderTop:"4px solid #00f5ff", borderLeft:"4px solid #00f5ff", boxShadow:"0 0 20px #00f5ff" },
-                  { top:"-12px", right:"-12px", borderTop:"4px solid #a855f7", borderRight:"4px solid #a855f7", boxShadow:"0 0 20px #a855f7" },
-                  { bottom:"-12px", left:"-12px", borderBottom:"4px solid #22c55e", borderLeft:"4px solid #22c55e", boxShadow:"0 0 20px #22c55e" },
-                  { bottom:"-12px", right:"-12px", borderBottom:"4px solid #ffd700", borderRight:"4px solid #ffd700", boxShadow:"0 0 20px #ffd700" }
+                  { top:"-15px", left:"-15px", borderTop:"5px solid #00f5ff", borderLeft:"5px solid #00f5ff", boxShadow:"0 0 25px #00f5ff" },
+                  { top:"-15px", right:"-15px", borderTop:"5px solid #a855f7", borderRight:"5px solid #a855f7", boxShadow:"0 0 25px #a855f7" },
+                  { bottom:"-15px", left:"-15px", borderBottom:"5px solid #22c55e", borderLeft:"5px solid #22c55e", boxShadow:"0 0 25px #22c55e" },
+                  { bottom:"-15px", right:"-15px", borderBottom:"5px solid #ffd700", borderRight:"5px solid #ffd700", boxShadow:"0 0 25px #ffd700" }
                 ].map((c, i) => (
                   <div key={i} style={{
                     position:"absolute",
-                    width:"35px",
-                    height:"35px",
+                    width:"40px",
+                    height:"40px",
                     ...c,
                     animation:"pulse 3s ease-in-out infinite",
                     animationDelay:`${i * 0.3}s`,
@@ -771,102 +879,108 @@ export default function ModernDeveloperHome() {
                   }} />
                 ))}
 
-                {/* Image */}
+                {/* Image Container */}
                 <div style={{
                   position:"relative",
                   width:"100%",
                   height:"100%",
                   borderRadius:"24px",
                   overflow:"hidden",
-                  border:"3px solid rgba(0,245,255,0.5)",
-                  boxShadow:"0 0 60px rgba(0,245,255,0.4), inset 0 0 30px rgba(0,245,255,0.1)",
+                  border:"4px solid rgba(0,245,255,0.6)",
+                  boxShadow:"0 0 80px rgba(0,245,255,0.5), inset 0 0 40px rgba(0,245,255,0.15)",
                   zIndex:1
                 }}>
                   <img src={profileImg} alt="Profile" style={{
                     width:"100%",
                     height:"100%",
-                    objectFit:"cover"
+                    objectFit:"cover",
+                    filter:"brightness(1.05) contrast(1.1)"
                   }} />
 
+                  {/* Gradient Overlay */}
                   <div style={{
                     position:"absolute",
                     inset:0,
-                    background:"linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 65%)"
+                    background:"linear-gradient(to top, rgba(0,0,0,0.96) 0%, transparent 70%)"
                   }} />
 
-                  {/* Enhanced Tech Badges */}
+                  {/* Tech Badges with Enhanced Design */}
                   {[
                     { icon:Brain, label:"AI/ML", color:"#a855f7", pos:{ top:"20px", left:"20px" } },
                     { icon:Code, label:"Full-Stack", color:"#00f5ff", pos:{ top:"20px", right:"20px" } },
-                    { icon:Database, label:"Databases", color:"#22c55e", pos:{ bottom:"140px", left:"20px" } },
-                    { icon:Cloud, label:"Cloud", color:"#FF9900", pos:{ bottom:"140px", right:"20px" } }
+                    { icon:Database, label:"Databases", color:"#22c55e", pos:{ bottom:"160px", left:"20px" } },
+                    { icon:Cloud, label:"Cloud", color:"#FF9900", pos:{ bottom:"160px", right:"20px" } }
                   ].map((b, i) => (
                     <div key={i} style={{
                       position:"absolute",
                       ...b.pos,
-                      width:"56px",
-                      height:"56px",
-                      background:"rgba(0,0,0,0.9)",
+                      width:"60px",
+                      height:"60px",
+                      background:"rgba(0,0,0,0.95)",
                       border:`3px solid ${b.color}`,
-                      borderRadius:"12px",
+                      borderRadius:"14px",
                       display:"flex",
                       alignItems:"center",
                       justifyContent:"center",
                       color:b.color,
-                      boxShadow:`0 0 20px ${b.color}60`,
-                      animation:"pulse 2s ease-in-out infinite",
-                      animationDelay:`${i * 0.2}s`
+                      boxShadow:`0 0 25px ${b.color}70, inset 0 0 15px ${b.color}20`,
+                      animation:"pulse 2.5s ease-in-out infinite",
+                      animationDelay:`${i * 0.2}s`,
+                      backdropFilter:"blur(10px)"
                     }}>
-                      <b.icon size={26} />
+                      <b.icon size={28} />
                     </div>
                   ))}
 
-                  {/* Enhanced Bottom Section with Status */}
+                  {/* Enhanced Bottom Section */}
                   <div style={{
                     position:"absolute",
                     bottom:0,
                     left:0,
                     right:0,
-                    background:"linear-gradient(to top, rgba(0,0,0,0.98), rgba(0,0,0,0.85))",
+                    background:"linear-gradient(to top, rgba(0,0,0,0.99), rgba(0,0,0,0.9))",
                     borderTop:"3px solid #00f5ff",
-                    padding:"1.3rem",
-                    boxShadow:"0 -10px 30px rgba(0,245,255,0.2)"
+                    padding:"1.5rem",
+                    boxShadow:"0 -15px 40px rgba(0,245,255,0.3)",
+                    backdropFilter:"blur(20px)"
                   }}>
-                    {/* Status Bar in Profile Card */}
+                    {/* Status Bar */}
                     <div style={{
                       display:"flex",
                       justifyContent:"space-between",
                       alignItems:"center",
-                      marginBottom:"1rem",
-                      gap:"0.8rem",
+                      marginBottom:"1.2rem",
+                      gap:"1rem",
                       flexWrap:"wrap"
                     }}>
-                      {/* Available for Hire */}
+                      {/* Available Badge */}
                       <div style={{
                         display:"flex",
                         alignItems:"center",
-                        gap:"0.5rem",
-                        background:"rgba(34,197,94,0.2)",
+                        gap:"0.6rem",
+                        background:"rgba(34,197,94,0.25)",
                         border:"2px solid #22c55e",
-                        borderRadius:"20px",
-                        padding:"0.5rem 1rem",
+                        borderRadius:"25px",
+                        padding:"0.6rem 1.2rem",
                         flex:"1",
-                        minWidth:"140px"
+                        minWidth:"150px",
+                        boxShadow:"0 0 20px rgba(34,197,94,0.3)"
                       }}>
                         <div style={{
-                          width:"8px",
-                          height:"8px",
+                          width:"10px",
+                          height:"10px",
                           borderRadius:"50%",
                           background:"#22c55e",
-                          boxShadow:"0 0 10px #22c55e",
+                          boxShadow:"0 0 15px #22c55e",
                           animation:"pulse 2s ease-in-out infinite"
                         }} />
                         <span style={{
-                          fontSize:"0.75rem",
+                          fontSize:"0.8rem",
                           color:"#22c55e",
-                          fontWeight:700,
+                          fontWeight:800,
                           fontFamily:"'Roboto Mono',monospace",
-                          textShadow:"0 0 10px #22c55e"
+                          textShadow:"0 0 15px #22c55e",
+                          letterSpacing:"1px"
                         }}>
                           AVAILABLE
                         </span>
@@ -876,72 +990,78 @@ export default function ModernDeveloperHome() {
                       <div style={{
                         display:"flex",
                         alignItems:"center",
-                        gap:"0.5rem",
-                        background:"rgba(0,245,255,0.2)",
+                        gap:"0.6rem",
+                        background:"rgba(0,245,255,0.25)",
                         border:"2px solid #00f5ff",
-                        borderRadius:"20px",
-                        padding:"0.5rem 1rem"
+                        borderRadius:"25px",
+                        padding:"0.6rem 1.2rem",
+                        boxShadow:"0 0 20px rgba(0,245,255,0.3)"
                       }}>
-                        <Clock size={14} style={{ color:"#00f5ff" }} />
+                        <Clock size={16} style={{ color:"#00f5ff" }} />
                         <span style={{
-                          fontSize:"0.75rem",
+                          fontSize:"0.8rem",
                           color:"#00f5ff",
-                          fontWeight:700,
-                          fontFamily:"'Roboto Mono',monospace"
+                          fontWeight:800,
+                          fontFamily:"'Roboto Mono',monospace",
+                          letterSpacing:"0.5px"
                         }}>
                           {currentTime.toLocaleTimeString('en-US', { hour12: false })}
                         </span>
                       </div>
                     </div>
 
-                    {/* Tags */}
+                    {/* Enhanced Tags */}
                     <div style={{
                       display:"flex",
-                      gap:"0.6rem",
-                      marginBottom:"1rem",
+                      gap:"0.7rem",
+                      marginBottom:"1.2rem",
                       flexWrap:"wrap"
                     }}>
                       {["AI/ML", "Cloud", "Full-Stack"].map((t, i) => (
                         <span key={i} style={{
-                          padding:"0.3rem 0.7rem",
-                          background:"rgba(0,245,255,0.25)",
-                          border:"1px solid #00f5ff",
-                          borderRadius:"6px",
-                          fontSize:"0.7rem",
+                          padding:"0.4rem 0.9rem",
+                          background:"rgba(0,245,255,0.3)",
+                          border:"1.5px solid #00f5ff",
+                          borderRadius:"8px",
+                          fontSize:"0.75rem",
                           color:"#00f5ff",
-                          fontWeight:700,
-                          boxShadow:"0 0 10px rgba(0,245,255,0.3)"
+                          fontWeight:800,
+                          boxShadow:"0 0 15px rgba(0,245,255,0.4)",
+                          letterSpacing:"0.5px"
                         }}>
                           {t}
                         </span>
                       ))}
                     </div>
 
-                    {/* CTA Button */}
+                    {/* Enhanced CTA Button */}
                     <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{
                       display:"flex",
                       alignItems:"center",
                       justifyContent:"center",
-                      gap:"0.6rem",
-                      padding:"0.9rem",
+                      gap:"0.7rem",
+                      padding:"1rem",
                       background:"linear-gradient(135deg, #00f5ff, #00c4ff)",
-                      borderRadius:"10px",
+                      borderRadius:"12px",
                       color:"#000",
-                      fontWeight:800,
-                      fontSize:"0.9rem",
+                      fontWeight:900,
+                      fontSize:"0.95rem",
                       textDecoration:"none",
-                      transition:"all 0.3s",
-                      boxShadow:"0 5px 20px rgba(0,245,255,0.4)"
+                      transition:"all 0.4s cubic-bezier(0.16,1,0.3,1)",
+                      boxShadow:"0 8px 25px rgba(0,245,255,0.5)",
+                      letterSpacing:"1px"
                     }}
                     onMouseEnter={e => {
-                      e.currentTarget.style.transform = "scale(1.08)";
-                      e.currentTarget.style.boxShadow = "0 10px 30px rgba(0,245,255,0.6)";
+                      e.currentTarget.style.transform = "scale(1.1)";
+                      e.currentTarget.style.boxShadow = "0 15px 40px rgba(0,245,255,0.7)";
+                      setCursorVariant('hover');
                     }}
                     onMouseLeave={e => {
                       e.currentTarget.style.transform = "scale(1)";
-                      e.currentTarget.style.boxShadow = "0 5px 20px rgba(0,245,255,0.4)";
+                      e.currentTarget.style.boxShadow = "0 8px 25px rgba(0,245,255,0.5)";
+                      setCursorVariant('default');
                     }}>
-                      <Mail size={18} />
+                      <Send size={20} />
                       HIRE ME NOW
                     </a>
                   </div>
@@ -949,97 +1069,99 @@ export default function ModernDeveloperHome() {
               </div>
             </div>
 
-            {/* Content - NOW ON RIGHT */}
+            {/* Content - RIGHT SIDE */}
             <div>
               {/* Enhanced Status Badge */}
               <div className="fade-in delay-1" style={{
                 display:"inline-flex",
                 alignItems:"center",
-                gap:"0.7rem",
-                background:"linear-gradient(135deg, rgba(0,245,255,0.15), rgba(168,85,247,0.15))",
-                border:"2px solid rgba(0,245,255,0.4)",
-                borderRadius:"30px",
-                padding:"0.7rem 1.5rem",
+                gap:"0.8rem",
+                background:"linear-gradient(135deg, rgba(0,245,255,0.2), rgba(168,85,247,0.2))",
+                border:"2px solid rgba(0,245,255,0.5)",
+                borderRadius:"35px",
+                padding:"0.8rem 1.8rem",
                 marginBottom:"2rem",
                 fontFamily:"'Roboto Mono',monospace",
-                fontSize:"0.85rem",
-                fontWeight:700,
+                fontSize:"0.9rem",
+                fontWeight:800,
                 color:"#00f5ff",
-                boxShadow:"0 0 25px rgba(0,245,255,0.3)"
+                boxShadow:"0 0 30px rgba(0,245,255,0.4)",
+                letterSpacing:"1px"
               }}>
-                <Fingerprint size={16} style={{ animation:"pulse 2s ease-in-out infinite" }} />
+                <Sparkles size={18} style={{ animation:"pulse 2s ease-in-out infinite" }} />
                 2026 GRADUATE • IMMEDIATE JOINER
               </div>
 
-              {/* Name */}
+              {/* Enhanced Name */}
               <h1 className="fade-in delay-2" style={{
-                fontSize:"clamp(2.5rem, 7vw, 5.5rem)",
+                fontSize:"clamp(2.5rem, 7vw, 6rem)",
                 fontWeight:900,
-                lineHeight:1.1,
-                marginBottom:"1rem",
+                lineHeight:1.05,
+                marginBottom:"1.2rem",
                 fontFamily:"'Orbitron',sans-serif",
-                letterSpacing:"-0.02em"
+                letterSpacing:"-0.03em"
               }}>
-                <span style={{ color:'#fff' }}>SIVA SATYA SAI</span>
-                <br />
-                <span className="gradient-text">BHAGAVAN</span>
+                <span style={{ color:'#fff', display:'block' }}>SIVA SATYA SAI</span>
+                <span className="gradient-text" style={{ display:'block' }}>BHAGAVAN</span>
               </h1>
 
-              {/* Enhanced Role */}
+              {/* Enhanced Role with Animation */}
               <div className="fade-in delay-3" style={{
-                fontSize:"clamp(1.2rem, 2.5vw, 2rem)",
-                fontWeight:700,
-                marginBottom:"1.5rem",
+                fontSize:"clamp(1.2rem, 2.5vw, 2.2rem)",
+                fontWeight:800,
+                marginBottom:"1.8rem",
                 fontFamily:"'Roboto Mono',monospace",
                 color:"#00f5ff",
-                minHeight:"3rem",
+                minHeight:"3.5rem",
                 display:"flex",
                 alignItems:"center",
-                textShadow:"0 0 30px rgba(0,245,255,0.5)"
+                textShadow:"0 0 40px rgba(0,245,255,0.6)"
               }}>
                 &lt; {typedText}
                 <span style={{
-                  width:'3px',
-                  height:'1.3em',
+                  width:'4px',
+                  height:'1.4em',
                   background:'#00f5ff',
-                  marginLeft:'10px',
+                  marginLeft:'12px',
                   animation:'cursor 1s step-end infinite',
-                  boxShadow:"0 0 10px #00f5ff"
+                  boxShadow:"0 0 15px #00f5ff"
                 }} />
                 &nbsp;/&gt;
               </div>
 
               {/* Enhanced Description */}
               <p className="fade-in delay-4" style={{
-                fontSize:"1.15rem",
-                lineHeight:1.8,
-                color:"#c0c0c0",
-                maxWidth:"700px",
-                marginBottom:"2.5rem"
+                fontSize:"1.2rem",
+                lineHeight:1.9,
+                color:"#c5c5c5",
+                maxWidth:"750px",
+                marginBottom:"3rem"
               }}>
-                <strong style={{ color:'#fff', fontWeight:700 }}>Elite software engineer</strong> with{' '}
-                <span style={{ color:'#00f5ff', fontWeight:600 }}>proven enterprise experience</span> across{' '}
+                <strong style={{ color:'#fff', fontWeight:800 }}>Elite software engineer</strong> with{' '}
+                <span style={{ color:'#00f5ff', fontWeight:700 }}>proven enterprise experience</span> across{' '}
                 <strong style={{ color:'#fff' }}>3 industry internships</strong> at leading tech companies.
-                Specialized in <span style={{ color:'#a855f7', fontWeight:600 }}>AI/ML systems</span> and{' '}
-                <span style={{ color:'#22c55e', fontWeight:600 }}>scalable cloud architecture</span>.
+                Specialized in <span style={{ color:'#a855f7', fontWeight:700 }}>AI/ML systems</span> and{' '}
+                <span style={{ color:'#22c55e', fontWeight:700 }}>scalable cloud architecture</span>.
                 Delivered <strong style={{ color:'#fff' }}>15+ production-grade projects</strong> with{' '}
-                <span style={{ color:'#ffd700', fontWeight:600 }}>100% client satisfaction</span>.
+                <span style={{ color:'#ffd700', fontWeight:700 }}>100% client satisfaction</span>.
                 Armed with <strong style={{ color:'#fff' }}>20+ industry certifications</strong> from 
                 AWS, Azure, and Google Cloud.
               </p>
 
-              {/* Buttons */}
+              {/* Enhanced Buttons */}
               <div className="fade-in delay-5" style={{
                 display:"flex",
                 gap:"1.5rem",
-                marginBottom:"3rem",
+                marginBottom:"3.5rem",
                 flexWrap:"wrap"
               }}>
                 <button 
                   onClick={() => handleNavigation('/projects')} 
                   className="btn-primary"
+                  onMouseEnter={() => setCursorVariant('hover')}
+                  onMouseLeave={() => setCursorVariant('default')}
                 >
-                  <Rocket size={20} />
+                  <Rocket size={22} />
                   <span>VIEW PROJECTS</span>
                 </button>
                 <a 
@@ -1047,16 +1169,18 @@ export default function ModernDeveloperHome() {
                   download="Bhagavan_Resume.pdf" 
                   className="btn-outline" 
                   style={{ color:"#00f5ff" }}
+                  onMouseEnter={() => setCursorVariant('hover')}
+                  onMouseLeave={() => setCursorVariant('default')}
                 >
-                  <Download size={20} />
+                  <Download size={22} />
                   <span>DOWNLOAD RESUME</span>
                 </a>
               </div>
 
-              {/* Enhanced Social */}
+              {/* Enhanced Social Links */}
               <div className="fade-in delay-6" style={{
                 display:"flex",
-                gap:"1.2rem"
+                gap:"1.3rem"
               }}>
                 {[
                   { icon:Github, href:"https://github.com/bhagavan444", color:"#fff", label:"GitHub" },
@@ -1071,98 +1195,211 @@ export default function ModernDeveloperHome() {
                     rel="noopener noreferrer"
                     title={social.label}
                     style={{
-                      width:"52px",
-                      height:"52px",
-                      background:"rgba(0,0,0,0.6)",
-                      border:`2px solid ${social.color}`,
+                      width:"56px",
+                      height:"56px",
+                      background:"rgba(0,0,0,0.7)",
+                      border:`3px solid ${social.color}`,
                       borderRadius:"50%",
                       display:"flex",
                       alignItems:"center",
                       justifyContent:"center",
                       color:social.color,
-                      transition:"all 0.3s cubic-bezier(0.16,1,0.3,1)",
+                      transition:"all 0.4s cubic-bezier(0.16,1,0.3,1)",
                       textDecoration:"none",
-                      position:"relative"
+                      position:"relative",
+                      boxShadow:`0 0 15px ${social.color}40`
                     }}
                     onMouseEnter={e => {
                       e.currentTarget.style.background = social.color;
                       e.currentTarget.style.color = "#000";
-                      e.currentTarget.style.transform = "scale(1.3) translateY(-8px)";
-                      e.currentTarget.style.boxShadow = `0 10px 30px ${social.color}80`;
+                      e.currentTarget.style.transform = "scale(1.35) translateY(-10px)";
+                      e.currentTarget.style.boxShadow = `0 15px 40px ${social.color}90`;
+                      setCursorVariant('hover');
                     }}
                     onMouseLeave={e => {
-                      e.currentTarget.style.background = "rgba(0,0,0,0.6)";
+                      e.currentTarget.style.background = "rgba(0,0,0,0.7)";
                       e.currentTarget.style.color = social.color;
                       e.currentTarget.style.transform = "scale(1) translateY(0)";
-                      e.currentTarget.style.boxShadow = "none";
+                      e.currentTarget.style.boxShadow = `0 0 15px ${social.color}40`;
+                      setCursorVariant('default');
                     }}
                   >
-                    <social.icon size={22} />
+                    <social.icon size={24} />
                   </a>
                 ))}
               </div>
             </div>
           </section>
 
-          {/* ACHIEVEMENT BADGES */}
-          <section id="achievements" data-observe style={{ padding:"4rem 0" }}>
-            <h2 style={{
-              fontSize:"clamp(2rem, 4vw, 3rem)",
-              fontWeight:900,
-              marginBottom:"3rem",
-              textAlign:"center",
-              fontFamily:"'Orbitron',sans-serif"
-            }}>
-              <span className="gradient-text">Achievements & Certifications</span>
-            </h2>
-            <div className="achievement-grid" style={{
+          {/* ENHANCED METRICS SECTION */}
+          <section id="metrics" data-observe style={{ padding:"6rem 0" }}>
+            <div style={{
               display:"grid",
-              gridTemplateColumns:"repeat(auto-fit, minmax(250px, 1fr))",
-              gap:"1.5rem"
+              gridTemplateColumns:"repeat(auto-fit, minmax(300px, 1fr))",
+              gap:"2.5rem"
             }}>
-              {achievements.map((ach, i) => (
-                <div key={i} className={`glass ${visibleSections.has('achievements') ? 'scale-in' : ''}`} style={{
-                  padding:"1.5rem",
-                  display:"flex",
-                  alignItems:"center",
-                  gap:"1rem",
-                  opacity:visibleSections.has('achievements') ? 1 : 0,
-                  animationDelay:`${i * 0.1}s`
-                }}>
+              {metrics.map((m, i) => (
+                <div key={i} className={`glass ${visibleSections.has('metrics') ? 'fade-in' : ''}`} style={{
+                  padding:"3rem",
+                  textAlign:"center",
+                  animationDelay:`${i * 0.15}s`,
+                  opacity:visibleSections.has('metrics') ? 1 : 0,
+                  position:"relative"
+                }}
+                onMouseEnter={() => setCursorVariant('hover')}
+                onMouseLeave={() => setCursorVariant('default')}>
+                  {/* Active Glow Effect */}
+                  {activeMetric === i && (
+                    <div style={{
+                      position:"absolute",
+                      inset:"-3px",
+                      background:`linear-gradient(135deg, ${m.color}50, transparent)`,
+                      borderRadius:"24px",
+                      zIndex:-1,
+                      animation:"pulse 2s ease-in-out infinite"
+                    }} />
+                  )}
+                  
                   <div style={{
-                    width:"50px",
-                    height:"50px",
-                    minWidth:"50px",
-                    background:`${ach.color}20`,
-                    border:`2px solid ${ach.color}`,
-                    borderRadius:"12px",
+                    width:"80px",
+                    height:"80px",
+                    margin:"0 auto 1.5rem",
+                    background:`${m.color}30`,
+                    border:`4px solid ${m.color}`,
+                    borderRadius:"50%",
                     display:"flex",
                     alignItems:"center",
                     justifyContent:"center",
-                    color:ach.color,
-                    boxShadow:`0 0 20px ${ach.color}40`
+                    color:m.color,
+                    boxShadow:`0 0 40px ${m.color}70`,
+                    animation:"float 5s ease-in-out infinite",
+                    animationDelay:`${i * 0.3}s`
                   }}>
-                    <ach.icon size={24} />
+                    <m.icon size={36} />
                   </div>
                   <div style={{
-                    fontSize:"0.95rem",
-                    fontWeight:700,
-                    color:"#fff",
-                    fontFamily:"'Rajdhani',sans-serif"
+                    fontSize:"3.5rem",
+                    fontWeight:900,
+                    color:m.color,
+                    marginBottom:"1rem",
+                    fontFamily:"'Orbitron',sans-serif",
+                    textShadow:`0 0 30px ${m.color}90`,
+                    letterSpacing:"-0.02em"
                   }}>
-                    {ach.label}
+                    {m.value}
+                  </div>
+                  <div style={{
+                    fontSize:"1.15rem",
+                    fontWeight:800,
+                    color:"#fff",
+                    textTransform:"uppercase",
+                    fontFamily:"'Rajdhani',sans-serif",
+                    marginBottom:"0.6rem",
+                    letterSpacing:"1.5px"
+                  }}>
+                    {m.label}
+                  </div>
+                  <div style={{
+                    fontSize:"0.9rem",
+                    color:"#aaa",
+                    fontWeight:600
+                  }}>
+                    {m.subtitle}
                   </div>
                 </div>
               ))}
             </div>
           </section>
 
-          {/* TECH STACK SHOWCASE WITH REAL ICONS */}
-          <section id="techstack" data-observe style={{ padding:"4rem 0" }}>
+          {/* ENHANCED ACHIEVEMENTS */}
+          <section id="achievements" data-observe style={{ padding:"4rem 0" }}>
             <h2 style={{
-              fontSize:"clamp(2rem, 4vw, 3rem)",
+              fontSize:"clamp(2rem, 4vw, 3.5rem)",
               fontWeight:900,
-              marginBottom:"1rem",
+              marginBottom:"1.5rem",
+              textAlign:"center",
+              fontFamily:"'Orbitron',sans-serif"
+            }}>
+              <span className="gradient-text">Achievements & Certifications</span>
+            </h2>
+            <p style={{
+              textAlign:"center",
+              fontSize:"1.15rem",
+              color:"#999",
+              marginBottom:"3.5rem",
+              maxWidth:"700px",
+              margin:"0 auto 3.5rem"
+            }}>
+              Recognition and expertise validated by industry leaders
+            </p>
+            <div className="achievement-grid" style={{
+              display:"grid",
+              gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))",
+              gap:"2rem"
+            }}>
+              {achievements.map((ach, i) => (
+                <div key={i} className={`glass ${visibleSections.has('achievements') ? 'scale-in' : ''}`} style={{
+                  padding:"2rem",
+                  display:"flex",
+                  flexDirection:"column",
+                  gap:"1rem",
+                  opacity:visibleSections.has('achievements') ? 1 : 0,
+                  animationDelay:`${i * 0.1}s`
+                }}
+                onMouseEnter={() => setCursorVariant('hover')}
+                onMouseLeave={() => setCursorVariant('default')}>
+                  <div style={{
+                    display:"flex",
+                    alignItems:"center",
+                    gap:"1.2rem"
+                  }}>
+                    <div style={{
+                      width:"56px",
+                      height:"56px",
+                      minWidth:"56px",
+                      background:`${ach.color}25`,
+                      border:`3px solid ${ach.color}`,
+                      borderRadius:"14px",
+                      display:"flex",
+                      alignItems:"center",
+                      justifyContent:"center",
+                      color:ach.color,
+                      boxShadow:`0 0 25px ${ach.color}50`
+                    }}>
+                      <ach.icon size={26} />
+                    </div>
+                    <div style={{ flex:1 }}>
+                      <div style={{
+                        fontSize:"1.05rem",
+                        fontWeight:800,
+                        color:"#fff",
+                        fontFamily:"'Rajdhani',sans-serif",
+                        marginBottom:"0.3rem",
+                        letterSpacing:"0.5px"
+                      }}>
+                        {ach.label}
+                      </div>
+                      <div style={{
+                        fontSize:"0.85rem",
+                        color:ach.color,
+                        fontWeight:700,
+                        fontFamily:"'Roboto Mono',monospace"
+                      }}>
+                        {ach.stat}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          {/* TECH STACK WITH CATEGORIES */}
+          <section id="techstack" data-observe style={{ padding:"5rem 0" }}>
+            <h2 style={{
+              fontSize:"clamp(2rem, 4vw, 3.5rem)",
+              fontWeight:900,
+              marginBottom:"1.5rem",
               textAlign:"center",
               fontFamily:"'Orbitron',sans-serif"
             }}>
@@ -1170,49 +1407,59 @@ export default function ModernDeveloperHome() {
             </h2>
             <p style={{
               textAlign:"center",
-              fontSize:"1.1rem",
+              fontSize:"1.15rem",
               color:"#999",
-              marginBottom:"3rem"
+              marginBottom:"4rem",
+              maxWidth:"700px",
+              margin:"0 auto 4rem"
             }}>
               Mastery across the modern tech ecosystem
             </p>
             <div className="tech-stack-grid" style={{
               display:"grid",
-              gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))",
-              gap:"1.5rem",
-              maxWidth:"1000px",
+              gridTemplateColumns:"repeat(auto-fit, minmax(150px, 1fr))",
+              gap:"2rem",
+              maxWidth:"1100px",
               margin:"0 auto"
             }}>
               {techStack.map((tech, i) => (
                 <div key={i} className={`glass ${visibleSections.has('techstack') ? 'fade-in' : ''}`} style={{
-                  padding:"1.5rem",
+                  padding:"2rem 1.5rem",
                   textAlign:"center",
                   opacity:visibleSections.has('techstack') ? 1 : 0,
                   animationDelay:`${i * 0.05}s`,
-                  transition:"all 0.3s"
+                  transition:"all 0.4s cubic-bezier(0.16,1,0.3,1)",
+                  position:"relative"
                 }}
                 onMouseEnter={e => {
-                  e.currentTarget.style.transform = "translateY(-8px) scale(1.05)";
+                  e.currentTarget.style.transform = "translateY(-12px) scale(1.08)";
                   e.currentTarget.style.borderColor = tech.color;
-                  e.currentTarget.style.boxShadow = `0 15px 40px ${tech.color}50`;
+                  e.currentTarget.style.boxShadow = `0 20px 50px ${tech.color}60`;
+                  setCursorVariant('hover');
                 }}
                 onMouseLeave={e => {
                   e.currentTarget.style.transform = "translateY(0) scale(1)";
-                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)";
+                  e.currentTarget.style.borderColor = "rgba(255,255,255,0.12)";
                   e.currentTarget.style.boxShadow = "none";
+                  setCursorVariant('default');
                 }}>
+                  {/* Category Badge */}
+                  <div className="tech-category-badge" style={{ color:tech.color }}>
+                    {tech.category}
+                  </div>
+                  
                   <div style={{
-                    width:"60px",
-                    height:"60px",
-                    margin:"0 auto 1rem",
-                    background:`${tech.color}15`,
-                    border:`2px solid ${tech.color}40`,
-                    borderRadius:"12px",
+                    width:"70px",
+                    height:"70px",
+                    margin:"0 auto 1.2rem",
+                    background:`${tech.color}20`,
+                    border:`2.5px solid ${tech.color}50`,
+                    borderRadius:"14px",
                     display:"flex",
                     alignItems:"center",
                     justifyContent:"center",
-                    padding:"0.8rem",
-                    transition:"all 0.3s"
+                    padding:"1rem",
+                    transition:"all 0.4s"
                   }}>
                     <img 
                       src={tech.icon} 
@@ -1225,16 +1472,16 @@ export default function ModernDeveloperHome() {
                       }}
                       onError={(e) => {
                         e.currentTarget.style.display = "none";
-                        e.currentTarget.parentElement.innerHTML = `<div style="font-size:1.5rem;font-weight:900;color:${tech.color}">${tech.name.charAt(0)}</div>`;
+                        e.currentTarget.parentElement.innerHTML = `<div style="font-size:1.8rem;font-weight:900;color:${tech.color}">${tech.name.charAt(0)}</div>`;
                       }}
                     />
                   </div>
                   <div style={{
-                    fontSize:"0.95rem",
-                    fontWeight:700,
+                    fontSize:"1.05rem",
+                    fontWeight:800,
                     color:"#fff",
                     fontFamily:"'Rajdhani',sans-serif",
-                    letterSpacing:"0.5px"
+                    letterSpacing:"0.8px"
                   }}>
                     {tech.name}
                   </div>
@@ -1243,89 +1490,12 @@ export default function ModernDeveloperHome() {
             </div>
           </section>
 
-          {/* ENHANCED METRICS */}
-          <section id="metrics" data-observe style={{ padding:"5rem 0" }}>
-            <div style={{
-              display:"grid",
-              gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))",
-              gap:"2.5rem"
-            }}>
-              {metrics.map((m, i) => (
-                <div key={i} className={`glass ${visibleSections.has('metrics') ? 'fade-in' : ''}`} style={{
-                  padding:"2.5rem",
-                  textAlign:"center",
-                  animationDelay:`${i * 0.15}s`,
-                  opacity:visibleSections.has('metrics') ? 1 : 0,
-                  position:"relative"
-                }}>
-                  {/* Glow effect on active */}
-                  {activeMetric === i && (
-                    <div style={{
-                      position:"absolute",
-                      inset:"-2px",
-                      background:`linear-gradient(135deg, ${m.color}40, transparent)`,
-                      borderRadius:"24px",
-                      zIndex:-1,
-                      animation:"pulse 2s ease-in-out infinite"
-                    }} />
-                  )}
-                  
-                  <div style={{
-                    width:"70px",
-                    height:"70px",
-                    margin:"0 auto 1.2rem",
-                    background:`${m.color}25`,
-                    border:`3px solid ${m.color}`,
-                    borderRadius:"50%",
-                    display:"flex",
-                    alignItems:"center",
-                    justifyContent:"center",
-                    color:m.color,
-                    boxShadow:`0 0 30px ${m.color}60`,
-                    animation:"float 4s ease-in-out infinite",
-                    animationDelay:`${i * 0.3}s`
-                  }}>
-                    <m.icon size={32} />
-                  </div>
-                  <div style={{
-                    fontSize:"3rem",
-                    fontWeight:900,
-                    color:m.color,
-                    marginBottom:"0.8rem",
-                    fontFamily:"'Orbitron',sans-serif",
-                    textShadow:`0 0 20px ${m.color}80`
-                  }}>
-                    {m.value}
-                  </div>
-                  <div style={{
-                    fontSize:"1.1rem",
-                    fontWeight:700,
-                    color:"#fff",
-                    textTransform:"uppercase",
-                    fontFamily:"'Rajdhani',sans-serif",
-                    marginBottom:"0.5rem",
-                    letterSpacing:"1px"
-                  }}>
-                    {m.label}
-                  </div>
-                  <div style={{
-                    fontSize:"0.85rem",
-                    color:"#999",
-                    fontWeight:500
-                  }}>
-                    {m.subtitle}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
           {/* ENHANCED SKILLS */}
-          <section id="skills" data-observe style={{ padding:"5rem 0" }}>
+          <section id="skills" data-observe style={{ padding:"6rem 0" }}>
             <h2 style={{
               fontSize:"clamp(2rem, 4vw, 3.5rem)",
               fontWeight:900,
-              marginBottom:"1rem",
+              marginBottom:"1.5rem",
               textAlign:"center",
               fontFamily:"'Orbitron',sans-serif"
             }}>
@@ -1333,11 +1503,11 @@ export default function ModernDeveloperHome() {
             </h2>
             <p style={{
               textAlign:"center",
-              fontSize:"1.1rem",
+              fontSize:"1.15rem",
               color:"#999",
-              marginBottom:"4rem",
+              marginBottom:"4.5rem",
               maxWidth:"700px",
-              margin:"0 auto 4rem"
+              margin:"0 auto 4.5rem"
             }}>
               Battle-tested expertise in cutting-edge technologies and frameworks
             </p>
@@ -1347,99 +1517,115 @@ export default function ModernDeveloperHome() {
               margin:"0 auto",
               display:"flex",
               flexDirection:"column",
-              gap:"2.5rem"
+              gap:"3rem"
             }}>
               {skills.map((s, i) => (
                 <div key={i} className={`glass ${visibleSections.has('skills') ? 'slide-in' : ''}`} style={{
-                  padding:"2.5rem",
+                  padding:"3rem",
                   opacity:visibleSections.has('skills') ? 1 : 0,
                   animationDelay:`${i * 0.15}s`,
                   position:"relative"
-                }}>
+                }}
+                onMouseEnter={() => setCursorVariant('hover')}
+                onMouseLeave={() => setCursorVariant('default')}>
                   <div style={{
                     display:"flex",
                     alignItems:"flex-start",
-                    gap:"1.5rem",
-                    marginBottom:"1.5rem"
+                    gap:"2rem",
+                    marginBottom:"1.8rem"
                   }}>
                     <div style={{
-                      width:"60px",
-                      height:"60px",
-                      minWidth:"60px",
-                      background:`${s.color}25`,
+                      width:"70px",
+                      height:"70px",
+                      minWidth:"70px",
+                      background:`${s.color}30`,
                       border:`3px solid ${s.color}`,
-                      borderRadius:"12px",
+                      borderRadius:"16px",
                       display:"flex",
                       alignItems:"center",
                       justifyContent:"center",
                       color:s.color,
-                      boxShadow:`0 0 25px ${s.color}60`
+                      boxShadow:`0 0 30px ${s.color}70`
                     }}>
-                      <s.icon size={28} />
+                      <s.icon size={32} />
                     </div>
                     <div style={{ flex:1 }}>
                       <div style={{
                         display:"flex",
                         justifyContent:"space-between",
                         alignItems:"center",
-                        marginBottom:"0.8rem",
+                        marginBottom:"1rem",
                         flexWrap:"wrap",
-                        gap:"1rem"
+                        gap:"1.5rem"
                       }}>
                         <span style={{
-                          fontSize:"1.3rem",
-                          fontWeight:800,
+                          fontSize:"1.5rem",
+                          fontWeight:900,
                           color:"#fff",
                           fontFamily:"'Rajdhani',sans-serif",
-                          letterSpacing:"0.5px"
+                          letterSpacing:"1px"
                         }}>
                           {s.name}
                         </span>
-                        <div style={{ display:"flex", alignItems:"center", gap:"1rem" }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:"1.2rem" }}>
                           <span style={{
                             fontFamily:"'Roboto Mono',monospace",
-                            fontSize:"1.2rem",
+                            fontSize:"1.4rem",
                             color:s.color,
-                            fontWeight:800,
-                            textShadow:`0 0 10px ${s.color}60`
+                            fontWeight:900,
+                            textShadow:`0 0 15px ${s.color}70`
                           }}>
                             {skillProgress[s.name] || 0}%
                           </span>
                           <div style={{
-                            padding:"0.4rem 0.8rem",
-                            background:`${s.color}20`,
-                            border:`1px solid ${s.color}`,
-                            borderRadius:"6px",
-                            fontSize:"0.75rem",
+                            padding:"0.5rem 1rem",
+                            background:`${s.color}25`,
+                            border:`2px solid ${s.color}`,
+                            borderRadius:"8px",
+                            fontSize:"0.8rem",
                             color:s.color,
-                            fontWeight:700
+                            fontWeight:800,
+                            boxShadow:`0 0 15px ${s.color}40`
                           }}>
                             EXPERT
                           </div>
                         </div>
                       </div>
                       <div style={{
-                        height:"10px",
-                        background:"rgba(255,255,255,0.05)",
-                        borderRadius:"10px",
+                        height:"12px",
+                        background:"rgba(255,255,255,0.06)",
+                        borderRadius:"12px",
                         overflow:"hidden",
-                        marginBottom:"1rem",
-                        position:"relative"
+                        marginBottom:"1.2rem",
+                        position:"relative",
+                        boxShadow:"inset 0 2px 4px rgba(0,0,0,0.3)"
                       }}>
                         <div style={{
                           width:`${skillProgress[s.name] || 0}%`,
                           height:"100%",
                           background:`linear-gradient(90deg, ${s.color}, ${s.color}DD)`,
-                          borderRadius:"10px",
-                          transition:"width 2s cubic-bezier(0.16,1,0.3,1)",
-                          boxShadow:`0 0 15px ${s.color}80`
-                        }} />
+                          borderRadius:"12px",
+                          transition:"width 2.5s cubic-bezier(0.16,1,0.3,1)",
+                          boxShadow:`0 0 20px ${s.color}90`,
+                          position:"relative"
+                        }}>
+                          <div style={{
+                            position:"absolute",
+                            top:0,
+                            left:0,
+                            right:0,
+                            bottom:0,
+                            background:"linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)",
+                            animation:"shimmer 2s linear infinite"
+                          }} />
+                        </div>
                       </div>
                       <div style={{
-                        fontSize:"0.9rem",
-                        color:"#aaa",
+                        fontSize:"0.95rem",
+                        color:"#bbb",
                         fontFamily:"'Roboto Mono',monospace",
-                        lineHeight:1.6
+                        lineHeight:1.7,
+                        fontWeight:500
                       }}>
                         {s.tech}
                       </div>
@@ -1450,22 +1636,136 @@ export default function ModernDeveloperHome() {
             </div>
           </section>
 
+          {/* TESTIMONIALS SECTION */}
+          <section id="testimonials" data-observe style={{ padding:"5rem 0" }}>
+            <h2 style={{
+              fontSize:"clamp(2rem, 4vw, 3.5rem)",
+              fontWeight:900,
+              marginBottom:"1.5rem",
+              textAlign:"center",
+              fontFamily:"'Orbitron',sans-serif"
+            }}>
+              <span className="gradient-text">What Leaders Say</span>
+            </h2>
+            <p style={{
+              textAlign:"center",
+              fontSize:"1.15rem",
+              color:"#999",
+              marginBottom:"4rem",
+              maxWidth:"700px",
+              margin:"0 auto 4rem"
+            }}>
+              Trusted by engineering leaders at top tech companies
+            </p>
+            
+            <div style={{
+              maxWidth:"900px",
+              margin:"0 auto",
+              position:"relative",
+              minHeight:"300px"
+            }}>
+              {testimonials.map((test, i) => (
+                <div key={i} className={`glass-strong ${i === activeTestimonial ? 'fade-in' : ''}`} style={{
+                  padding:"3rem",
+                  position: i === activeTestimonial ? "relative" : "absolute",
+                  top: i === activeTestimonial ? "auto" : 0,
+                  left: i === activeTestimonial ? "auto" : 0,
+                  right: i === activeTestimonial ? "auto" : 0,
+                  opacity: i === activeTestimonial ? 1 : 0,
+                  visibility: i === activeTestimonial ? "visible" : "hidden",
+                  transition:"all 0.5s cubic-bezier(0.16,1,0.3,1)",
+                  textAlign:"center"
+                }}>
+                  <div style={{
+                    width:"80px",
+                    height:"80px",
+                    borderRadius:"50%",
+                    background:`linear-gradient(135deg, ${test.color}, ${test.color}80)`,
+                    margin:"0 auto 2rem",
+                    display:"flex",
+                    alignItems:"center",
+                    justifyContent:"center",
+                    fontSize:"1.8rem",
+                    fontWeight:900,
+                    color:"#000",
+                    boxShadow:`0 0 30px ${test.color}60`
+                  }}>
+                    {test.avatar}
+                  </div>
+                  <p style={{
+                    fontSize:"1.25rem",
+                    lineHeight:1.8,
+                    color:"#fff",
+                    marginBottom:"2rem",
+                    fontStyle:"italic",
+                    fontWeight:500
+                  }}>
+                    "{test.text}"
+                  </p>
+                  <div style={{
+                    fontSize:"1.1rem",
+                    fontWeight:800,
+                    color:test.color,
+                    marginBottom:"0.3rem",
+                    fontFamily:"'Rajdhani',sans-serif"
+                  }}>
+                    {test.author}
+                  </div>
+                  <div style={{
+                    fontSize:"0.95rem",
+                    color:"#999",
+                    fontWeight:600
+                  }}>
+                    {test.role}
+                  </div>
+                </div>
+              ))}
+              
+              {/* Testimonial Indicators */}
+              <div style={{
+                display:"flex",
+                justifyContent:"center",
+                gap:"1rem",
+                marginTop:"2rem"
+              }}>
+                {testimonials.map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveTestimonial(i)}
+                    style={{
+                      width: i === activeTestimonial ? "40px" : "12px",
+                      height:"12px",
+                      borderRadius:"6px",
+                      background: i === activeTestimonial ? testimonials[i].color : "rgba(255,255,255,0.2)",
+                      border:"none",
+                      cursor:"pointer",
+                      transition:"all 0.4s",
+                      boxShadow: i === activeTestimonial ? `0 0 15px ${testimonials[i].color}` : "none"
+                    }}
+                    onMouseEnter={() => setCursorVariant('hover')}
+                    onMouseLeave={() => setCursorVariant('default')}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+
           {/* ENHANCED CTA */}
           <section style={{ padding:"6rem 0 8rem" }}>
-            <div className="glass" style={{
+            <div className="glass-strong" style={{
               padding:"5rem 3rem",
-              maxWidth:"1000px",
+              maxWidth:"1100px",
               margin:"0 auto",
               textAlign:"center",
               position:"relative",
               overflow:"hidden"
             }}>
-              {/* Animated background */}
+              {/* Animated Background */}
               <div style={{
                 position:"absolute",
                 inset:0,
-                background:"linear-gradient(135deg, rgba(0,245,255,0.05), rgba(168,85,247,0.05))",
-                animation:"gradient-shift 3s ease infinite",
+                background:"linear-gradient(135deg, rgba(0,245,255,0.08), rgba(168,85,247,0.08))",
+                animation:"gradient-shift 4s ease infinite",
                 backgroundSize:"200% 200%"
               }} />
               
@@ -1473,27 +1773,28 @@ export default function ModernDeveloperHome() {
                 <div style={{
                   display:"inline-flex",
                   alignItems:"center",
-                  gap:"0.5rem",
-                  background:"rgba(0,245,255,0.2)",
+                  gap:"0.7rem",
+                  background:"rgba(0,245,255,0.25)",
                   border:"2px solid #00f5ff",
-                  borderRadius:"30px",
-                  padding:"0.6rem 1.2rem",
-                  marginBottom:"2rem",
-                  fontSize:"0.85rem",
-                  fontWeight:700,
+                  borderRadius:"35px",
+                  padding:"0.7rem 1.5rem",
+                  marginBottom:"2.5rem",
+                  fontSize:"0.9rem",
+                  fontWeight:800,
                   color:"#00f5ff",
-                  fontFamily:"'Roboto Mono',monospace"
+                  fontFamily:"'Roboto Mono',monospace",
+                  boxShadow:"0 0 25px rgba(0,245,255,0.4)"
                 }}>
-                  <Zap size={16} />
+                  <Lightning size={18} />
                   IMMEDIATE AVAILABILITY
                 </div>
 
                 <h2 style={{
-                  fontSize:"clamp(2.2rem, 5vw, 3.8rem)",
+                  fontSize:"clamp(2.2rem, 5vw, 4.2rem)",
                   fontWeight:900,
-                  marginBottom:"1.5rem",
+                  marginBottom:"2rem",
                   fontFamily:"'Orbitron',sans-serif",
-                  lineHeight:1.2
+                  lineHeight:1.15
                 }}>
                   <span className="gradient-text">Ready to Drive Impact</span>
                   <br />
@@ -1501,12 +1802,12 @@ export default function ModernDeveloperHome() {
                 </h2>
                 
                 <p style={{
-                  fontSize:"1.15rem",
-                  color:"#b0b0b0",
-                  marginBottom:"3rem",
-                  maxWidth:"800px",
-                  margin:"0 auto 3rem",
-                  lineHeight:1.8
+                  fontSize:"1.2rem",
+                  color:"#b5b5b5",
+                  marginBottom:"3.5rem",
+                  maxWidth:"850px",
+                  margin:"0 auto 3.5rem",
+                  lineHeight:1.9
                 }}>
                   Seeking full-time opportunities at innovative tech companies where I can leverage my 
                   expertise in <strong style={{ color:"#00f5ff" }}>AI/ML</strong>, <strong style={{ color:"#a855f7" }}>
@@ -1521,64 +1822,131 @@ export default function ModernDeveloperHome() {
                   justifyContent:"center",
                   flexWrap:"wrap"
                 }}>
-                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" className="btn-primary">
-                    <Mail size={22} />
+                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" className="btn-primary"
+                    onMouseEnter={() => setCursorVariant('hover')}
+                    onMouseLeave={() => setCursorVariant('default')}>
+                    <Send size={22} />
                     <span>SCHEDULE INTERVIEW</span>
                   </a>
-                  <button onClick={() => handleNavigation('/projects')} className="btn-outline" style={{ color:"#a855f7" }}>
+                  <button onClick={() => handleNavigation('/projects')} className="btn-outline" style={{ color:"#a855f7" }}
+                    onMouseEnter={() => setCursorVariant('hover')}
+                    onMouseLeave={() => setCursorVariant('default')}>
                     <Eye size={22} />
                     <span>VIEW PORTFOLIO</span>
                   </button>
-                  <a href={resumePdf} download="Bhagavan_Resume.pdf" className="btn-outline" style={{ color:"#22c55e" }}>
+                  <a href={resumePdf} download="Bhagavan_Resume.pdf" className="btn-outline" style={{ color:"#22c55e" }}
+                    onMouseEnter={() => setCursorVariant('hover')}
+                    onMouseLeave={() => setCursorVariant('default')}>
                     <Download size={22} />
                     <span>GET RESUME</span>
                   </a>
                 </div>
 
-                {/* Contact info */}
+                {/* Enhanced Contact Info */}
                 <div style={{
-                  marginTop:"3rem",
-                  paddingTop:"2rem",
-                  borderTop:"1px solid rgba(255,255,255,0.1)",
+                  marginTop:"4rem",
+                  paddingTop:"3rem",
+                  borderTop:"2px solid rgba(255,255,255,0.15)",
                   display:"flex",
                   justifyContent:"center",
-                  gap:"2rem",
+                  gap:"3rem",
                   flexWrap:"wrap"
                 }}>
                   <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{
                     display:"flex",
                     alignItems:"center",
-                    gap:"0.5rem",
+                    gap:"0.7rem",
                     color:"#00f5ff",
                     textDecoration:"none",
-                    fontSize:"0.95rem",
-                    fontWeight:600,
+                    fontSize:"1.05rem",
+                    fontWeight:700,
                     transition:"all 0.3s"
                   }}
-                  onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
-                  onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
-                    <Mail size={18} />
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = "scale(1.08)";
+                    e.currentTarget.style.color = "#fff";
+                    setCursorVariant('hover');
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.color = "#00f5ff";
+                    setCursorVariant('default');
+                  }}>
+                    <Mail size={20} />
                     g.sivasatyasaibhagavan@gmail.com
                   </a>
                   <a href="tel:+917569205626" style={{
                     display:"flex",
                     alignItems:"center",
-                    gap:"0.5rem",
+                    gap:"0.7rem",
                     color:"#22c55e",
                     textDecoration:"none",
-                    fontSize:"0.95rem",
-                    fontWeight:600,
+                    fontSize:"1.05rem",
+                    fontWeight:700,
                     transition:"all 0.3s"
                   }}
-                  onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"}
-                  onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
-                    <Phone size={18} />
+                  onMouseEnter={e => {
+                    e.currentTarget.style.transform = "scale(1.08)";
+                    e.currentTarget.style.color = "#fff";
+                    setCursorVariant('hover');
+                  }}
+                  onMouseLeave={e => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.style.color = "#22c55e";
+                    setCursorVariant('default');
+                  }}>
+                    <Phone size={20} />
                     +91 7569205626
                   </a>
+                  <div style={{
+                    display:"flex",
+                    alignItems:"center",
+                    gap:"0.7rem",
+                    color:"#a855f7",
+                    fontSize:"1.05rem",
+                    fontWeight:700
+                  }}>
+                    <MapPin size={20} />
+                    India
+                  </div>
                 </div>
               </div>
             </div>
           </section>
+
+          {/* FOOTER */}
+          <footer style={{
+            borderTop:"1px solid rgba(255,255,255,0.1)",
+            padding:"3rem 0",
+            textAlign:"center"
+          }}>
+            <p style={{
+              color:"#666",
+              fontSize:"0.95rem",
+              fontWeight:600
+            }}>
+              © 2026 Siva Satya Sai Bhagavan. Crafted with{' '}
+              <span style={{ color:"#ff6b35" }}>❤</span> and cutting-edge tech.
+            </p>
+            <div style={{
+              marginTop:"1rem",
+              display:"flex",
+              justifyContent:"center",
+              gap:"2rem",
+              flexWrap:"wrap"
+            }}>
+              {["React", "TypeScript", "Passion"].map((tech, i) => (
+                <span key={i} style={{
+                  color:"#999",
+                  fontSize:"0.85rem",
+                  fontWeight:600,
+                  fontFamily:"'Roboto Mono',monospace"
+                }}>
+                  {tech}
+                </span>
+              ))}
+            </div>
+          </footer>
         </div>
       </div>
     </>

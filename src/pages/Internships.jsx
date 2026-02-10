@@ -150,27 +150,14 @@ export default function AdvancedInternships() {
   const [selectedFilter, setSelectedFilter] = useState('ALL');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [particles, setParticles] = useState([]);
   const canvasRef = useRef(null);
   const timelineRef = useRef(null);
 
-  // Particle system
-  useEffect(() => {
-    setParticles(Array.from({ length: 100 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 3 + 1,
-      duration: Math.random() * 40 + 20,
-      delay: Math.random() * 10
-    })));
-  }, []);
-
-  // Mouse tracking
+  // Mouse tracking for parallax
   useEffect(() => {
     const handleMouseMove = (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 40;
-      const y = (e.clientY / window.innerHeight - 0.5) * 40;
+      const x = (e.clientX / window.innerWidth - 0.5) * 20;
+      const y = (e.clientY / window.innerHeight - 0.5) * 20;
       setMousePosition({ x, y });
     };
     window.addEventListener("mousemove", handleMouseMove);
@@ -188,7 +175,7 @@ export default function AdvancedInternships() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Neural network animation
+  // Advanced particle system with canvas
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -201,47 +188,106 @@ export default function AdvancedInternships() {
     };
     resize();
 
-    const nodes = Array.from({ length: 150 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.8,
-      vy: (Math.random() - 0.5) * 0.8,
-      radius: Math.random() * 2 + 1
-    }));
+    class Particle {
+      constructor() {
+        this.reset();
+        this.y = Math.random() * canvas.height;
+        this.opacity = Math.random();
+      }
 
-    const animate = () => {
-      ctx.fillStyle = 'rgba(0,0,0,0.06)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      reset() {
+        this.x = Math.random() * canvas.width;
+        this.y = -10;
+        this.speed = Math.random() * 2 + 0.5;
+        this.radius = Math.random() * 2.5 + 0.5;
+        this.color = Math.random() > 0.5 ? '0, 245, 255' : '167, 139, 250';
+        this.opacity = Math.random() * 0.5 + 0.3;
+        this.drift = (Math.random() - 0.5) * 0.5;
+      }
 
-      nodes.forEach(node => {
-        node.x += node.vx;
-        node.y += node.vy;
-        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
-        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+      update() {
+        this.y += this.speed;
+        this.x += this.drift;
+        if (this.y > canvas.height + 10) this.reset();
+        if (this.x < -10 || this.x > canvas.width + 10) this.reset();
+      }
 
+      draw() {
         ctx.beginPath();
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2);
-        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, node.radius * 4);
-        gradient.addColorStop(0, 'rgba(0, 245, 255, 0.9)');
-        gradient.addColorStop(1, 'rgba(0, 245, 255, 0)');
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 3);
+        gradient.addColorStop(0, `rgba(${this.color}, ${this.opacity})`);
+        gradient.addColorStop(1, `rgba(${this.color}, 0)`);
         ctx.fillStyle = gradient;
         ctx.fill();
+      }
+    }
 
-        nodes.forEach(other => {
-          const dx = node.x - other.x;
-          const dy = node.y - other.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 180) {
-            const alpha = (1 - dist / 180) * 0.3;
-            ctx.strokeStyle = `rgba(0, 245, 255, ${alpha})`;
-            ctx.lineWidth = 0.8;
+    const particles = Array.from({ length: 150 }, () => new Particle());
+
+    // Floating orbs
+    class Orb {
+      constructor() {
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        this.radius = Math.random() * 100 + 50;
+        this.vx = (Math.random() - 0.5) * 0.3;
+        this.vy = (Math.random() - 0.5) * 0.3;
+        this.color = ['0, 245, 255', '167, 139, 250', '255, 107, 53'][Math.floor(Math.random() * 3)];
+      }
+
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        if (this.x < -this.radius || this.x > canvas.width + this.radius) this.vx *= -1;
+        if (this.y < -this.radius || this.y > canvas.height + this.radius) this.vy *= -1;
+      }
+
+      draw() {
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius);
+        gradient.addColorStop(0, `rgba(${this.color}, 0.08)`);
+        gradient.addColorStop(0.5, `rgba(${this.color}, 0.03)`);
+        gradient.addColorStop(1, `rgba(${this.color}, 0)`);
+        ctx.fillStyle = gradient;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+      }
+    }
+
+    const orbs = Array.from({ length: 5 }, () => new Orb());
+
+    const animate = () => {
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Draw orbs
+      orbs.forEach(orb => {
+        orb.update();
+        orb.draw();
+      });
+
+      // Draw and connect particles
+      particles.forEach(particle => {
+        particle.update();
+        particle.draw();
+      });
+
+      // Connect nearby particles
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+
+          if (distance < 120) {
             ctx.beginPath();
-            ctx.moveTo(node.x, node.y);
-            ctx.lineTo(other.x, other.y);
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(0, 245, 255, ${0.15 * (1 - distance / 120)})`;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
-        });
-      });
+        }
+      }
 
       animationId = requestAnimationFrame(animate);
     };
@@ -983,6 +1029,7 @@ export default function AdvancedInternships() {
           color: #fff;
           overflow-x: hidden;
           min-height: 100vh;
+          position: relative;
         }
 
         @keyframes slide-up {
@@ -998,13 +1045,6 @@ export default function AdvancedInternships() {
         @keyframes slide-in-right {
           from { transform: translateX(100px); opacity: 0; }
           to { transform: translateX(0); opacity: 1; }
-        }
-
-        @keyframes particle-float {
-          0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
-          10% { opacity: 1; }
-          90% { opacity: 1; }
-          100% { transform: translateY(-100vh) rotate(720deg); opacity: 0; }
         }
 
         @keyframes pulse-glow {
@@ -1023,9 +1063,20 @@ export default function AdvancedInternships() {
           100% { background-position: 0% 50%; }
         }
 
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+
         .view-mode-btn:hover {
           transform: translateY(-5px) scale(1.05);
           box-shadow: 0 20px 50px rgba(0, 245, 255, 0.4);
+        }
+
+        .glass-card {
+          background: rgba(255, 255, 255, 0.03);
+          backdrop-filter: blur(20px);
+          border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         @media (max-width: 1024px) {
@@ -1045,35 +1096,77 @@ export default function AdvancedInternships() {
         }} />
       </div>
 
-      {/* Particles */}
-      {particles.map(particle => (
-        <div
-          key={particle.id}
-          style={{
-            position: 'fixed', left: `${particle.x}%`, top: `${particle.y}%`,
-            width: `${particle.size}px`, height: `${particle.size}px`,
-            background: 'rgba(0, 245, 255, 0.7)', borderRadius: '50%',
-            pointerEvents: 'none', animation: `particle-float ${particle.duration}s linear infinite`,
-            animationDelay: `${particle.delay}s`, boxShadow: '0 0 15px rgba(0, 245, 255, 0.8)',
-            zIndex: 1
-          }}
-        />
-      ))}
+      {/* Animated Background Canvas */}
+      <canvas 
+        ref={canvasRef} 
+        style={{ 
+          position: 'fixed', 
+          inset: 0, 
+          pointerEvents: 'none', 
+          zIndex: 1
+        }} 
+      />
 
-      {/* Background */}
+      {/* Gradient Orbs Background Layer */}
       <div style={{
-        position: 'fixed', inset: 0,
-        background: `
-          radial-gradient(circle at 20% 80%, rgba(0, 245, 255, 0.15) 0%, transparent 50%),
-          radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-          radial-gradient(circle at 50% 50%, rgba(255, 107, 53, 0.1) 0%, transparent 50%)
-        `,
-        opacity: 0.8, pointerEvents: 'none', zIndex: 1
-      }} />
+        position: 'fixed',
+        inset: 0,
+        zIndex: 2,
+        pointerEvents: 'none',
+        overflow: 'hidden'
+      }}>
+        <div style={{
+          position: 'absolute',
+          width: '600px',
+          height: '600px',
+          top: '10%',
+          left: '10%',
+          background: 'radial-gradient(circle, rgba(0, 245, 255, 0.15) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          animation: 'float 20s ease-in-out infinite',
+          transform: `translate(${mousePosition.x}px, ${mousePosition.y}px)`
+        }} />
+        <div style={{
+          position: 'absolute',
+          width: '500px',
+          height: '500px',
+          top: '60%',
+          right: '10%',
+          background: 'radial-gradient(circle, rgba(167, 139, 250, 0.15) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          animation: 'float 25s ease-in-out infinite reverse',
+          animationDelay: '-5s',
+          transform: `translate(${-mousePosition.x}px, ${-mousePosition.y}px)`
+        }} />
+        <div style={{
+          position: 'absolute',
+          width: '450px',
+          height: '450px',
+          bottom: '20%',
+          left: '50%',
+          background: 'radial-gradient(circle, rgba(255, 107, 53, 0.12) 0%, transparent 70%)',
+          borderRadius: '50%',
+          filter: 'blur(60px)',
+          animation: 'float 30s ease-in-out infinite',
+          animationDelay: '-10s',
+          transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)`
+        }} />
+      </div>
 
-      {/* Neural Network Canvas */}
-      <canvas ref={canvasRef} style={{ 
-        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 2, opacity: 0.6
+      {/* Grid Pattern Overlay */}
+      <div style={{
+        position: 'fixed',
+        inset: 0,
+        zIndex: 3,
+        pointerEvents: 'none',
+        backgroundImage: `
+          linear-gradient(rgba(0, 245, 255, 0.03) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(0, 245, 255, 0.03) 1px, transparent 1px)
+        `,
+        backgroundSize: '50px 50px',
+        opacity: 0.3
       }} />
 
       {/* Content */}

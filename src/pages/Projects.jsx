@@ -1,519 +1,376 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
-  ExternalLink, Github, Rocket, Star, X, CheckCircle2,
-  Terminal, Sparkles, Layers, Mail, Award, Brain, Cpu,
-  Code, Zap, Cloud, Database, Server, Globe, Heart,
-  Trophy, Briefcase, GraduationCap, Users, Search, Filter,
-  Grid, List, TrendingUp, Eye, Download, Share2, AlertCircle,
-  Film, Play, Box, Crosshair, Target, Flame, Activity,
-  ArrowRight, ChevronDown, Menu, Maximize2, GitBranch,
-  Linkedin, Twitter, BookOpen, MessageSquare, Calendar,
-  MapPin, Clock, Send, Phone, FileText, BarChart3,
-  Lightbulb, Package, Settings, Shield, Wifi, Coffee,
-  Smartphone, Monitor, Headphones, Video, Music, Camera,
-  Link, Copy, Check, ThumbsUp, Share, Bookmark
+  ExternalLink, Github, Star, X, CheckCircle2, Terminal, Sparkles,
+  Code, Zap, Eye, TrendingUp, Heart, Bookmark, Share2, ArrowRight,
+  ChevronDown, Search, Filter, Grid, List, Award, Trophy, Target,
+  Lightbulb, AlertCircle, Clock, Users, Activity, BarChart3, Rocket,
+  Layers, Brain, Cpu, Play, Download, Copy, Check, GitBranch, Globe
 } from 'lucide-react';
 
-const allProjects = [
+const projects = [
   {
     id: 1,
     title: "ATS Resume Builder Platform",
     github: "https://github.com/bhagavan444/Resumebuilderwebapp",
-    live: "https://melody-nap-17037283.figma.site",
-    demo: "https://www.youtube.com/embed/demo1",
+    live: "https://resumebuilder-demo.vercel.app",
     desc: "AI-powered platform that helps job seekers build ATS-optimized resumes and dramatically improve shortlisting chances.",
-    longDesc: "Developed a complete full-stack ATS Resume Builder that uses AI to analyze job descriptions, suggest keywords, optimize formatting, and generate ATS-friendly PDFs in real-time. Includes real-time scoring, multiple professional templates, and export functionality.",
+    longDesc: "Developed a complete full-stack ATS Resume Builder that uses AI to analyze job descriptions, suggest keywords, optimize formatting, and generate ATS-friendly PDFs in real-time.",
     problem: "Many qualified candidates get rejected because their resumes fail Applicant Tracking System (ATS) filters.",
     solution: "Built an intelligent resume builder that parses job descriptions, suggests missing keywords, and generates perfectly formatted ATS-compatible resumes.",
-    myRole: "Full ownership — Designed UI/UX, developed complete frontend & backend, implemented ATS scoring engine, keyword optimization, and PDF generation.",
-    techUsed: ["React", "Node.js", "MongoDB", "JWT", "Resume Parsing", "PDF Generation", "AI Keyword Matching"],
-    impact: [
-      "Improved resume shortlisting probability by up to 2×",
-      "Thousands of resumes generated with high success rate",
-      "Real-time ATS scoring & keyword suggestions"
+    role: "Full ownership — Designed UI/UX, developed complete frontend & backend, implemented ATS scoring engine.",
+    tech: [
+      { name: "React", icon: "⚛️", color: "#61DAFB" },
+      { name: "Node.js", icon: "🟢", color: "#339933" },
+      { name: "MongoDB", icon: "🍃", color: "#47A248" },
+      { name: "JWT", icon: "🔐", color: "#000000" },
+      { name: "AI", icon: "🤖", color: "#412991" },
+      { name: "PDF.js", icon: "📄", color: "#EC1C24" }
     ],
-    highlights: ["ATS-Friendly Templates", "Real-Time Scoring", "Keyword Optimization", "PDF Export", "Job Description Analysis"],
-    stats: { atsScore: "90%+", templates: "10+", resumesBuilt: "3k+", shortlistingBoost: "2×" },
-    tags: ["ATS Optimization", "Resume Builder", "Full-Stack", "AI", "Career Tools"],
+    impact: ["2× improved shortlisting", "3k+ resumes built", "90%+ ATS score"],
+    stats: { score: "90%+", users: "3k+", boost: "2×" },
+    tags: ["ATS", "AI", "Full-Stack", "Career"],
     category: "AI",
     icon: "📄",
-    img: "https://lh3.googleusercontent.com/d/1gSVeUalkdrQAgl0rBNdOm_g2I-kmQgia",
+    img: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=800&auto=format&fit=crop",
     color: "#00f5ff",
-    glowRGB: "0, 245, 255",
     featured: true,
     views: "12.5k",
-    downloads: "3.2k",
     likes: 342,
     stars: 89,
-    forks: 23,
-    timeline: "3 months",
-    team: "Solo",
-    status: "Production"
+    year: "2024",
+    duration: "3 months",
+    teamSize: "Solo",
+    metrics: [
+      { label: "User Retention", value: "85%", trend: "+12%" },
+      { label: "Avg Session", value: "8.5min", trend: "+25%" },
+      { label: "Success Rate", value: "92%", trend: "+18%" }
+    ]
   },
   {
     id: 2,
-    title: "AI Workspace – Multi-Modal AI Platform",
+    title: "AI Chat Workspace",
     github: "https://github.com/bhagavan444/chatbotwebapp",
-    live: "https://bhagavanai.lovable.app/",
-    demo: null,
-    desc: "Enterprise-grade AI workspace for research, automation, content generation, and multi-modal interactions in one unified interface.",
-    longDesc: "A powerful all-in-one AI platform supporting text, images, PDFs, code generation, and advanced prompt engineering — designed for professionals and teams.",
+    live: "https://ai-workspace-demo.vercel.app",
+    desc: "Enterprise-grade AI workspace for research, automation, content generation, and multi-modal interactions.",
+    longDesc: "A powerful all-in-one AI platform supporting text, images, PDFs, code generation, and advanced prompt engineering.",
     problem: "Professionals juggle multiple disconnected AI tools, losing context and productivity.",
-    solution: "Created a unified multi-modal AI workspace with ultra-fast responses, memory context, file understanding, and premium UI/UX.",
-    myRole: "Led product vision, UI/UX design, frontend architecture, prompt engineering, and performance optimization.",
-    techUsed: ["React", "AI APIs", "Prompt Engineering", "File Parsing", "Real-time Processing"],
-    impact: [
-      "Eliminated tool-switching overhead",
-      "Enabled 3× faster AI-driven workflows",
-      "Premium enterprise-grade experience"
+    solution: "Created a unified multi-modal AI workspace with ultra-fast responses, memory context, and premium UI/UX.",
+    role: "Led product vision, UI/UX design, frontend architecture, and performance optimization.",
+    tech: [
+      { name: "React", icon: "⚛️", color: "#61DAFB" },
+      { name: "TypeScript", icon: "📘", color: "#3178C6" },
+      { name: "TailwindCSS", icon: "🎨", color: "#06B6D4" },
+      { name: "OpenAI", icon: "🤖", color: "#412991" },
+      { name: "Vercel", icon: "▲", color: "#000000" },
+      { name: "Redis", icon: "🔴", color: "#DC382D" }
     ],
-    highlights: ["Unified Workspace", "Multi-Modal Input", "Ultra-Fast Responses", "Premium UI", "Context Memory"],
-    stats: { speed: "Ultra-Fast", modes: "Multi-Modal", quality: "Enterprise" },
-    tags: ["AI Platform", "Productivity", "Enterprise UI", "Multi-Modal AI"],
+    impact: ["3× faster workflows", "Enterprise-grade UX", "Multi-modal support"],
+    stats: { speed: "Ultra", modes: "Multi", quality: "Enterprise" },
+    tags: ["AI Platform", "Productivity", "Enterprise"],
     category: "AI",
     icon: "⚡",
-    img: "https://lh3.googleusercontent.com/d/1Rz65QllbOI8nPEGeTO2GJT8a11jdbPtc",
+    img: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&auto=format&fit=crop",
     color: "#a855f7",
-    glowRGB: "168, 85, 247",
     featured: true,
     views: "18.3k",
-    downloads: "5.1k",
     likes: 521,
     stars: 134,
-    forks: 45,
-    timeline: "4 months",
-    team: "Solo",
-    status: "Production"
+    year: "2024",
+    duration: "4 months",
+    teamSize: "Solo",
+    metrics: [
+      { label: "Response Time", value: "<500ms", trend: "-40%" },
+      { label: "Accuracy", value: "96%", trend: "+8%" },
+      { label: "Uptime", value: "99.9%", trend: "Stable" }
+    ]
   },
-    {
+  {
     id: 3,
-    title: "Career AI – Career Path Recommendation",
+    title: "Career AI Recommender",
     github: "https://github.com/bhagavan444/Career-Path-Recommendation",
-    live: "https://carrerweb.lovable.app/",
-        demo: null,
-    desc: "AI-powered career guidance platform that recommends personalized career paths based on skills, interests, and aptitude.",
-    longDesc: "Developed an intelligent recommendation system using Machine Learning that analyzes student profiles and suggests optimal career trajectories.",
+    live: "https://career-ai-demo.vercel.app",
+    desc: "AI-powered career guidance platform that recommends personalized career paths based on skills and interests.",
+    longDesc: "Intelligent recommendation system using Machine Learning that analyzes student profiles and suggests optimal career trajectories.",
     problem: "Students lack personalized career direction.",
-    solution: "Smart ML-based career recommendations.",
-    myRole: "Built full pipeline, backend, and frontend.",
-    techUsed: ["Python", "Machine Learning", "Flask", "Scikit-learn", "React"],
-    impact: ["Effective career recommendations", "Structured learning paths"],
-    highlights: ["ML-Driven Logic", "Interactive UI", "Skill Gap Analysis"],
-    stats: { accuracy: "92%", careers: "50+", responseTime: "<200ms" },
-    tags: ["AI", "ML", "EdTech", "Recommendation"],
+    solution: "Smart ML-based career recommendations with skill gap analysis.",
+    role: "Built full ML pipeline, backend, and frontend.",
+    tech: [
+      { name: "Python", icon: "🐍", color: "#3776AB" },
+      { name: "Flask", icon: "🔥", color: "#000000" },
+      { name: "Scikit-learn", icon: "📊", color: "#F7931E" },
+      { name: "Pandas", icon: "🐼", color: "#150458" },
+      { name: "React", icon: "⚛️", color: "#61DAFB" },
+      { name: "PostgreSQL", icon: "🐘", color: "#4169E1" }
+    ],
+    impact: ["92% accuracy", "50+ careers", "Structured paths"],
+    stats: { accuracy: "92%", careers: "50+", time: "<200ms" },
+    tags: ["AI", "ML", "EdTech"],
     category: "Machine Learning",
     icon: "🧭",
-    img: "https://lh3.googleusercontent.com/d/1pTnIysNCQgb3oHPOyofDKVkAe_acI2Bj",
+    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop",
     color: "#10b981",
-    glowRGB: "16, 185, 129",
     featured: true,
     views: "18.4k",
-    downloads: "4.9k",
     likes: 445,
     stars: 123,
-    forks: 34,
-    timeline: "3 months",
-    team: "Solo",
-    status: "Production"
+    year: "2024",
+    duration: "2 months",
+    teamSize: "Solo",
+    metrics: [
+      { label: "User Satisfaction", value: "4.8/5", trend: "+0.3" },
+      { label: "Recommendations", value: "15k+", trend: "+200%" },
+      { label: "Match Rate", value: "89%", trend: "+15%" }
+    ]
   },
   {
     id: 4,
-    title: "Heart Disease Prediction Platform",
+    title: "Heart Disease Predictor",
     github: "https://github.com/bhagavan444/Heart-Disease-Prediction",
-    live: null,
-    demo: null,
-    desc: "Machine learning web application that predicts heart disease risk using clinical data with 87% accuracy.",
-    longDesc: "Developed a complete ML pipeline and Flask web app that takes patient parameters and predicts heart disease probability with detailed explanations.",
-    problem: "Early detection of heart disease is critical but often delayed due to lack of accessible tools.",
+    live: "https://heart-predictor-demo.vercel.app",
+    desc: "Machine learning web app that predicts heart disease risk using clinical data with 87% accuracy.",
+    longDesc: "Complete ML pipeline and Flask web app that takes patient parameters and predicts heart disease probability.",
+    problem: "Early detection of heart disease is critical but often delayed.",
     solution: "User-friendly web platform powered by ML models trained on clinical datasets.",
-    myRole: "End-to-end development: data preprocessing, model training, evaluation, Flask backend, and responsive frontend.",
-    techUsed: ["Python", "Scikit-learn", "Flask", "Pandas", "HTML/CSS/JS"],
-    impact: [
-      "Achieved 87% prediction accuracy",
-      "Enabled fast, accessible health risk assessment",
-      "Educational tool for medical students"
+    role: "End-to-end development: data preprocessing, model training, Flask backend, and frontend.",
+    tech: [
+      { name: "Python", icon: "🐍", color: "#3776AB" },
+      { name: "Scikit-learn", icon: "📊", color: "#F7931E" },
+      { name: "Flask", icon: "🔥", color: "#000000" },
+      { name: "Pandas", icon: "🐼", color: "#150458" },
+      { name: "NumPy", icon: "🔢", color: "#013243" },
+      { name: "Bootstrap", icon: "🅱️", color: "#7952B3" }
     ],
-    highlights: ["ML-Based Prediction", "Clinical Feature Engineering", "Web Deployment"],
-    stats: { accuracy: "87%", predictions: "1.2k+" },
-    tags: ["Machine Learning", "Healthcare", "Flask", "Web App"],
+    impact: ["87% accuracy", "1.2k+ predictions", "Fast assessment"],
+    stats: { accuracy: "87%", predictions: "1.2k+", response: "Instant" },
+    tags: ["ML", "Healthcare", "Flask"],
     category: "Healthcare",
     icon: "❤️",
-    img: "https://lh3.googleusercontent.com/d/1Uy1JiAFMcAwMD0LZgm0J-bYiWuHpRzqq",
+    img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop",
     color: "#ff6b35",
-    glowRGB: "255, 107, 53",
     featured: false,
     views: "9.4k",
-    downloads: "2.1k",
     likes: 234,
     stars: 67,
-    forks: 19,
-    timeline: "2 months",
-    team: "Solo",
-    status: "Production"
-  },
-  {
-    id: 8,
-    title: "NEWS AI – Fake News Detection",
-    github: "https://github.com/bhagavan444/News-detector",
-    live: "https://bliss-gala-22285345.figma.site/",
-    demo: null,
-    desc: "Advanced NLP & Deep Learning system for real-time fake news detection with explainable AI outputs.",
-    longDesc: "Built an end-to-end ML pipeline using TF-IDF + LSTM that classifies news articles with 95% accuracy and provides reasoning for predictions.",
-    problem: "Fake news spreads misinformation and affects public decision-making.",
-    solution: "High-accuracy NLP model with explainable outputs deployed as a real-time detection system.",
-    myRole: "Complete ML pipeline: data collection, preprocessing, feature engineering, model training, evaluation, and deployment.",
-    techUsed: ["Python", "NLP", "LSTM", "TensorFlow", "TF-IDF", "Explainable AI"],
-    impact: [
-      "Achieved 95% classification accuracy",
-      "Processed millions of articles",
-      "Provided transparent, explainable predictions"
-    ],
-    highlights: ["95% Accuracy", "Explainable AI", "Real-Time Analysis", "Large-Scale Dataset"],
-    stats: { accuracy: "95%", articles: "1M+", responseTime: "<100ms" },
-    tags: ["NLP", "Machine Learning", "AI Safety", "Deep Learning"],
-    category: "Machine Learning",
-    icon: "🛡️",
-    img: "https://lh3.googleusercontent.com/d/1zVrR2EdQoPvSSvfnVox0xBoc5qbgr96r",
-    color: "#a855f7",
-    glowRGB: "168, 85, 247",
-    featured: true,
-    views: "22.8k",
-    downloads: "6.7k",
-    likes: 678,
-    stars: 189,
-    forks: 56,
-    timeline: "4 months",
-    team: "Solo",
-    status: "Production"
+    year: "2023",
+    duration: "6 weeks",
+    teamSize: "Solo",
+    metrics: [
+      { label: "Precision", value: "85%", trend: "+5%" },
+      { label: "Recall", value: "89%", trend: "+7%" },
+      { label: "F1 Score", value: "87%", trend: "+6%" }
+    ]
   },
   {
     id: 5,
-    title: " AI Project Generator",
-    github: null,
-    live: "https://aiprojecttool.lovable.app",
-    demo: null,
-    desc: "AI-powered tool that instantly generates complete, production-ready software project structures from simple natural language prompts.",
-    longDesc: "Transforms vague ideas into fully structured, well-organized project repositories with folder structure, README, tech stack suggestions, and starter code.",
-    problem: "Developers waste hours setting up boilerplate, folder structure, and initial architecture.",
-    solution: "An intelligent AI system that understands requirements and generates clean, scalable project skeletons instantly.",
-    myRole: "Designed AI generation logic, prompt engineering, frontend interface, and output formatting.",
-    techUsed: ["React", "AI Models", "File System Generation", "Prompt Engineering"],
-    impact: [
-      "Saved developers 4–8 hours of setup time per project",
-      "Enabled lightning-fast prototyping",
-      "100k+ projects generated"
+    title: "Fake News Detector",
+    github: "https://github.com/bhagavan444/News-detector",
+    live: "https://news-detector-demo.vercel.app",
+    desc: "Advanced NLP & Deep Learning system for real-time fake news detection with explainable AI outputs.",
+    longDesc: "End-to-end ML pipeline using TF-IDF + LSTM that classifies news articles with 95% accuracy and provides reasoning.",
+    problem: "Fake news spreads misinformation and affects public decision-making.",
+    solution: "High-accuracy NLP model with explainable outputs deployed as real-time detection system.",
+    role: "Complete ML pipeline: data collection, preprocessing, feature engineering, model training, deployment.",
+    tech: [
+      { name: "Python", icon: "🐍", color: "#3776AB" },
+      { name: "TensorFlow", icon: "🧠", color: "#FF6F00" },
+      { name: "Keras", icon: "🔥", color: "#D00000" },
+      { name: "NLTK", icon: "📝", color: "#3776AB" },
+      { name: "Flask", icon: "🔥", color: "#000000" },
+      { name: "Docker", icon: "🐋", color: "#2496ED" }
     ],
-    highlights: ["Prompt-to-Code", "Clean Architecture", "Production-Ready Output", "Tech Stack Suggestions"],
-    stats: { projects: "100k+", satisfaction: "99.9%" },
-    tags: ["AI", "Developer Tools", "Automation", "Code Generation"],
-    category: "Developer Tools",
-    icon: "🚀",
-    img: "https://lh3.googleusercontent.com/d/1jE-44VOkR64pyjLZNKC3vLt8FIEzfg-g",
-    color: "#ff6b35",
-    glowRGB: "255, 107, 53",
+    impact: ["95% accuracy", "1M+ articles processed", "Transparent predictions"],
+    stats: { accuracy: "95%", articles: "1M+", time: "<100ms" },
+    tags: ["NLP", "ML", "AI Safety", "Deep Learning"],
+    category: "Machine Learning",
+    icon: "🛡️",
+    img: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&auto=format&fit=crop",
+    color: "#8b5cf6",
     featured: true,
-    views: "25.7k",
-    downloads: "8.9k",
-    likes: 892,
-    stars: 245,
-    forks: 78,
-    timeline: "2 months",
-    team: "Solo",
-    status: "Production"
-  },
-  {
-    id: 7,
-    title: "AI System Design Platform",
-    github: null,
-    live: "https://archmind-spark.lovable.app/",
-    demo: null,
-    desc: "AI-powered platform that generates scalable, production-grade system architectures with trade-off analysis and best practices.",
-    longDesc: "Helps engineers and students design high-level system architectures for real-world problems with detailed explanations and scalability considerations.",
-    problem: "System design interviews and real-world architecture planning require deep expertise and time.",
-    solution: "AI that generates complete system designs, identifies bottlenecks, suggests improvements, and applies FAANG-level patterns.",
-    myRole: "Designed AI reasoning engine, architecture visualization, prompt chains, and interactive UI.",
-    techUsed: ["System Design", "AI Reasoning", "Scalability Patterns", "React"],
-    impact: [
-      "Helped users master system design concepts faster",
-      "Generated 50k+ professional architectures",
-      "Applied real-world best practices"
-    ],
-    highlights: ["AI Architecture Generation", "Trade-Off Analysis", "Scalable Patterns", "FAANG-Level Designs"],
-    stats: { architectures: "50k+", uptime: "99%", latency: "<50ms" },
-    tags: ["System Design", "Scalability", "AI", "Interview Prep"],
-    category: "AI",
-    icon: "🧠",
-    img: "https://lh3.googleusercontent.com/d/1sYsWzyDIuWAF-wz3A6iNorF3ATCpKXPF",
-    color: "#00f5ff",
-    glowRGB: "0, 245, 255",
-    featured: true,
-    views: "31.2k",
-    downloads: "11.4k",
-    likes: 1123,
-    stars: 312,
-    forks: 95,
-    timeline: "5 months",
-    team: "Solo",
-    status: "Production"
-  },
-  {
-  id: 8,
-  title: "NeuralLearn – AI-Powered Adaptive Learning Platform",
-  github: null,
-  live: "https://neurallearn.lovable.app/",
-  demo: null,
-  desc: "AI-driven learning platform that adapts content based on quizzes, tests, and user performance to deliver personalized learning experiences.",
-  longDesc: "NeuralLearn is an intelligent learning platform where users learn through interactive quizzes and assessments. The AI continuously evaluates user performance, identifies strengths and gaps, and dynamically adapts learning paths, difficulty levels, and recommendations to optimize understanding and retention.",
-  problem: "Traditional learning platforms follow a one-size-fits-all approach and fail to adapt to individual learner strengths, weaknesses, and progress.",
-  solution: "NeuralLearn uses AI-powered assessment and quiz-based evaluation to personalize learning. It adjusts content difficulty, recommends focused topics, and tracks progress to ensure efficient, outcome-driven learning.",
-  myRole: "Designed the adaptive learning logic, AI quiz evaluation system, performance-based recommendations, interactive UI, and overall platform architecture.",
-  techUsed: [
-    "Adaptive Learning Systems",
-    "AI Reasoning",
-    "Quiz-Based Evaluation",
-    "Performance Analytics",
-    "React"
-  ],
-  impact: [
-    "Improved learning efficiency through personalized content",
-    "Helped users identify weak areas using AI-driven quizzes",
-    "Enabled continuous skill improvement with adaptive testing"
-  ],
-  highlights: [
-    "AI-Based Adaptive Learning",
-    "Quiz & Test Driven Personalization",
-    "Performance Tracking & Analytics",
-    "Smart Content Recommendations"
-  ],
-  stats: {
-    learners: "25k+",
-    quizzesTaken: "120k+",
-    uptime: "99%",
-    latency: "<50ms"
-  },
-  tags: [
-    "AI",
-    "Adaptive Learning",
-    "Quizzes",
-    "EdTech",
-    "Personalized Education"
-  ],
-  category: "AI",
-  icon: "🧠",
-  img: "https://lh3.googleusercontent.com/d/1-5CHMxhjfpfaYVcVlCExNPeGr4ew9CJq",
-  color: "#8b5cf6",
-  glowRGB: "139, 92, 246",
-  featured: true,
-  views: "31.2k",
-  downloads: "11.4k",
-  likes: 1123,
-  stars: 312,
-  forks: 95,
-  timeline: "5 months",
-  team: "Solo",
-  status: "Production"
-},
-
-
+    views: "22.8k",
+    likes: 678,
+    stars: 189,
+    year: "2024",
+    duration: "5 months",
+    teamSize: "Solo",
+    metrics: [
+      { label: "Detection Speed", value: "95ms", trend: "-35%" },
+      { label: "False Positives", value: "3.2%", trend: "-45%" },
+      { label: "Explainability", value: "98%", trend: "+12%" }
+    ]
+  }
 ];
 
-const developerInfo = {
-  name: "Bhagavan G",
-  title: "Full-Stack AI Engineer",
-  tagline: "Building the future with AI, one line of code at a time",
-  location: "Gudivada, India",
-  email: "g.sivasatyasaibhagavan@gmail.com",
-  github: "https://github.com/bhagavan444",
-  linkedin: "https://linkedin.com/in/bhagavan-g",
-  twitter: "https://twitter.com/bhagavan_dev",
-  experience: "0+ Years",
-  projects: "5+",
-  contributions: "200+",
-  availability: "Open to Opportunities"
-};
-
-export default function AdvancedDeveloperShowcase() {
+export default function Projects() {
   const [activeProject, setActiveProject] = useState(null);
-  const [hoveredId, setHoveredId] = useState(null);
   const [filter, setFilter] = useState('all');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [projectType, setProjectType] = useState('all');
-  const [sortBy, setSortBy] = useState('featured');
-  const [viewMode, setViewMode] = useState('grid');
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [showContact, setShowContact] = useState(false);
-  const [copiedLink, setCopiedLink] = useState(false);
-  const [likedProjects, setLikedProjects] = useState(new Set());
-  const [bookmarkedProjects, setBookmarkedProjects] = useState(new Set());
-  const [particlesEnabled, setParticlesEnabled] = useState(true);
+  const [search, setSearch] = useState('');
+  const [view, setView] = useState('grid');
+  const [sort, setSort] = useState('featured');
+  const [liked, setLiked] = useState(new Set());
+  const [bookmarked, setBookmarked] = useState(new Set());
+  const [hoveredCard, setHoveredCard] = useState(null);
   const [activeTab, setActiveTab] = useState('overview');
-  const heroRef = useRef(null);
+  const [copiedLink, setCopiedLink] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [visibleProjects, setVisibleProjects] = useState(new Set());
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const projectRefs = useRef([]);
+  const sectionRef = useRef(null);
   const canvasRef = useRef(null);
+  const particlesRef = useRef([]);
 
-  const categories = ['all', ...new Set(allProjects.map(p => p.category))];
+  const categories = ['all', ...new Set(projects.map(p => p.category))];
 
-  // Particle animation
-  useEffect(() => {
-    if (!particlesEnabled || !canvasRef.current) return;
-    
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    const particles = [];
-    const particleCount = 100;
-
-    for (let i = 0; i < particleCount; i++) {
-      particles.push({
-        x: Math.random() * canvas.width,
-        y: Math.random() * canvas.height,
-        vx: (Math.random() - 0.5) * 0.5,
-        vy: (Math.random() - 0.5) * 0.5,
-        radius: Math.random() * 2
-      });
-    }
-
-    let animationFrame;
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      particles.forEach(particle => {
-        particle.x += particle.vx;
-        particle.y += particle.vy;
-
-        if (particle.x < 0 || particle.x > canvas.width) particle.vx *= -1;
-        if (particle.y < 0 || particle.y > canvas.height) particle.vy *= -1;
-
-        ctx.beginPath();
-        ctx.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        ctx.fillStyle = 'rgba(102, 126, 234, 0.5)';
-        ctx.fill();
-      });
-
-      // Connect nearby particles
-      particles.forEach((p1, i) => {
-        particles.slice(i + 1).forEach(p2 => {
-          const dx = p1.x - p2.x;
-          const dy = p1.y - p2.y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-
-          if (distance < 150) {
-            ctx.beginPath();
-            ctx.strokeStyle = `rgba(102, 126, 234, ${0.2 * (1 - distance / 150)})`;
-            ctx.lineWidth = 0.5;
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-          }
-        });
-      });
-
-      animationFrame = requestAnimationFrame(animate);
-    };
-
-    animate();
-
-    return () => cancelAnimationFrame(animationFrame);
-  }, [particlesEnabled]);
-
-  // Mouse parallax effect
+  // Mouse tracking for interactive background
   useEffect(() => {
     const handleMouseMove = (e) => {
-      setMousePosition({
-        x: (e.clientX / window.innerWidth) * 100,
-        y: (e.clientY / window.innerHeight) * 100
-      });
+      setMousePosition({ x: e.clientX, y: e.clientY });
     };
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
+  // Animated Particles Canvas
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    // Initialize particles
+    const particles = Array.from({ length: 80 }, () => ({
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      vx: (Math.random() - 0.5) * 0.5,
+      vy: (Math.random() - 0.5) * 0.5,
+      r: Math.random() * 2 + 1,
+      color: `rgba(${Math.random() > 0.5 ? '102, 126, 234' : '168, 85, 247'}, ${Math.random() * 0.3 + 0.2})`
+    }));
+    particlesRef.current = particles;
+
+    let frame;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      particles.forEach((p, i) => {
+        // Update position
+        p.x += p.vx;
+        p.y += p.vy;
+        
+        // Bounce off edges
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        
+        // Draw particle
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = p.color;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+        
+        // Draw connections
+        particles.slice(i + 1).forEach(p2 => {
+          const dx = p.x - p2.x;
+          const dy = p.y - p2.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          
+          if (dist < 120) {
+            ctx.beginPath();
+            ctx.strokeStyle = `rgba(102, 126, 234, ${0.15 * (1 - dist / 120)})`;
+            ctx.lineWidth = 0.5;
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(p2.x, p2.y);
+            ctx.stroke();
+          }
+        });
+      });
+      
+      frame = requestAnimationFrame(animate);
+    };
+    animate();
+
+    const handleResize = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  // Intersection Observer for scroll animations
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            const index = projectRefs.current.indexOf(entry.target);
+            if (index !== -1) {
+              setVisibleProjects(prev => new Set([...prev, index]));
+            }
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '50px' }
+    );
+
+    projectRefs.current.forEach(ref => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, []);
+
   // Scroll progress
   useEffect(() => {
     const handleScroll = () => {
-      const scrolled = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress((scrolled / maxScroll) * 100);
+      if (sectionRef.current) {
+        const { top, height } = sectionRef.current.getBoundingClientRect();
+        const progress = Math.max(0, Math.min(100, ((window.innerHeight - top) / (height + window.innerHeight)) * 100));
+        setScrollProgress(progress);
+      }
     };
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Intersection Observer for animations
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('animate-in');
-          }
-        });
-      },
-      { threshold: 0.1 }
-    );
-
-    document.querySelectorAll('.fade-in-element').forEach((el) => {
-      observer.observe(el);
-    });
-
-    return () => observer.disconnect();
-  }, [filter, searchTerm, projectType, sortBy]);
-
-  const filteredProjects = allProjects
+  const filtered = projects
     .filter(p => filter === 'all' || p.category === filter)
-    .filter(p => {
-      if (projectType === 'github') return p.github !== null;
-      if (projectType === 'live') return p.live !== null;
-      return true;
-    })
-    .filter(p =>
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.desc.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
-    )
+    .filter(p => p.title.toLowerCase().includes(search.toLowerCase()) || p.tags.some(t => t.toLowerCase().includes(search.toLowerCase())))
     .sort((a, b) => {
-      if (sortBy === 'featured') return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
-      if (sortBy === 'views') return parseFloat(b.views) - parseFloat(a.views);
-      if (sortBy === 'likes') return b.likes - a.likes;
+      if (sort === 'featured') return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+      if (sort === 'views') return parseFloat(b.views) - parseFloat(a.views);
+      if (sort === 'likes') return b.likes - a.likes;
       return 0;
     });
 
-  const totalViews = allProjects.reduce((sum, p) => sum + parseFloat(p.views), 0);
-  const totalDownloads = allProjects.reduce((sum, p) => sum + parseFloat(p.downloads), 0);
-  const totalLikes = allProjects.reduce((sum, p) => sum + p.likes, 0);
-  const totalStars = allProjects.reduce((sum, p) => sum + p.stars, 0);
-  const githubProjects = allProjects.filter(p => p.github).length;
-  const liveProjects = allProjects.filter(p => p.live).length;
-
-  const handleLike = (projectId) => {
-    setLikedProjects(prev => {
+  const handleLike = (id, e) => {
+    e?.stopPropagation();
+    setLiked(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(projectId)) {
-        newSet.delete(projectId);
-      } else {
-        newSet.add(projectId);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   };
 
-  const handleBookmark = (projectId) => {
-    setBookmarkedProjects(prev => {
+  const handleBookmark = (id, e) => {
+    e?.stopPropagation();
+    setBookmarked(prev => {
       const newSet = new Set(prev);
-      if (newSet.has(projectId)) {
-        newSet.delete(projectId);
-      } else {
-        newSet.add(projectId);
-      }
+      newSet.has(id) ? newSet.delete(id) : newSet.add(id);
       return newSet;
     });
   };
 
-  const copyProfileLink = () => {
-    navigator.clipboard.writeText(window.location.href);
+  const copyProjectLink = (project, e) => {
+    e?.stopPropagation();
+    navigator.clipboard.writeText(project.live || project.github);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };
@@ -521,3174 +378,1012 @@ export default function AdvancedDeveloperShowcase() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@400;500;600;700;800;900&display=swap');
-
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
-        body {
-          font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-          background: #000;
-          color: #fff;
-          overflow-x: hidden;
-          -webkit-font-smoothing: antialiased;
-          -moz-osx-font-smoothing: grayscale;
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* ADVANCED ANIMATIONS */
-        /* ═══════════════════════════════════════════════════════════ */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Orbitron:wght@500;600;700;800;900&display=swap');
         
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: #000; color: #fff; overflow-x: hidden; }
 
-        @keyframes fadeInScale {
-          from {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes fadeInScale { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        @keyframes slideInLeft { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes gradient { 0%, 100% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        @keyframes pulse { 0%, 100% { box-shadow: 0 0 20px currentColor; } 50% { box-shadow: 0 0 40px currentColor; } }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
+        @keyframes glow { 0%, 100% { text-shadow: 0 0 10px currentColor; } 50% { text-shadow: 0 0 20px currentColor, 0 0 30px currentColor; } }
+        @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes borderGlow { 0%, 100% { border-color: rgba(102, 126, 234, 0.5); } 50% { border-color: rgba(168, 85, 247, 0.8); } }
+        @keyframes ripple { 0% { transform: scale(0); opacity: 1; } 100% { transform: scale(2); opacity: 0; } }
+        @keyframes floatSlow { 0%, 100% { transform: translate(0, 0) rotate(0deg); } 33% { transform: translate(30px, -30px) rotate(120deg); } 66% { transform: translate(-20px, 20px) rotate(240deg); } }
+        @keyframes floatMedium { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-40px, -40px); } }
+        @keyframes orbitSlow { 0% { transform: rotate(0deg) translateX(100px) rotate(0deg); } 100% { transform: rotate(360deg) translateX(100px) rotate(-360deg); } }
+        @keyframes orbitFast { 0% { transform: rotate(0deg) translateX(150px) rotate(0deg); } 100% { transform: rotate(-360deg) translateX(150px) rotate(360deg); } }
+        @keyframes scaleBreath { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.2); opacity: 0.5; } }
+        @keyframes morphBlob { 0%, 100% { border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; } 50% { border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; } }
 
-        @keyframes slideInRight {
-          from {
-            opacity: 0;
-            transform: translateX(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes slideInLeft {
-          from {
-            opacity: 0;
-            transform: translateX(-50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes gradient-shift {
-          0%, 100% { background-position: 0% 50%; }
-          50% { background-position: 100% 50%; }
-        }
-
-        @keyframes float {
-          0%, 100% { transform: translateY(0px); }
-          50% { transform: translateY(-20px); }
-        }
-
-        @keyframes pulse-glow {
-          0%, 100% { box-shadow: 0 0 20px currentColor; }
-          50% { box-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
-        }
-
-        @keyframes shimmer {
-          0% { transform: translateX(-100%) rotate(45deg); }
-          100% { transform: translateX(200%) rotate(45deg); }
-        }
-
-        @keyframes rotate-gradient {
-          0% { transform: rotate(0deg); }
-          100% { transform: rotate(360deg); }
-        }
-
-        @keyframes bounce-slow {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-10px); }
-        }
-
-        @keyframes slide-up {
-          from {
-            opacity: 0;
-            transform: translateY(100px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes typing {
-          from { width: 0; }
-          to { width: 100%; }
-        }
-
-        @keyframes blink {
-          50% { border-color: transparent; }
-        }
-
-        @keyframes matrix-fall {
-          0% { transform: translateY(-100%); opacity: 1; }
-          100% { transform: translateY(100vh); opacity: 0; }
-        }
-
-        @keyframes glow-pulse {
-          0%, 100% { 
-            text-shadow: 0 0 10px currentColor,
-                         0 0 20px currentColor,
-                         0 0 30px currentColor;
-          }
-          50% { 
-            text-shadow: 0 0 20px currentColor,
-                         0 0 30px currentColor,
-                         0 0 40px currentColor,
-                         0 0 50px currentColor;
-          }
-        }
-
-        .fade-in-element {
-          opacity: 0;
-          transform: translateY(30px);
-          transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-                      transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .fade-in-element.animate-in {
-          opacity: 1;
-          transform: translateY(0);
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* GLASS MORPHISM ENHANCED */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .glass-card {
+        .glass {
           background: rgba(255, 255, 255, 0.03);
-          backdrop-filter: blur(30px) saturate(180%);
+          backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.08);
-          border-radius: 24px;
-          box-shadow: 
-            0 8px 32px 0 rgba(0, 0, 0, 0.37),
-            inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
-          position: relative;
-          overflow: hidden;
+          border-radius: 20px;
+          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.37);
         }
-
-        .glass-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 50%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.05),
-            transparent
-          );
-          transition: left 0.6s;
-        }
-
-        .glass-card:hover::before {
-          left: 100%;
-        }
-
-        .glass-button {
+        
+        .glass-btn {
           background: rgba(255, 255, 255, 0.05);
           backdrop-filter: blur(20px);
           border: 1px solid rgba(255, 255, 255, 0.1);
-          transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-          position: relative;
-          overflow: hidden;
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         }
-
-        .glass-button::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle at center,
-            rgba(255, 255, 255, 0.1) 0%,
-            transparent 70%
-          );
-          opacity: 0;
-          transition: opacity 0.3s;
-        }
-
-        .glass-button:hover {
-          background: rgba(255, 255, 255, 0.1);
-          border-color: rgba(255, 255, 255, 0.2);
-          transform: translateY(-2px);
-        }
-
-        .glass-button:hover::after {
-          opacity: 1;
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* PROJECT CARDS ENHANCED */
-        /* ═══════════════════════════════════════════════════════════ */
+        .glass-btn:hover { background: rgba(255, 255, 255, 0.1); transform: translateY(-2px); }
         
-        .project-card {
-          position: relative;
-          overflow: hidden;
-          transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-          cursor: pointer;
+        .card { 
+          position: relative; 
+          overflow: hidden; 
+          transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); 
         }
-
-        .project-card::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: -100%;
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(
-            90deg,
-            transparent,
-            rgba(255, 255, 255, 0.1),
-            transparent
-          );
-          transition: left 0.6s;
+        .card:hover { 
+          transform: translateY(-8px) scale(1.01); 
+          box-shadow: 0 20px 40px rgba(102, 126, 234, 0.3); 
         }
-
-        .project-card:hover::before {
-          left: 100%;
-        }
-
-        .project-card:hover {
-          transform: translateY(-12px) scale(1.02);
-        }
-
-        .project-card-image {
-          position: relative;
-          overflow: hidden;
-        }
-
-        .project-card-image img {
-          transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .project-card:hover .project-card-image img {
-          transform: scale(1.15) rotate(2deg);
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* GRADIENT TEXT ENHANCED */
-        /* ═══════════════════════════════════════════════════════════ */
+        .card img { transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1); }
+        .card:hover img { transform: scale(1.1); }
         
         .gradient-text {
           background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
           background-size: 200% 200%;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: gradient-shift 3s ease infinite;
+          animation: gradient 4s ease infinite;
         }
-
-        .gradient-text-cyan {
-          background: linear-gradient(135deg, #00f5ff 0%, #00a6fb 50%, #0582ca 100%);
-          background-size: 200% 200%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: gradient-shift 3s ease infinite;
-        }
-
-        .gradient-text-fire {
-          background: linear-gradient(135deg, #ff6b35 0%, #f7931e 50%, #fdc830 100%);
-          background-size: 200% 200%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: gradient-shift 3s ease infinite;
-        }
-
-        .gradient-text-neon {
-          background: linear-gradient(135deg, #00f5ff 0%, #a855f7 50%, #ff6b35 100%);
-          background-size: 200% 200%;
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-          animation: gradient-shift 3s ease infinite, glow-pulse 2s ease infinite;
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* SCROLL BAR */
-        /* ═══════════════════════════════════════════════════════════ */
         
-        ::-webkit-scrollbar {
-          width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: #000;
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(180deg, #667eea, #764ba2);
-          border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-          background: linear-gradient(180deg, #764ba2, #f093fb);
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* PREMIUM EFFECTS */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .magnetic-button {
-          transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .hover-lift {
-          transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .hover-lift:hover {
-          transform: translateY(-8px);
-        }
-
-        .shimmer-effect {
-          position: relative;
-          overflow: hidden;
-        }
-
-        .shimmer-effect::after {
+        .shimmer { position: relative; overflow: hidden; }
+        .shimmer::after {
           content: '';
           position: absolute;
-          top: -50%;
+          top: 0;
           left: -50%;
           width: 200%;
-          height: 200%;
-          background: linear-gradient(
-            45deg,
-            transparent 30%,
-            rgba(255, 255, 255, 0.1) 50%,
-            transparent 70%
-          );
-          animation: shimmer 3s infinite;
+          height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+          animation: shimmer 2.5s infinite;
         }
 
-        .gradient-border {
+        .tech-badge {
+          transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .tech-badge:hover {
+          transform: translateY(-3px) scale(1.05);
+        }
+
+        .metric-card {
           position: relative;
+          overflow: hidden;
         }
-
-        .gradient-border::before {
+        .metric-card::before {
           content: '';
           position: absolute;
-          inset: -2px;
-          border-radius: inherit;
-          padding: 2px;
-          background: linear-gradient(135deg, #667eea, #764ba2, #f093fb);
-          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
-          -webkit-mask-composite: xor;
-          mask-composite: exclude;
-          opacity: 0;
-          transition: opacity 0.4s;
-        }
-
-        .gradient-border:hover::before {
-          opacity: 1;
-        }
-
-        .neon-glow {
-          text-shadow: 
-            0 0 10px currentColor,
-            0 0 20px currentColor,
-            0 0 30px currentColor,
-            0 0 40px currentColor;
-        }
-
-        .holographic {
-          background: linear-gradient(
-            45deg,
-            #667eea 0%,
-            #764ba2 25%,
-            #f093fb 50%,
-            #667eea 75%,
-            #764ba2 100%
-          );
-          background-size: 400% 400%;
-          animation: gradient-shift 8s ease infinite;
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* 3D EFFECTS */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .card-3d {
-          transform-style: preserve-3d;
-          perspective: 1000px;
-        }
-
-        .card-3d:hover {
-          transform: rotateY(5deg) rotateX(5deg);
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* TYPING ANIMATION */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .typing-text {
-          overflow: hidden;
-          border-right: 2px solid #667eea;
-          white-space: nowrap;
-          margin: 0 auto;
-          animation: typing 3.5s steps(40, end), blink 0.75s step-end infinite;
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* PARTICLES CANVAS */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        #particles-canvas {
-          position: fixed;
           top: 0;
-          left: 0;
+          left: -100%;
           width: 100%;
           height: 100%;
-          pointer-events: none;
-          z-index: 1;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+          transition: left 0.5s;
+        }
+        .metric-card:hover::before {
+          left: 100%;
         }
 
-        /* ═══════════════════════════════════════════════════════════ */
-        /* FLOATING BADGES */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .floating-badge {
-          animation: float 3s ease-in-out infinite;
-        }
-
-        .floating-badge:nth-child(2) {
-          animation-delay: 0.5s;
-        }
-
-        .floating-badge:nth-child(3) {
-          animation-delay: 1s;
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* RESPONSIVE */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        @media (max-width: 768px) {
-          .mobile-menu {
-            position: fixed;
-            top: 0;
-            right: -100%;
-            width: 80%;
-            height: 100vh;
-            background: rgba(10, 10, 30, 0.98);
-            backdrop-filter: blur(20px);
-            transition: right 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            z-index: 9999;
-            padding: 2rem;
-          }
-
-          .mobile-menu.open {
-            right: 0;
-          }
-        }
-
-        /* ═══════════════════════════════════════════════════════════ */
-        /* SPECIAL EFFECTS */
-        /* ═══════════════════════════════════════════════════════════ */
-        
-        .cyber-glitch {
+        .tab-btn {
           position: relative;
+          padding: 1rem 2rem;
+          background: transparent;
+          border: none;
+          color: #a0aec0;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.3s;
         }
-
-        .cyber-glitch::before,
-        .cyber-glitch::after {
-          content: attr(data-text);
+        .tab-btn.active { color: #667eea; }
+        .tab-btn::after {
+          content: '';
           position: absolute;
-          top: 0;
+          bottom: 0;
           left: 0;
           width: 100%;
-          height: 100%;
+          height: 3px;
+          background: linear-gradient(90deg, #667eea, #764ba2);
+          transform: scaleX(0);
+          transition: transform 0.3s;
         }
+        .tab-btn.active::after { transform: scaleX(1); }
 
-        .cyber-glitch::before {
-          left: 2px;
-          text-shadow: -2px 0 #667eea;
-          animation: glitch-anim 2s infinite linear alternate-reverse;
-        }
+        .floating { animation: float 3s ease-in-out infinite; }
+        .glow-border { animation: borderGlow 3s ease-in-out infinite; }
 
-        .cyber-glitch::after {
-          left: -2px;
-          text-shadow: -2px 0 #764ba2;
-          animation: glitch-anim 3s infinite linear alternate-reverse;
-        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #000; }
+        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 10px; }
 
-        @keyframes glitch-anim {
-          0% { clip-path: inset(40% 0 61% 0); }
-          20% { clip-path: inset(92% 0 1% 0); }
-          40% { clip-path: inset(43% 0 1% 0); }
-          60% { clip-path: inset(25% 0 58% 0); }
-          80% { clip-path: inset(54% 0 7% 0); }
-          100% { clip-path: inset(58% 0 43% 0); }
+        @media (max-width: 768px) {
+          .grid-responsive { grid-template-columns: 1fr !important; }
         }
       `}</style>
 
-      {/* Particles Canvas */}
-      <canvas
-        ref={canvasRef}
-        id="particles-canvas"
-        style={{ opacity: particlesEnabled ? 1 : 0, transition: 'opacity 0.5s' }}
-      />
-
-      {/* Progress Bar */}
-      <div
-        style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          width: `${scrollProgress}%`,
-          height: '4px',
-          background: 'linear-gradient(90deg, #667eea, #764ba2, #f093fb)',
-          zIndex: 10000,
-          transition: 'width 0.1s',
-          boxShadow: '0 0 20px #667eea'
-        }}
-      />
-
-      {/* Floating Action Bar */}
-      <div
-        className="glass-card"
-        style={{
-          position: 'fixed',
-          bottom: '2rem',
-          right: '2rem',
-          zIndex: 9999,
-          padding: '1rem',
-          display: 'flex',
-          flexDirection: 'column',
-          gap: '1rem',
-          borderRadius: '100px'
-        }}
-      >
-        <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="glass-button"
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}
-          title="Scroll to top"
-        >
-          <ArrowRight size={20} style={{ transform: 'rotate(-90deg)', color: '#667eea' }} />
-        </button>
-
-        <button
-          onClick={() => setShowContact(true)}
-          className="glass-button"
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}
-          title="Contact me"
-        >
-          <Mail size={20} style={{ color: '#764ba2' }} />
-        </button>
-
-        <button
-          onClick={copyProfileLink}
-          className="glass-button"
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}
-          title="Copy profile link"
-        >
-          {copiedLink ? (
-            <Check size={20} style={{ color: '#10b981' }} />
-          ) : (
-            <Link size={20} style={{ color: '#f093fb' }} />
-          )}
-        </button>
-
-        <button
-          onClick={() => setParticlesEnabled(!particlesEnabled)}
-          className="glass-button"
-          style={{
-            width: '50px',
-            height: '50px',
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            cursor: 'pointer'
-          }}
-          title="Toggle particles"
-        >
-          <Sparkles size={20} style={{ color: particlesEnabled ? '#ffd700' : '#666' }} />
-        </button>
-      </div>
-
-      {/* Main Container */}
-      <div
-        style={{
-          minHeight: '100vh',
-          background: 'radial-gradient(ellipse at top, #0f0f23 0%, #000000 100%)',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Animated Gradient Orbs */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '10%',
-            left: `${mousePosition.x * 0.05}%`,
-            width: '600px',
-            height: '600px',
-            background: 'radial-gradient(circle, rgba(102, 126, 234, 0.2) 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(80px)',
-            pointerEvents: 'none',
-            transition: 'all 0.3s ease-out'
-          }}
+      <div ref={sectionRef} style={{ minHeight: '100vh', background: 'radial-gradient(ellipse at top, #0f0f23 0%, #000 100%)', position: 'relative', padding: '4rem 2rem', overflow: 'hidden' }}>
+        {/* Animated Particles Canvas */}
+        <canvas 
+          ref={canvasRef} 
+          style={{ 
+            position: 'fixed', 
+            top: 0, 
+            left: 0, 
+            width: '100%', 
+            height: '100%', 
+            pointerEvents: 'none', 
+            zIndex: 1,
+            opacity: 0.6
+          }} 
         />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '10%',
-            right: `${mousePosition.y * 0.05}%`,
-            width: '700px',
-            height: '700px',
-            background: 'radial-gradient(circle, rgba(118, 75, 162, 0.15) 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(100px)',
-            pointerEvents: 'none',
-            transition: 'all 0.3s ease-out'
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
+
+        {/* ========== CIRCLES ========== */}
+        
+        {/* Large Gradient Circle Orbs */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '10%', 
+          left: '5%', 
+          width: '600px', 
+          height: '600px', 
+          background: 'radial-gradient(circle, rgba(102, 126, 234, 0.3), transparent 70%)', 
+          borderRadius: '50%', 
+          filter: 'blur(80px)', 
+          animation: 'scaleBreath 8s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 2
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '50%', 
+          right: '10%', 
+          width: '700px', 
+          height: '700px', 
+          background: 'radial-gradient(circle, rgba(168, 85, 247, 0.25), transparent 70%)', 
+          borderRadius: '50%', 
+          filter: 'blur(90px)', 
+          animation: 'scaleBreath 10s ease-in-out infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 2
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '5%', 
+          left: '40%', 
+          width: '550px', 
+          height: '550px', 
+          background: 'radial-gradient(circle, rgba(0, 245, 255, 0.2), transparent 70%)', 
+          borderRadius: '50%', 
+          filter: 'blur(75px)', 
+          animation: 'scaleBreath 12s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 2
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '30%', 
+          left: '50%', 
+          width: '500px', 
+          height: '500px', 
+          background: 'radial-gradient(circle, rgba(236, 72, 153, 0.18), transparent 70%)', 
+          borderRadius: '50%', 
+          filter: 'blur(70px)', 
+          animation: 'scaleBreath 9s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 2
+        }} />
+
+        {/* Rotating Circle Rings - Large */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '15%', 
+          right: '15%', 
+          width: '300px', 
+          height: '300px', 
+          border: '3px solid rgba(102, 126, 234, 0.3)', 
+          borderRadius: '50%', 
+          animation: 'rotate 25s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }}>
+          <div style={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            width: '220px', 
+            height: '220px', 
+            border: '2px solid rgba(168, 85, 247, 0.25)', 
+            borderRadius: '50%', 
             transform: 'translate(-50%, -50%)',
-            width: '800px',
-            height: '800px',
-            background: 'radial-gradient(circle, rgba(240, 147, 251, 0.1) 0%, transparent 70%)',
-            borderRadius: '50%',
-            filter: 'blur(120px)',
-            pointerEvents: 'none',
-            animation: 'float 8s ease-in-out infinite'
-          }}
-        />
+            animation: 'rotate 18s linear infinite reverse'
+          }}>
+            <div style={{ 
+              position: 'absolute', 
+              top: '50%', 
+              left: '50%', 
+              width: '140px', 
+              height: '140px', 
+              border: '2px solid rgba(0, 245, 255, 0.2)', 
+              borderRadius: '50%', 
+              transform: 'translate(-50%, -50%)',
+              animation: 'rotate 12s linear infinite'
+            }} />
+          </div>
+        </div>
 
-        {/* Content */}
-        <div
-          style={{
-            position: 'relative',
-            zIndex: 10,
-            maxWidth: '1600px',
-            margin: '0 auto',
-            padding: '0 clamp(1rem, 5vw, 3rem)'
-          }}
-        >
-          {/* Hero Section */}
-          <section
-            ref={heroRef}
-            style={{
-              minHeight: '100vh',
-              display: 'flex',
-              flexDirection: 'column',
-              justifyContent: 'center',
-              alignItems: 'center',
-              textAlign: 'center',
-              paddingTop: '80px',
-              paddingBottom: '80px',
-              position: 'relative'
-            }}
-          >
-            {/* Profile Badge */}
-            <div
-              className="glass-card fade-in-element floating-badge"
-              style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                gap: '1rem',
-                padding: '1rem 2rem',
-                borderRadius: '100px',
-                marginBottom: '2rem',
-                fontSize: '1rem',
-                fontWeight: 600,
-                letterSpacing: '0.5px',
-                borderColor: 'rgba(102, 126, 234, 0.5)'
-              }}
-            >
-              <div
-                style={{
-                  width: '12px',
-                  height: '12px',
-                  borderRadius: '50%',
-                  background: '#10b981',
-                  boxShadow: '0 0 10px #10b981',
-                  animation: 'pulse-glow 2s ease infinite'
-                }}
-              />
-              <span style={{ color: '#10b981', fontFamily: "'JetBrains Mono', monospace" }}>
-                {developerInfo.availability}
-              </span>
-              <Zap size={18} style={{ color: '#667eea' }} />
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '20%', 
+          left: '10%', 
+          width: '280px', 
+          height: '280px', 
+          border: '3px solid rgba(168, 85, 247, 0.25)', 
+          borderRadius: '50%', 
+          animation: 'rotate 30s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 3
+        }}>
+          <div style={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            width: '200px', 
+            height: '200px', 
+            border: '2px solid rgba(0, 245, 255, 0.2)', 
+            borderRadius: '50%', 
+            transform: 'translate(-50%, -50%)',
+            animation: 'rotate 20s linear infinite'
+          }}>
+            <div style={{ 
+              position: 'absolute', 
+              top: '50%', 
+              left: '50%', 
+              width: '120px', 
+              height: '120px', 
+              border: '2px solid rgba(102, 126, 234, 0.2)', 
+              borderRadius: '50%', 
+              transform: 'translate(-50%, -50%)',
+              animation: 'rotate 15s linear infinite reverse'
+            }} />
+          </div>
+        </div>
+
+        {/* Medium Floating Circles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '40%', 
+          right: '25%', 
+          width: '180px', 
+          height: '180px', 
+          border: '2px solid rgba(236, 72, 153, 0.25)', 
+          borderRadius: '50%', 
+          animation: 'floatSlow 14s ease-in-out infinite, rotate 22s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '35%', 
+          right: '8%', 
+          width: '150px', 
+          height: '150px', 
+          border: '2px solid rgba(102, 126, 234, 0.3)', 
+          borderRadius: '50%', 
+          animation: 'floatMedium 12s ease-in-out infinite reverse, rotate 20s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '25%', 
+          left: '8%', 
+          width: '160px', 
+          height: '160px', 
+          border: '2px solid rgba(0, 245, 255, 0.25)', 
+          borderRadius: '50%', 
+          animation: 'floatSlow 16s ease-in-out infinite, rotate 28s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        {/* Small Glowing Circles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '18%', 
+          left: '30%', 
+          width: '80px', 
+          height: '80px', 
+          border: '2px solid rgba(168, 85, 247, 0.4)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 30px rgba(168, 85, 247, 0.3)',
+          animation: 'floatMedium 10s ease-in-out infinite, pulse 4s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '28%', 
+          left: '35%', 
+          width: '70px', 
+          height: '70px', 
+          border: '2px solid rgba(102, 126, 234, 0.4)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 30px rgba(102, 126, 234, 0.3)',
+          animation: 'floatSlow 11s ease-in-out infinite reverse, pulse 3.5s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '55%', 
+          right: '40%', 
+          width: '90px', 
+          height: '90px', 
+          border: '2px solid rgba(0, 245, 255, 0.4)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 30px rgba(0, 245, 255, 0.3)',
+          animation: 'floatMedium 13s ease-in-out infinite, pulse 4.5s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        {/* Tiny Orbiting Circles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '22%', 
+          left: '25%', 
+          width: '20px', 
+          height: '20px', 
+          background: 'rgba(102, 126, 234, 0.7)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 25px rgba(102, 126, 234, 0.9)',
+          animation: 'orbitSlow 30s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 4
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '32%', 
+          right: '22%', 
+          width: '18px', 
+          height: '18px', 
+          background: 'rgba(168, 85, 247, 0.7)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 25px rgba(168, 85, 247, 0.9)',
+          animation: 'orbitFast 20s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 4
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '48%', 
+          right: '18%', 
+          width: '15px', 
+          height: '15px', 
+          background: 'rgba(0, 245, 255, 0.7)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 25px rgba(0, 245, 255, 0.9)',
+          animation: 'orbitSlow 25s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 4
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '42%', 
+          left: '32%', 
+          width: '17px', 
+          height: '17px', 
+          background: 'rgba(236, 72, 153, 0.7)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 25px rgba(236, 72, 153, 0.9)',
+          animation: 'orbitFast 22s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 4
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '62%', 
+          left: '48%', 
+          width: '16px', 
+          height: '16px', 
+          background: 'rgba(102, 126, 234, 0.7)', 
+          borderRadius: '50%', 
+          boxShadow: '0 0 25px rgba(102, 126, 234, 0.9)',
+          animation: 'orbitSlow 28s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 4
+        }} />
+
+        {/* ========== RECTANGLES ========== */}
+
+        {/* Large Rotating Rectangles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '12%', 
+          left: '65%', 
+          width: '250px', 
+          height: '180px', 
+          border: '3px solid rgba(102, 126, 234, 0.25)', 
+          borderRadius: '30px',
+          animation: 'rotate 35s linear infinite, floatSlow 18s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '18%', 
+          right: '5%', 
+          width: '220px', 
+          height: '200px', 
+          border: '3px solid rgba(168, 85, 247, 0.25)', 
+          borderRadius: '25px',
+          animation: 'rotate 40s linear infinite reverse, floatMedium 16s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '45%', 
+          left: '5%', 
+          width: '200px', 
+          height: '160px', 
+          border: '3px solid rgba(0, 245, 255, 0.25)', 
+          borderRadius: '28px',
+          animation: 'rotate 32s linear infinite, floatSlow 15s ease-in-out infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        {/* Medium Floating Rectangles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '35%', 
+          right: '35%', 
+          width: '180px', 
+          height: '140px', 
+          border: '2px solid rgba(236, 72, 153, 0.3)', 
+          borderRadius: '22px',
+          animation: 'floatMedium 14s ease-in-out infinite, rotate 28s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '40%', 
+          left: '15%', 
+          width: '170px', 
+          height: '130px', 
+          border: '2px solid rgba(102, 126, 234, 0.3)', 
+          borderRadius: '20px',
+          animation: 'floatSlow 16s ease-in-out infinite reverse, rotate 30s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '58%', 
+          right: '12%', 
+          width: '160px', 
+          height: '120px', 
+          border: '2px solid rgba(168, 85, 247, 0.3)', 
+          borderRadius: '24px',
+          animation: 'floatMedium 13s ease-in-out infinite, rotate 26s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        {/* Small Squares (Special Rectangles) */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '28%', 
+          left: '42%', 
+          width: '120px', 
+          height: '120px', 
+          border: '2px solid rgba(0, 245, 255, 0.35)', 
+          borderRadius: '18px',
+          animation: 'floatSlow 12s ease-in-out infinite, rotate 24s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '25%', 
+          right: '45%', 
+          width: '110px', 
+          height: '110px', 
+          border: '2px solid rgba(236, 72, 153, 0.35)', 
+          borderRadius: '16px',
+          animation: 'floatMedium 11s ease-in-out infinite reverse, rotate 22s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          top: '68%', 
+          left: '25%', 
+          width: '100px', 
+          height: '100px', 
+          border: '2px solid rgba(102, 126, 234, 0.35)', 
+          borderRadius: '20px',
+          animation: 'floatSlow 13s ease-in-out infinite, rotate 20s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        {/* Tall Rectangles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '15%', 
+          left: '78%', 
+          width: '140px', 
+          height: '200px', 
+          border: '2px solid rgba(168, 85, 247, 0.25)', 
+          borderRadius: '26px',
+          animation: 'floatMedium 15s ease-in-out infinite, rotate 27s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '12%', 
+          left: '52%', 
+          width: '130px', 
+          height: '190px', 
+          border: '2px solid rgba(0, 245, 255, 0.25)', 
+          borderRadius: '24px',
+          animation: 'floatSlow 17s ease-in-out infinite reverse, rotate 29s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        {/* Wide Rectangles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '72%', 
+          right: '28%', 
+          width: '200px', 
+          height: '100px', 
+          border: '2px solid rgba(102, 126, 234, 0.3)', 
+          borderRadius: '20px',
+          animation: 'floatMedium 14s ease-in-out infinite, rotate 25s linear infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '52%', 
+          left: '68%', 
+          width: '180px', 
+          height: '90px', 
+          border: '2px solid rgba(236, 72, 153, 0.3)', 
+          borderRadius: '18px',
+          animation: 'floatSlow 16s ease-in-out infinite reverse, rotate 31s linear infinite reverse',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        {/* Glowing Rectangles */}
+        <div style={{ 
+          position: 'absolute', 
+          top: '38%', 
+          left: '88%', 
+          width: '90px', 
+          height: '90px', 
+          border: '2px solid rgba(168, 85, 247, 0.5)', 
+          borderRadius: '15px',
+          boxShadow: '0 0 40px rgba(168, 85, 247, 0.4)',
+          animation: 'floatMedium 10s ease-in-out infinite, rotate 18s linear infinite, pulse 5s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ 
+          position: 'absolute', 
+          bottom: '48%', 
+          right: '82%', 
+          width: '80px', 
+          height: '80px', 
+          border: '2px solid rgba(0, 245, 255, 0.5)', 
+          borderRadius: '14px',
+          boxShadow: '0 0 40px rgba(0, 245, 255, 0.4)',
+          animation: 'floatSlow 11s ease-in-out infinite reverse, rotate 19s linear infinite reverse, pulse 4.5s ease-in-out infinite',
+          pointerEvents: 'none',
+          zIndex: 3
+        }} />
+
+        <div style={{ maxWidth: '1400px', margin: '0 auto', position: 'relative', zIndex: 10 }}>
+          {/* Header Section */}
+          <div style={{ textAlign: 'center', marginBottom: '4rem', animation: 'fadeInUp 0.8s ease-out' }}>
+            <div className="glass" style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem', padding: '0.75rem 2rem', borderRadius: '100px', marginBottom: '1.5rem' }}>
+              <Sparkles size={20} style={{ color: '#667eea' }} />
+              <span style={{ color: '#667eea', fontFamily: "'JetBrains Mono', monospace", fontWeight: 600 }}>Featured Work</span>
             </div>
-
-            {/* Name & Title */}
-            <h1
-              className="fade-in-element"
-              style={{
-                fontSize: 'clamp(3.5rem, 12vw, 8rem)',
-                fontWeight: 900,
-                lineHeight: 1,
-                marginBottom: '1.5rem',
-                fontFamily: "'Orbitron', sans-serif",
-                letterSpacing: '-0.03em',
-                background: 'linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #00f5ff 75%, #667eea 100%)',
-                backgroundSize: '200% 200%',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
-                backgroundClip: 'text',
-                animation: 'gradient-shift 5s ease infinite'
-              }}
-            >
-              {developerInfo.name.toUpperCase()}
+            <h1 className="gradient-text" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)', fontWeight: 900, marginBottom: '1rem', fontFamily: "'Orbitron', sans-serif", animation: 'glow 2s infinite' }}>
+              TECH PROJECTS
             </h1>
-
-            <h2
-              className="fade-in-element"
-              style={{
-                fontSize: 'clamp(1.5rem, 4vw, 2.5rem)',
-                fontWeight: 700,
-                color: '#a0aec0',
-                marginBottom: '1.5rem',
-                fontFamily: "'Space Grotesk', sans-serif"
-              }}
-            >
-              {developerInfo.title}
-            </h2>
-
-            {/* Tagline */}
-            <p
-              className="fade-in-element typing-text"
-              style={{
-                fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)',
-                color: '#667eea',
-                maxWidth: '800px',
-                lineHeight: 1.8,
-                marginBottom: '3rem',
-                fontWeight: 400,
-                fontFamily: "'JetBrains Mono', monospace"
-              }}
-            >
-              {developerInfo.tagline}
+            <p style={{ fontSize: 'clamp(1rem, 2vw, 1.3rem)', color: '#a0aec0', maxWidth: '700px', margin: '0 auto' }}>
+              Production-ready solutions built with cutting-edge technology
             </p>
+          </div>
 
-            {/* Quick Stats Badges */}
-            <div
-              className="fade-in-element"
-              style={{
-                display: 'flex',
-                gap: '1rem',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                marginBottom: '3rem'
-              }}
-            >
-              {[
-                { icon: Clock, label: 'Experience', value: developerInfo.experience, color: '#667eea' },
-                { icon: Rocket, label: 'Projects', value: developerInfo.projects, color: '#764ba2' },
-                { icon: GitBranch, label: 'Contributions', value: developerInfo.contributions, color: '#f093fb' },
-                { icon: MapPin, label: 'Location', value: developerInfo.location.split(',')[0], color: '#10b981' }
-              ].map((stat, i) => {
-                const Icon = stat.icon;
-                return (
-                  <div
-                    key={i}
-                    className="glass-button floating-badge"
-                    style={{
-                      padding: '0.75rem 1.5rem',
-                      borderRadius: '100px',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.75rem',
-                      borderColor: `${stat.color}40`
-                    }}
-                  >
-                    <Icon size={20} style={{ color: stat.color }} />
-                    <span style={{ color: '#cbd5e0', fontWeight: 600 }}>
-                      {stat.value}
-                    </span>
-                    <span style={{ color: '#718096', fontSize: '0.85rem' }}>
-                      {stat.label}
-                    </span>
-                  </div>
-                );
-              })}
-            </div>
-
-            {/* CTA Buttons */}
-            <div
-              className="fade-in-element"
-              style={{
-                display: 'flex',
-                gap: '1.5rem',
-                flexWrap: 'wrap',
-                justifyContent: 'center',
-                marginBottom: '3rem'
-              }}
-            >
-              <a
-                href="#projects"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1.5rem 3rem',
-                  background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                  color: '#fff',
-                  borderRadius: '100px',
-                  fontSize: '1.2rem',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  transition: 'all 0.4s cubic-bezier(0.16, 1, 0.3, 1)',
-                  boxShadow: '0 20px 40px rgba(102, 126, 234, 0.4)',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}
-                className="hover-lift shimmer-effect"
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.boxShadow = '0 30px 60px rgba(102, 126, 234, 0.6)';
-                  e.currentTarget.style.transform = 'translateY(-8px) scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.boxShadow = '0 20px 40px rgba(102, 126, 234, 0.4)';
-                  e.currentTarget.style.transform = 'translateY(0) scale(1)';
-                }}
-              >
-                <Rocket size={24} />
-                Explore Portfolio
-              </a>
-
-              <button
-                onClick={() => setShowContact(true)}
-                className="glass-button"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1.5rem 3rem',
-                  borderRadius: '100px',
-                  fontSize: '1.2rem',
-                  fontWeight: 800,
-                  color: '#fff',
-                  cursor: 'pointer',
-                  borderColor: 'rgba(102, 126, 234, 0.5)',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}
-              >
-                <Mail size={24} />
-                Get in Touch
-              </button>
-
-              <a
-                href={developerInfo.github}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="glass-button"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1.5rem 1.5rem',
-                  borderRadius: '100px',
-                  fontSize: '1.2rem',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  color: '#a855f7',
-                  borderColor: 'rgba(168, 85, 247, 0.5)'
-                }}
-              >
-                <Github size={24} />
-              </a>
-
-              <a
-                href={developerInfo.linkedin}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="glass-button"
-                style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  padding: '1.5rem 1.5rem',
-                  borderRadius: '100px',
-                  fontSize: '1.2rem',
-                  fontWeight: 800,
-                  textDecoration: 'none',
-                  color: '#0077b5',
-                  borderColor: 'rgba(0, 119, 181, 0.5)'
-                }}
-              >
-                <Linkedin size={24} />
-              </a>
-            </div>
-
-            {/* Scroll Indicator */}
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '40px',
-                left: '50%',
-                transform: 'translateX(-50%)',
-                animation: 'bounce-slow 2s ease-in-out infinite',
-                display: 'flex',
-                flexDirection: 'column',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}
-            >
-              <span
-                style={{
-                  color: '#667eea',
-                  fontSize: '0.9rem',
-                  fontWeight: 600,
-                  letterSpacing: '1px',
-                  fontFamily: "'JetBrains Mono', monospace"
-                }}
-              >
-                SCROLL DOWN
-              </span>
-              <ChevronDown size={32} style={{ color: '#667eea' }} />
-            </div>
-          </section>
-
-          {/* Enhanced Stats Section */}
-          <section
-            id="stats"
-            style={{
-              padding: '6rem 0',
-              marginBottom: '4rem'
-            }}
-          >
-            <div
-              className="fade-in-element"
-              style={{
-                textAlign: 'center',
-                marginBottom: '4rem'
-              }}
-            >
-              <h2
-                className="gradient-text"
-                style={{
-                  fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-                  fontWeight: 900,
-                  marginBottom: '1rem',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}
-              >
-                Impact Metrics
-              </h2>
-              <p
-                style={{
-                  fontSize: '1.2rem',
-                  color: '#a0aec0',
-                  maxWidth: '600px',
-                  margin: '0 auto'
-                }}
-              >
-                Real numbers, real impact across the tech ecosystem
-              </p>
-            </div>
-
-            <div
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-                gap: '2rem'
-              }}
-            >
-              {[
-                { label: 'Total Projects', value: allProjects.length, icon: Rocket, color: '#667eea', suffix: '+', gradient: 'linear-gradient(135deg, #667eea, #764ba2)' },
-                { label: 'GitHub Repos', value: githubProjects, icon: Github, color: '#a855f7', suffix: '', gradient: 'linear-gradient(135deg, #a855f7, #f093fb)' },
-                { label: 'Live Demos', value: liveProjects, icon: Globe, color: '#10b981', suffix: '', gradient: 'linear-gradient(135deg, #10b981, #34d399)' },
-                { label: 'Total Views', value: totalViews.toFixed(1), icon: Eye, color: '#00f5ff', suffix: 'k', gradient: 'linear-gradient(135deg, #00f5ff, #0582ca)' },
-                { label: 'Downloads', value: totalDownloads.toFixed(1), icon: Download, color: '#ff6b35', suffix: 'k', gradient: 'linear-gradient(135deg, #ff6b35, #fdc830)' },
-                { label: 'Community Likes', value: totalLikes, icon: Heart, color: '#ec4899', suffix: '+', gradient: 'linear-gradient(135deg, #ec4899, #f472b6)' },
-                { label: 'GitHub Stars', value: totalStars, icon: Star, color: '#ffd700', suffix: '+', gradient: 'linear-gradient(135deg, #ffd700, #fbbf24)' },
-                { label: 'Featured Works', value: allProjects.filter(p => p.featured).length, icon: Award, color: '#8b5cf6', suffix: '', gradient: 'linear-gradient(135deg, #8b5cf6, #a78bfa)' }
-              ].map((stat, i) => {
-                const Icon = stat.icon;
-                return (
-                  <div
-                    key={i}
-                    className="glass-card fade-in-element hover-lift card-3d"
-                    style={{
-                      padding: '2.5rem 2rem',
-                      textAlign: 'center',
-                      position: 'relative',
-                      overflow: 'hidden',
-                      borderColor: `${stat.color}40`
-                    }}
-                  >
-                    {/* Background Glow */}
-                    <div
-                      style={{
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        width: '200px',
-                        height: '200px',
-                        background: `radial-gradient(circle, ${stat.color}15, transparent)`,
-                        filter: 'blur(40px)',
-                        pointerEvents: 'none'
-                      }}
-                    />
-
-                    {/* Icon */}
-                    <div
-                      style={{
-                        width: '80px',
-                        height: '80px',
-                        margin: '0 auto 1.5rem',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        background: stat.gradient,
-                        borderRadius: '24px',
-                        boxShadow: `0 10px 30px ${stat.color}40`,
-                        position: 'relative'
-                      }}
-                      className="shimmer-effect"
-                    >
-                      <Icon size={36} style={{ color: '#fff' }} />
-                    </div>
-
-                    {/* Value */}
-                    <div
-                      className="stat-number"
-                      style={{
-                        fontSize: 'clamp(2.5rem, 5vw, 4rem)',
-                        fontWeight: 900,
-                        background: stat.gradient,
-                        WebkitBackgroundClip: 'text',
-                        WebkitTextFillColor: 'transparent',
-                        marginBottom: '0.5rem',
-                        fontFamily: "'Orbitron', sans-serif",
-                        textShadow: `0 0 30px ${stat.color}50`,
-                        position: 'relative'
-                      }}
-                    >
-                      {stat.value}{stat.suffix}
-                    </div>
-
-                    {/* Label */}
-                    <div
-                      style={{
-                        fontSize: '1rem',
-                        color: '#cbd5e0',
-                        fontWeight: 600,
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        fontFamily: "'JetBrains Mono', monospace"
-                      }}
-                    >
-                      {stat.label}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </section>
-
-          {/* Enhanced Filters Section */}
-          <section
-            id="filters"
-            style={{
-              padding: '4rem 0',
-              marginBottom: '3rem'
-            }}
-          >
-            <div
-              className="fade-in-element"
-              style={{
-                textAlign: 'center',
-                marginBottom: '3rem'
-              }}
-            >
-              <h2
-                className="gradient-text-fire"
-                style={{
-                  fontSize: 'clamp(2.5rem, 6vw, 4rem)',
-                  fontWeight: 900,
-                  marginBottom: '1rem',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}
-              >
-                Project Showcase
-              </h2>
-              <p
-                style={{
-                  fontSize: '1.2rem',
-                  color: '#a0aec0',
-                  maxWidth: '700px',
-                  margin: '0 auto'
-                }}
-              >
-                Production-ready solutions built with cutting-edge technology
-              </p>
-            </div>
-
-            {/* Search Bar */}
-            <div
-              className="fade-in-element"
-              style={{
-                maxWidth: '800px',
-                margin: '0 auto 3rem',
-                position: 'relative'
-              }}
-            >
-              <Search
-                size={24}
-                style={{
-                  position: 'absolute',
-                  left: '2rem',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  color: '#667eea',
-                  pointerEvents: 'none',
-                  zIndex: 2
-                }}
+          {/* Search & Filters */}
+          <div style={{ marginBottom: '3rem', animation: 'fadeInUp 0.8s ease-out 0.2s', opacity: 0, animationFillMode: 'forwards' }}>
+            <div style={{ position: 'relative', maxWidth: '700px', margin: '0 auto 2rem' }}>
+              <Search size={20} style={{ position: 'absolute', left: '1.5rem', top: '50%', transform: 'translateY(-50%)', color: '#667eea', pointerEvents: 'none' }} />
+              <input 
+                type="text" 
+                placeholder="Search projects..." 
+                value={search} 
+                onChange={e => setSearch(e.target.value)} 
+                className="glass" 
+                style={{ width: '100%', padding: '1.25rem 1.5rem 1.25rem 4rem', fontSize: '1rem', color: '#fff', border: '2px solid rgba(102, 126, 234, 0.3)', outline: 'none', fontFamily: "'JetBrains Mono', monospace" }} 
               />
-              <input
-                type="text"
-                placeholder="Search by project name, technology, or keyword..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="glass-card"
-                style={{
-                  width: '100%',
-                  padding: '1.5rem 2rem 1.5rem 5rem',
-                  fontSize: '1.1rem',
-                  color: '#fff',
-                  border: '2px solid rgba(102, 126, 234, 0.3)',
-                  outline: 'none',
-                  transition: 'all 0.3s',
-                  fontFamily: "'JetBrains Mono', monospace"
-                }}
-                onFocus={(e) => {
-                  e.target.style.borderColor = '#667eea';
-                  e.target.style.boxShadow = '0 0 0 4px rgba(102, 126, 234, 0.15)';
-                }}
-                onBlur={(e) => {
-                  e.target.style.borderColor = 'rgba(102, 126, 234, 0.3)';
-                  e.target.style.boxShadow = 'none';
-                }}
-              />
-              {searchTerm && (
-                <button
-                  onClick={() => setSearchTerm('')}
-                  style={{
-                    position: 'absolute',
-                    right: '2rem',
-                    top: '50%',
-                    transform: 'translateY(-50%)',
-                    background: 'none',
-                    border: 'none',
-                    color: '#667eea',
-                    cursor: 'pointer',
-                    padding: '0.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                >
-                  <X size={20} />
-                </button>
-              )}
+              {search && <button onClick={() => setSearch('')} style={{ position: 'absolute', right: '1.5rem', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#667eea', cursor: 'pointer' }}><X size={18} /></button>}
             </div>
 
-            {/* Filter Buttons */}
-            <div
-              className="fade-in-element"
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '1rem',
-                justifyContent: 'center',
-                marginBottom: '2.5rem'
-              }}
-            >
-              {/* View Mode Toggle */}
-              <div
-                className="glass-card"
-                style={{
-                  display: 'flex',
-                  padding: '0.5rem',
-                  gap: '0.5rem',
-                  borderColor: 'rgba(102, 126, 234, 0.5)'
-                }}
-              >
-                <button
-                  onClick={() => setViewMode('grid')}
-                  className="glass-button"
-                  style={{
-                    padding: '0.875rem 1.75rem',
-                    borderRadius: '12px',
-                    background: viewMode === 'grid' ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'transparent',
-                    color: viewMode === 'grid' ? '#fff' : '#a0aec0',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    border: 'none'
-                  }}
-                >
-                  <Grid size={20} />
-                  Grid
-                </button>
-                <button
-                  onClick={() => setViewMode('list')}
-                  className="glass-button"
-                  style={{
-                    padding: '0.875rem 1.75rem',
-                    borderRadius: '12px',
-                    background: viewMode === 'list' ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'transparent',
-                    color: viewMode === 'list' ? '#fff' : '#a0aec0',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    border: 'none'
-                  }}
-                >
-                  <List size={20} />
-                  List
-                </button>
-                <button
-                  onClick={() => setViewMode('column')}
-                  className="glass-button"
-                  style={{
-                    padding: '0.875rem 1.75rem',
-                    borderRadius: '12px',
-                    background: viewMode === 'column' ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'transparent',
-                    color: viewMode === 'column' ? '#fff' : '#a0aec0',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem',
-                    border: 'none'
-                  }}
-                >
-                  <Layers size={20} />
-                  Column
-                </button>
-              </div>
-
-              {/* Project Type Filters */}
-              {['all', 'github', 'live'].map((type) => (
-                <button
-                  key={type}
-                  onClick={() => setProjectType(type)}
-                  className="glass-button"
-                  style={{
-                    padding: '0.875rem 2rem',
-                    borderRadius: '100px',
-                    background: projectType === type ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'transparent',
-                    color: projectType === type ? '#fff' : '#a0aec0',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.6rem',
-                    border: projectType === type ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-                    fontFamily: "'JetBrains Mono', monospace"
-                  }}
-                >
-                  {type === 'all' && <Box size={20} />}
-                  {type === 'github' && <Github size={20} />}
-                  {type === 'live' && <Globe size={20} />}
-                  {type === 'all' ? 'All Projects' : type === 'github' ? 'GitHub' : 'Live'}
-                </button>
-              ))}
-            </div>
-
-            {/* Category Filters */}
-            <div
-              className="fade-in-element"
-              style={{
-                display: 'flex',
-                flexWrap: 'wrap',
-                gap: '1rem',
-                justifyContent: 'center',
-                marginBottom: '2rem'
-              }}
-            >
-              {categories.map((cat) => (
-                <button
-                  key={cat}
-                  onClick={() => setFilter(cat)}
-                  className="glass-button gradient-border"
-                  style={{
-                    padding: '0.875rem 2rem',
-                    borderRadius: '100px',
-                    background: filter === cat ? 'linear-gradient(135deg, #a855f7, #f093fb)' : 'transparent',
-                    color: filter === cat ? '#fff' : '#cbd5e0',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    cursor: 'pointer',
-                    textTransform: 'capitalize',
-                    letterSpacing: '0.5px',
-                    border: filter === cat ? 'none' : '1px solid rgba(255, 255, 255, 0.1)',
-                    boxShadow: filter === cat ? '0 10px 30px rgba(168, 85, 247, 0.4)' : 'none'
-                  }}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center', marginBottom: '1.5rem' }}>
+              {categories.map(cat => (
+                <button 
+                  key={cat} 
+                  onClick={() => setFilter(cat)} 
+                  className="glass-btn" 
+                  style={{ padding: '0.75rem 1.75rem', borderRadius: '100px', background: filter === cat ? 'linear-gradient(135deg, #667eea, #764ba2)' : 'transparent', color: filter === cat ? '#fff' : '#a0aec0', fontSize: '0.95rem', fontWeight: 700, cursor: 'pointer', textTransform: 'capitalize', border: filter === cat ? 'none' : '1px solid rgba(255, 255, 255, 0.1)' }}
                 >
                   {cat}
                 </button>
               ))}
             </div>
 
-            {/* Sort Options */}
-            <div
-              className="fade-in-element"
-              style={{
-                display: 'flex',
-                gap: '1rem',
-                justifyContent: 'center',
-                flexWrap: 'wrap'
-              }}
-            >
+            <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               {[
-                { key: 'featured', label: 'Featured', icon: Star, color: '#ffd700' },
-                { key: 'views', label: 'Most Viewed', icon: TrendingUp, color: '#667eea' },
-                { key: 'likes', label: 'Most Liked', icon: Heart, color: '#ec4899' }
-              ].map((sort) => {
-                const Icon = sort.icon;
+                { key: 'featured', label: 'Featured', icon: Star },
+                { key: 'views', label: 'Most Viewed', icon: TrendingUp },
+                { key: 'likes', label: 'Most Liked', icon: Heart }
+              ].map(s => {
+                const Icon = s.icon;
                 return (
-                  <button
-                    key={sort.key}
-                    onClick={() => setSortBy(sort.key)}
-                    className="glass-button"
-                    style={{
-                      padding: '0.875rem 2rem',
-                      borderRadius: '100px',
-                      background: sortBy === sort.key ? `${sort.color}20` : 'transparent',
-                      color: sortBy === sort.key ? sort.color : '#a0aec0',
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.6rem',
-                      border: sortBy === sort.key ? `2px solid ${sort.color}40` : '1px solid rgba(255, 255, 255, 0.1)'
-                    }}
+                  <button 
+                    key={s.key} 
+                    onClick={() => setSort(s.key)} 
+                    className="glass-btn" 
+                    style={{ padding: '0.75rem 1.5rem', borderRadius: '100px', background: sort === s.key ? 'rgba(102, 126, 234, 0.2)' : 'transparent', color: sort === s.key ? '#667eea' : '#718096', fontSize: '0.9rem', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
                   >
-                    <Icon size={20} fill={sortBy === sort.key ? sort.color : 'none'} />
-                    {sort.label}
+                    <Icon size={18} />
+                    {s.label}
                   </button>
                 );
               })}
             </div>
+          </div>
 
-            {/* Results Count */}
-            <div
-              className="fade-in-element"
-              style={{
-                textAlign: 'center',
-                marginTop: '2.5rem',
-                padding: '1rem 2rem',
-                borderRadius: '100px',
-                background: 'rgba(102, 126, 234, 0.1)',
-                border: '1px solid rgba(102, 126, 234, 0.3)',
-                display: 'inline-block',
-                margin: '2.5rem auto 0',
-                width: 'fit-content',
-                position: 'relative',
-                left: '50%',
-                transform: 'translateX(-50%)'
-              }}
-            >
-              <span
-                style={{
-                  fontSize: '1.1rem',
-                  color: '#667eea',
-                  fontWeight: 700,
-                  fontFamily: "'JetBrains Mono', monospace"
+          {/* Projects Grid */}
+          <div className="grid-responsive" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(400px, 1fr))', gap: '2rem' }}>
+            {filtered.map((p, idx) => (
+              <div 
+                key={p.id} 
+                ref={el => projectRefs.current[idx] = el}
+                className={`glass card ${visibleProjects.has(idx) ? '' : ''}`}
+                onMouseEnter={() => setHoveredCard(p.id)}
+                onMouseLeave={() => setHoveredCard(null)}
+                onClick={() => setActiveProject(p)} 
+                style={{ 
+                  borderColor: p.color, 
+                  cursor: 'pointer', 
+                  animation: visibleProjects.has(idx) ? `fadeInUp 0.6s ease-out ${idx * 0.1}s` : 'none',
+                  opacity: visibleProjects.has(idx) ? 1 : 0
                 }}
               >
-                {filteredProjects.length} project{filteredProjects.length !== 1 ? 's' : ''} found
-              </span>
+                {/* Image */}
+                <div style={{ height: '250px', position: 'relative', overflow: 'hidden' }}>
+                  <img src={p.img} alt={p.title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px 20px 0 0' }} />
+                  <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent 50%)' }} />
+                  
+                  {p.featured && (
+                    <div className="floating" style={{ position: 'absolute', top: '1rem', right: '1rem', padding: '0.5rem 1rem', background: 'rgba(255, 215, 0, 0.25)', backdropFilter: 'blur(10px)', border: '2px solid rgba(255, 215, 0, 0.5)', borderRadius: '100px', color: '#ffd700', fontSize: '0.75rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                      <Star size={14} fill="#ffd700" />
+                      FEATURED
+                    </div>
+                  )}
+                  
+                  <div style={{ position: 'absolute', bottom: '1rem', right: '1rem', padding: '0.4rem 0.75rem', background: 'rgba(0, 0, 0, 0.7)', backdropFilter: 'blur(10px)', border: '1px solid rgba(102, 126, 234, 0.4)', borderRadius: '8px', fontSize: '0.7rem', color: '#667eea', fontWeight: 700, display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    <Eye size={12} />
+                    {p.views}
+                  </div>
+
+                  {hoveredCard === p.id && (
+                    <div style={{ position: 'absolute', top: '1rem', left: '1rem', display: 'flex', gap: '0.5rem', animation: 'slideInLeft 0.3s ease-out' }}>
+                      {p.live && (
+                        <a href={p.live} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="glass-btn" style={{ padding: '0.5rem 1rem', borderRadius: '10px', display: 'flex', alignItems: 'center', gap: '0.4rem', textDecoration: 'none', fontSize: '0.8rem', fontWeight: 700, color: '#10b981' }}>
+                          <ExternalLink size={14} />
+                          Live
+                        </a>
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Content */}
+                <div style={{ padding: '1.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
+                    <div className="shimmer" style={{ width: '60px', height: '60px', flexShrink: 0, background: `linear-gradient(135deg, ${p.color}20, ${p.color}10)`, border: `2px solid ${p.color}40`, borderRadius: '16px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
+                      {p.icon}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <h3 style={{ fontSize: '1.35rem', fontWeight: 800, color: '#fff', marginBottom: '0.4rem', fontFamily: "'Space Grotesk', sans-serif" }}>
+                        {p.title}
+                      </h3>
+                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                        <div style={{ padding: '0.25rem 0.75rem', background: `${p.color}20`, border: `1px solid ${p.color}40`, borderRadius: '100px', fontSize: '0.7rem', fontWeight: 700, color: p.color }}>
+                          {p.category}
+                        </div>
+                        <span style={{ fontSize: '0.7rem', color: '#718096' }}>• {p.year}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <p style={{ fontSize: '0.95rem', lineHeight: 1.6, color: '#a0aec0', marginBottom: '1.25rem' }}>
+                    {p.desc}
+                  </p>
+
+                  <div style={{ marginBottom: '1.25rem' }}>
+                    <div style={{ fontSize: '0.7rem', color: '#718096', marginBottom: '0.6rem', textTransform: 'uppercase', fontWeight: 700, letterSpacing: '1px' }}>Tech Stack</div>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
+                      {p.tech.slice(0, 5).map((tech, i) => (
+                        <div key={i} className="tech-badge" style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.9rem', background: `${tech.color}15`, border: `1px solid ${tech.color}30`, borderRadius: '100px' }}>
+                          <span style={{ fontSize: '1rem' }}>{tech.icon}</span>
+                          <span style={{ fontSize: '0.75rem', color: '#cbd5e0', fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>
+                            {tech.name}
+                          </span>
+                        </div>
+                      ))}
+                      {p.tech.length > 5 && (
+                        <div style={{ padding: '0.4rem 0.9rem', background: `${p.color}15`, border: `1px solid ${p.color}30`, borderRadius: '100px', fontSize: '0.75rem', fontWeight: 700, color: p.color }}>
+                          +{p.tech.length - 5}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.25rem' }}>
+                    {p.tags.slice(0, 3).map(tag => (
+                      <span key={tag} style={{ padding: '0.3rem 0.75rem', background: 'rgba(255, 255, 255, 0.04)', border: '1px solid rgba(255, 255, 255, 0.08)', borderRadius: '100px', fontSize: '0.75rem', color: '#a0aec0', fontFamily: "'JetBrains Mono', monospace" }}>
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+
+                  <div style={{ display: 'flex', gap: '0.6rem' }}>
+                    {p.github && (
+                      <a href={p.github} target="_blank" rel="noopener noreferrer" onClick={e => e.stopPropagation()} className="glass-btn" style={{ flex: 1, padding: '0.875rem', borderRadius: '12px', fontSize: '0.9rem', fontWeight: 700, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', textDecoration: 'none', color: '#a855f7' }}>
+                        <Github size={18} />
+                        Code
+                      </a>
+                    )}
+                    <button onClick={e => handleLike(p.id, e)} className="glass-btn" style={{ padding: '0.875rem', borderRadius: '12px', cursor: 'pointer', color: liked.has(p.id) ? '#ec4899' : '#718096' }}>
+                      <Heart size={18} fill={liked.has(p.id) ? '#ec4899' : 'none'} />
+                    </button>
+                    <button onClick={e => handleBookmark(p.id, e)} className="glass-btn" style={{ padding: '0.875rem', borderRadius: '12px', cursor: 'pointer', color: bookmarked.has(p.id) ? '#ffd700' : '#718096' }}>
+                      <Bookmark size={18} fill={bookmarked.has(p.id) ? '#ffd700' : 'none'} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* No Results */}
+          {filtered.length === 0 && (
+            <div className="glass" style={{ padding: '4rem 3rem', textAlign: 'center', animation: 'fadeInScale 0.5s ease-out' }}>
+              <div style={{ fontSize: '5rem', marginBottom: '1.5rem', animation: 'float 3s infinite' }}>🔍</div>
+              <h3 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '1rem', fontWeight: 900 }}>No Projects Found</h3>
+              <p style={{ color: '#a0aec0', marginBottom: '1.5rem' }}>Try adjusting your filters</p>
+              <button onClick={() => { setSearch(''); setFilter('all'); }} style={{ padding: '1rem 2rem', background: 'linear-gradient(135deg, #667eea, #764ba2)', border: 'none', borderRadius: '100px', color: '#fff', fontWeight: 800, fontSize: '1rem', cursor: 'pointer' }}>
+                Reset Filters
+              </button>
             </div>
-          </section>
+          )}
+        </div>
+      </div>
 
-          {/* Projects Grid/List */}
-          <section
-            id="projects"
-            style={{
-              padding: '2rem 0 6rem'
-            }}
-          >
-            {viewMode === 'grid' ? (
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 450px), 1fr))',
-                  gap: 'clamp(2rem, 4vw, 3.5rem)'
-                }}
-              >
-                {filteredProjects.map((project, idx) => (
-                  <div
-                    key={project.id}
-                    className="glass-card project-card fade-in-element gradient-border"
-                    onClick={() => setActiveProject(project)}
-                    onMouseEnter={() => setHoveredId(project.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    style={{
-                      borderColor: hoveredId === project.id ? project.color : 'rgba(255, 255, 255, 0.08)',
-                      boxShadow: hoveredId === project.id
-                        ? `0 30px 80px rgba(${project.glowRGB}, 0.5), 0 0 0 1px ${project.color}40`
-                        : '0 8px 32px rgba(0, 0, 0, 0.37)',
-                      animationDelay: `${idx * 0.1}s`
-                    }}
-                  >
-                    {/* Image */}
-                    <div
-                      className="project-card-image"
-                      style={{
-                        height: '300px',
-                        position: 'relative'
-                      }}
-                    >
-                      <img
-                        src={project.img}
-                        alt={project.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover',
-                          borderRadius: '24px 24px 0 0'
-                        }}
-                      />
+      {/* Project Modal */}
+      {activeProject && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.95)', backdropFilter: 'blur(20px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '2rem', animation: 'fadeInScale 0.3s', overflow: 'auto' }} onClick={() => setActiveProject(null)}>
+          <div className="glass" onClick={e => e.stopPropagation()} style={{ maxWidth: '1200px', width: '100%', maxHeight: '90vh', overflow: 'auto', position: 'relative', borderColor: activeProject.color }}>
+            <button onClick={() => setActiveProject(null)} className="glass-btn" style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', width: '50px', height: '50px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', zIndex: 10 }}>
+              <X size={24} color="#ff4444" />
+            </button>
 
-                      {/* Gradient Overlay */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          inset: 0,
-                          background: 'linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 60%)',
-                          borderRadius: '24px 24px 0 0'
-                        }}
-                      />
-
-                      {/* Featured Badge */}
-                      {project.featured && (
-                        <div
-                          className="floating-badge"
-                          style={{
-                            position: 'absolute',
-                            top: '1rem',
-                            right: '1rem',
-                            padding: '0.6rem 1.2rem',
-                            background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.3), rgba(255, 215, 0, 0.2))',
-                            backdropFilter: 'blur(10px)',
-                            border: '2px solid rgba(255, 215, 0, 0.6)',
-                            borderRadius: '100px',
-                            color: '#ffd700',
-                            fontSize: '0.85rem',
-                            fontWeight: 800,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.5rem',
-                            fontFamily: "'JetBrains Mono', monospace",
-                            textTransform: 'uppercase',
-                            letterSpacing: '1px'
-                          }}
-                        >
-                          <Star size={16} fill="#ffd700" />
-                          Featured
-                        </div>
-                      )}
-
-                      {/* Status Badge */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          top: '1rem',
-                          left: '1rem',
-                          padding: '0.5rem 1rem',
-                          background: 'rgba(16, 185, 129, 0.2)',
-                          backdropFilter: 'blur(10px)',
-                          border: '1px solid rgba(16, 185, 129, 0.5)',
-                          borderRadius: '100px',
-                          color: '#10b981',
-                          fontSize: '0.75rem',
-                          fontWeight: 700,
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.4rem'
-                        }}
-                      >
-                        <div
-                          style={{
-                            width: '8px',
-                            height: '8px',
-                            borderRadius: '50%',
-                            background: '#10b981',
-                            boxShadow: '0 0 10px #10b981',
-                            animation: 'pulse-glow 2s ease infinite'
-                          }}
-                        />
-                        {project.status}
-                      </div>
-
-                      {/* Bottom Info Bar */}
-                      <div
-                        style={{
-                          position: 'absolute',
-                          bottom: '1rem',
-                          left: '1rem',
-                          right: '1rem',
-                          display: 'flex',
-                          justifyContent: 'space-between',
-                          alignItems: 'center',
-                          gap: '1rem'
-                        }}
-                      >
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          {project.github && (
-                            <div
-                              style={{
-                                padding: '0.5rem 0.75rem',
-                                background: 'rgba(168, 85, 247, 0.25)',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(168, 85, 247, 0.6)',
-                                borderRadius: '8px',
-                                fontSize: '0.75rem',
-                                color: '#a855f7',
-                                fontWeight: 700,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.4rem'
-                              }}
-                            >
-                              <Github size={14} />
-                              {project.stars}
-                            </div>
-                          )}
-                          {project.live && (
-                            <div
-                              style={{
-                                padding: '0.5rem 0.75rem',
-                                background: 'rgba(16, 185, 129, 0.25)',
-                                backdropFilter: 'blur(10px)',
-                                border: '1px solid rgba(16, 185, 129, 0.6)',
-                                borderRadius: '8px',
-                                fontSize: '0.75rem',
-                                color: '#10b981',
-                                fontWeight: 700,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '0.4rem'
-                              }}
-                            >
-                              <Globe size={14} />
-                              LIVE
-                            </div>
-                          )}
-                        </div>
-                        <div
-                          style={{
-                            padding: '0.5rem 0.75rem',
-                            background: 'rgba(0, 0, 0, 0.7)',
-                            backdropFilter: 'blur(10px)',
-                            border: '1px solid rgba(102, 126, 234, 0.4)',
-                            borderRadius: '8px',
-                            fontSize: '0.75rem',
-                            color: '#667eea',
-                            fontWeight: 700,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem'
-                          }}
-                        >
-                          <Eye size={12} />
-                          {project.views}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Content */}
-                    <div style={{ padding: '2rem' }}>
-                      {/* Icon & Title */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '1rem',
-                          marginBottom: '1.25rem'
-                        }}
-                      >
-                        <div
-                          className="shimmer-effect"
-                          style={{
-                            width: '70px',
-                            height: '70px',
-                            flexShrink: 0,
-                            background: `linear-gradient(135deg, ${project.color}25, ${project.color}15)`,
-                            border: `2px solid ${project.color}50`,
-                            borderRadius: '20px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '2.2rem',
-                            boxShadow: `0 10px 30px ${project.color}30`
-                          }}
-                        >
-                          {project.icon}
-                        </div>
-
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <h3
-                            style={{
-                              fontSize: 'clamp(1.3rem, 2.5vw, 1.6rem)',
-                              fontWeight: 800,
-                              color: '#fff',
-                              marginBottom: '0.5rem',
-                              lineHeight: 1.2,
-                              fontFamily: "'Space Grotesk', sans-serif"
-                            }}
-                          >
-                            {project.title}
-                          </h3>
-                          <div
-                            style={{
-                              display: 'inline-block',
-                              padding: '0.3rem 0.9rem',
-                              background: `linear-gradient(135deg, ${project.color}25, ${project.color}15)`,
-                              border: `1px solid ${project.color}50`,
-                              borderRadius: '100px',
-                              fontSize: '0.75rem',
-                              fontWeight: 700,
-                              color: project.color,
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px'
-                            }}
-                          >
-                            {project.category}
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Description */}
-                      <p
-                        style={{
-                          fontSize: '1rem',
-                          lineHeight: 1.7,
-                          color: '#cbd5e0',
-                          marginBottom: '1.5rem'
-                        }}
-                      >
-                        {project.desc}
-                      </p>
-
-                      {/* Meta Info */}
-                      <div
-                        style={{
-                          display: 'grid',
-                          gridTemplateColumns: 'repeat(2, 1fr)',
-                          gap: '0.75rem',
-                          marginBottom: '1.5rem',
-                          padding: '1rem',
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          borderRadius: '12px',
-                          border: '1px solid rgba(255, 255, 255, 0.05)'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <Clock size={16} style={{ color: project.color }} />
-                          <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>
-                            {project.timeline}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <Users size={16} style={{ color: project.color }} />
-                          <span style={{ fontSize: '0.85rem', color: '#a0aec0' }}>
-                            {project.team}
-                          </span>
-                        </div>
-                      </div>
-
-                      {/* Tags */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          gap: '0.5rem',
-                          marginBottom: '1.5rem'
-                        }}
-                      >
-                        {project.tags.slice(0, 3).map((tag) => (
-                          <span
-                            key={tag}
-                            style={{
-                              padding: '0.4rem 1rem',
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
-                              borderRadius: '100px',
-                              fontSize: '0.8rem',
-                              color: '#cbd5e0',
-                              fontFamily: "'JetBrains Mono', monospace",
-                              fontWeight: 500
-                            }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                        {project.tags.length > 3 && (
-                          <span
-                            style={{
-                              padding: '0.4rem 1rem',
-                              background: `${project.color}20`,
-                              border: `1px solid ${project.color}40`,
-                              borderRadius: '100px',
-                              fontSize: '0.8rem',
-                              color: project.color,
-                              fontFamily: "'JetBrains Mono', monospace",
-                              fontWeight: 600
-                            }}
-                          >
-                            +{project.tags.length - 3}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Engagement Stats */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: '1rem',
-                          marginBottom: '1.5rem',
-                          padding: '0.75rem',
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          borderRadius: '12px',
-                          justifyContent: 'space-around'
-                        }}
-                      >
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleLike(project.id);
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: likedProjects.has(project.id) ? '#ec4899' : '#718096',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            transition: 'all 0.3s'
-                          }}
-                        >
-                          <Heart
-                            size={18}
-                            fill={likedProjects.has(project.id) ? '#ec4899' : 'none'}
-                          />
-                          {project.likes + (likedProjects.has(project.id) ? 1 : 0)}
-                        </button>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleBookmark(project.id);
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: bookmarkedProjects.has(project.id) ? '#ffd700' : '#718096',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            transition: 'all 0.3s'
-                          }}
-                        >
-                          <Bookmark
-                            size={18}
-                            fill={bookmarkedProjects.has(project.id) ? '#ffd700' : 'none'}
-                          />
-                          Save
-                        </button>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            navigator.clipboard.writeText(project.live || project.github || window.location.href);
-                          }}
-                          style={{
-                            background: 'none',
-                            border: 'none',
-                            color: '#718096',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem',
-                            fontSize: '0.9rem',
-                            fontWeight: 600,
-                            transition: 'all 0.3s'
-                          }}
-                        >
-                          <Share2 size={18} />
-                          Share
-                        </button>
-                      </div>
-
-                      {/* Action Buttons */}
-                      <div
-                        style={{
-                          display: 'flex',
-                          gap: '0.75rem'
-                        }}
-                      >
-                        {project.github && (
-                          <a
-                            href={project.github}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="glass-button hover-lift"
-                            style={{
-                              flex: 1,
-                              padding: '1rem',
-                              borderRadius: '14px',
-                              fontSize: '0.95rem',
-                              fontWeight: 700,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '0.5rem',
-                              textDecoration: 'none',
-                              color: '#a855f7',
-                              borderColor: 'rgba(168, 85, 247, 0.4)'
-                            }}
-                          >
-                            <Github size={20} />
-                            Code
-                          </a>
-                        )}
-                        {project.live && (
-                          <a
-                            href={project.live}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="hover-lift shimmer-effect"
-                            style={{
-                              flex: 1,
-                              padding: '1rem',
-                              borderRadius: '14px',
-                              fontSize: '0.95rem',
-                              fontWeight: 800,
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              gap: '0.5rem',
-                              textDecoration: 'none',
-                              background: `linear-gradient(135deg, ${project.color}, ${project.color}dd)`,
-                              color: '#000',
-                              border: 'none',
-                              boxShadow: `0 10px 30px rgba(${project.glowRGB}, 0.4)`,
-                              position: 'relative',
-                              overflow: 'hidden'
-                            }}
-                          >
-                            <Rocket size={20} />
-                            Demo
-                          </a>
-                        )}
-                      </div>
-                    </div>
+            <div style={{ position: 'relative', height: '350px', overflow: 'hidden' }}>
+              <img src={activeProject.img} alt={activeProject.title} style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: '20px 20px 0 0' }} />
+              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.9), transparent 50%)' }} />
+              
+              <div style={{ position: 'absolute', bottom: '1.5rem', left: '2rem', display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
+                {Object.entries(activeProject.stats).map(([key, value], i) => (
+                  <div key={i} className="glass" style={{ padding: '0.6rem 1.25rem', borderRadius: '10px', borderColor: `${activeProject.color}40` }}>
+                    <div style={{ fontSize: '0.7rem', color: '#a0aec0', marginBottom: '0.2rem', textTransform: 'uppercase' }}>{key}</div>
+                    <div style={{ fontSize: '1.1rem', fontWeight: 900, color: activeProject.color }}>{value}</div>
                   </div>
                 ))}
               </div>
-            ) : viewMode === 'list' ? (
-              // List View
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                {filteredProjects.map((project, idx) => (
-                  <div
-                    key={project.id}
-                    className="glass-card project-card fade-in-element hover-lift"
-                    onClick={() => setActiveProject(project)}
-                    onMouseEnter={() => setHoveredId(project.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    style={{
-                      display: 'flex',
-                      flexDirection: window.innerWidth > 768 ? 'row' : 'column',
-                      overflow: 'hidden',
-                      borderColor: hoveredId === project.id ? project.color : 'rgba(255, 255, 255, 0.08)',
-                      animationDelay: `${idx * 0.1}s`
-                    }}
-                  >
-                    {/* Image */}
-                    <div
-                      className="project-card-image"
-                      style={{
-                        width: window.innerWidth > 768 ? '350px' : '100%',
-                        height: window.innerWidth > 768 ? 'auto' : '220px',
-                        flexShrink: 0,
-                        position: 'relative'
-                      }}
-                    >
-                      <img
-                        src={project.img}
-                        alt={project.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                      />
-                      {project.featured && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '1rem',
-                            left: '1rem',
-                            padding: '0.5rem 1rem',
-                            background: 'rgba(255, 215, 0, 0.3)',
-                            backdropFilter: 'blur(10px)',
-                            border: '2px solid rgba(255, 215, 0, 0.6)',
-                            borderRadius: '100px',
-                            color: '#ffd700',
-                            fontSize: '0.75rem',
-                            fontWeight: 800,
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.4rem'
-                          }}
-                        >
-                          <Star size={14} fill="#ffd700" />
-                          FEATURED
-                        </div>
-                      )}
-                    </div>
+            </div>
 
-                    {/* Content */}
-                    <div style={{ flex: 1, padding: '2.5rem', display: 'flex', flexDirection: 'column' }}>
-                      <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem', marginBottom: '1rem' }}>
-                        <div
-                          style={{
-                            width: '60px',
-                            height: '60px',
-                            background: `linear-gradient(135deg, ${project.color}25, ${project.color}15)`,
-                            border: `2px solid ${project.color}50`,
-                            borderRadius: '16px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '2rem',
-                            flexShrink: 0
-                          }}
-                        >
-                          {project.icon}
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <h3
-                            style={{
-                              fontSize: '1.8rem',
-                              fontWeight: 800,
-                              color: '#fff',
-                              marginBottom: '0.5rem',
-                              fontFamily: "'Space Grotesk', sans-serif"
-                            }}
-                          >
-                            {project.title}
-                          </h3>
-                          <div
-                            style={{
-                              display: 'inline-block',
-                              padding: '0.3rem 1rem',
-                              background: `${project.color}20`,
-                              border: `1px solid ${project.color}40`,
-                              borderRadius: '100px',
-                              fontSize: '0.8rem',
-                              fontWeight: 700,
-                              color: project.color
-                            }}
-                          >
-                            {project.category}
-                          </div>
-                        </div>
-                        <div
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '1rem'
-                          }}
-                        >
-                          <div
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              padding: '0.5rem 1rem',
-                              background: 'rgba(102, 126, 234, 0.15)',
-                              border: '1px solid rgba(102, 126, 234, 0.4)',
-                              borderRadius: '100px',
-                              color: '#667eea',
-                              fontSize: '0.9rem',
-                              fontWeight: 700
-                            }}
-                          >
-                            <Eye size={16} />
-                            {project.views}
-                          </div>
-                        </div>
-                      </div>
-
-                      <p
-                        style={{
-                          fontSize: '1.05rem',
-                          lineHeight: 1.7,
-                          color: '#cbd5e0',
-                          marginBottom: '1.5rem',
-                          flex: 1
-                        }}
-                      >
-                        {project.desc}
-                      </p>
-
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexWrap: 'wrap',
-                          gap: '0.5rem',
-                          marginBottom: '1.5rem'
-                        }}
-                      >
-                        {project.tags.slice(0, 6).map((tag) => (
-                          <span
-                            key={tag}
-                            style={{
-                              padding: '0.4rem 1rem',
-                              background: 'rgba(255, 255, 255, 0.05)',
-                              border: '1px solid rgba(255, 255, 255, 0.1)',
-                              borderRadius: '100px',
-                              fontSize: '0.85rem',
-                              color: '#cbd5e0',
-                              fontFamily: "'JetBrains Mono', monospace"
-                            }}
-                          >
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                        {project.github && (
-                          <a
-                            href={project.github}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="glass-button"
-                            style={{
-                              padding: '1rem 2rem',
-                              borderRadius: '14px',
-                              fontSize: '1rem',
-                              fontWeight: 700,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              textDecoration: 'none',
-                              color: '#a855f7',
-                              borderColor: 'rgba(168, 85, 247, 0.4)'
-                            }}
-                          >
-                            <Github size={20} />
-                            View Code
-                          </a>
-                        )}
-                        {project.live && (
-                          <a
-                            href={project.live}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="hover-lift"
-                            style={{
-                              padding: '1rem 2rem',
-                              borderRadius: '14px',
-                              fontSize: '1rem',
-                              fontWeight: 800,
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.5rem',
-                              textDecoration: 'none',
-                              background: `linear-gradient(135deg, ${project.color}, ${project.color}dd)`,
-                              color: '#000',
-                              border: 'none',
-                              boxShadow: `0 10px 30px rgba(${project.glowRGB}, 0.4)`
-                            }}
-                          >
-                            <Rocket size={20} />
-                            Live Demo
-                          </a>
-                        )}
-                        
-                        <div style={{ marginLeft: 'auto', display: 'flex', gap: '0.75rem' }}>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleLike(project.id);
-                            }}
-                            className="glass-button"
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: likedProjects.has(project.id) ? '#ec4899' : '#718096',
-                              cursor: 'pointer',
-                              border: likedProjects.has(project.id) ? '2px solid #ec4899' : '1px solid rgba(255, 255, 255, 0.1)'
-                            }}
-                          >
-                            <Heart size={20} fill={likedProjects.has(project.id) ? '#ec4899' : 'none'} />
-                          </button>
-                          
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleBookmark(project.id);
-                            }}
-                            className="glass-button"
-                            style={{
-                              width: '50px',
-                              height: '50px',
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              color: bookmarkedProjects.has(project.id) ? '#ffd700' : '#718096',
-                              cursor: 'pointer',
-                              border: bookmarkedProjects.has(project.id) ? '2px solid #ffd700' : '1px solid rgba(255, 255, 255, 0.1)'
-                            }}
-                          >
-                            <Bookmark size={20} fill={bookmarkedProjects.has(project.id) ? '#ffd700' : 'none'} />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              // Column View
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                {filteredProjects.map((project, idx) => (
-                  <div
-                    key={project.id}
-                    className="glass-card project-card fade-in-element hover-lift"
-                    onClick={() => setActiveProject(project)}
-                    onMouseEnter={() => setHoveredId(project.id)}
-                    onMouseLeave={() => setHoveredId(null)}
-                    style={{
-                      padding: '2rem',
-                      borderColor: hoveredId === project.id ? project.color : 'rgba(255, 255, 255, 0.08)',
-                      animationDelay: `${idx * 0.05}s`,
-                      display: 'flex',
-                      gap: '2rem',
-                      alignItems: 'center',
-                      flexDirection: window.innerWidth > 1024 ? 'row' : 'column'
-                    }}
-                  >
-                    {/* Compact Image */}
-                    <div
-                      style={{
-                        width: window.innerWidth > 1024 ? '200px' : '100%',
-                        height: '150px',
-                        flexShrink: 0,
-                        borderRadius: '16px',
-                        overflow: 'hidden',
-                        position: 'relative'
-                      }}
-                    >
-                      <img
-                        src={project.img}
-                        alt={project.title}
-                        style={{
-                          width: '100%',
-                          height: '100%',
-                          objectFit: 'cover'
-                        }}
-                      />
-                      {project.featured && (
-                        <div
-                          style={{
-                            position: 'absolute',
-                            top: '0.5rem',
-                            right: '0.5rem',
-                            width: '30px',
-                            height: '30px',
-                            borderRadius: '50%',
-                            background: 'rgba(255, 215, 0, 0.3)',
-                            backdropFilter: 'blur(10px)',
-                            border: '2px solid rgba(255, 215, 0, 0.6)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center'
-                          }}
-                        >
-                          <Star size={16} fill="#ffd700" />
-                        </div>
-                      )}
-                    </div>
-
-                    {/* Icon & Basic Info */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', flex: 1, minWidth: 0 }}>
-                      <div
-                        style={{
-                          width: '70px',
-                          height: '70px',
-                          background: `linear-gradient(135deg, ${project.color}25, ${project.color}15)`,
-                          border: `2px solid ${project.color}50`,
-                          borderRadius: '18px',
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          fontSize: '2.2rem',
-                          flexShrink: 0
-                        }}
-                      >
-                        {project.icon}
-                      </div>
-
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3
-                          style={{
-                            fontSize: '1.4rem',
-                            fontWeight: 800,
-                            color: '#fff',
-                            marginBottom: '0.5rem',
-                            fontFamily: "'Space Grotesk', sans-serif"
-                          }}
-                        >
-                          {project.title}
-                        </h3>
-                        <p
-                          style={{
-                            fontSize: '0.95rem',
-                            color: '#a0aec0',
-                            marginBottom: '0.75rem',
-                            display: '-webkit-box',
-                            WebkitLineClamp: 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
-                          }}
-                        >
-                          {project.desc}
-                        </p>
-                        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                          <span
-                            style={{
-                              padding: '0.3rem 0.8rem',
-                              background: `${project.color}20`,
-                              border: `1px solid ${project.color}40`,
-                              borderRadius: '100px',
-                              fontSize: '0.75rem',
-                              fontWeight: 700,
-                              color: project.color
-                            }}
-                          >
-                            {project.category}
-                          </span>
-                          {project.tags.slice(0, 2).map((tag) => (
-                            <span
-                              key={tag}
-                              style={{
-                                padding: '0.3rem 0.8rem',
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                border: '1px solid rgba(255, 255, 255, 0.1)',
-                                borderRadius: '100px',
-                                fontSize: '0.75rem',
-                                color: '#cbd5e0'
-                              }}
-                            >
-                              {tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Stats & Actions */}
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexShrink: 0 }}>
-                      <div
-                        style={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '0.5rem',
-                          padding: '1rem',
-                          background: 'rgba(255, 255, 255, 0.02)',
-                          borderRadius: '12px',
-                          minWidth: '100px',
-                          textAlign: 'center'
-                        }}
-                      >
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
-                          <Eye size={14} style={{ color: '#667eea' }} />
-                          <span style={{ fontSize: '0.85rem', color: '#cbd5e0', fontWeight: 600 }}>
-                            {project.views}
-                          </span>
-                        </div>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', justifyContent: 'center' }}>
-                          <Heart size={14} style={{ color: '#ec4899' }} />
-                          <span style={{ fontSize: '0.85rem', color: '#cbd5e0', fontWeight: 600 }}>
-                            {project.likes}
-                          </span>
-                        </div>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
-                        {project.github && (
-                          <a
-                            href={project.github}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            className="glass-button"
-                            style={{
-                              width: '45px',
-                              height: '45px',
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              textDecoration: 'none',
-                              color: '#a855f7',
-                              borderColor: 'rgba(168, 85, 247, 0.4)'
-                            }}
-                            title="View Code"
-                          >
-                            <Github size={20} />
-                          </a>
-                        )}
-                        {project.live && (
-                          <a
-                            href={project.live}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => e.stopPropagation()}
-                            style={{
-                              width: '45px',
-                              height: '45px',
-                              borderRadius: '50%',
-                              display: 'flex',
-                              alignItems: 'center',
-                              justifyContent: 'center',
-                              textDecoration: 'none',
-                              background: `linear-gradient(135deg, ${project.color}, ${project.color}dd)`,
-                              color: '#000',
-                              border: 'none'
-                            }}
-                            title="Live Demo"
-                          >
-                            <Rocket size={20} />
-                          </a>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {/* No Results */}
-            {filteredProjects.length === 0 && (
-              <div
-                className="glass-card fade-in-element"
-                style={{
-                  padding: '5rem 3rem',
-                  textAlign: 'center'
-                }}
-              >
-                <div
-                  style={{
-                    fontSize: '6rem',
-                    marginBottom: '2rem',
-                    animation: 'float 3s ease-in-out infinite'
-                  }}
-                >
-                  🔍
+            <div style={{ padding: '3rem' }}>
+              <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
+                <div style={{ display: 'inline-flex', alignItems: 'center', gap: '1rem', padding: '0.6rem 1.75rem', background: `${activeProject.color}20`, border: `2px solid ${activeProject.color}40`, borderRadius: '100px', color: activeProject.color, fontSize: '0.9rem', fontWeight: 800, marginBottom: '1.5rem' }}>
+                  <div style={{ fontSize: '1.3rem' }}>{activeProject.icon}</div>
+                  {activeProject.category}
+                  <span style={{ color: '#718096' }}>• {activeProject.year}</span>
                 </div>
-                <h3
-                  className="gradient-text"
-                  style={{
-                    fontSize: '2.5rem',
-                    marginBottom: '1rem',
-                    fontWeight: 900,
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}
-                >
-                  No Projects Found
-                </h3>
-                <p
-                  style={{
-                    fontSize: '1.2rem',
-                    color: '#a0aec0',
-                    marginBottom: '2.5rem',
-                    maxWidth: '500px',
-                    margin: '0 auto 2.5rem'
-                  }}
-                >
-                  Try adjusting your search criteria or filters to discover more projects
-                </p>
-                <button
-                  onClick={() => {
-                    setSearchTerm('');
-                    setFilter('all');
-                    setProjectType('all');
-                  }}
-                  className="hover-lift"
-                  style={{
-                    padding: '1.25rem 2.5rem',
-                    background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                    border: 'none',
-                    borderRadius: '100px',
-                    color: '#fff',
-                    fontWeight: 800,
-                    fontSize: '1.1rem',
-                    cursor: 'pointer',
-                    boxShadow: '0 20px 40px rgba(102, 126, 234, 0.4)',
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}
-                >
-                  Reset All Filters
-                </button>
-              </div>
-            )}
-          </section>
-
-          {/* CTA Section */}
-          <section
-            style={{
-              padding: '6rem 0',
-              textAlign: 'center'
-            }}
-          >
-            <div
-              className="glass-card fade-in-element"
-              style={{
-                padding: 'clamp(4rem, 10vw, 6rem) clamp(2rem, 5vw, 4rem)',
-                position: 'relative',
-                overflow: 'hidden',
-                borderColor: 'rgba(102, 126, 234, 0.3)'
-              }}
-            >
-              {/* Background Effects */}
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(135deg, rgba(102, 126, 234, 0.08), rgba(118, 75, 162, 0.08))',
-                  pointerEvents: 'none'
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  top: '50%',
-                  left: '50%',
-                  transform: 'translate(-50%, -50%)',
-                  width: '600px',
-                  height: '600px',
-                  background: 'radial-gradient(circle, rgba(102, 126, 234, 0.15), transparent)',
-                  filter: 'blur(80px)',
-                  pointerEvents: 'none',
-                  animation: 'float 8s ease-in-out infinite'
-                }}
-              />
-
-              <div style={{ position: 'relative', zIndex: 1 }}>
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    padding: '0.75rem 2rem',
-                    background: 'rgba(102, 126, 234, 0.15)',
-                    border: '1px solid rgba(102, 126, 234, 0.4)',
-                    borderRadius: '100px',
-                    color: '#667eea',
-                    fontSize: '1rem',
-                    fontWeight: 700,
-                    marginBottom: '2.5rem',
-                    fontFamily: "'JetBrains Mono', monospace"
-                  }}
-                >
-                  <Sparkles size={20} />
-                  {'<lets-collaborate/>'}
-                </div>
-
-                <h2
-                  className="gradient-text-neon"
-                  style={{
-                    fontSize: 'clamp(2.5rem, 8vw, 5rem)',
-                    fontWeight: 900,
-                    marginBottom: '2rem',
-                    fontFamily: "'Orbitron', sans-serif",
-                    letterSpacing: '-0.02em'
-                  }}
-                >
-                  Ready to Build
-                  <br />
-                  Something Amazing?
+                <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, background: `linear-gradient(135deg, ${activeProject.color}, #fff)`, WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '1rem', fontFamily: "'Orbitron', sans-serif" }}>
+                  {activeProject.title}
                 </h2>
-
-                <p
-                  style={{
-                    fontSize: 'clamp(1.1rem, 2.5vw, 1.4rem)',
-                    color: '#cbd5e0',
-                    maxWidth: '800px',
-                    margin: '0 auto 3.5rem',
-                    lineHeight: 1.8
-                  }}
-                >
-                  From initial concept to production deployment, I bring ideas to life with
-                  cutting-edge AI, scalable architecture, and pixel-perfect design
+                <p style={{ fontSize: '1.15rem', color: '#a0aec0', lineHeight: 1.7, maxWidth: '800px', margin: '0 auto 1.5rem' }}>
+                  {activeProject.longDesc}
                 </p>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '1.5rem',
-                    justifyContent: 'center',
-                    flexWrap: 'wrap',
-                    marginBottom: '3rem'
-                  }}
-                >
-                  <a
-                    href={developerInfo.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="glass-button hover-lift"
-                    style={{
-                      padding: '1.5rem 3rem',
-                      borderRadius: '100px',
-                      fontSize: '1.2rem',
-                      fontWeight: 800,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      textDecoration: 'none',
-                      color: '#a855f7',
-                      borderColor: 'rgba(168, 85, 247, 0.5)',
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}
-                  >
-                    <Github size={24} />
-                    View All Repositories
-                  </a>
-
-                  <button
-                    onClick={() => setShowContact(true)}
-                    className="hover-lift shimmer-effect"
-                    style={{
-                      padding: '1.5rem 3rem',
-                      borderRadius: '100px',
-                      fontSize: '1.2rem',
-                      fontWeight: 800,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                      color: '#fff',
-                      border: 'none',
-                      cursor: 'pointer',
-                      boxShadow: '0 20px 40px rgba(102, 126, 234, 0.4)',
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}
-                  >
-                    <Send size={24} />
-                    Let's Connect
-                  </button>
-                </div>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '2rem',
-                    justifyContent: 'center',
-                    flexWrap: 'wrap'
-                  }}
-                >
+                
+                <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
                   {[
-                    { icon: Mail, label: 'Email', value: developerInfo.email.split('@')[0] },
-                    { icon: MapPin, label: 'Location', value: developerInfo.location.split(',')[0] },
-                    { icon: Clock, label: 'Availability', value: 'Open' }
-                  ].map((item, i) => {
-                    const Icon = item.icon;
+                    { icon: Clock, label: 'Duration', value: activeProject.duration },
+                    { icon: Users, label: 'Team', value: activeProject.teamSize },
+                    { icon: Eye, label: 'Views', value: activeProject.views }
+                  ].map((m, i) => {
+                    const Icon = m.icon;
                     return (
-                      <div
-                        key={i}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.75rem',
-                          padding: '1rem 1.5rem',
-                          background: 'rgba(255, 255, 255, 0.03)',
-                          borderRadius: '100px',
-                          border: '1px solid rgba(255, 255, 255, 0.1)'
-                        }}
-                      >
-                        <Icon size={20} style={{ color: '#667eea' }} />
-                        <div style={{ textAlign: 'left' }}>
-                          <div
-                            style={{
-                              fontSize: '0.75rem',
-                              color: '#718096',
-                              marginBottom: '0.2rem',
-                              textTransform: 'uppercase',
-                              letterSpacing: '0.5px'
-                            }}
-                          >
-                            {item.label}
-                          </div>
-                          <div
-                            style={{
-                              fontSize: '0.9rem',
-                              color: '#cbd5e0',
-                              fontWeight: 600
-                            }}
-                          >
-                            {item.value}
-                          </div>
-                        </div>
+                      <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#a0aec0' }}>
+                        <Icon size={18} style={{ color: activeProject.color }} />
+                        <span style={{ fontSize: '0.85rem' }}>{m.label}:</span>
+                        <span style={{ fontWeight: 700, color: '#cbd5e0' }}>{m.value}</span>
                       </div>
                     );
                   })}
                 </div>
               </div>
-            </div>
-          </section>
 
-          {/* Footer */}
-          <footer
-            style={{
-              padding: '3rem 0',
-              borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-              textAlign: 'center'
-            }}
-          >
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '2rem',
-                marginBottom: '2rem',
-                flexWrap: 'wrap'
-              }}
-            >
-              {[
-                { icon: Github, url: developerInfo.github, color: '#a855f7' },
-                { icon: Linkedin, url: developerInfo.linkedin, color: '#0077b5' },
-                { icon: Mail, url: `mailto:${developerInfo.email}`, color: '#667eea' }
-              ].map((social, i) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={i}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="glass-button hover-lift"
-                    style={{
-                      width: '60px',
-                      height: '60px',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      textDecoration: 'none',
-                      borderColor: `${social.color}40`
-                    }}
+              <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '2.5rem', borderBottom: '1px solid rgba(255, 255, 255, 0.1)' }}>
+                {['overview', 'tech', 'metrics'].map(tab => (
+                  <button 
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
+                    style={{ fontSize: '1rem', textTransform: 'capitalize' }}
                   >
-                    <Icon size={24} style={{ color: social.color }} />
-                  </a>
-                );
-              })}
-            </div>
-
-            <p
-              style={{
-                color: '#718096',
-                fontSize: '1rem',
-                fontFamily: "'JetBrains Mono', monospace"
-              }}
-            >
-              © 2025 {developerInfo.name}. Built with React + AI ⚡
-            </p>
-          </footer>
-        </div>
-      </div>
-
-      {/* Project Detail Modal */}
-      {activeProject && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.95)',
-            backdropFilter: 'blur(20px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem',
-            animation: 'fadeInScale 0.3s ease-out',
-            overflow: 'auto'
-          }}
-          onClick={() => setActiveProject(null)}
-        >
-          <div
-            className="glass-card"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: '1400px',
-              width: '100%',
-              maxHeight: '90vh',
-              overflow: 'auto',
-              position: 'relative',
-              borderColor: activeProject.color
-            }}
-          >
-            {/* Close Button */}
-            <button
-              onClick={() => setActiveProject(null)}
-              className="glass-button hover-lift"
-              style={{
-                position: 'absolute',
-                top: '2rem',
-                right: '2rem',
-                width: '60px',
-                height: '60px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                zIndex: 10,
-                borderColor: 'rgba(255, 0, 0, 0.5)',
-                background: 'rgba(0, 0, 0, 0.5)'
-              }}
-            >
-              <X size={28} color="#ff4444" />
-            </button>
-
-            {/* Modal Header Image */}
-            <div style={{ position: 'relative', height: '400px', overflow: 'hidden' }}>
-              <img
-                src={activeProject.img}
-                alt={activeProject.title}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'cover',
-                  borderRadius: '24px 24px 0 0'
-                }}
-              />
-              <div
-                style={{
-                  position: 'absolute',
-                  inset: 0,
-                  background: 'linear-gradient(to top, rgba(0,0,0,0.9) 0%, transparent 50%)'
-                }}
-              />
-            </div>
-
-            {/* Modal Content */}
-            <div style={{ padding: 'clamp(2rem, 5vw, 4rem)' }}>
-              {/* Title & Category */}
-              <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-                <div
-                  style={{
-                    display: 'inline-flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    padding: '0.75rem 2rem',
-                    background: `linear-gradient(135deg, ${activeProject.color}25, ${activeProject.color}15)`,
-                    border: `2px solid ${activeProject.color}50`,
-                    borderRadius: '100px',
-                    color: activeProject.color,
-                    fontSize: '1rem',
-                    fontWeight: 800,
-                    marginBottom: '2rem',
-                    textTransform: 'uppercase',
-                    letterSpacing: '1px'
-                  }}
-                >
-                  <div
-                    style={{
-                      fontSize: '1.5rem'
-                    }}
-                  >
-                    {activeProject.icon}
-                  </div>
-                  {activeProject.category}
-                </div>
-
-                <h2
-                  style={{
-                    fontSize: 'clamp(2.5rem, 6vw, 4.5rem)',
-                    fontWeight: 900,
-                    background: `linear-gradient(135deg, ${activeProject.color}, #ffffff)`,
-                    WebkitBackgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    marginBottom: '1.5rem',
-                    fontFamily: "'Orbitron', sans-serif",
-                    letterSpacing: '-0.02em'
-                  }}
-                >
-                  {activeProject.title}
-                </h2>
-
-                <p
-                  style={{
-                    fontSize: '1.3rem',
-                    color: '#cbd5e0',
-                    lineHeight: 1.8,
-                    maxWidth: '900px',
-                    margin: '0 auto'
-                  }}
-                >
-                  {activeProject.longDesc}
-                </p>
-              </div>
-
-              {/* Problem & Solution */}
-              <div
-                style={{
-                  display: 'grid',
-                  gridTemplateColumns: window.innerWidth > 768 ? '1fr 1fr' : '1fr',
-                  gap: '2rem',
-                  marginBottom: '4rem'
-                }}
-              >
-                <div
-                  className="glass-card hover-lift"
-                  style={{
-                    padding: '2.5rem',
-                    borderColor: 'rgba(239, 68, 68, 0.4)'
-                  }}
-                >
-                  <h4
-                    style={{
-                      color: '#ef4444',
-                      fontSize: '1.5rem',
-                      fontWeight: 900,
-                      marginBottom: '1.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}
-                  >
-                    <AlertCircle size={28} />
-                    Problem Statement
-                  </h4>
-                  <p style={{ color: '#cbd5e0', lineHeight: 1.7, fontSize: '1.05rem' }}>
-                    {activeProject.problem}
-                  </p>
-                </div>
-
-                <div
-                  className="glass-card hover-lift"
-                  style={{
-                    padding: '2.5rem',
-                    borderColor: 'rgba(34, 197, 94, 0.4)'
-                  }}
-                >
-                  <h4
-                    style={{
-                      color: '#22c55e',
-                      fontSize: '1.5rem',
-                      fontWeight: 900,
-                      marginBottom: '1.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}
-                  >
-                    <Lightbulb size={28} />
-                    Solution Approach
-                  </h4>
-                  <p style={{ color: '#cbd5e0', lineHeight: 1.7, fontSize: '1.05rem' }}>
-                    {activeProject.solution}
-                  </p>
-                </div>
-              </div>
-
-              {/* My Role */}
-              <div
-                className="glass-card hover-lift"
-                style={{
-                  padding: '2.5rem',
-                  marginBottom: '4rem',
-                  borderColor: `${activeProject.color}50`
-                }}
-              >
-                <h4
-                  style={{
-                    color: activeProject.color,
-                    fontSize: '1.5rem',
-                    fontWeight: 900,
-                    marginBottom: '1.5rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}
-                >
-                  <Briefcase size={28} />
-                  My Role & Responsibilities
-                </h4>
-                <p style={{ color: '#cbd5e0', lineHeight: 1.8, fontSize: '1.05rem' }}>
-                  {activeProject.myRole}
-                </p>
-              </div>
-
-              {/* Tech Stack */}
-              <div style={{ marginBottom: '4rem' }}>
-                <h4
-                  style={{
-                    fontSize: '2rem',
-                    fontWeight: 900,
-                    color: activeProject.color,
-                    marginBottom: '2rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}
-                >
-                  <Code size={32} />
-                  Technology Stack
-                </h4>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem' }}>
-                  {activeProject.techUsed.map((tech) => (
-                    <span
-                      key={tech}
-                      className="glass-card hover-lift"
-                      style={{
-                        padding: '1rem 1.75rem',
-                        borderColor: `${activeProject.color}40`,
-                        color: activeProject.color,
-                        fontSize: '1rem',
-                        fontWeight: 700,
-                        fontFamily: "'JetBrains Mono', monospace"
-                      }}
-                    >
-                      {tech}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              {/* Impact */}
-              <div style={{ marginBottom: '4rem' }}>
-                <h4
-                  style={{
-                    fontSize: '2rem',
-                    fontWeight: 900,
-                    color: '#ffd700',
-                    marginBottom: '2rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}
-                >
-                  <Trophy size={32} />
-                  Impact & Results
-                </h4>
-                <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-                    gap: '1.5rem'
-                  }}
-                >
-                  {activeProject.impact.map((item, idx) => (
-                    <div
-                      key={idx}
-                      className="glass-card hover-lift"
-                      style={{
-                        padding: '2rem',
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '1rem',
-                        borderColor: 'rgba(255, 215, 0, 0.3)'
-                      }}
-                    >
-                      <CheckCircle2 size={24} style={{ color: '#ffd700', flexShrink: 0, marginTop: '0.2rem' }} />
-                      <span style={{ color: '#cbd5e0', lineHeight: 1.7, fontSize: '1.05rem' }}>
-                        {item}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Stats */}
-              <div
-                style={{
-                  display: 'flex',
-                  flexWrap: 'wrap',
-                  gap: '2rem',
-                  justifyContent: 'center',
-                  marginBottom: '4rem'
-                }}
-              >
-                {Object.entries(activeProject.stats).map(([key, value]) => (
-                  <div
-                    key={key}
-                    className="glass-card hover-lift card-3d"
-                    style={{
-                      padding: '2rem 2.5rem',
-                      minWidth: '200px',
-                      textAlign: 'center',
-                      borderColor: `${activeProject.color}50`
-                    }}
-                  >
-                    <div
-                      style={{
-                        fontSize: '2.5rem',
-                        fontWeight: 900,
-                        color: activeProject.color,
-                        marginBottom: '0.75rem',
-                        fontFamily: "'Orbitron', sans-serif",
-                        textShadow: `0 0 20px ${activeProject.color}50`
-                      }}
-                    >
-                      {value}
-                    </div>
-                    <div
-                      style={{
-                        fontSize: '0.9rem',
-                        color: '#a0aec0',
-                        textTransform: 'uppercase',
-                        letterSpacing: '1px',
-                        fontWeight: 700
-                      }}
-                    >
-                      {key.replace(/([A-Z])/g, ' $1').trim()}
-                    </div>
-                  </div>
+                    {tab}
+                  </button>
                 ))}
               </div>
 
-              {/* Action Buttons */}
-              <div
-                style={{
-                  display: 'flex',
-                  gap: '2rem',
-                  justifyContent: 'center',
-                  flexWrap: 'wrap'
-                }}
-              >
+              {activeTab === 'overview' && (
+                <div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '3rem' }}>
+                    <div className="glass" style={{ padding: '2rem', borderColor: 'rgba(239, 68, 68, 0.4)' }}>
+                      <h4 style={{ color: '#ef4444', fontSize: '1.3rem', fontWeight: 900, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <AlertCircle size={24} />
+                        Problem
+                      </h4>
+                      <p style={{ color: '#cbd5e0', lineHeight: 1.6, fontSize: '1rem' }}>{activeProject.problem}</p>
+                    </div>
+                    <div className="glass" style={{ padding: '2rem', borderColor: 'rgba(34, 197, 94, 0.4)' }}>
+                      <h4 style={{ color: '#22c55e', fontSize: '1.3rem', fontWeight: 900, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                        <Lightbulb size={24} />
+                        Solution
+                      </h4>
+                      <p style={{ color: '#cbd5e0', lineHeight: 1.6, fontSize: '1rem' }}>{activeProject.solution}</p>
+                    </div>
+                  </div>
+
+                  <div className="glass" style={{ padding: '2rem', marginBottom: '3rem', borderColor: `${activeProject.color}40` }}>
+                    <h4 style={{ color: activeProject.color, fontSize: '1.3rem', fontWeight: 900, marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <Target size={24} />
+                      My Role
+                    </h4>
+                    <p style={{ color: '#cbd5e0', lineHeight: 1.6, fontSize: '1rem' }}>{activeProject.role}</p>
+                  </div>
+
+                  <div>
+                    <h4 style={{ fontSize: '1.75rem', fontWeight: 900, color: '#ffd700', marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                      <Trophy size={28} />
+                      Impact & Results
+                    </h4>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.25rem' }}>
+                      {activeProject.impact.map((item, idx) => (
+                        <div key={idx} className="glass" style={{ padding: '1.5rem', display: 'flex', alignItems: 'flex-start', gap: '0.75rem', borderColor: 'rgba(255, 215, 0, 0.3)' }}>
+                          <CheckCircle2 size={20} style={{ color: '#ffd700', flexShrink: 0 }} />
+                          <span style={{ color: '#cbd5e0', lineHeight: 1.6, fontSize: '0.95rem' }}>{item}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'tech' && (
+                <div>
+                  <h4 style={{ fontSize: '1.75rem', fontWeight: 900, color: activeProject.color, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <Code size={28} />
+                    Complete Tech Stack
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(180px, 1fr))', gap: '1.25rem' }}>
+                    {activeProject.tech.map((tech, i) => (
+                      <div key={i} className="glass card" style={{ padding: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem', borderColor: `${tech.color}30` }}>
+                        <div style={{ fontSize: '2rem', flexShrink: 0 }}>
+                          {tech.icon}
+                        </div>
+                        <div>
+                          <div style={{ fontSize: '0.95rem', fontWeight: 700, color: '#cbd5e0', marginBottom: '0.2rem' }}>{tech.name}</div>
+                          <div style={{ fontSize: '0.7rem', color: '#718096' }}>Technology</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'metrics' && (
+                <div>
+                  <h4 style={{ fontSize: '1.75rem', fontWeight: 900, color: activeProject.color, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <BarChart3 size={28} />
+                    Performance Metrics
+                  </h4>
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+                    {activeProject.metrics.map((metric, i) => (
+                      <div key={i} className="glass metric-card" style={{ padding: '1.75rem', borderColor: `${activeProject.color}40` }}>
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
+                          <div>
+                            <div style={{ fontSize: '0.8rem', color: '#a0aec0', marginBottom: '0.4rem', textTransform: 'uppercase', fontWeight: 600 }}>{metric.label}</div>
+                            <div style={{ fontSize: '2.25rem', fontWeight: 900, color: activeProject.color, fontFamily: "'Orbitron', sans-serif" }}>{metric.value}</div>
+                          </div>
+                          <Activity size={24} style={{ color: `${activeProject.color}60` }} />
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', padding: '0.4rem 0.9rem', background: metric.trend.includes('+') ? 'rgba(34, 197, 94, 0.1)' : 'rgba(59, 130, 246, 0.1)', borderRadius: '100px', fontSize: '0.8rem', fontWeight: 700, color: metric.trend.includes('+') ? '#22c55e' : '#3b82f6' }}>
+                          <TrendingUp size={12} />
+                          {metric.trend}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <div style={{ display: 'flex', gap: '1.5rem', justifyContent: 'center', flexWrap: 'wrap', paddingTop: '2rem', marginTop: '2rem', borderTop: '1px solid rgba(255, 255, 255, 0.1)' }}>
                 {activeProject.github && (
-                  <a
-                    href={activeProject.github}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="glass-button hover-lift"
-                    style={{
-                      padding: '1.5rem 3rem',
-                      borderRadius: '100px',
-                      fontSize: '1.2rem',
-                      fontWeight: 800,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      textDecoration: 'none',
-                      color: '#a855f7',
-                      borderColor: 'rgba(168, 85, 247, 0.5)',
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}
-                  >
-                    <Github size={24} />
+                  <a href={activeProject.github} target="_blank" rel="noopener noreferrer" className="glass-btn shimmer" style={{ padding: '1.25rem 2.5rem', borderRadius: '100px', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', color: '#a855f7', borderColor: 'rgba(168, 85, 247, 0.5)' }}>
+                    <Github size={22} />
                     View Source Code
                   </a>
                 )}
                 {activeProject.live && (
-                  <a
-                    href={activeProject.live}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="hover-lift shimmer-effect"
-                    style={{
-                      padding: '1.5rem 3rem',
-                      borderRadius: '100px',
-                      fontSize: '1.2rem',
-                      fontWeight: 800,
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1rem',
-                      textDecoration: 'none',
-                      background: `linear-gradient(135deg, ${activeProject.color}, ${activeProject.color}dd)`,
-                      color: '#000',
-                      border: 'none',
-                      boxShadow: `0 30px 60px rgba(${activeProject.glowRGB}, 0.5)`,
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}
-                  >
-                    <Rocket size={24} />
-                    Launch Live Demo
+                  <a href={activeProject.live} target="_blank" rel="noopener noreferrer" className="shimmer" style={{ padding: '1.25rem 2.5rem', borderRadius: '100px', fontSize: '1.1rem', fontWeight: 800, display: 'flex', alignItems: 'center', gap: '0.75rem', textDecoration: 'none', background: `linear-gradient(135deg, ${activeProject.color}, ${activeProject.color}dd)`, color: '#fff', boxShadow: `0 10px 30px ${activeProject.color}40` }}>
+                    <ExternalLink size={22} />
+                    View Live Demo
                   </a>
                 )}
               </div>
@@ -3697,147 +1392,12 @@ export default function AdvancedDeveloperShowcase() {
         </div>
       )}
 
-      {/* Contact Modal */}
-      {showContact && (
-        <div
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0, 0, 0, 0.95)',
-            backdropFilter: 'blur(20px)',
-            zIndex: 10000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '2rem',
-            animation: 'fadeInScale 0.3s ease-out'
-          }}
-          onClick={() => setShowContact(false)}
-        >
-          <div
-            className="glass-card"
-            onClick={(e) => e.stopPropagation()}
-            style={{
-              maxWidth: '600px',
-              width: '100%',
-              padding: 'clamp(2rem, 5vw, 4rem)',
-              position: 'relative',
-              borderColor: 'rgba(102, 126, 234, 0.5)'
-            }}
-          >
-            <button
-              onClick={() => setShowContact(false)}
-              className="glass-button hover-lift"
-              style={{
-                position: 'absolute',
-                top: '2rem',
-                right: '2rem',
-                width: '50px',
-                height: '50px',
-                borderRadius: '50%',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer'
-              }}
-            >
-              <X size={24} color="#667eea" />
-            </button>
-
-            <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
-              <h2
-                className="gradient-text-neon"
-                style={{
-                  fontSize: 'clamp(2rem, 5vw, 3rem)',
-                  fontWeight: 900,
-                  marginBottom: '1rem',
-                  fontFamily: "'Orbitron', sans-serif"
-                }}
-              >
-                Get In Touch
-              </h2>
-              <p style={{ color: '#a0aec0', fontSize: '1.1rem' }}>
-                Let's discuss your next big project
-              </p>
-            </div>
-
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-              {[
-                { icon: Mail, label: 'Email', value: developerInfo.email, href: `mailto:${developerInfo.email}` },
-                { icon: Github, label: 'GitHub', value: '@bhagavan444', href: developerInfo.github },
-                { icon: Linkedin, label: 'LinkedIn', value: 'Connect on LinkedIn', href: developerInfo.linkedin },
-                { icon: MapPin, label: 'Location', value: developerInfo.location, href: null }
-              ].map((contact, i) => {
-                const Icon = contact.icon;
-                const content = (
-                  <div
-                    className="glass-card hover-lift"
-                    style={{
-                      padding: '1.5rem',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '1.5rem',
-                      cursor: contact.href ? 'pointer' : 'default'
-                    }}
-                  >
-                    <div
-                      style={{
-                        width: '60px',
-                        height: '60px',
-                        borderRadius: '16px',
-                        background: 'linear-gradient(135deg, #667eea20, #764ba220)',
-                        border: '2px solid rgba(102, 126, 234, 0.3)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      <Icon size={28} style={{ color: '#667eea' }} />
-                    </div>
-                    <div style={{ flex: 1 }}>
-                      <div
-                        style={{
-                          fontSize: '0.85rem',
-                          color: '#718096',
-                          marginBottom: '0.25rem',
-                          textTransform: 'uppercase',
-                          letterSpacing: '0.5px',
-                          fontWeight: 600
-                        }}
-                      >
-                        {contact.label}
-                      </div>
-                      <div
-                        style={{
-                          fontSize: '1.05rem',
-                          color: '#cbd5e0',
-                          fontWeight: 600
-                        }}
-                      >
-                        {contact.value}
-                      </div>
-                    </div>
-                    {contact.href && (
-                      <ExternalLink size={20} style={{ color: '#667eea' }} />
-                    )}
-                  </div>
-                );
-
-                return contact.href ? (
-                  <a
-                    key={i}
-                    href={contact.href}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{ textDecoration: 'none' }}
-                  >
-                    {content}
-                  </a>
-                ) : (
-                  <div key={i}>{content}</div>
-                );
-              })}
-            </div>
+      {/* Toast */}
+      {copiedLink && (
+        <div style={{ position: 'fixed', bottom: '2rem', right: '2rem', zIndex: 10001, animation: 'slideInRight 0.3s ease-out' }}>
+          <div className="glass" style={{ padding: '1rem 1.75rem', borderRadius: '12px', display: 'flex', alignItems: 'center', gap: '0.75rem', borderColor: 'rgba(34, 197, 94, 0.5)' }}>
+            <Check size={18} style={{ color: '#22c55e' }} />
+            <span style={{ color: '#22c55e', fontWeight: 700 }}>Link copied!</span>
           </div>
         </div>
       )}
