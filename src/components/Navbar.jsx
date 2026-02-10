@@ -6,964 +6,916 @@ import {
   Gauge, Cpu, CircuitBoard, GraduationCap, Radio,
   Briefcase, Trophy, Shield, Brain, Heart, FileText,
   Star, Layers, Terminal, Zap, Clock, ChevronDown,
-  Menu, X
+  Menu, X, Activity, Code2, Award
 } from "lucide-react";
 
+// ─────────────────────────────────────────────────────────────
+// DESIGN TOKENS
+// ─────────────────────────────────────────────────────────────
+const T = {
+  cyan:    "#00e5ff",
+  violet:  "#8b5cf6",
+  emerald: "#10d88b",
+  gold:    "#f5c542",
+  crimson: "#ff4d6d",
+  navy:    "#080714",
+  surface: "rgba(10, 9, 28, 0.92)",
+  glass:   "rgba(255,255,255,0.04)",
+  border:  "rgba(0,229,255,0.12)",
+};
+
+// ─────────────────────────────────────────────────────────────
+// NAV DATA
+// ─────────────────────────────────────────────────────────────
+const PRIMARY = [
+  { label: "Dashboard", short: "DASHBOARD",     path: "/home",     Icon: Gauge,        color: T.cyan    },
+  { label: "Tech Stack",short: "SKILLS",    path: "/myskills", Icon: Cpu,          color: T.emerald },
+  { label: "Projects",  short: "PROJECTS",     path: "/projects", Icon: CircuitBoard, color: T.violet  },
+  { label: "Education", short: "EDUCATION",    path: "/education",Icon: GraduationCap,color: T.gold    },
+  { label: "Connect",   short: "CONTACT",   path: "/contact",  Icon: Radio,        color: T.crimson },
+];
+
+const EXTENDED = [
+  { label: "Experience",      path: "/internships",  Icon: Briefcase,   color: T.cyan,    badge: "3+",    desc: "Professional Timeline"      },
+  { label: "Competitions",    path: "/hackathons",   Icon: Trophy,      color: T.gold,    badge: "15+",   desc: "Hackathon History"          },
+  { label: "Credentials",     path: "/certifications",Icon: Shield,     color: T.violet,  badge: "20+",   desc: "Verified Certificates"      },
+  { label: "Workshops",       path: "/workshops",    Icon: Brain,       color: T.emerald,               desc: "Knowledge Transfer"         },
+  { label: "Milestones",      path: "/achivements",  Icon: Star,        color: T.crimson,               desc: "Recognition & Awards"       },
+  { label: "Beyond Code",     path: "/beyondcoding", Icon: Heart,       color: "#fb7185",               desc: "Life & Interests"           },
+  { label: "Curriculum Vitae",path: "/resume",       Icon: FileText,    color: "#60a5fa", badge: "2025",  desc: "Download PDF"               },
+];
+
+// ─────────────────────────────────────────────────────────────
+// UTILITY: hex → r,g,b string
+// ─────────────────────────────────────────────────────────────
+function hexRGB(hex) {
+  const h = hex.replace("#","");
+  const r = parseInt(h.slice(0,2),16);
+  const g = parseInt(h.slice(2,4),16);
+  const b = parseInt(h.slice(4,6),16);
+  return `${r},${g},${b}`;
+}
+
+// ─────────────────────────────────────────────────────────────
+// NOISE SVG FILTER (grain overlay)
+// ─────────────────────────────────────────────────────────────
+const NoiseSVG = () => (
+  <svg style={{ position:"absolute", width:0, height:0 }}>
+    <filter id="grain">
+      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch"/>
+      <feColorMatrix type="saturate" values="0"/>
+      <feBlend in="SourceGraphic" mode="overlay" result="blend"/>
+      <feComposite in="blend" in2="SourceGraphic"/>
+    </filter>
+  </svg>
+);
+
+// ─────────────────────────────────────────────────────────────
+// LIVE CLOCK WIDGET
+// ─────────────────────────────────────────────────────────────
+const LiveClock = () => {
+  const [t, setT] = useState(new Date());
+  useEffect(() => {
+    const id = setInterval(() => setT(new Date()), 1000);
+    return () => clearInterval(id);
+  }, []);
+
+  const hh = String(t.getHours()).padStart(2,"0");
+  const mm = String(t.getMinutes()).padStart(2,"0");
+  const ss = String(t.getSeconds()).padStart(2,"0");
+
+  return (
+    <div className="clock-widget">
+      <Activity size={13} strokeWidth={2.5}/>
+      <span className="clock-digits">{hh}</span>
+      <span className="clock-sep">:</span>
+      <span className="clock-digits">{mm}</span>
+      <span className="clock-sep">:</span>
+      <span className="clock-digits pulse-sec">{ss}</span>
+    </div>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────
+// SIGNATURE LOGO
+// ─────────────────────────────────────────────────────────────
+const LogoMark = ({ compact, onClick }) => (
+  <button className="logo-btn" onClick={onClick}>
+    <div className={`logo-ring ${compact ? "compact" : ""}`}>
+      <div className="logo-aura"/>
+      <div className="logo-face">
+        <Code2 size={compact ? 20 : 24} color={T.cyan} strokeWidth={2.4}/>
+      </div>
+      <svg className="logo-svg" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="27" fill="none"
+          stroke={T.cyan} strokeWidth="0.8" strokeDasharray="3 5"
+          style={{ animation: "spinCW 22s linear infinite" }}/>
+        <circle cx="30" cy="30" r="22" fill="none"
+          stroke={T.violet} strokeWidth="0.6" strokeDasharray="2 8"
+          style={{ animation: "spinCCW 18s linear infinite" }}/>
+      </svg>
+    </div>
+    <div className="logo-text-wrap">
+      <span className="logo-name">BHAGAVAN</span>
+      <span className="logo-sub">FULL-STACK ENGINEER</span>
+    </div>
+  </button>
+);
+
+// ─────────────────────────────────────────────────────────────
+// PRIMARY NAV ITEM
+// ─────────────────────────────────────────────────────────────
+const NavItem = ({ item, active, onClick }) => {
+  const { Icon, short, color } = item;
+  const rgb = hexRGB(color);
+  return (
+    <button
+      className={`nav-pill ${active ? "nav-active" : ""}`}
+      onClick={onClick}
+      style={{ "--ac": color, "--ar": rgb }}
+    >
+      <span className="pill-icon">
+        <Icon size={15} strokeWidth={active ? 2.8 : 2.2}/>
+      </span>
+      <span className="pill-label">{short}</span>
+      {active && <span className="active-dot"/>}
+      <span className="pill-glow"/>
+    </button>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────
+// MORE DROPDOWN
+// ─────────────────────────────────────────────────────────────
+const MoreDropdown = ({ currentRoute, onNavigate }) => (
+  <div className="mega-drop">
+    <div className="mega-header">
+      <span>EXTENDED PROFILE</span>
+      <span className="mega-count">{EXTENDED.length} MODULES</span>
+    </div>
+    <div className="mega-grid">
+      {EXTENDED.map((item) => {
+        const active = currentRoute === item.path;
+        const { Icon, color, badge } = item;
+        return (
+          <button
+            key={item.path}
+            className={`mega-item ${active ? "mega-active" : ""}`}
+            style={{ "--mc": color, "--mr": hexRGB(color) }}
+            onClick={() => onNavigate(item.path)}
+          >
+            <span className="mega-icon">
+              <Icon size={17} color="#0a0918" strokeWidth={2.6}/>
+            </span>
+            <div className="mega-body">
+              <span className="mega-label">{item.label}</span>
+              <span className="mega-desc">{item.desc}</span>
+            </div>
+            {badge && <span className="mega-badge">{badge}</span>}
+          </button>
+        );
+      })}
+    </div>
+  </div>
+);
+
+// ─────────────────────────────────────────────────────────────
+// MAIN COMPONENT
+// ─────────────────────────────────────────────────────────────
 const ModernCyberNav = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
+  const location  = useLocation();
+  const navigate  = useNavigate();
 
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
-  const [hoveredPath, setHoveredPath] = useState(null);
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [scanTrigger, setScanTrigger] = useState(null);
+  const [menuOpen, setMenuOpen]   = useState(false);
+  const [moreOpen, setMoreOpen]   = useState(false);
+  const [scrolled, setScrolled]   = useState(false);
+  const [isMobile, setIsMobile]   = useState(false);
+  const [lx, setLx]               = useState(0); // spotlight X %
+  const [ly, setLy]               = useState(0); // spotlight Y %
 
-  const navContainerRef = useRef(null);
-  const moreButtonRef = useRef(null);
-  const matrixCanvasRef = useRef(null);
+  const navRef      = useRef(null);
+  const moreRef     = useRef(null);
 
   const currentRoute = location.pathname === "/" ? "/home" : location.pathname;
 
-  // ────────────────────────────────────────────────
-  // Navigation structure
-  // ────────────────────────────────────────────────
-  const primaryLinks = [
-    {
-      label: "Dashboard",
-      short: "HOME",
-      path: "/home",
-      icon: Gauge,
-      color: "#00d4ff",
-      desc: "System Overview"
-    },
-    {
-      label: "Tech Stack",
-      short: "Skills",
-      path: "/myskills",
-      icon: Cpu,
-      color: "#34d399",
-      desc: "Core Technologies"
-    },
-    {
-      label: "Projects",
-      short: "Projects",
-      path: "/projects",
-      icon: CircuitBoard,
-      color: "#a78bfa",
-      desc: "Showcase & Case Studies"
-    },
-    {
-      label: "Education",
-      short: "Stydy",
-      path: "/education",
-      icon: GraduationCap,
-      color: "#fbbf24",
-      desc: "Academic Background"
-    },
-    {
-      label: "Connect",
-      short: "Contact",
-      path: "/contact",
-      icon: Radio,
-      color: "#f87171",
-      desc: "Get in Touch"
-    },
-  ];
-
-  const extendedLinks = [
-    {
-      label: "Experience",
-      path: "/internships",
-      icon: Briefcase,
-      color: "#00d4ff",
-      badge: "3+",
-      desc: "Professional Timeline"
-    },
-    {
-      label: "Competitions",
-      path: "/hackathons",
-      icon: Trophy,
-      color: "#fbbf24",
-      badge: "15+",
-      desc: "Hackathon History"
-    },
-    {
-      label: "Credentials",
-      path: "/certifications",
-      icon: Shield,
-      color: "#a78bfa",
-      badge: "20+",
-      desc: "Verified Certificates"
-    },
-    {
-      label: "Workshops",
-      path: "/workshops",
-      icon: Brain,
-      color: "#34d399",
-      desc: "Knowledge Transfer Sessions"
-    },
-    {
-      label: "Milestones",
-      path: "/achivements",
-      icon: Star,
-      color: "#f87171",
-      desc: "Recognition & Awards"
-    },
-    {
-      label: "Beyond Code",
-      path: "/beyondcoding",
-      icon: Heart,
-      color: "#fb7185",
-      desc: "Life & Interests"
-    },
-    {
-      label: "Curriculum Vitae",
-      path: "/resume",
-      icon: FileText,
-      color: "#60a5fa",
-      badge: "v2025",
-      desc: "Download PDF"
-    },
-  ];
-
-  // ────────────────────────────────────────────────
-  // Real-time clock + periodic scanline trigger
-  // ────────────────────────────────────────────────
+  // ── Scroll & resize
   useEffect(() => {
-    const clockInterval = setInterval(() => {
-      setCurrentTime(new Date());
-    }, 1000);
-
-    const scanInterval = setInterval(() => {
-      if (Math.random() > 0.65) {
-        setScanTrigger(Date.now());
-      }
-    }, 4200);
-
-    return () => {
-      clearInterval(clockInterval);
-      clearInterval(scanInterval);
-    };
-  }, []);
-
-  // ────────────────────────────────────────────────
-  // Very subtle matrix rain background
-  // ────────────────────────────────────────────────
-  useEffect(() => {
-    if (!matrixCanvasRef.current || isMobile) return;
-
-    const canvas = matrixCanvasRef.current;
-    const ctx = canvas.getContext("2d");
-    let frameId;
-
-    const resizeCanvas = () => {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    };
-
-    resizeCanvas();
-
-    const fontSize = 13;
-    const columns = Math.floor(canvas.width / fontSize);
-    const drops = new Array(columns).fill(1);
-
-    const katakana = "アイウエオカキクケコサシスセソタチツテトナニヌネノハヒフヘホマミムメモヤユヨラリルレロワヲン".split("");
-    const latin = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
-    const nums = "0123456789".split("");
-    const chars = [...katakana, ...latin, ...nums];
-
-    const drawMatrix = () => {
-      ctx.fillStyle = "rgba(5, 5, 20, 0.08)";
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-      ctx.fillStyle = "rgba(96, 165, 250, 0.28)";
-      ctx.font = `${fontSize}px 'Roboto Mono', monospace`;
-
-      drops.forEach((y, i) => {
-        const char = chars[Math.floor(Math.random() * chars.length)];
-        const xPos = i * fontSize;
-
-        ctx.fillText(char, xPos, y * fontSize);
-
-        if (y * fontSize > canvas.height && Math.random() > 0.975) {
-          drops[i] = 0;
-        }
-
-        drops[i]++;
-      });
-
-      frameId = requestAnimationFrame(drawMatrix);
-    };
-
-    drawMatrix();
-
-    window.addEventListener("resize", resizeCanvas);
-
-    return () => {
-      cancelAnimationFrame(frameId);
-      window.removeEventListener("resize", resizeCanvas);
-    };
-  }, [isMobile]);
-
-  // ────────────────────────────────────────────────
-  // Scroll & mobile detection
-  // ────────────────────────────────────────────────
-  useEffect(() => {
-    const updateLayout = () => {
+    const sync = () => {
+      setScrolled(window.scrollY > 36);
       setIsMobile(window.innerWidth < 1024);
-      setScrolled(window.scrollY > 40);
     };
-
-    updateLayout();
-    window.addEventListener("resize", updateLayout);
-    window.addEventListener("scroll", updateLayout, { passive: true });
-
-    return () => {
-      window.removeEventListener("resize", updateLayout);
-      window.removeEventListener("scroll", updateLayout);
-    };
+    sync();
+    window.addEventListener("scroll", sync, { passive: true });
+    window.addEventListener("resize", sync);
+    return () => { window.removeEventListener("scroll", sync); window.removeEventListener("resize", sync); };
   }, []);
 
-  // Close more dropdown when clicking outside
+  // ── Close menu on route change
+  useEffect(() => { setMenuOpen(false); setMoreOpen(false); }, [location.pathname]);
+
+  // ── Click outside → close more
   useEffect(() => {
-    const handleOutsideClick = (e) => {
-      if (moreButtonRef.current && !moreButtonRef.current.contains(e.target)) {
-        setMoreOpen(false);
-      }
-    };
-
-    if (moreOpen) {
-      document.addEventListener("mousedown", handleOutsideClick);
-    }
-
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
+    if (!moreOpen) return;
+    const handle = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
+    document.addEventListener("mousedown", handle);
+    return () => document.removeEventListener("mousedown", handle);
   }, [moreOpen]);
 
-  // Close mobile menu on route change
-  useEffect(() => {
-    setMenuOpen(false);
-    setMoreOpen(false);
-  }, [location.pathname]);
-
-  // Mouse position tracking → holographic lighting
+  // ── Mouse spotlight
   const handleMouseMove = useCallback((e) => {
-    if (isMobile || !navContainerRef.current) return;
+    if (!navRef.current) return;
+    const r = navRef.current.getBoundingClientRect();
+    setLx(((e.clientX - r.left) / r.width)  * 100);
+    setLy(((e.clientY - r.top)  / r.height) * 100);
+  }, []);
 
-    const rect = navContainerRef.current.getBoundingClientRect();
-    setMousePosition({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top,
-    });
-  }, [isMobile]);
-
-  const navigateTo = (path) => {
-    if (path !== currentRoute) {
-      navigate(path);
-      window.scrollTo({ top: 0, behavior: "smooth" });
-    }
+  const go = useCallback((path) => {
+    if (path !== currentRoute) navigate(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
     setMenuOpen(false);
     setMoreOpen(false);
-  };
+  }, [currentRoute, navigate]);
 
-  // ────────────────────────────────────────────────
-  // RENDER
-  // ────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────
   return (
     <>
+      {/* ── GLOBAL STYLES ────────────────────────────────── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Roboto+Mono:wght@300;400;500;700&family=Rajdhani:wght@500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne+Mono&family=Syne:wght@600;700;800&display=swap');
 
-        :root {
-          --primary:   #00d4ff;
-          --secondary: #a78bfa;
-          --success:   #34d399;
-          --warning:   #fbbf24;
-          --danger:    #f87171;
-          --dark-bg:   #0f0e1a;
-          --glass:     rgba(15, 14, 35, 0.86);
-          --text:      #e2e8f0;
-          --text-dim:  #94a3b8;
-        }
-
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
+        /* ---------- RESET & BASE ---------- */
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html { scroll-behavior: smooth; }
         body {
-          font-family: 'Inter', system-ui, sans-serif;
-          background: #0a0814;
-          color: var(--text);
-          cursor: none;
-          overflow-x: hidden;
+          background: #07060f;
+          color: #dde3f0;
+          font-family: 'Space Grotesk', system-ui, sans-serif;
+          -webkit-font-smoothing: antialiased;
         }
 
-        .cyber-cursor {
-          position: fixed;
-          width: 26px;
-          height: 26px;
-          border: 1px solid var(--primary);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 99999;
-          mix-blend-mode: difference;
-          transition: transform 0.09s ease-out, width 0.18s, height 0.18s;
-          box-shadow: 0 0 14px var(--primary);
-        }
-
-        .cursor-core {
-          position: fixed;
-          width: 7px;
-          height: 7px;
-          background: var(--primary);
-          border-radius: 50%;
-          pointer-events: none;
-          z-index: 100000;
-          transform: translate(-50%, -50%);
-          box-shadow: 0 0 18px var(--primary), 0 0 36px rgba(0,212,255,0.6);
-        }
-
-        .glass-navbar {
+        /* ---------- NAVBAR SHELL ---------- */
+        .gnav {
           position: fixed;
           inset: 0 0 auto 0;
-          z-index: 9998;
-          height: 86px;
-          background: var(--glass);
-          backdrop-filter: blur(38px) saturate(190%);
-          -webkit-backdrop-filter: blur(38px) saturate(190%);
-          border-bottom: 1px solid rgba(0, 212, 255, 0.16);
-          box-shadow: 0 10px 50px rgba(0,0,0,0.65), 0 0 70px rgba(0,212,255,0.1);
-          transition: all 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+          z-index: 9000;
+          height: 76px;
+          transition: height .5s cubic-bezier(.22,1,.36,1),
+                      background .5s, border-color .5s, box-shadow .5s;
         }
 
-        .glass-navbar.scrolled {
-          height: 74px;
-          background: rgba(10, 9, 22, 0.94);
-          border-bottom-color: rgba(0, 212, 255, 0.26);
-          box-shadow: 0 18px 70px rgba(0,0,0,0.75), 0 0 90px rgba(0,212,255,0.16);
-        }
-
-        .scan-effect {
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(to bottom, transparent, rgba(0,212,255,0.06) 50%, transparent);
-          pointer-events: none;
-          animation: scan-move 7s linear infinite;
-          opacity: 0.55;
-        }
-
-        @keyframes scan-move {
-          0%   { transform: translateY(-100%); }
-          100% { transform: translateY(100%); }
-        }
-
-        .nav-item {
-          position: relative;
-          padding: 0.82rem 1.5rem;
-          border-radius: 14px;
-          color: var(--text);
-          font-family: 'Rajdhani', sans-serif;
-          font-weight: 600;
-          letter-spacing: 1.15px;
-          text-transform: uppercase;
-          font-size: 0.94rem;
-          border: 1px solid transparent;
-          transition: all 0.38s cubic-bezier(0.16,1,0.3,1);
-          overflow: hidden;
-        }
-
-        .nav-item:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 10px 30px rgba(0,212,255,0.22);
-          border-color: rgba(0,212,255,0.38);
-        }
-
-        .nav-item.active {
-          background: rgba(0,212,255,0.13);
-          border-color: var(--primary);
-          color: var(--primary);
-          font-weight: 700;
-          box-shadow: 0 0 32px rgba(0,212,255,0.38), inset 0 0 14px rgba(0,212,255,0.18);
-        }
-
-        .active-scanning::after {
+        /* blur + noise bg */
+        .gnav::before {
           content: '';
           position: absolute;
           inset: 0;
-          background: linear-gradient(90deg, transparent, rgba(0,212,255,0.22), transparent);
-          animation: quick-scan 1.6s ease-out forwards;
+          background: rgba(8, 7, 20, 0.82);
+          backdrop-filter: blur(40px) saturate(200%);
+          -webkit-backdrop-filter: blur(40px) saturate(200%);
+          border-bottom: 1px solid rgba(0,229,255,0.10);
+          transition: inherit;
+          z-index: 0;
         }
-
-        @keyframes quick-scan {
-          0%   { transform: translateX(-120%); }
-          100% { transform: translateX(120%); }
-        }
-
-        .more-dropdown {
+        /* spotlight overlay */
+        .gnav::after {
+          content: '';
           position: absolute;
-          top: calc(100% + 14px);
+          inset: 0;
+          background: radial-gradient(
+            circle 420px at var(--lx,50%) var(--ly,50%),
+            rgba(0,229,255,0.06) 0%,
+            transparent 70%
+          );
+          pointer-events: none;
+          transition: background .12s linear;
+          z-index: 1;
+        }
+
+        .gnav.scrolled { height: 64px; }
+        .gnav.scrolled::before {
+          background: rgba(6, 5, 16, 0.96);
+          border-bottom-color: rgba(0,229,255,0.22);
+          box-shadow: 0 12px 60px rgba(0,0,0,.7), 0 0 60px rgba(0,229,255,0.08);
+        }
+
+        /* top accent line */
+        .gnav-topline {
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg,
+            transparent 0%,
+            rgba(0,229,255,0.7) 35%,
+            rgba(139,92,246,0.7) 65%,
+            transparent 100%
+          );
+          z-index: 2;
+        }
+        /* bottom scanline */
+        .gnav-scan {
+          position: absolute;
+          bottom: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg,
+            transparent, rgba(0,229,255,0.18), transparent
+          );
+          z-index: 2;
+          animation: scanSlide 8s linear infinite;
+        }
+        @keyframes scanSlide {
+          0%   { background-position: -100% 0; }
+          100% { background-position: 200% 0; }
+        }
+
+        /* row */
+        .gnav-inner {
+          position: relative;
+          z-index: 3;
+          max-width: 1680px;
+          margin: 0 auto;
+          padding: 0 3.5rem;
+          height: 100%;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 1.5rem;
+        }
+        @media(max-width:1023px) {
+          .gnav-inner { padding: 0 1.4rem; }
+        }
+
+        /* ---- LOGO ---- */
+        .logo-btn {
+          display: flex;
+          align-items: center;
+          gap: 1rem;
+          background: none;
+          border: none;
+          cursor: pointer;
+          padding: 0;
+          flex-shrink: 0;
+        }
+        .logo-ring {
+          position: relative;
+          width: 52px; height: 52px;
+          flex-shrink: 0;
+          transition: width .5s, height .5s;
+        }
+        .logo-ring.compact { width: 44px; height: 44px; }
+        .logo-aura {
+          position: absolute; inset: -5px;
+          border-radius: 50%;
+          background: radial-gradient(circle, rgba(0,229,255,.35), transparent 70%);
+          animation: breatheAura 7s ease-in-out infinite;
+        }
+        @keyframes breatheAura {
+          0%,100% { opacity:.7; transform:scale(1); }
+          50%      { opacity:1; transform:scale(1.12); }
+        }
+        .logo-face {
+          position: relative;
+          width: 100%; height: 100%;
+          border-radius: 14px;
+          background: linear-gradient(145deg, #12112a, #0c0b1e);
+          border: 1.5px solid rgba(0,229,255,0.55);
+          box-shadow: inset 0 0 18px rgba(0,229,255,.2),
+                      0 0 28px rgba(0,229,255,.18);
+          display: flex; align-items: center; justify-content: center;
+          z-index: 1;
+        }
+        .logo-svg {
+          position: absolute; inset: -8px;
+          width: calc(100% + 16px);
+          height: calc(100% + 16px);
+          pointer-events: none;
+        }
+        @keyframes spinCW  { to { transform: rotate(360deg);  }}
+        @keyframes spinCCW { to { transform: rotate(-360deg); }}
+
+        .logo-text-wrap {
+          display: flex; flex-direction: column; gap: 3px;
+        }
+        .logo-name {
+          font-family: 'Syne', sans-serif;
+          font-weight: 800;
+          font-size: 1.45rem;
+          letter-spacing: 4px;
+          background: linear-gradient(90deg, #00e5ff 0%, #8b5cf6 55%, #f5c542 100%);
+          background-size: 250% 100%;
+          -webkit-background-clip: text;
+          background-clip: text;
+          color: transparent;
+          animation: gradFlow 10s linear infinite;
+        }
+        @keyframes gradFlow {
+          0%   { background-position: 0% 50%; }
+          100% { background-position: 250% 50%; }
+        }
+        .logo-sub {
+          font-family: 'Syne Mono', monospace;
+          font-size: 0.62rem;
+          letter-spacing: 3.5px;
+          color: rgba(165,180,252,0.75);
+          text-transform: uppercase;
+        }
+
+        /* ---- DESKTOP PILLS ---- */
+        .nav-pills {
+          display: flex; align-items: center; gap: 4px;
+        }
+        .nav-pill {
+          position: relative;
+          display: flex; align-items: center; gap: 7px;
+          padding: 8px 18px;
+          border-radius: 10px;
+          border: 1px solid transparent;
+          background: transparent;
+          color: rgba(221,227,240,0.7);
+          font-family: 'Syne Mono', monospace;
+          font-size: 0.76rem;
+          letter-spacing: 1.6px;
+          cursor: pointer;
+          transition: all .3s cubic-bezier(.16,1,.3,1);
+          overflow: hidden;
+          white-space: nowrap;
+        }
+        .nav-pill:hover {
+          color: #fff;
+          background: rgba(255,255,255,0.05);
+          border-color: rgba(var(--ar,0,229,255),.3);
+          transform: translateY(-1px);
+        }
+        .nav-pill:hover .pill-glow {
+          opacity: 1;
+        }
+        .nav-active {
+          background: rgba(var(--ar,0,229,255),0.12) !important;
+          border-color: var(--ac, #00e5ff) !important;
+          color: var(--ac, #00e5ff) !important;
+          box-shadow: 0 0 24px rgba(var(--ar,0,229,255),0.22),
+                      inset 0 0 10px rgba(var(--ar,0,229,255),0.1);
+          font-weight: 600;
+        }
+        .pill-icon {
+          display: flex; align-items: center;
+          opacity: .85;
+        }
+        .nav-active .pill-icon { opacity: 1; }
+        .pill-label { position: relative; z-index: 1; }
+        .active-dot {
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: var(--ac,#00e5ff);
+          box-shadow: 0 0 8px var(--ac,#00e5ff);
+          animation: dotBlink 2.5s ease-in-out infinite;
+          flex-shrink: 0;
+        }
+        @keyframes dotBlink {
+          0%,100% { opacity:1; transform:scale(1); }
+          50%      { opacity:.3; transform:scale(.7); }
+        }
+        .pill-glow {
+          position: absolute; inset: 0;
+          background: radial-gradient(ellipse at 50% 120%,
+            rgba(var(--ar,0,229,255),.15) 0%, transparent 70%
+          );
+          opacity: 0;
+          transition: opacity .3s;
+          pointer-events: none;
+        }
+
+        /* ---- MORE BUTTON ---- */
+        .more-wrap { position: relative; }
+        .more-btn {
+          display: flex; align-items: center; gap: 8px;
+          padding: 8px 18px;
+          border-radius: 10px;
+          border: 1px solid rgba(139,92,246,.35);
+          background: rgba(139,92,246,0.08);
+          color: rgba(196,181,253,.85);
+          font-family: 'Syne Mono', monospace;
+          font-size: .76rem;
+          letter-spacing: 1.6px;
+          cursor: pointer;
+          transition: all .3s ease;
+          white-space: nowrap;
+        }
+        .more-btn:hover, .more-open {
+          background: rgba(139,92,246,.18) !important;
+          border-color: #8b5cf6 !important;
+          color: #c4b5fd !important;
+          box-shadow: 0 0 22px rgba(139,92,246,.25);
+        }
+        .more-chevron {
+          transition: transform .4s cubic-bezier(.22,1,.36,1);
+        }
+        .more-chevron.open { transform: rotate(180deg); }
+
+        /* ---- MEGA DROPDOWN ---- */
+        .mega-drop {
+          position: absolute;
+          top: calc(100% + 12px);
           right: 0;
-          min-width: 370px;
-          background: rgba(15, 14, 35, 0.96);
-          backdrop-filter: blur(40px);
-          border: 1px solid rgba(0,212,255,0.28);
-          border-radius: 18px;
-          box-shadow: 0 24px 90px rgba(0,0,0,0.8), 0 0 70px rgba(0,212,255,0.18);
-          padding: 1.1rem;
+          width: 480px;
+          background: rgba(10,9,24,0.97);
+          backdrop-filter: blur(48px);
+          border: 1px solid rgba(0,229,255,0.2);
+          border-radius: 20px;
+          box-shadow:
+            0 32px 100px rgba(0,0,0,.85),
+            0 0 0 1px rgba(139,92,246,.12),
+            0 0 80px rgba(0,229,255,.08);
+          overflow: hidden;
+          animation: dropIn .38s cubic-bezier(.16,1,.3,1);
           z-index: 9999;
-          animation: dropdown-appear 0.38s cubic-bezier(0.16,1,0.3,1);
         }
-
-        @keyframes dropdown-appear {
-          from { opacity: 0; transform: translateY(-18px) scale(0.95); }
-          to   { opacity: 1; transform: translateY(0) scale(1); }
+        @keyframes dropIn {
+          from { opacity:0; transform:translateY(-14px) scale(.97); }
+          to   { opacity:1; transform:translateY(0)    scale(1);    }
         }
-
-        .dropdown-entry {
+        .mega-header {
           display: flex;
           align-items: center;
-          gap: 1.1rem;
-          padding: 1.05rem 1.4rem;
+          justify-content: space-between;
+          padding: 1rem 1.4rem .9rem;
+          border-bottom: 1px solid rgba(0,229,255,.1);
+        }
+        .mega-header > span:first-child {
+          font-family: 'Syne Mono', monospace;
+          font-size: .65rem;
+          letter-spacing: 3px;
+          color: rgba(0,229,255,.6);
+        }
+        .mega-count {
+          font-family: 'Syne Mono', monospace;
+          font-size: .62rem;
+          letter-spacing: 2px;
+          color: rgba(139,92,246,.7);
+          background: rgba(139,92,246,.12);
+          padding: 3px 10px;
+          border-radius: 20px;
+          border: 1px solid rgba(139,92,246,.25);
+        }
+        .mega-grid {
+          padding: .7rem;
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 4px;
+        }
+        .mega-item {
+          display: flex; align-items: center; gap: .9rem;
+          padding: .9rem 1rem;
           border-radius: 12px;
-          transition: all 0.3s ease;
-          color: var(--text);
+          border: 1px solid transparent;
+          background: transparent;
+          color: #dde3f0;
+          cursor: pointer;
+          transition: all .28s cubic-bezier(.16,1,.3,1);
+          text-align: left;
+        }
+        .mega-item:hover {
+          background: rgba(var(--mr,0,229,255),.09);
+          border-color: rgba(var(--mr,0,229,255),.3);
+          transform: translateY(-1px);
+          box-shadow: 0 8px 26px rgba(var(--mr,0,229,255),.14);
+        }
+        .mega-active {
+          background: rgba(var(--mr,0,229,255),.12) !important;
+          border-color: var(--mc,#00e5ff) !important;
+        }
+        .mega-icon {
+          width: 40px; height: 40px;
+          border-radius: 10px;
+          background: linear-gradient(135deg, var(--mc,#00e5ff), rgba(var(--mr,0,229,255),.6));
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 6px 16px rgba(var(--mr,0,229,255),.25);
+        }
+        .mega-body {
+          display: flex; flex-direction: column; gap: 3px;
+          flex: 1;
+          min-width: 0;
+        }
+        .mega-label {
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: .87rem;
+          letter-spacing: .4px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .mega-desc {
+          font-size: .72rem;
+          color: rgba(148,163,184,.7);
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .mega-badge {
+          font-family: 'Syne Mono', monospace;
+          font-size: .64rem;
+          padding: 4px 9px;
+          background: rgba(255,255,255,.06);
+          border: 1px solid rgba(0,229,255,.22);
+          border-radius: 20px;
+          color: rgba(196,181,253,.9);
+          flex-shrink: 0;
         }
 
-        .dropdown-entry:hover {
-          background: rgba(0,212,255,0.1);
-          transform: translateX(7px);
-          box-shadow: 0 8px 24px rgba(0,212,255,0.16);
+        /* ---- CLOCK ---- */
+        .clock-widget {
+          display: flex; align-items: center; gap: 7px;
+          padding: 7px 14px;
+          border-radius: 10px;
+          border: 1px solid rgba(0,229,255,.25);
+          background: rgba(0,229,255,.06);
+          font-family: 'Syne Mono', monospace;
+          font-size: .82rem;
+          color: #00e5ff;
+          letter-spacing: 1px;
+          box-shadow: 0 0 22px rgba(0,229,255,.1);
+          white-space: nowrap;
+          flex-shrink: 0;
         }
+        .clock-digits { opacity: .9; }
+        .clock-sep {
+          opacity: .45;
+          animation: sepBlink 1s ease-in-out infinite;
+        }
+        @keyframes sepBlink { 0%,100%{opacity:.45} 50%{opacity:.15} }
+        .pulse-sec { color: rgba(0,229,255,.65); }
 
-        .icon-container {
-          width: 50px;
-          height: 50px;
+        /* ---- MOBILE TOGGLE ---- */
+        .mob-toggle {
+          display: flex; align-items: center; justify-content: center;
+          width: 46px; height: 46px;
           border-radius: 12px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          background: linear-gradient(135deg, var(--c1), var(--c2));
-          box-shadow: 0 6px 22px rgba(0,0,0,0.45);
+          border: 1px solid rgba(0,229,255,.3);
+          background: rgba(0,229,255,.07);
+          color: #00e5ff;
+          cursor: pointer;
+          transition: all .3s ease;
+        }
+        .mob-toggle.open {
+          background: rgba(0,229,255,.14);
+          border-color: #00e5ff;
+          box-shadow: 0 0 28px rgba(0,229,255,.3);
         }
 
-        .mobile-fullscreen-menu {
+        /* ---- MOBILE MENU ---- */
+        .mob-menu {
           position: fixed;
-          inset: 86px 0 0 0;
-          background: rgba(8, 7, 20, 0.98);
+          top: 76px;
+          inset-inline: 0;
+          bottom: 0;
+          background: rgba(6,5,16,.98);
           backdrop-filter: blur(44px);
-          z-index: 9997;
+          z-index: 8999;
           overflow-y: auto;
-          padding: 2.2rem 1.6rem;
-          animation: menu-open 0.42s ease-out;
+          padding: 2rem 1.4rem 4rem;
+          animation: mobSlide .42s cubic-bezier(.22,1,.36,1);
+        }
+        @keyframes mobSlide {
+          from { opacity:0; transform:translateY(-28px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        .mob-inner { max-width: 600px; margin: 0 auto; }
+
+        .mob-clock {
+          display: flex; align-items: center; justify-content: center; gap: 10px;
+          padding: 1.2rem;
+          border-radius: 16px;
+          border: 1px solid rgba(0,229,255,.2);
+          background: rgba(0,229,255,.05);
+          font-family: 'Syne Mono', monospace;
+          font-size: 1.05rem;
+          color: #00e5ff;
+          margin-bottom: 2rem;
         }
 
-        @keyframes menu-open {
-          from { opacity: 0; transform: translateY(-40px); }
-          to   { opacity: 1; transform: translateY(0); }
+        .mob-section-label {
+          font-family: 'Syne Mono', monospace;
+          font-size: .62rem;
+          letter-spacing: 3px;
+          color: rgba(0,229,255,.45);
+          padding: .4rem .4rem .8rem;
         }
 
-        @media (max-width: 1023px) {
-          body { cursor: default; }
-          .cyber-cursor, .cursor-core { display: none !important; }
+        .mob-item {
+          display: flex; align-items: center; gap: 1.2rem;
+          width: 100%;
+          padding: 1.1rem 1.3rem;
+          margin-bottom: .6rem;
+          border-radius: 16px;
+          border: 1px solid rgba(0,229,255,.1);
+          background: rgba(255,255,255,.03);
+          color: #dde3f0;
+          cursor: pointer;
+          transition: all .32s ease;
+          text-align: left;
+          animation: mobItemIn .6s cubic-bezier(.22,1,.36,1) both;
         }
+        .mob-item:hover {
+          background: rgba(var(--mr,0,229,255),.07);
+          border-color: rgba(var(--mr,0,229,255),.3);
+          transform: translateX(5px);
+        }
+        .mob-item.mob-active {
+          background: rgba(var(--mr,0,229,255),.12);
+          border-color: var(--mc,#00e5ff);
+          color: var(--mc,#00e5ff);
+          box-shadow: 0 8px 30px rgba(var(--mr,0,229,255),.18);
+        }
+        @keyframes mobItemIn {
+          from { opacity:0; transform:translateY(20px); }
+          to   { opacity:1; transform:translateY(0); }
+        }
+        .mob-icon {
+          width: 52px; height: 52px;
+          border-radius: 13px;
+          background: linear-gradient(135deg, var(--mc,#00e5ff), rgba(var(--mr,0,229,255),.6));
+          display: flex; align-items: center; justify-content: center;
+          flex-shrink: 0;
+          box-shadow: 0 8px 22px rgba(var(--mr,0,229,255),.25);
+        }
+        .mob-text { flex: 1; }
+        .mob-label {
+          font-family: 'Syne', sans-serif;
+          font-weight: 700;
+          font-size: 1rem;
+          display: block;
+        }
+        .mob-desc {
+          font-size: .8rem;
+          color: rgba(148,163,184,.65);
+          display: block;
+          margin-top: 3px;
+        }
+        .mob-badge {
+          font-family: 'Syne Mono', monospace;
+          font-size: .68rem;
+          padding: 5px 11px;
+          border-radius: 20px;
+          border: 1px solid rgba(0,229,255,.28);
+          background: rgba(0,229,255,.09);
+          color: rgba(196,181,253,.9);
+        }
+
+        .mob-divider {
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(0,229,255,.35), transparent);
+          margin: 1.6rem 0;
+          box-shadow: 0 0 12px rgba(0,229,255,.25);
+        }
+
+        /* ── scrollbar ── */
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb {
+          background: rgba(0,229,255,.25);
+          border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,.5); }
       `}</style>
 
-      {/* Futuristic cursor */}
-      {!isMobile && (
-        <>
-          <div
-            className="cyber-cursor"
-            style={{ left: mousePosition.x, top: mousePosition.y }}
-          />
-          <div
-            className="cursor-core"
-            style={{ left: mousePosition.x, top: mousePosition.y }}
-          />
-        </>
-      )}
+      <NoiseSVG/>
 
-      {/* ─── NAVBAR ─────────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* NAVBAR                                                  */}
+      {/* ═══════════════════════════════════════════════════════ */}
       <nav
-        ref={navContainerRef}
+        ref={navRef}
+        className={`gnav ${scrolled ? "scrolled" : ""}`}
+        style={{ "--lx": `${lx}%`, "--ly": `${ly}%` }}
         onMouseMove={handleMouseMove}
-        className={`glass-navbar ${scrolled ? "scrolled" : ""}`}
-        style={{
-          "--mx": `${mousePosition.x}px`,
-          "--my": `${mousePosition.y}px`
-        }}
       >
-        {/* Subtle matrix canvas */}
-        <canvas
-          ref={matrixCanvasRef}
-          style={{
-            position: "absolute",
-            inset: 0,
-            opacity: 0.22,
-            pointerEvents: "none",
-          }}
-        />
+        <div className="gnav-topline"/>
+        <div className="gnav-scan"/>
 
-        {/* Scan line when triggered */}
-        {scanTrigger && <div className="scan-effect" key={scanTrigger} />}
+        <div className="gnav-inner">
 
-        <div
-          style={{
-            maxWidth: "1720px",
-            margin: "0 auto",
-            padding: isMobile ? "0 1.6rem" : "0 4rem",
-            height: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            position: "relative",
-          }}
-        >
-          {/* Logo area */}
-          <button
-            onClick={() => navigateTo("/home")}
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "1.2rem",
-              background: "none",
-              border: "none",
-              cursor: "pointer",
-              padding: 0,
-            }}
-          >
-            <div
-              style={{
-                position: "relative",
-                width: isMobile ? 56 : scrolled ? 60 : 68,
-                height: isMobile ? 56 : scrolled ? 60 : 68,
-                transition: "all 0.55s ease",
-              }}
-            >
-              <div
-                style={{
-                  position: "absolute",
-                  inset: 0,
-                  borderRadius: "50%",
-                  background: "linear-gradient(135deg, #00d4ff, #a78bfa, #34d399)",
-                  opacity: 0.75,
-                  filter: "blur(14px)",
-                  animation: "breathe 9s ease-in-out infinite",
-                }}
-              />
-              <div
-                style={{
-                  position: "relative",
-                  width: "100%",
-                  height: "100%",
-                  background: "linear-gradient(145deg, #1a1733, #121025)",
-                  borderRadius: "50%",
-                  border: "2px solid #00d4ff",
-                  boxShadow: "inset 0 0 24px rgba(0,212,255,0.35)",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                <Terminal size={isMobile ? 26 : scrolled ? 30 : 34} color="#00d4ff" strokeWidth={2.3} />
-              </div>
-            </div>
+          {/* LOGO */}
+          <LogoMark compact={scrolled} onClick={() => go("/home")}/>
 
-            <div>
-              <div
-                style={{
-                  fontFamily: "'Orbitron', sans-serif",
-                  fontSize: isMobile ? "1.55rem" : scrolled ? "1.65rem" : "1.95rem",
-                  fontWeight: 900,
-                  background: "linear-gradient(90deg, #00d4ff, #a78bfa, #fbbf24)",
-                  backgroundSize: "220% 100%",
-                  WebkitBackgroundClip: "text",
-                  backgroundClip: "text",
-                  color: "transparent",
-                  letterSpacing: "3.5px",
-                  animation: "gradientFlow 12s linear infinite",
-                }}
-              >
-                BHAGAVAN
-              </div>
-              <div
-                style={{
-                  fontFamily: "'Roboto Mono', monospace",
-                  fontSize: "0.74rem",
-                  color: "#a5b4fc",
-                  letterSpacing: "2.2px",
-                  fontWeight: 500,
-                  textTransform: "uppercase",
-                  marginTop: "3px",
-                }}
-              >
-                FULL-STACK ENGINEER • 2025
-              </div>
-            </div>
-          </button>
-
-          {/* ─── DESKTOP NAVIGATION ──────────────────────────────── */}
+          {/* DESKTOP LINKS */}
           {!isMobile && (
-            <div style={{ display: "flex", alignItems: "center", gap: "0.7rem" }}>
-              {primaryLinks.map((item) => {
-                const isActive = currentRoute === item.path;
-                const Icon = item.icon;
-
-                return (
-                  <button
+            <>
+              <div className="nav-pills">
+                {PRIMARY.map((item) => (
+                  <NavItem
                     key={item.path}
-                    onClick={() => navigateTo(item.path)}
-                    onMouseEnter={() => setHoveredPath(item.path)}
-                    onMouseLeave={() => setHoveredPath(null)}
-                    className={`nav-item ${isActive ? "active" : ""} ${isActive && scanTrigger ? "active-scanning" : ""}`}
-                  >
-                    <Icon size={19} strokeWidth={isActive ? 2.7 : 2.1} />
-                    <span>{item.short}</span>
+                    item={item}
+                    active={currentRoute === item.path}
+                    onClick={() => go(item.path)}
+                  />
+                ))}
+              </div>
 
-                    {isActive && (
-                      <div
-                        style={{
-                          marginLeft: "auto",
-                          width: 9,
-                          height: 9,
-                          borderRadius: "50%",
-                          background: item.color,
-                          boxShadow: `0 0 14px ${item.color}90`,
-                          animation: "blink 2.2s infinite",
-                        }}
-                      />
-                    )}
-                  </button>
-                );
-              })}
-
-              {/* MORE dropdown trigger */}
-              <div ref={moreButtonRef} style={{ position: "relative" }}>
+              {/* MORE */}
+              <div className="more-wrap" ref={moreRef}>
                 <button
+                  className={`more-btn ${moreOpen ? "more-open" : ""}`}
                   onClick={() => setMoreOpen(!moreOpen)}
-                  className={`nav-item ${moreOpen ? "active" : ""}`}
-                  style={{ color: moreOpen ? "#a78bfa" : "var(--text)" }}
                 >
-                  <Layers size={19} />
+                  <Layers size={15} strokeWidth={2.2}/>
                   <span>MORE</span>
                   <ChevronDown
-                    size={17}
-                    style={{
-                      transform: moreOpen ? "rotate(180deg)" : "rotate(0deg)",
-                      transition: "transform 0.45s ease",
-                    }}
+                    size={14}
+                    strokeWidth={2.5}
+                    className={`more-chevron ${moreOpen ? "open" : ""}`}
                   />
                 </button>
-
                 {moreOpen && (
-                  <div className="more-dropdown">
-                    {extendedLinks.map((item) => {
-                      const isActive = currentRoute === item.path;
-                      const Icon = item.icon;
-
-                      return (
-                        <button
-                          key={item.path}
-                          onClick={() => navigateTo(item.path)}
-                          className="dropdown-entry"
-                          style={{
-                            "--c1": item.color,
-                            "--c2": `${item.color}b0`,
-                          }}
-                        >
-                          <div className="icon-container">
-                            <Icon size={23} color="#0f0e1a" strokeWidth={2.5} />
-                          </div>
-
-                          <div style={{ flex: 1 }}>
-                            <div
-                              style={{
-                                fontFamily: "'Rajdhani', sans-serif",
-                                fontSize: "1.08rem",
-                                fontWeight: 700,
-                                color: isActive ? item.color : "var(--text)",
-                              }}
-                            >
-                              {item.label}
-                            </div>
-                            <div
-                              style={{
-                                fontSize: "0.8rem",
-                                color: "var(--text-dim)",
-                                marginTop: "4px",
-                              }}
-                            >
-                              {item.desc}
-                            </div>
-                          </div>
-
-                          {item.badge && (
-                            <span
-                              style={{
-                                background: "rgba(255,255,255,0.08)",
-                                padding: "5px 11px",
-                                borderRadius: "14px",
-                                fontSize: "0.74rem",
-                                fontFamily: "'Roboto Mono', monospace",
-                                color: "#c4b5fd",
-                                border: "1px solid rgba(0,212,255,0.25)",
-                              }}
-                            >
-                              {item.badge}
-                            </span>
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
+                  <MoreDropdown currentRoute={currentRoute} onNavigate={go}/>
                 )}
               </div>
 
-              {/* Live time display */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "0.8rem",
-                  padding: "0.8rem 1.4rem",
-                  background: "rgba(0,212,255,0.07)",
-                  border: "1px solid rgba(0,212,255,0.32)",
-                  borderRadius: "14px",
-                  fontFamily: "'Roboto Mono', monospace",
-                  fontSize: "0.87rem",
-                  color: "#00d4ff",
-                  boxShadow: "0 0 28px rgba(0,212,255,0.18)",
-                }}
-              >
-                <Clock size={17} />
-                {currentTime.toLocaleTimeString("en-US", {
-                  hour12: false,
-                  hour: "2-digit",
-                  minute: "2-digit",
-                  second: "2-digit",
-                })}
-              </div>
-            </div>
+              {/* CLOCK */}
+              <LiveClock/>
+            </>
           )}
 
-          {/* Mobile menu toggle */}
+          {/* MOBILE TOGGLE */}
           {isMobile && (
             <button
+              className={`mob-toggle ${menuOpen ? "open" : ""}`}
               onClick={() => setMenuOpen(!menuOpen)}
-              style={{
-                background: menuOpen
-                  ? "linear-gradient(90deg, #00d4ff, #a78bfa)"
-                  : "rgba(255,255,255,0.07)",
-                border: menuOpen ? "2px solid #fff" : "1px solid rgba(0,212,255,0.35)",
-                borderRadius: "14px",
-                padding: "1rem",
-                color: "white",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                boxShadow: menuOpen ? "0 0 40px rgba(0,212,255,0.45)" : "none",
-                transition: "all 0.45s ease",
-              }}
             >
-              {menuOpen ? <X size={30} /> : <Menu size={30} />}
+              {menuOpen ? <X size={22} strokeWidth={2.5}/> : <Menu size={22} strokeWidth={2.5}/>}
             </button>
           )}
         </div>
       </nav>
 
-      {/* ─── MOBILE MENU ──────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════ */}
+      {/* MOBILE MENU                                             */}
+      {/* ═══════════════════════════════════════════════════════ */}
       {isMobile && menuOpen && (
-        <div className="mobile-fullscreen-menu">
-          <div style={{ maxWidth: "720px", margin: "0 auto" }}>
-            {/* Time in mobile menu */}
-            <div
-              style={{
-                textAlign: "center",
-                padding: "1.6rem",
-                background: "rgba(0,212,255,0.07)",
-                borderRadius: "18px",
-                border: "1px solid rgba(0,212,255,0.28)",
-                marginBottom: "2.4rem",
-                fontFamily: "'Roboto Mono', monospace",
-                color: "#00d4ff",
-                fontSize: "1.15rem",
-                boxShadow: "0 0 35px rgba(0,212,255,0.22)",
-              }}
-            >
-              SYSTEM CLOCK : {currentTime.toLocaleTimeString("en-US", { hour12: false })}
+        <div className="mob-menu">
+          <div className="mob-inner">
+            <div className="mob-clock">
+              <Activity size={15}/>
+              <LiveClock/>
             </div>
 
-            {/* Primary links */}
-            {primaryLinks.map((item, index) => {
-              const active = currentRoute === item.path;
-              const Icon = item.icon;
+            <div className="mob-section-label">// MAIN NAVIGATION</div>
 
+            {PRIMARY.map((item, i) => {
+              const act = currentRoute === item.path;
+              const { Icon, color, label, desc } = item;
+              const rgb = hexRGB(color);
               return (
                 <button
                   key={item.path}
-                  onClick={() => navigateTo(item.path)}
+                  className={`mob-item ${act ? "mob-active" : ""}`}
                   style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1.5rem",
-                    padding: "1.4rem 1.7rem",
-                    marginBottom: "1.1rem",
-                    background: active ? "rgba(0,212,255,0.14)" : "rgba(255,255,255,0.04)",
-                    border: active ? `2px solid ${item.color}` : "1px solid rgba(0,212,255,0.18)",
-                    borderRadius: "18px",
-                    color: active ? item.color : "var(--text)",
-                    fontSize: "1.15rem",
-                    fontWeight: active ? 700 : 500,
-                    fontFamily: "'Rajdhani', sans-serif",
-                    letterSpacing: "0.9px",
-                    boxShadow: active ? `0 12px 40px rgba(0,212,255,0.28)` : "none",
-                    transition: "all 0.38s ease",
-                    animation: `fadeInUp 0.6s ease-out forwards`,
-                    animationDelay: `${index * 0.06}s`,
-                    opacity: 0,
+                    "--mc": color, "--mr": rgb,
+                    animationDelay: `${i * 0.06}s`,
                   }}
+                  onClick={() => go(item.path)}
                 >
-                  <div
-                    style={{
-                      width: 62,
-                      height: 62,
-                      borderRadius: "14px",
-                      background: `linear-gradient(135deg, ${item.color}, ${item.color}b0)`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 8px 28px rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    <Icon size={30} color="#0f0e1a" strokeWidth={2.5} />
-                  </div>
-
-                  <div style={{ flex: 1, textAlign: "left" }}>
-                    <div style={{ fontSize: "1.3rem", fontWeight: 700 }}>
-                      {item.label}
-                    </div>
-                    <div style={{ fontSize: "0.94rem", color: "var(--text-dim)", marginTop: "5px" }}>
-                      {item.desc}
-                    </div>
-                  </div>
+                  <span className="mob-icon">
+                    <Icon size={24} color="#090818" strokeWidth={2.6}/>
+                  </span>
+                  <span className="mob-text">
+                    <span className="mob-label">{label}</span>
+                    <span className="mob-desc">{item.desc || ""}</span>
+                  </span>
                 </button>
               );
             })}
 
-            <div
-              style={{
-                height: 1,
-                background: "linear-gradient(90deg, transparent, #00d4ff80, transparent)",
-                margin: "2.8rem 0",
-                boxShadow: "0 0 24px rgba(0,212,255,0.35)",
-              }}
-            />
+            <div className="mob-divider"/>
+            <div className="mob-section-label">// EXTENDED PROFILE</div>
 
-            {/* Extended links */}
-            {extendedLinks.map((item, index) => {
-              const active = currentRoute === item.path;
-              const Icon = item.icon;
-
+            {EXTENDED.map((item, i) => {
+              const act = currentRoute === item.path;
+              const { Icon, color, label, desc, badge } = item;
+              const rgb = hexRGB(color);
               return (
                 <button
                   key={item.path}
-                  onClick={() => navigateTo(item.path)}
+                  className={`mob-item ${act ? "mob-active" : ""}`}
                   style={{
-                    width: "100%",
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "1.5rem",
-                    padding: "1.4rem 1.7rem",
-                    marginBottom: "1.1rem",
-                    background: active ? "rgba(0,212,255,0.14)" : "rgba(255,255,255,0.04)",
-                    border: active ? `2px solid ${item.color}` : "1px solid rgba(0,212,255,0.18)",
-                    borderRadius: "18px",
-                    color: active ? item.color : "var(--text)",
-                    fontSize: "1.15rem",
-                    fontWeight: active ? 700 : 500,
-                    fontFamily: "'Rajdhani', sans-serif",
-                    letterSpacing: "0.9px",
-                    boxShadow: active ? `0 12px 40px rgba(0,212,255,0.28)` : "none",
-                    animation: `fadeInUp 0.6s ease-out forwards`,
-                    animationDelay: `${(primaryLinks.length + index) * 0.05}s`,
-                    opacity: 0,
+                    "--mc": color, "--mr": rgb,
+                    animationDelay: `${(PRIMARY.length + i) * 0.055}s`,
                   }}
+                  onClick={() => go(item.path)}
                 >
-                  <div
-                    style={{
-                      width: 62,
-                      height: 62,
-                      borderRadius: "14px",
-                      background: `linear-gradient(135deg, ${item.color}, ${item.color}b0)`,
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      boxShadow: "0 8px 28px rgba(0,0,0,0.5)",
-                    }}
-                  >
-                    <Icon size={30} color="#0f0e1a" strokeWidth={2.5} />
-                  </div>
-
-                  <div style={{ flex: 1, textAlign: "left" }}>
-                    <div style={{ fontSize: "1.3rem", fontWeight: 700 }}>
-                      {item.label}
-                    </div>
-                    <div style={{ fontSize: "0.94rem", color: "var(--text-dim)", marginTop: "5px" }}>
-                      {item.desc}
-                    </div>
-                  </div>
-
-                  {item.badge && (
-                    <div
-                      style={{
-                        background: "rgba(0,212,255,0.12)",
-                        padding: "7px 13px",
-                        borderRadius: "14px",
-                        fontSize: "0.84rem",
-                        color: "#c4b5fd",
-                        border: "1px solid rgba(0,212,255,0.35)",
-                      }}
-                    >
-                      {item.badge}
-                    </div>
-                  )}
+                  <span className="mob-icon">
+                    <Icon size={24} color="#090818" strokeWidth={2.6}/>
+                  </span>
+                  <span className="mob-text">
+                    <span className="mob-label">{label}</span>
+                    <span className="mob-desc">{desc}</span>
+                  </span>
+                  {badge && <span className="mob-badge">{badge}</span>}
                 </button>
               );
             })}
           </div>
         </div>
       )}
-
-      {/* Simple fade-in animation for mobile items */}
-      <style>{`
-        @keyframes fadeInUp {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-        @keyframes breathe {
-          0%, 100% { opacity: 0.75; transform: scale(1); }
-          50%      { opacity: 0.95; transform: scale(1.08); }
-        }
-        @keyframes gradientFlow {
-          0%   { background-position: 0% 50%; }
-          100% { background-position: 200% 50%; }
-        }
-        @keyframes blink {
-          0%, 100% { opacity: 1; }
-          50%      { opacity: 0.4; }
-        }
-      `}</style>
     </>
   );
 };

@@ -1,8 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
-
-// No big Lucide import — we use simple emoji/icons or CDN where needed
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 
 const skills = [
   {
@@ -13,11 +11,10 @@ const skills = [
     level: 82,
     projects: 2,
     experience: "Internship",
-    whereLearned: "StudyOwl Education Pvt Ltd (MERN Stack Internship)",
+    whereLearned: "StudyOwl Education Pvt Ltd",
     color: "#00f5ff",
     glowRGB: "0, 245, 255",
     secondaryColor: "#8b5cf6",
-    accentColor: "#f59e0b",
     gradient: "linear-gradient(135deg, #00f5ff 0%, #0099ff 100%)",
     iconEmoji: "💻",
     badge: "FULL-STACK PRO",
@@ -43,11 +40,10 @@ const skills = [
     level: 80,
     projects: 2,
     experience: "Internship",
-    whereLearned: "Blackbucks & SmartBridge Internships",
+    whereLearned: "Blackbucks & SmartBridge",
     color: "#a78bfa",
     glowRGB: "167, 139, 250",
     secondaryColor: "#ec4899",
-    accentColor: "#06b6d4",
     gradient: "linear-gradient(135deg, #a78bfa 0%, #7c3aed 100%)",
     iconEmoji: "🧠",
     badge: "ML ENGINEER",
@@ -77,7 +73,6 @@ const skills = [
     color: "#3b82f6",
     glowRGB: "59, 130, 246",
     secondaryColor: "#2563eb",
-    accentColor: "#60a5fa",
     gradient: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
     iconEmoji: "🤖",
     badge: "CV SPECIALIST",
@@ -103,11 +98,10 @@ const skills = [
     level: 76,
     projects: 2,
     experience: "Internship",
-    whereLearned: "Blackbucks Data Science Internship",
+    whereLearned: "Blackbucks Internship",
     color: "#f97316",
     glowRGB: "249, 115, 22",
     secondaryColor: "#ea580c",
-    accentColor: "#fb923c",
     gradient: "linear-gradient(135deg, #f97316 0%, #ea580c 100%)",
     iconEmoji: "📊",
     badge: "DATA ANALYST",
@@ -133,11 +127,10 @@ const skills = [
     level: 85,
     projects: 5,
     experience: "Self + Academic",
-    whereLearned: "Self-learning + College coursework",
+    whereLearned: "Self-learning + College",
     color: "#8b5cf6",
     glowRGB: "139, 92, 246",
     secondaryColor: "#7c3aed",
-    accentColor: "#a78bfa",
     gradient: "linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)",
     iconEmoji: "⚡",
     badge: "DSA MASTER",
@@ -163,11 +156,10 @@ const skills = [
     level: 70,
     projects: 2,
     experience: "Self-learning",
-    whereLearned: "Personal projects & online courses",
+    whereLearned: "Personal projects & courses",
     color: "#10b981",
     glowRGB: "16, 185, 129",
     secondaryColor: "#059669",
-    accentColor: "#34d399",
     gradient: "linear-gradient(135deg, #10b981 0%, #059669 100%)",
     iconEmoji: "☁️",
     badge: "CLOUD ENGINEER",
@@ -194,20 +186,43 @@ export default function AdvancedSkills() {
   const [selectedFilter, setSelectedFilter] = useState('ALL');
   const [scrollProgress, setScrollProgress] = useState(0);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const [isVisible, setIsVisible] = useState(false);
   const canvasRef = useRef(null);
 
-  // Mouse movement for subtle parallax
   useEffect(() => {
-    const handleMouseMove = (e) => {
-      const x = (e.clientX / window.innerWidth - 0.5) * 18;
-      const y = (e.clientY / window.innerHeight - 0.5) * 18;
-      setMousePosition({ x, y });
-    };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    setIsVisible(true);
   }, []);
 
-  // Scroll progress bar
+  // Mouse tracking
+  useEffect(() => {
+    let rafId;
+    let targetX = 0;
+    let targetY = 0;
+    let currentX = 0;
+    let currentY = 0;
+
+    const handleMouseMove = (e) => {
+      targetX = (e.clientX / window.innerWidth - 0.5) * 15;
+      targetY = (e.clientY / window.innerHeight - 0.5) * 15;
+    };
+
+    const animate = () => {
+      currentX += (targetX - currentX) * 0.1;
+      currentY += (targetY - currentY) * 0.1;
+      setMousePosition({ x: currentX, y: currentY });
+      rafId = requestAnimationFrame(animate);
+    };
+
+    window.addEventListener("mousemove", handleMouseMove);
+    rafId = requestAnimationFrame(animate);
+
+    return () => {
+      window.removeEventListener("mousemove", handleMouseMove);
+      cancelAnimationFrame(rafId);
+    };
+  }, []);
+
+  // Scroll progress
   useEffect(() => {
     const handleScroll = () => {
       const scrolled = window.scrollY;
@@ -218,7 +233,7 @@ export default function AdvancedSkills() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Particle background
+  // Particle system
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -239,11 +254,11 @@ export default function AdvancedSkills() {
       reset() {
         this.x = Math.random() * canvas.width;
         this.y = -20;
-        this.speed = Math.random() * 1.8 + 0.6;
-        this.radius = Math.random() * 2.2 + 0.6;
+        this.speed = Math.random() * 1.5 + 0.5;
+        this.radius = Math.random() * 2 + 0.5;
         this.color = Math.random() > 0.5 ? '0, 245, 255' : '139, 92, 246';
-        this.opacity = Math.random() * 0.45 + 0.25;
-        this.drift = (Math.random() - 0.5) * 0.4;
+        this.opacity = Math.random() * 0.4 + 0.2;
+        this.drift = (Math.random() - 0.5) * 0.5;
       }
       update() {
         this.y += this.speed;
@@ -253,7 +268,7 @@ export default function AdvancedSkills() {
       draw() {
         ctx.beginPath();
         ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
-        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 2.8);
+        const gradient = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.radius * 2.5);
         gradient.addColorStop(0, `rgba(${this.color}, ${this.opacity})`);
         gradient.addColorStop(1, `rgba(${this.color}, 0)`);
         ctx.fillStyle = gradient;
@@ -261,34 +276,15 @@ export default function AdvancedSkills() {
       }
     }
 
-    const particles = Array.from({ length: 130 }, () => new Particle());
+    const particles = Array.from({ length: 100 }, () => new Particle());
 
     const animate = () => {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.06)';
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.08)';
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-
       particles.forEach(p => {
         p.update();
         p.draw();
       });
-
-      // connections
-      for (let i = 0; i < particles.length; i += 2) {
-        for (let j = i + 1; j < particles.length; j += 2) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const distance = Math.sqrt(dx * dx + dy * dy);
-          if (distance < 110) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = `rgba(0, 245, 255, ${0.10 * (1 - distance / 110)})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-
       animationId = requestAnimationFrame(animate);
     };
     animate();
@@ -313,575 +309,13 @@ export default function AdvancedSkills() {
     ? skills
     : skills.filter(s => s.rarity === selectedFilter);
 
-  // ────────────────────────────────────────────────
-  //   VIEW MODE SELECTOR
-  // ────────────────────────────────────────────────
-  const ViewModeSelector = () => (
-    <div style={{
-      display: 'flex',
-      gap: '1.4rem',
-      justifyContent: 'center',
-      margin: '0 auto 4.5rem',
-      flexWrap: 'wrap',
-      maxWidth: '1000px'
-    }}>
-      {[
-        { mode: "grid", label: "Grid", icon: "◼◼◼" },
-        { mode: "timeline", label: "Timeline", icon: "➜" },
-        { mode: "network", label: "Network", icon: "⟁" },
-        { mode: "immersive", label: "Immersive", icon: "⛶" }
-      ].map(({ mode, label, icon }) => (
-        <button
-          key={mode}
-          onClick={() => setViewMode(mode)}
-          style={{
-            padding: '0.9rem 2.2rem',
-            background: viewMode === mode ? 'rgba(0,245,255,0.14)' : 'rgba(255,255,255,0.04)',
-            border: viewMode === mode ? '2px solid #00f5ff' : '1px solid rgba(255,255,255,0.13)',
-            borderRadius: '999px',
-            color: viewMode === mode ? '#00f5ff' : '#cbd5e1',
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: '0.94rem',
-            fontWeight: 700,
-            letterSpacing: '1px',
-            textTransform: 'uppercase',
-            cursor: 'pointer',
-            transition: 'all 0.35s ease',
-            backdropFilter: 'blur(12px)',
-            boxShadow: viewMode === mode ? '0 0 30px rgba(0,245,255,0.4)' : 'none'
-          }}
-        >
-          <span style={{ marginRight: '10px', fontSize: '1.1rem' }}>{icon}</span>
-          {label}
-        </button>
-      ))}
-    </div>
-  );
+  const stats = useMemo(() => {
+    const totalProjects = skills.reduce((acc, s) => acc + s.projects, 0);
+    const avgLevel = Math.round(skills.reduce((acc, s) => acc + s.level, 0) / skills.length);
+    const topSkill = skills.reduce((max, s) => s.level > max.level ? s : max, skills[0]);
+    return { totalProjects, avgLevel, topSkill };
+  }, []);
 
-  // ────────────────────────────────────────────────
-  //   GRID VIEW
-  // ────────────────────────────────────────────────
-  const GridView = () => (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))',
-      gap: '3rem',
-      padding: '1rem 0 6rem'
-    }}>
-      {filteredSkills.map((skill, index) => (
-        <div
-          key={skill.id}
-          onMouseEnter={() => setHoveredId(skill.id)}
-          onMouseLeave={() => setHoveredId(null)}
-          onClick={() => setActiveSkill(skill)}
-          style={{
-            background: 'rgba(255,255,255,0.035)',
-            backdropFilter: 'blur(38px)',
-            border: `2px solid ${hoveredId === skill.id ? skill.color : 'rgba(255,255,255,0.11)'}`,
-            borderRadius: '26px',
-            overflow: 'hidden',
-            cursor: 'pointer',
-            transition: 'all 0.55s cubic-bezier(0.16,1,0.3,1)',
-            transform: hoveredId === skill.id ? 'translateY(-14px) scale(1.025)' : 'translateY(0)',
-            boxShadow: hoveredId === skill.id
-              ? `0 30px 80px rgba(${skill.glowRGB},0.48)`
-              : '0 10px 35px rgba(0,0,0,0.32)',
-            animation: `fadeUp 0.8s ease-out ${index * 0.1}s both`
-          }}
-        >
-          <div style={{ padding: '2.4rem 2rem' }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              marginBottom: '1.8rem'
-            }}>
-              <div style={{
-                fontSize: '3.6rem',
-                lineHeight: 1,
-                fontWeight: 900,
-                color: skill.color,
-                textShadow: `0 0 25px ${skill.color}80`
-              }}>
-                {skill.iconEmoji}
-              </div>
-
-              <div style={{ textAlign: 'right' }}>
-                <div style={{
-                  fontSize: '2.6rem',
-                  fontWeight: 900,
-                  color: skill.color,
-                  fontFamily: "'Orbitron', sans-serif",
-                  lineHeight: 0.95
-                }}>
-                  {skill.level}
-                </div>
-                <div style={{
-                  fontSize: '0.82rem',
-                  color: '#94a3b8',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  letterSpacing: '1px'
-                }}>
-                  MASTERY
-                </div>
-              </div>
-            </div>
-
-            <h3 style={{
-              fontSize: '1.85rem',
-              fontWeight: 800,
-              color: '#f1f5f9',
-              marginBottom: '0.6rem',
-              fontFamily: "'Orbitron', sans-serif"
-            }}>
-              {skill.title}
-            </h3>
-
-            <div style={{
-              fontSize: '1.1rem',
-              color: '#cbd5e1',
-              marginBottom: '1.4rem',
-              fontWeight: 500
-            }}>
-              {skill.subtitle}
-            </div>
-
-            <div style={{
-              fontSize: '0.95rem',
-              color: '#94a3b8',
-              marginBottom: '1.8rem',
-              fontFamily: "'JetBrains Mono', monospace",
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.6rem'
-            }}>
-              <span style={{ color: skill.color, fontSize: '1.1rem' }}>⌂</span>
-              {skill.whereLearned}
-            </div>
-
-            <div style={{
-              padding: '1rem',
-              background: `rgba(${skill.glowRGB},0.07)`,
-              borderRadius: '16px',
-              border: `1px solid ${skill.color}25`,
-              marginBottom: '1.8rem',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.9rem'
-            }}>
-              <span style={{ fontSize: '1.4rem' }}>★</span>
-              <span style={{ fontWeight: 600, color: '#e2e8f0' }}>
-                {skill.impact}
-              </span>
-            </div>
-
-            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.6rem', marginBottom: '2rem' }}>
-              {skill.tech.slice(0, 5).map((t, i) => (
-                <span
-                  key={i}
-                  style={{
-                    padding: '0.48rem 1.1rem',
-                    background: 'rgba(0,0,0,0.45)',
-                    border: `1.5px solid ${skill.color}45`,
-                    borderRadius: '999px',
-                    fontSize: '0.82rem',
-                    color: skill.color,
-                    fontFamily: "'JetBrains Mono', monospace",
-                    fontWeight: 600
-                  }}
-                >
-                  {t}
-                </span>
-              ))}
-            </div>
-
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '0.7rem',
-              padding: '0.85rem 1.7rem',
-              background: skill.gradient,
-              color: '#000',
-              borderRadius: '999px',
-              fontWeight: 800,
-              fontFamily: "'Orbitron', sans-serif",
-              fontSize: '0.94rem',
-              boxShadow: `0 8px 25px rgba(${skill.glowRGB},0.35)`
-            }}>
-              <span>Details</span>
-              <span style={{ fontSize: '1.1rem' }}>→</span>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-
-  // ────────────────────────────────────────────────
-  //   TIMELINE VIEW (simplified version)
-  // ────────────────────────────────────────────────
-  const TimelineView = () => (
-    <div style={{ position: 'relative', padding: '4rem 0' }}>
-      <div style={{
-        position: 'absolute',
-        left: '50%',
-        top: 0,
-        bottom: 0,
-        width: '3px',
-        background: 'linear-gradient(to bottom, #00f5ff, #a78bfa, #10b981)',
-        transform: 'translateX(-50%)',
-        boxShadow: '0 0 25px rgba(0,245,255,0.5)'
-      }} />
-
-      {filteredSkills.map((skill, i) => {
-        const isLeft = i % 2 === 0;
-        return (
-          <div
-            key={skill.id}
-            onClick={() => setActiveSkill(skill)}
-            style={{
-              display: 'flex',
-              justifyContent: isLeft ? 'flex-end' : 'flex-start',
-              margin: '5rem 0',
-              position: 'relative',
-              opacity: 0,
-              animation: `fadeInFromSide 1s ease-out ${i * 0.2}s forwards`,
-              animationFillMode: 'forwards'
-            }}
-          >
-            {/* Node */}
-            <div style={{
-              position: 'absolute',
-              left: '50%',
-              top: '50%',
-              transform: 'translate(-50%, -50%)',
-              width: '70px',
-              height: '70px',
-              borderRadius: '50%',
-              background: skill.color,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              zIndex: 10,
-              boxShadow: `0 0 50px ${skill.color}80`,
-              border: '5px solid #000'
-            }}>
-              <span style={{ fontSize: '2.2rem' }}>{skill.iconEmoji}</span>
-            </div>
-
-            {/* Card */}
-            <div style={{
-              width: '46%',
-              padding: '2.2rem',
-              background: 'rgba(255,255,255,0.04)',
-              backdropFilter: 'blur(35px)',
-              border: `2px solid ${hoveredId === skill.id ? skill.color : 'rgba(255,255,255,0.14)'}`,
-              borderRadius: '24px',
-              cursor: 'pointer',
-              transition: 'all 0.5s ease',
-              transform: hoveredId === skill.id ? 'scale(1.04)' : 'scale(1)',
-              boxShadow: hoveredId === skill.id
-                ? `0 25px 70px rgba(${skill.glowRGB},0.45)`
-                : '0 10px 35px rgba(0,0,0,0.3)'
-            }}>
-              <div style={{
-                fontSize: '1.1rem',
-                color: '#94a3b8',
-                marginBottom: '1rem',
-                fontFamily: "'JetBrains Mono', monospace"
-              }}>
-                {skill.whereLearned}
-              </div>
-
-              <h3 style={{
-                fontSize: '1.7rem',
-                fontWeight: 800,
-                color: skill.color,
-                marginBottom: '0.8rem',
-                fontFamily: "'Orbitron', sans-serif"
-              }}>
-                {skill.title}
-              </h3>
-
-              <div style={{
-                fontSize: '1.05rem',
-                color: '#cbd5e1',
-                marginBottom: '1.4rem'
-              }}>
-                {skill.subtitle}
-              </div>
-
-              <div style={{
-                fontSize: '2.4rem',
-                fontWeight: 900,
-                color: skill.color,
-                margin: '1.5rem 0'
-              }}>
-                {skill.level}%
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  // ────────────────────────────────────────────────
-  //   NETWORK VIEW (simplified)
-  // ────────────────────────────────────────────────
-  const NetworkView = () => (
-    <div style={{
-      height: '900px',
-      position: 'relative',
-      margin: '5rem 0'
-    }}>
-      <svg style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-        {filteredSkills.map((skill, i) => {
-          const angle = (i / filteredSkills.length) * Math.PI * 2;
-          const x = 50 + 32 * Math.cos(angle);
-          const y = 50 + 32 * Math.sin(angle);
-          return (
-            <line
-              key={i}
-              x1="50%"
-              y1="50%"
-              x2={`${x}%`}
-              y2={`${y}%`}
-              stroke={skill.color}
-              strokeWidth={hoveredId === skill.id ? 3.5 : 1.8}
-              opacity={hoveredId === skill.id ? 0.9 : 0.35}
-              style={{ transition: 'all 0.4s' }}
-            />
-          );
-        })}
-      </svg>
-
-      {/* Center */}
-      <div style={{
-        position: 'absolute',
-        left: '50%',
-        top: '50%',
-        transform: 'translate(-50%, -50%)',
-        width: '180px',
-        height: '180px',
-        borderRadius: '50%',
-        background: 'linear-gradient(135deg, #00f5ff, #a78bfa)',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        color: '#000',
-        fontWeight: 900,
-        fontSize: '1.3rem',
-        boxShadow: '0 0 90px rgba(0,245,255,0.7)',
-        border: '6px solid #000'
-      }}>
-        SKILLS
-      </div>
-
-      {/* Nodes */}
-      {filteredSkills.map((skill, i) => {
-        const angle = (i / filteredSkills.length) * Math.PI * 2;
-        const x = 50 + 32 * Math.cos(angle);
-        const y = 50 + 32 * Math.sin(angle);
-
-        return (
-          <div
-            key={skill.id}
-            onMouseEnter={() => setHoveredId(skill.id)}
-            onMouseLeave={() => setHoveredId(null)}
-            onClick={() => setActiveSkill(skill)}
-            style={{
-              position: 'absolute',
-              left: `${x}%`,
-              top: `${y}%`,
-              transform: `translate(-50%, -50%) scale(${hoveredId === skill.id ? 1.12 : 1})`,
-              transition: 'all 0.45s ease',
-              cursor: 'pointer',
-              width: '260px',
-              textAlign: 'center'
-            }}
-          >
-            <div style={{
-              background: 'rgba(0,0,0,0.85)',
-              backdropFilter: 'blur(28px)',
-              border: `3px solid ${skill.color}`,
-              borderRadius: '20px',
-              padding: '1.6rem',
-              boxShadow: hoveredId === skill.id
-                ? `0 25px 70px rgba(${skill.glowRGB},0.65)`
-                : `0 8px 30px rgba(${skill.glowRGB},0.3)`
-            }}>
-              <div style={{ fontSize: '3.2rem', marginBottom: '0.8rem' }}>
-                {skill.iconEmoji}
-              </div>
-              <div style={{
-                fontSize: '1.35rem',
-                fontWeight: 800,
-                color: skill.color,
-                marginBottom: '0.4rem'
-              }}>
-                {skill.level}%
-              </div>
-              <div style={{
-                fontSize: '1.05rem',
-                color: '#e2e8f0',
-                fontWeight: 600
-              }}>
-                {skill.title.split(' ')[0]}
-              </div>
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-
-  // ────────────────────────────────────────────────
-  //   IMMERSIVE VIEW
-  // ────────────────────────────────────────────────
-  const ImmersiveView = () => {
-    const [index, setIndex] = useState(0);
-    const skill = filteredSkills[index];
-
-    return (
-      <div style={{
-        minHeight: '90vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        padding: '4rem 2rem',
-        position: 'relative'
-      }}>
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: `linear-gradient(135deg, ${skill.color}15, #000)`,
-          opacity: 0.4,
-          zIndex: -1
-        }} />
-
-        <div style={{
-          maxWidth: '1200px',
-          width: '100%',
-          display: 'flex',
-          gap: '5rem',
-          flexWrap: 'wrap',
-          alignItems: 'center'
-        }}>
-          {/* Left - Big Icon */}
-          <div style={{
-            flex: 1,
-            minWidth: '300px',
-            textAlign: 'center'
-          }}>
-            <div style={{
-              fontSize: 'clamp(12rem, 30vw, 18rem)',
-              color: skill.color,
-              textShadow: `0 0 80px ${skill.color}90`,
-              lineHeight: 0.9
-            }}>
-              {skill.iconEmoji}
-            </div>
-          </div>
-
-          {/* Right - Content */}
-          <div style={{ flex: 1.4, minWidth: '400px' }}>
-            <div style={{
-              display: 'inline-flex',
-              padding: '0.7rem 1.6rem',
-              background: `rgba(${skill.glowRGB},0.18)`,
-              border: `2px solid ${skill.color}`,
-              borderRadius: '999px',
-              color: skill.color,
-              fontFamily: "'JetBrains Mono', monospace",
-              marginBottom: '1.8rem'
-            }}>
-              {skill.badge} • {skill.rarity}
-            </div>
-
-            <h2 style={{
-              fontSize: 'clamp(3.5rem, 8vw, 5.5rem)',
-              fontWeight: 900,
-              color: '#fff',
-              background: skill.gradient,
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              marginBottom: '1.5rem',
-              lineHeight: 1.05,
-              fontFamily: "'Orbitron', sans-serif"
-            }}>
-              {skill.title}
-            </h2>
-
-            <div style={{
-              fontSize: '1.5rem',
-              color: '#cbd5e1',
-              marginBottom: '2rem'
-            }}>
-              {skill.subtitle}
-            </div>
-
-            <div style={{
-              fontSize: '1.1rem',
-              color: '#94a3b8',
-              marginBottom: '2.5rem',
-              fontFamily: "'JetBrains Mono', monospace"
-            }}>
-              Learned at: {skill.whereLearned}
-            </div>
-
-            <div style={{
-              fontSize: '4.5rem',
-              fontWeight: 900,
-              color: skill.color,
-              marginBottom: '2.5rem'
-            }}>
-              {skill.level}%
-            </div>
-
-            <div style={{ display: 'flex', gap: '1.5rem', flexWrap: 'wrap' }}>
-              <button
-                onClick={() => setIndex((index - 1 + filteredSkills.length) % filteredSkills.length)}
-                style={{
-                  padding: '1rem 2.2rem',
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '2px solid rgba(255,255,255,0.25)',
-                  borderRadius: '999px',
-                  color: '#fff',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                  fontFamily: "'Orbitron', sans-serif"
-                }}
-              >
-                ← Prev
-              </button>
-
-              <button
-                onClick={() => setIndex((index + 1) % filteredSkills.length)}
-                style={{
-                  padding: '1rem 2.2rem',
-                  background: skill.gradient,
-                  border: 'none',
-                  borderRadius: '999px',
-                  color: '#000',
-                  fontWeight: 900,
-                  cursor: 'pointer',
-                  fontFamily: "'Orbitron', sans-serif",
-                  boxShadow: `0 12px 40px rgba(${skill.glowRGB},0.5)`
-                }}
-              >
-                Next →
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  // ────────────────────────────────────────────────
-  //   MAIN RETURN
-  // ────────────────────────────────────────────────
   return (
     <div style={{
       background: '#000',
@@ -899,29 +333,46 @@ export default function AdvancedSkills() {
           to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes fadeInFromSide {
-          from { opacity: 0; transform: translateX(80px); }
-          to { opacity: 1; transform: translateX(0); }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(100%); }
         }
 
-        .glass-card {
-          background: rgba(255,255,255,0.03);
-          backdrop-filter: blur(22px);
-          border: 1px solid rgba(255,255,255,0.09);
+        @keyframes float {
+          0%, 100% { transform: translateY(0px); }
+          50% { transform: translateY(-20px); }
+        }
+
+        @keyframes gradientFlow {
+          0% { background-position: 0% 50%; }
+          50% { background-position: 100% 50%; }
+          100% { background-position: 0% 50%; }
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb {
+          background: linear-gradient(180deg, #00f5ff, #a78bfa);
+          border-radius: 10px;
         }
       `}</style>
 
       {/* Progress bar */}
       <div style={{
-        position: 'fixed', top: 0, left: 0, right: 0, height: '5px', zIndex: 9999,
-        background: 'rgba(0,0,0,0.75)'
+        position: 'fixed', 
+        top: 0, 
+        left: 0, 
+        right: 0, 
+        height: '4px', 
+        zIndex: 10000,
+        background: 'rgba(0,0,0,0.9)'
       }}>
         <div style={{
           width: `${scrollProgress}%`,
           height: '100%',
           background: 'linear-gradient(90deg, #00f5ff, #a78bfa, #10b981)',
-          boxShadow: '0 0 30px currentColor',
-          transition: 'width 0.12s linear'
+          boxShadow: '0 0 20px currentColor',
+          transition: 'width 0.1s linear'
         }} />
       </div>
 
@@ -930,99 +381,472 @@ export default function AdvancedSkills() {
         position: 'fixed',
         inset: 0,
         pointerEvents: 'none',
-        zIndex: 1
+        zIndex: 1,
+        opacity: 0.6
       }} />
 
       {/* Floating orbs */}
       <div style={{ position: 'fixed', inset: 0, zIndex: 2, pointerEvents: 'none' }}>
         <div style={{
-          position: 'absolute', width: '720px', height: '720px', top: '12%', left: '8%',
-          background: 'radial-gradient(circle, rgba(0,245,255,0.13), transparent 70%)',
-          borderRadius: '50%', filter: 'blur(85px)',
+          position: 'absolute', 
+          width: '500px', 
+          height: '500px', 
+          top: '15%', 
+          left: '8%',
+          background: 'radial-gradient(circle, rgba(0,245,255,0.1), transparent 70%)',
+          borderRadius: '50%', 
+          filter: 'blur(70px)',
           animation: 'float 24s infinite ease-in-out',
-          transform: `translate(${mousePosition.x * 0.7}px, ${mousePosition.y * 0.7}px)`
+          transform: `translate(${mousePosition.x * 0.5}px, ${mousePosition.y * 0.5}px)`
         }} />
         <div style={{
-          position: 'absolute', width: '620px', height: '620px', bottom: '18%', right: '12%',
-          background: 'radial-gradient(circle, rgba(167,139,250,0.11), transparent 70%)',
-          borderRadius: '50%', filter: 'blur(75px)',
+          position: 'absolute', 
+          width: '400px', 
+          height: '400px', 
+          bottom: '20%', 
+          right: '10%',
+          background: 'radial-gradient(circle, rgba(167,139,250,0.08), transparent 70%)',
+          borderRadius: '50%', 
+          filter: 'blur(60px)',
           animation: 'float 30s infinite ease-in-out reverse',
-          transform: `translate(${-mousePosition.x * 0.5}px, ${-mousePosition.y * 0.5}px)`
+          transform: `translate(${-mousePosition.x * 0.4}px, ${-mousePosition.y * 0.4}px)`
         }} />
       </div>
 
       <div style={{
         position: 'relative',
         zIndex: 10,
-        maxWidth: '1800px',
+        maxWidth: '1600px',
         margin: '0 auto',
-        padding: 'clamp(7rem, 12vw, 12rem) clamp(1.8rem, 5vw, 5rem)'
+        padding: '4rem 2rem 6rem'
       }}>
         {/* Header */}
-        <div style={{ textAlign: 'center', marginBottom: '9rem' }}>
+        <div style={{ 
+          textAlign: 'center', 
+          marginBottom: '3rem',
+          paddingTop: '2rem',
+          opacity: isVisible ? 1 : 0,
+          transform: isVisible ? 'translateY(0)' : 'translateY(30px)',
+          transition: 'all 0.8s cubic-bezier(0.16,1,0.3,1)'
+        }}>
           <h1 style={{
-            fontSize: 'clamp(6rem, 16vw, 11rem)',
+            fontSize: 'clamp(3.5rem, 8vw, 5rem)',
             fontWeight: 900,
             fontFamily: "'Orbitron', sans-serif",
-            background: 'linear-gradient(135deg, #00f5ff, #a78bfa, #10b981, #00f5ff)',
-            backgroundSize: '300% auto',
+            background: 'linear-gradient(135deg, #00f5ff 0%, #a78bfa 50%, #10b981 100%)',
+            backgroundSize: '200% auto',
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent',
-            animation: 'gradientFlow 12s linear infinite',
-            marginBottom: '1.8rem',
-            letterSpacing: '8px',
-            textTransform: 'uppercase'
+            animation: 'gradientFlow 8s linear infinite',
+            marginBottom: '1rem',
+            letterSpacing: '4px',
+            lineHeight: 1.1
           }}>
-            SKILLS
+            SKILLS ARSENAL
           </h1>
 
           <p style={{
-            fontSize: 'clamp(1.4rem, 3.2vw, 1.7rem)',
-            color: '#cbd5e1',
-            maxWidth: '920px',
-            margin: '0 auto 4rem',
-            lineHeight: 1.8
+            fontSize: 'clamp(1rem, 2vw, 1.2rem)',
+            color: '#94a3b8',
+            maxWidth: '700px',
+            margin: '0 auto 2.5rem',
+            lineHeight: 1.6
           }}>
-            Advanced technical capabilities across full-stack, AI/ML, cloud & core programming
+            Full-Stack • AI/ML • Cloud • Data Science
           </p>
 
-          <ViewModeSelector />
+          {/* Stats */}
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))',
+            gap: '1rem',
+            marginBottom: '2.5rem',
+            maxWidth: '800px',
+            margin: '0 auto 2.5rem'
+          }}>
+            {[
+              { label: 'Total Skills', value: skills.length, icon: '⚡', color: '#00f5ff' },
+              { label: 'Avg Mastery', value: `${stats.avgLevel}%`, icon: '🎯', color: '#a78bfa' },
+              { label: 'Projects', value: stats.totalProjects, icon: '🚀', color: '#10b981' },
+              { label: 'Top Skill', value: stats.topSkill.level + '%', icon: '👑', color: '#f59e0b' }
+            ].map((stat, i) => (
+              <div
+                key={i}
+                style={{
+                  background: 'rgba(255,255,255,0.03)',
+                  backdropFilter: 'blur(20px)',
+                  border: `1.5px solid ${hoveredId === `stat-${i}` ? stat.color : 'rgba(255,255,255,0.08)'}`,
+                  borderRadius: '14px',
+                  padding: '1.2rem 1rem',
+                  textAlign: 'center',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  transform: hoveredId === `stat-${i}` ? 'translateY(-4px)' : 'translateY(0)',
+                  boxShadow: hoveredId === `stat-${i}` ? `0 12px 30px ${stat.color}40` : 'none'
+                }}
+                onMouseEnter={() => setHoveredId(`stat-${i}`)}
+                onMouseLeave={() => setHoveredId(null)}
+              >
+                <div style={{ fontSize: '2rem', marginBottom: '0.3rem' }}>{stat.icon}</div>
+                <div style={{
+                  fontSize: '1.8rem',
+                  fontWeight: 900,
+                  color: stat.color,
+                  fontFamily: "'Orbitron', sans-serif",
+                  marginBottom: '0.2rem'
+                }}>
+                  {stat.value}
+                </div>
+                <div style={{
+                  fontSize: '0.7rem',
+                  color: '#64748b',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.8px'
+                }}>
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
 
+          {/* View Mode Selector */}
           <div style={{
             display: 'flex',
-            gap: '1.1rem',
+            gap: '1rem',
             justifyContent: 'center',
-            flexWrap: 'wrap',
-            marginTop: '3.5rem'
+            margin: '0 auto 2.5rem',
+            flexWrap: 'wrap'
+          }}>
+            {[
+              { mode: "grid", label: "Grid", icon: "◼◼◼" },
+              { mode: "cards", label: "Cards", icon: "▦▦▦" }
+            ].map(({ mode, label, icon }) => (
+              <button
+                key={mode}
+                onClick={() => setViewMode(mode)}
+                style={{
+                  padding: '0.85rem 2rem',
+                  background: viewMode === mode ? 'linear-gradient(135deg, #00f5ff, #a78bfa)' : 'rgba(255,255,255,0.05)',
+                  border: viewMode === mode ? 'none' : '1.5px solid rgba(255,255,255,0.12)',
+                  borderRadius: '999px',
+                  color: viewMode === mode ? '#000' : '#cbd5e1',
+                  fontFamily: "'Orbitron', sans-serif",
+                  fontSize: '0.85rem',
+                  fontWeight: 700,
+                  letterSpacing: '1px',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  boxShadow: viewMode === mode ? '0 8px 25px rgba(0,245,255,0.4)' : 'none'
+                }}
+              >
+                <span style={{ marginRight: '8px' }}>{icon}</span>
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Filter */}
+          <div style={{
+            display: 'flex',
+            gap: '0.8rem',
+            justifyContent: 'center',
+            flexWrap: 'wrap'
           }}>
             {['ALL', 'LEGENDARY', 'EPIC', 'RARE'].map(f => (
               <button
                 key={f}
                 onClick={() => setSelectedFilter(f)}
                 style={{
-                  padding: '0.85rem 2.1rem',
+                  padding: '0.7rem 1.8rem',
                   borderRadius: '999px',
-                  background: selectedFilter === f ? 'linear-gradient(135deg, #00f5ff, #a78bfa)' : 'rgba(255,255,255,0.06)',
-                  color: selectedFilter === f ? '#000' : '#e2e8f0',
-                  border: selectedFilter === f ? 'none' : '1px solid rgba(255,255,255,0.14)',
+                  background: selectedFilter === f ? 'linear-gradient(135deg, #00f5ff, #a78bfa)' : 'rgba(255,255,255,0.04)',
+                  color: selectedFilter === f ? '#000' : '#94a3b8',
+                  border: selectedFilter === f ? 'none' : '1px solid rgba(255,255,255,0.1)',
                   fontFamily: "'Orbitron', sans-serif",
                   fontWeight: 700,
                   cursor: 'pointer',
-                  transition: 'all 0.3s'
+                  transition: 'all 0.3s ease',
+                  fontSize: '0.8rem',
+                  letterSpacing: '1px',
+                  boxShadow: selectedFilter === f ? '0 6px 20px rgba(0,245,255,0.35)' : 'none'
                 }}
               >
-                {f === 'ALL' ? 'All Skills' : f}
+                {f === 'ALL' ? '⚡ All' : f}
               </button>
             ))}
           </div>
         </div>
 
-        {viewMode === "grid" && <GridView />}
-        {viewMode === "timeline" && <TimelineView />}
-        {viewMode === "network" && <NetworkView />}
-        {viewMode === "immersive" && <ImmersiveView />}
+        {/* Skills Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))',
+          gap: '1.8rem',
+          padding: '1rem 0 3rem'
+        }}>
+          {filteredSkills.map((skill, index) => (
+            <div
+              key={skill.id}
+              onMouseEnter={() => setHoveredId(skill.id)}
+              onMouseLeave={() => setHoveredId(null)}
+              onClick={() => setActiveSkill(skill)}
+              style={{
+                background: 'rgba(255,255,255,0.03)',
+                backdropFilter: 'blur(25px)',
+                border: `2px solid ${hoveredId === skill.id ? skill.color : 'rgba(255,255,255,0.08)'}`,
+                borderRadius: '20px',
+                overflow: 'hidden',
+                cursor: 'pointer',
+                transition: 'all 0.4s cubic-bezier(0.16,1,0.3,1)',
+                transform: hoveredId === skill.id ? 'translateY(-6px) scale(1.01)' : 'translateY(0)',
+                boxShadow: hoveredId === skill.id
+                  ? `0 20px 50px rgba(${skill.glowRGB},0.35)`
+                  : '0 6px 20px rgba(0,0,0,0.25)',
+                animation: `fadeUp 0.5s cubic-bezier(0.16,1,0.3,1) ${index * 0.06}s both`,
+                position: 'relative'
+              }}
+            >
+              {hoveredId === skill.id && (
+                <div style={{
+                  position: 'absolute',
+                  inset: '-2px',
+                  background: `linear-gradient(135deg, ${skill.color}, ${skill.secondaryColor})`,
+                  borderRadius: '20px',
+                  opacity: 0.1,
+                  filter: 'blur(12px)',
+                  zIndex: -1
+                }} />
+              )}
 
-        {/* Modal Detail View */}
+              <div style={{ padding: '1.8rem 1.5rem' }}>
+                {/* Header */}
+                <div style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'flex-start',
+                  marginBottom: '1.3rem'
+                }}>
+                  <div style={{
+                    fontSize: '3.2rem',
+                    lineHeight: 1,
+                    transform: hoveredId === skill.id ? 'scale(1.08) rotate(-6deg)' : 'scale(1)',
+                    transition: 'transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                    filter: `drop-shadow(0 0 18px ${skill.color}60)`
+                  }}>
+                    {skill.iconEmoji}
+                  </div>
+
+                  <div style={{
+                    background: `linear-gradient(135deg, ${skill.color}18, ${skill.color}08)`,
+                    border: `2px solid ${skill.color}`,
+                    borderRadius: '10px',
+                    padding: '0.5rem 0.9rem',
+                    textAlign: 'center',
+                    boxShadow: `0 0 15px ${skill.color}35`
+                  }}>
+                    <div style={{
+                      fontSize: '1.6rem',
+                      fontWeight: 900,
+                      color: skill.color,
+                      fontFamily: "'Orbitron', sans-serif",
+                      lineHeight: 1
+                    }}>
+                      {skill.level}
+                    </div>
+                    <div style={{
+                      fontSize: '0.65rem',
+                      color: '#94a3b8',
+                      marginTop: '2px',
+                      textTransform: 'uppercase',
+                      letterSpacing: '0.5px'
+                    }}>
+                      Level
+                    </div>
+                  </div>
+                </div>
+
+                {/* Rarity */}
+                <div style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.4rem 1rem',
+                  background: `${getRarityColor(skill.rarity)}12`,
+                  border: `1.5px solid ${getRarityColor(skill.rarity)}`,
+                  borderRadius: '999px',
+                  marginBottom: '1rem',
+                  fontSize: '0.7rem',
+                  fontWeight: 700,
+                  color: getRarityColor(skill.rarity),
+                  fontFamily: "'JetBrains Mono', monospace"
+                }}>
+                  <span>★</span>
+                  {skill.rarity}
+                </div>
+
+                {/* Title */}
+                <h3 style={{
+                  fontSize: '1.45rem',
+                  fontWeight: 900,
+                  background: skill.gradient,
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  marginBottom: '0.4rem',
+                  fontFamily: "'Orbitron', sans-serif",
+                  lineHeight: 1.2
+                }}>
+                  {skill.title}
+                </h3>
+
+                <div style={{
+                  fontSize: '0.95rem',
+                  color: '#94a3b8',
+                  marginBottom: '1.2rem',
+                  fontWeight: 500
+                }}>
+                  {skill.subtitle}
+                </div>
+
+                {/* Where Learned */}
+                <div style={{
+                  fontSize: '0.8rem',
+                  color: '#64748b',
+                  marginBottom: '1.2rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.5rem',
+                  padding: '0.7rem',
+                  background: 'rgba(0,0,0,0.2)',
+                  borderRadius: '10px',
+                  border: '1px solid rgba(255,255,255,0.05)'
+                }}>
+                  <span style={{ color: skill.color, fontSize: '0.9rem' }}>📍</span>
+                  <span style={{ fontSize: '0.75rem' }}>{skill.whereLearned}</span>
+                </div>
+
+                {/* Metrics */}
+                <div style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(3, 1fr)',
+                  gap: '0.5rem',
+                  marginBottom: '1.2rem'
+                }}>
+                  {skill.impact_metrics.map((metric, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        background: `rgba(${skill.glowRGB},0.05)`,
+                        border: `1px solid ${skill.color}20`,
+                        borderRadius: '8px',
+                        padding: '0.5rem 0.3rem',
+                        textAlign: 'center'
+                      }}
+                    >
+                      <div style={{ fontSize: '1.1rem', marginBottom: '2px' }}>
+                        {metric.iconEmoji}
+                      </div>
+                      <div style={{
+                        fontSize: '0.85rem',
+                        fontWeight: 800,
+                        color: skill.color,
+                        fontFamily: "'Orbitron', sans-serif",
+                        marginBottom: '2px'
+                      }}>
+                        {metric.value}
+                      </div>
+                      <div style={{
+                        fontSize: '0.6rem',
+                        color: '#64748b',
+                        textTransform: 'uppercase'
+                      }}>
+                        {metric.label}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Tech Tags */}
+                <div style={{ 
+                  display: 'flex', 
+                  flexWrap: 'wrap', 
+                  gap: '0.4rem', 
+                  marginBottom: '1.2rem' 
+                }}>
+                  {skill.tech.slice(0, 3).map((t, i) => (
+                    <span
+                      key={i}
+                      style={{
+                        padding: '0.35rem 0.8rem',
+                        background: 'rgba(0,0,0,0.35)',
+                        border: `1px solid ${skill.color}35`,
+                        borderRadius: '999px',
+                        fontSize: '0.7rem',
+                        color: skill.color,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        fontWeight: 600
+                      }}
+                    >
+                      {t}
+                    </span>
+                  ))}
+                  {skill.tech.length > 3 && (
+                    <span style={{
+                      padding: '0.35rem 0.8rem',
+                      background: 'rgba(255,255,255,0.03)',
+                      borderRadius: '999px',
+                      fontSize: '0.7rem',
+                      color: '#475569'
+                    }}>
+                      +{skill.tech.length - 3}
+                    </span>
+                  )}
+                </div>
+
+                {/* CTA */}
+                <button style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  width: '100%',
+                  padding: '0.8rem 1.3rem',
+                  background: hoveredId === skill.id ? skill.gradient : 'rgba(255,255,255,0.05)',
+                  color: hoveredId === skill.id ? '#000' : skill.color,
+                  border: hoveredId === skill.id ? 'none' : `2px solid ${skill.color}35`,
+                  borderRadius: '10px',
+                  fontWeight: 800,
+                  fontFamily: "'Orbitron', sans-serif",
+                  fontSize: '0.8rem',
+                  letterSpacing: '0.8px',
+                  boxShadow: hoveredId === skill.id ? `0 6px 20px rgba(${skill.glowRGB},0.35)` : 'none',
+                  transition: 'all 0.3s ease',
+                  cursor: 'pointer',
+                  position: 'relative',
+                  overflow: 'hidden'
+                }}>
+                  {hoveredId === skill.id && (
+                    <div style={{
+                      position: 'absolute',
+                      inset: 0,
+                      background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)',
+                      animation: 'shimmer 1.5s infinite'
+                    }} />
+                  )}
+                  <span style={{ position: 'relative', zIndex: 1 }}>View Details</span>
+                  <span style={{ 
+                    fontSize: '0.95rem',
+                    position: 'relative',
+                    zIndex: 1,
+                    transform: hoveredId === skill.id ? 'translateX(3px)' : 'translateX(0)',
+                    transition: 'transform 0.3s ease'
+                  }}>→</span>
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Modal */}
         {activeSkill && (
           <div
             onClick={() => setActiveSkill(null)}
@@ -1030,163 +854,217 @@ export default function AdvancedSkills() {
               position: 'fixed',
               inset: 0,
               background: 'rgba(0,0,0,0.95)',
-              backdropFilter: 'blur(22px)',
+              backdropFilter: 'blur(20px)',
               zIndex: 9999,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              padding: '2.5rem'
+              padding: '2rem'
             }}
           >
             <div
               onClick={e => e.stopPropagation()}
               style={{
-                background: 'rgba(8,8,35,0.94)',
-                border: `4px solid ${activeSkill.color}`,
-                borderRadius: '32px',
-                maxWidth: '1100px',
-                width: '92%',
-                maxHeight: '92vh',
+                background: 'linear-gradient(135deg, rgba(10,10,40,0.98), rgba(5,5,20,0.98))',
+                border: `3px solid ${activeSkill.color}`,
+                borderRadius: '28px',
+                maxWidth: '1000px',
+                width: '95%',
+                maxHeight: '90vh',
                 overflowY: 'auto',
-                boxShadow: `0 0 200px rgba(${activeSkill.glowRGB},0.65)`,
-                backdropFilter: 'blur(28px)'
+                boxShadow: `0 0 120px rgba(${activeSkill.glowRGB},0.6)`,
+                position: 'relative'
               }}
             >
               <button
                 onClick={() => setActiveSkill(null)}
                 style={{
-                  position: 'absolute',
-                  top: '1.8rem',
-                  right: '1.8rem',
-                  background: 'rgba(255,100,100,0.2)',
-                  border: 'none',
+                  position: 'sticky',
+                  top: '1.5rem',
+                  float: 'right',
+                  marginRight: '1.5rem',
+                  background: 'rgba(255,70,70,0.2)',
+                  border: '2px solid #ff4646',
                   borderRadius: '50%',
-                  width: '54px',
-                  height: '54px',
+                  width: '50px',
+                  height: '50px',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: '#ff6b6b',
+                  color: '#ff4646',
                   cursor: 'pointer',
-                  backdropFilter: 'blur(10px)',
-                  fontSize: '1.6rem'
+                  fontSize: '1.8rem',
+                  fontWeight: 700,
+                  transition: 'all 0.3s ease',
+                  zIndex: 10
                 }}
               >
                 ×
               </button>
 
-              <div style={{ padding: '4rem 3.5rem' }}>
+              <div style={{ padding: '3.5rem 3rem', clear: 'both' }}>
                 <div style={{
-                  fontSize: 'clamp(3rem, 7vw, 4.5rem)',
-                  fontWeight: 900,
-                  color: activeSkill.color,
-                  fontFamily: "'Orbitron', sans-serif",
-                  marginBottom: '1.2rem'
-                }}>
-                  {activeSkill.title}
-                </div>
-
-                <div style={{
-                  fontSize: '1.45rem',
-                  color: '#cbd5e1',
-                  marginBottom: '2rem'
-                }}>
-                  {activeSkill.subtitle}
-                </div>
-
-                <div style={{
-                  display: 'inline-flex',
+                  display: 'flex',
+                  gap: '2.5rem',
+                  marginBottom: '3rem',
                   alignItems: 'center',
-                  gap: '1.2rem',
-                  padding: '0.9rem 2rem',
-                  background: `rgba(${activeSkill.glowRGB},0.16)`,
-                  border: `2px solid ${activeSkill.color}`,
-                  borderRadius: '999px',
-                  color: activeSkill.color,
-                  fontSize: '1.15rem',
-                  fontFamily: "'JetBrains Mono', monospace",
-                  marginBottom: '2.8rem'
+                  flexWrap: 'wrap'
                 }}>
-                  <span style={{ fontSize: '1.4rem' }}>★</span>
-                  {activeSkill.level}% Mastery
-                </div>
-
-                <div style={{
-                  marginBottom: '3rem'
-                }}>
-                  <h4 style={{
-                    color: activeSkill.color,
-                    fontSize: '1.35rem',
-                    marginBottom: '1.4rem',
-                    fontFamily: "'JetBrains Mono', monospace"
-                  }}>
-                    Where I Learned
-                  </h4>
                   <div style={{
-                    fontSize: '1.15rem',
-                    color: '#e2e8f0',
-                    padding: '1rem 1.4rem',
-                    background: 'rgba(255,255,255,0.05)',
-                    borderRadius: '16px',
-                    border: `1px solid ${activeSkill.color}30`
+                    fontSize: 'clamp(5rem, 12vw, 8rem)',
+                    filter: `drop-shadow(0 0 50px ${activeSkill.color})`
                   }}>
-                    {activeSkill.whereLearned}
+                    {activeSkill.iconEmoji}
+                  </div>
+
+                  <div style={{ flex: 1 }}>
+                    <div style={{
+                      fontSize: 'clamp(2.5rem, 6vw, 4rem)',
+                      fontWeight: 900,
+                      background: activeSkill.gradient,
+                      WebkitBackgroundClip: 'text',
+                      WebkitTextFillColor: 'transparent',
+                      fontFamily: "'Orbitron', sans-serif",
+                      marginBottom: '0.8rem',
+                      lineHeight: 1.1
+                    }}>
+                      {activeSkill.title}
+                    </div>
+
+                    <div style={{
+                      fontSize: '1.3rem',
+                      color: '#cbd5e1',
+                      marginBottom: '1.5rem'
+                    }}>
+                      {activeSkill.subtitle}
+                    </div>
+
+                    <div style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '1rem',
+                      padding: '0.8rem 2rem',
+                      background: `rgba(${activeSkill.glowRGB},0.15)`,
+                      border: `2.5px solid ${activeSkill.color}`,
+                      borderRadius: '999px',
+                      color: activeSkill.color,
+                      fontSize: '1.1rem',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontWeight: 700
+                    }}>
+                      <span style={{ fontSize: '1.5rem' }}>★</span>
+                      <span>{activeSkill.level}% MASTERY</span>
+                    </div>
                   </div>
                 </div>
 
-                <div style={{ marginBottom: '3.5rem' }}>
-                  <h4 style={{
-                    color: activeSkill.color,
-                    fontSize: '1.35rem',
-                    marginBottom: '1.4rem',
-                    fontFamily: "'JetBrains Mono', monospace"
-                  }}>
-                    Key Achievements
-                  </h4>
-                  {activeSkill.achievements.map((ach, i) => (
-                    <div
-                      key={i}
-                      style={{
-                        display: 'flex',
-                        alignItems: 'flex-start',
-                        gap: '1.1rem',
-                        marginBottom: '1.2rem',
-                        fontSize: '1.08rem',
-                        color: '#e2e8f0'
-                      }}
-                    >
-                      <span style={{ color: activeSkill.color, fontSize: '1.4rem' }}>›</span>
-                      {ach}
+                <div style={{
+                  display: 'grid',
+                  gap: '2.5rem'
+                }}>
+                  <div>
+                    <h4 style={{
+                      color: activeSkill.color,
+                      fontSize: '1.3rem',
+                      marginBottom: '1rem',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem'
+                    }}>
+                      <span>📍</span>
+                      Where I Learned
+                    </h4>
+                    <div style={{
+                      fontSize: '1.05rem',
+                      color: '#e2e8f0',
+                      padding: '1.2rem',
+                      background: 'rgba(255,255,255,0.04)',
+                      borderRadius: '16px',
+                      border: `2px solid ${activeSkill.color}25`
+                    }}>
+                      {activeSkill.whereLearned}
                     </div>
-                  ))}
-                </div>
+                  </div>
 
-                <div>
-                  <h4 style={{
-                    color: activeSkill.color,
-                    fontSize: '1.35rem',
-                    marginBottom: '1.4rem',
-                    fontFamily: "'JetBrains Mono', monospace"
-                  }}>
-                    Technology Stack
-                  </h4>
-                  <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.9rem' }}>
-                    {activeSkill.tech.map((t, i) => (
-                      <span
-                        key={i}
-                        style={{
-                          padding: '0.75rem 1.5rem',
-                          background: 'rgba(255,255,255,0.06)',
-                          border: `2px solid ${activeSkill.color}40`,
-                          borderRadius: '999px',
-                          color: activeSkill.color,
-                          fontFamily: "'JetBrains Mono', monospace",
-                          fontWeight: 600
-                        }}
-                      >
-                        {t}
-                      </span>
-                    ))}
+                  <div>
+                    <h4 style={{
+                      color: activeSkill.color,
+                      fontSize: '1.3rem',
+                      marginBottom: '1rem',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem'
+                    }}>
+                      <span>🏆</span>
+                      Key Achievements
+                    </h4>
+                    <div style={{ display: 'grid', gap: '1rem' }}>
+                      {activeSkill.achievements.map((ach, i) => (
+                        <div
+                          key={i}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'flex-start',
+                            gap: '1rem',
+                            padding: '1.2rem',
+                            background: 'rgba(255,255,255,0.03)',
+                            border: `2px solid ${activeSkill.color}20`,
+                            borderRadius: '16px',
+                            fontSize: '1.05rem',
+                            color: '#e2e8f0'
+                          }}
+                        >
+                          <span style={{ 
+                            color: activeSkill.color, 
+                            fontSize: '1.5rem',
+                            lineHeight: 1
+                          }}>
+                            ›
+                          </span>
+                          <span>{ach}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 style={{
+                      color: activeSkill.color,
+                      fontSize: '1.3rem',
+                      marginBottom: '1rem',
+                      fontFamily: "'JetBrains Mono', monospace",
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.6rem'
+                    }}>
+                      <span>⚙️</span>
+                      Technology Stack
+                    </h4>
+                    <div style={{ 
+                      display: 'flex', 
+                      flexWrap: 'wrap', 
+                      gap: '0.8rem' 
+                    }}>
+                      {activeSkill.tech.map((t, i) => (
+                        <span
+                          key={i}
+                          style={{
+                            padding: '0.75rem 1.5rem',
+                            background: 'rgba(255,255,255,0.05)',
+                            border: `2px solid ${activeSkill.color}40`,
+                            borderRadius: '999px',
+                            color: activeSkill.color,
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontWeight: 600,
+                            fontSize: '0.95rem'
+                          }}
+                        >
+                          {t}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
