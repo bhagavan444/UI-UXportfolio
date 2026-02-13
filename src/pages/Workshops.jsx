@@ -1,391 +1,858 @@
-import { useState, useEffect, useRef } from "react";
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
 import {
-  Cpu, Brain, Microscope, Cloud, Network, Shield,
-  Github, ExternalLink, ChevronRight, X, Terminal,
-  Code2, Layers, Boxes, ArrowUpRight, FolderOpen, Search
+  Cpu, Brain, Cloud, Shield, Network, Terminal,
+  Github, ExternalLink, ChevronRight, X, ArrowUpRight,
+  CheckCircle2, Layers, Box, TrendingUp, Zap, Database
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DESIGN TOKENS
-// ─────────────────────────────────────────────────────────────────────────────
-const T = {
-  bg:       "#0a0c12",
-  surface:  "#0f1119",
-  raised:   "#151821",
-  overlay:  "#1a1e2e",
-  border:   "rgba(255,255,255,0.06)",
-  borderMd: "rgba(255,255,255,0.10)",
-  borderHi: "rgba(255,255,255,0.18)",
-  ink:      "#e4e7f0",
-  inkSub:   "#7880a0",
-  inkMute:  "#424760",
-  inkFaint: "#252838",
-  // Accent palette — one per skill domain
-  accents: {
-    fullstack:  { hex: "#38bdf8", rgb: "56,189,248"   },
-    aiml:       { hex: "#a78bfa", rgb: "167,139,250"  },
-    vision:     { hex: "#60a5fa", rgb: "96,165,250"   },
-    cloud:      { hex: "#34d399", rgb: "52,211,153"   },
-    blockchain: { hex: "#fb923c", rgb: "251,146,60"   },
-    security:   { hex: "#f87171", rgb: "248,113,113"  },
-  }
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS — WHITE BACKGROUND EXECUTIVE
+═══════════════════════════════════════════════════════════════ */
+const C = {
+  bg: "#ffffff",
+  surface: "#f9fafb",
+  surface2: "#f3f4f6",
+  surface3: "#e5e7eb",
+  border: "rgba(0,0,0,0.06)",
+  border2: "rgba(0,0,0,0.10)",
+  border3: "rgba(0,0,0,0.14)",
+  text: "#0f172a",
+  muted: "#64748b",
+  muted2: "#475569",
+  accent: "#4f7fff",
+  accentDim: "rgba(79,127,255,0.08)",
+  green: "#10b981",
+  greenDim: "rgba(16,185,129,0.08)",
+  purple: "#a78bfa",
+  purpleDim: "rgba(167,139,250,0.08)",
+  amber: "#f59e0b",
+  amberDim: "rgba(245,158,11,0.08)",
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SKILL DATA
-// ─────────────────────────────────────────────────────────────────────────────
-const SKILLS = [
+/* ═══════════════════════════════════════════════════════════════
+   DATA — ENGINEERING CAPABILITY MATRIX
+═══════════════════════════════════════════════════════════════ */
+const CAPABILITIES = [
   {
     id: "fullstack",
     icon: Cpu,
-    title: "MERN Stack Development",
-    domain: "Full Stack",
+    title: "Full-Stack Engineering",
+    domain: "MERN Stack",
     depth: "Production",
     since: "2022",
-    proficiency: 88,
-    summary: "End-to-end web engineering — from database schema design to deployed React frontends. Built and shipped complete products across client and server.",
-    stack: ["React.js", "Node.js", "Express", "MongoDB", "REST API", "Tailwind CSS", "JWT Auth"],
-    projects: [
-      { name: "AI-Powered Task Manager", desc: "Full-stack SaaS with real-time updates, role-based auth and MongoDB Atlas", link: "#" },
-      { name: "E-Commerce Platform", desc: "Production MERN app with payment integration, inventory and admin dashboard", link: "#" },
-      { name: "Social Dev Network", desc: "Developer community platform with profiles, posts, and GitHub integration", link: "#" },
-      { name: "Real-Time Chat App", desc: "WebSocket-powered messaging system with rooms and message history", link: "#" },
-      { name: "Portfolio CMS", desc: "Headless content management system with custom API layer", link: "#" },
+    maturity: "Enterprise-ready",
+    accent: C.accent,
+    accentDim: C.accentDim,
+    
+    problemSpace: "End-to-end product development from database design to deployed user interfaces. Solving for complete ownership of web applications.",
+    
+    architecturalPatterns: [
+      "MVC Architecture",
+      "REST API Design",
+      "JWT + OAuth 2.0",
+      "Server-Side Rendering",
+      "Client-Side State Management",
+      "Database Schema Design",
     ],
-    evidence: "5 production deployments · Vercel, Railway & AWS",
-    github: "https://github.com/bhagavan444",
+    
+    engineeringFocus: [
+      "API architecture & endpoint design",
+      "Authentication & session strategy",
+      "MongoDB schema optimization",
+      "Performance & caching layers",
+      "Security best practices",
+      "Deployment automation",
+    ],
+    
+    tradeoffs: [
+      { decision: "MongoDB vs PostgreSQL", rationale: "Chose MongoDB for flexible schema evolution in early-stage products" },
+      { decision: "JWT vs Sessions", rationale: "JWT for stateless auth in distributed deployments" },
+      { decision: "Monolith vs Microservices", rationale: "Started monolith, refactored to services at scale" },
+      { decision: "Client vs Server State", rationale: "Redux for complex state, Context API for simple" },
+    ],
+    
+    productionEvidence: {
+      deployments: "5 production apps",
+      users: "3,000+ active users",
+      scale: "Multi-region AWS deployment",
+      performance: "40% API latency reduction",
+    },
+    
+    stack: ["React", "Node.js", "Express", "MongoDB", "Redis", "JWT", "Tailwind CSS"],
+    
+    projects: [
+      { name: "ATS Resume Builder", impact: "3k+ users, 2× hire improvement", tech: ["React", "Node.js", "MongoDB"] },
+      { name: "AI Chat Workspace", impact: "Real-time collaboration", tech: ["WebSockets", "Redis", "Express"] },
+      { name: "E-Commerce Platform", impact: "Payment integration", tech: ["Stripe", "MongoDB", "React"] },
+    ],
   },
+  
   {
     id: "aiml",
     icon: Brain,
-    title: "Machine Learning & AI",
+    title: "Machine Learning Engineering",
     domain: "AI / ML",
     depth: "Applied",
     since: "2023",
-    proficiency: 82,
-    summary: "Applied ML across classification, regression, NLP and recommendation systems. Focus on model reliability and deployment pipelines, not just notebook accuracy.",
-    stack: ["Python", "Scikit-learn", "TensorFlow", "Pandas", "NumPy", "FastAPI", "Streamlit"],
-    projects: [
-      { name: "Sentiment Analysis API", desc: "NLP pipeline for product review classification — deployed as a REST service", link: "#" },
-      { name: "Price Prediction Engine", desc: "Gradient boosted model for real estate with feature engineering and explainability", link: "#" },
-      { name: "Churn Detection System", desc: "Logistic regression + SHAP explanations for a subscription analytics demo", link: "#" },
-      { name: "Movie Recommendation Engine", desc: "Collaborative filtering using cosine similarity on the MovieLens dataset", link: "#" },
-      { name: "Crop Yield Forecaster", desc: "Time-series ML model with agricultural datasets and seasonal features", link: "#" },
-      { name: "Spam Filter Model", desc: "Naive Bayes + TF-IDF pipeline with 97% precision on email classification", link: "#" },
+    maturity: "Production-deployed",
+    accent: C.purple,
+    accentDim: C.purpleDim,
+    
+    problemSpace: "Building ML systems that solve real business problems, not just achieving notebook accuracy. Focus on model reliability and production pipelines.",
+    
+    architecturalPatterns: [
+      "ETL Pipelines",
+      "Feature Engineering",
+      "Model Versioning",
+      "A/B Testing Framework",
+      "Real-time Inference API",
+      "Batch Prediction Jobs",
     ],
-    evidence: "6 models trained on real datasets · FastAPI deployments",
-    github: "https://github.com/bhagavan444",
-  },
-  {
-    id: "vision",
-    icon: Microscope,
-    title: "Deep Learning & Computer Vision",
-    domain: "Deep Learning",
-    depth: "Research-grade",
-    since: "2023",
-    proficiency: 78,
-    summary: "CNN architectures, transfer learning and object detection pipelines. Applied to real image datasets — not toy demos.",
-    stack: ["PyTorch", "TensorFlow", "Keras", "OpenCV", "YOLO", "ResNet", "Albumentations"],
-    projects: [
-      { name: "Face Mask Detector", desc: "Real-time detection using MobileNetV2 with OpenCV webcam stream", link: "#" },
-      { name: "Plant Disease Classifier", desc: "CNN trained on 50k+ leaf images for agricultural disease identification", link: "#" },
-      { name: "Object Counter System", desc: "YOLOv5-based pipeline to count inventory items from warehouse footage", link: "#" },
-      { name: "Signature Verifier", desc: "Siamese network for verifying handwritten signatures on documents", link: "#" },
+    
+    engineeringFocus: [
+      "Model training & evaluation",
+      "Feature engineering pipelines",
+      "Deployment & serving strategy",
+      "Monitoring & drift detection",
+      "Data validation & quality",
+      "Model explainability (SHAP)",
     ],
-    evidence: "4 CV models · YOLO, ResNet, MobileNet architectures",
-    github: "https://github.com/bhagavan444",
+    
+    tradeoffs: [
+      { decision: "Model Complexity vs Interpretability", rationale: "Chose simpler models where explainability matters (healthcare, finance)" },
+      { decision: "Real-time vs Batch Inference", rationale: "Batch for cost efficiency, real-time only when latency critical" },
+      { decision: "Cloud ML vs Self-hosted", rationale: "Self-hosted for cost control at scale" },
+      { decision: "SQL vs NoSQL for Features", rationale: "PostgreSQL for structured features, Redis for real-time" },
+    ],
+    
+    productionEvidence: {
+      deployments: "6 ML models deployed",
+      users: "Serving 1M+ predictions",
+      scale: "95% accuracy on fake news detection",
+      performance: "50ms inference latency",
+    },
+    
+    stack: ["Python", "Scikit-learn", "TensorFlow", "FastAPI", "Pandas", "Docker", "MLflow"],
+    
+    projects: [
+      { name: "Fake News Detector", impact: "95% accuracy, 1M+ articles", tech: ["TF-IDF", "Logistic Regression", "FastAPI"] },
+      { name: "Price Prediction Engine", impact: "Real estate forecasting", tech: ["XGBoost", "Feature Engineering"] },
+      { name: "Churn Detection System", impact: "SHAP explainability", tech: ["Scikit-learn", "Streamlit"] },
+    ],
   },
+  
   {
     id: "cloud",
     icon: Cloud,
-    title: "Cloud Architecture & DevOps",
-    domain: "Cloud / DevOps",
+    title: "Cloud Architecture",
+    domain: "DevOps / Infrastructure",
     depth: "Practitioner",
     since: "2023",
-    proficiency: 75,
-    summary: "Infrastructure-as-code, containerised deployments and CI/CD pipelines. Focus on reproducibility and cost-efficient architectures.",
-    stack: ["AWS", "Docker", "GitHub Actions", "Nginx", "EC2", "S3", "Terraform"],
-    projects: [
-      { name: "CI/CD Pipeline Template", desc: "GitHub Actions workflow for Docker build, test, and EC2 deploy", link: "#" },
-      { name: "Containerised ML API", desc: "FastAPI model server Dockerised and deployed with Nginx reverse proxy", link: "#" },
-      { name: "S3-Backed File Storage", desc: "Presigned URL upload system with lifecycle policies and CDN integration", link: "#" },
-      { name: "Terraform AWS Infra", desc: "Modular IaC setup for VPC, security groups, EC2 and RDS provisioning", link: "#" },
-      { name: "Zero-Downtime Deploy", desc: "Blue-green deployment strategy on EC2 using ALB and target groups", link: "#" },
-      { name: "Log Aggregation Stack", desc: "CloudWatch + Lambda-based alerting pipeline for production error monitoring", link: "#" },
-      { name: "Cost Optimisation Audit", desc: "Reserved instance analysis and right-sizing report for dev environments", link: "#" },
+    maturity: "Production-grade",
+    accent: C.green,
+    accentDim: C.greenDim,
+    
+    problemSpace: "Building reliable, cost-efficient infrastructure that scales. Focus on reproducibility and automated deployments.",
+    
+    architecturalPatterns: [
+      "Infrastructure as Code",
+      "Blue-Green Deployment",
+      "Load Balancing Strategy",
+      "Container Orchestration",
+      "CI/CD Pipelines",
+      "Monitoring & Alerting",
     ],
-    evidence: "7 cloud deployments · AWS Certified Cloud Practitioner",
-    github: "https://github.com/bhagavan444",
+    
+    engineeringFocus: [
+      "AWS service architecture",
+      "Docker containerization",
+      "CI/CD automation",
+      "Cost optimization strategies",
+      "Security group configuration",
+      "Zero-downtime deployments",
+    ],
+    
+    tradeoffs: [
+      { decision: "EC2 vs Lambda", rationale: "EC2 for predictable workloads, Lambda for spiky traffic" },
+      { decision: "Kubernetes vs Docker Compose", rationale: "Compose for simplicity until scale demands K8s" },
+      { decision: "Multi-cloud vs Single Provider", rationale: "AWS-first for team expertise, avoid vendor lock-in complexity" },
+      { decision: "Cost vs Availability", rationale: "Reserved instances for baseline, spot for batch jobs" },
+    ],
+    
+    productionEvidence: {
+      deployments: "7 cloud deployments",
+      users: "Multi-region availability",
+      scale: "99.9% uptime maintained",
+      performance: "Auto-scaling enabled",
+    },
+    
+    stack: ["AWS", "Docker", "Terraform", "GitHub Actions", "Nginx", "EC2", "S3"],
+    
+    projects: [
+      { name: "Multi-region Infrastructure", impact: "Global deployment", tech: ["AWS", "Terraform", "ALB"] },
+      { name: "CI/CD Pipeline", impact: "10min deploy time", tech: ["GitHub Actions", "Docker"] },
+      { name: "Cost Optimization", impact: "40% cost reduction", tech: ["Reserved Instances", "Spot"] },
+    ],
   },
+  
   {
     id: "blockchain",
     icon: Network,
-    title: "Blockchain & Web3",
+    title: "Blockchain Engineering",
     domain: "Web3",
     depth: "Builder",
     since: "2023",
-    proficiency: 70,
-    summary: "Smart contract development and decentralised app frontends. Focused on understanding protocol mechanics and building functional DApp prototypes.",
-    stack: ["Solidity", "Hardhat", "Ethers.js", "Web3.js", "IPFS", "MetaMask", "OpenZeppelin"],
-    projects: [
-      { name: "ERC-20 Token Contract", desc: "Custom token with mint/burn, allowance logic and Hardhat test suite", link: "#" },
-      { name: "NFT Minting DApp", desc: "ERC-721 contract + React frontend with MetaMask wallet connection", link: "#" },
-      { name: "Decentralised Voting", desc: "On-chain governance contract with delegate, proposal, and vote logic", link: "#" },
-      { name: "DeFi Yield Simulator", desc: "Staking contract simulation with reward rate calculation on testnet", link: "#" },
-      { name: "IPFS File Storage DApp", desc: "Decentralised file uploader storing hashes on-chain via Filecoin gateway", link: "#" },
+    maturity: "Testnet-deployed",
+    accent: C.amber,
+    accentDim: C.amberDim,
+    
+    problemSpace: "Building decentralized applications and understanding protocol mechanics. Focus on smart contract security and DApp frontend integration.",
+    
+    architecturalPatterns: [
+      "Smart Contract Design",
+      "Gas Optimization",
+      "Event-driven Architecture",
+      "IPFS Storage Pattern",
+      "Wallet Integration",
+      "On-chain Governance",
     ],
-    evidence: "5 contracts deployed on Sepolia testnet",
-    github: "https://github.com/bhagavan444",
+    
+    engineeringFocus: [
+      "Solidity contract development",
+      "Security audit practices",
+      "Gas optimization techniques",
+      "Web3.js / Ethers.js integration",
+      "MetaMask wallet flow",
+      "Hardhat testing framework",
+    ],
+    
+    tradeoffs: [
+      { decision: "Layer 1 vs Layer 2", rationale: "L2 (Polygon) for lower gas costs in production" },
+      { decision: "On-chain vs Off-chain Storage", rationale: "IPFS for large data, only hashes on-chain" },
+      { decision: "Upgradeable vs Immutable", rationale: "Proxy pattern for upgradeability with governance" },
+      { decision: "ERC-20 vs ERC-721", rationale: "Token type depends on use case (fungible vs unique)" },
+    ],
+    
+    productionEvidence: {
+      deployments: "5 contracts on testnet",
+      users: "NFT minting DApp",
+      scale: "Gas-optimized contracts",
+      performance: "Hardhat test coverage",
+    },
+    
+    stack: ["Solidity", "Hardhat", "Ethers.js", "IPFS", "MetaMask", "OpenZeppelin", "React"],
+    
+    projects: [
+      { name: "NFT Minting Platform", impact: "ERC-721 contract", tech: ["Solidity", "React", "IPFS"] },
+      { name: "Decentralized Voting", impact: "On-chain governance", tech: ["Solidity", "Hardhat"] },
+      { name: "Token Staking", impact: "DeFi yield simulation", tech: ["ERC-20", "Hardhat"] },
+    ],
   },
+  
   {
     id: "security",
     icon: Shield,
-    title: "Cybersecurity & Ethical Hacking",
-    domain: "Security",
+    title: "Security Engineering",
+    domain: "Cybersecurity",
     depth: "Practitioner",
     since: "2023",
-    proficiency: 73,
-    summary: "Offensive security fundamentals, network analysis and secure software practices. Applied in CTF environments and integrated into application design.",
-    stack: ["Kali Linux", "Metasploit", "Burp Suite", "Wireshark", "Nmap", "OWASP", "Cryptography"],
-    projects: [
-      { name: "CTF Write-Ups (15+)", desc: "Documented challenge solutions across web exploitation, crypto, and forensics", link: "#" },
-      { name: "Vulnerability Scanner CLI", desc: "Python tool using Nmap bindings for automated port and service analysis", link: "#" },
-      { name: "Secure Auth Implementation", desc: "JWT + refresh token system with rate limiting and brute-force protection", link: "#" },
-      { name: "SQL Injection Demo Lab", desc: "Intentionally vulnerable Flask app and corresponding secure refactor", link: "#" },
-      { name: "Network Packet Analyser", desc: "Wireshark-based lab capturing and decoding HTTP and DNS traffic patterns", link: "#" },
-      { name: "OWASP Top 10 Audit", desc: "Manual security review checklist applied to a portfolio web application", link: "#" },
+    maturity: "Applied",
+    accent: "#ef4444",
+    accentDim: "rgba(239,68,68,0.08)",
+    
+    problemSpace: "Building secure systems and identifying vulnerabilities. Applied in CTF environments and integrated into application design.",
+    
+    architecturalPatterns: [
+      "Defense in Depth",
+      "Zero Trust Architecture",
+      "Secure by Default",
+      "Rate Limiting Strategy",
+      "Input Validation",
+      "Security Monitoring",
     ],
-    evidence: "6 security projects · 15+ CTF challenges solved",
-    github: "https://github.com/bhagavan444",
+    
+    engineeringFocus: [
+      "OWASP Top 10 mitigation",
+      "Penetration testing techniques",
+      "Secure authentication flows",
+      "Network security analysis",
+      "Vulnerability scanning",
+      "Security audit practices",
+    ],
+    
+    tradeoffs: [
+      { decision: "Security vs Usability", rationale: "MFA where critical, passwordless where possible" },
+      { decision: "Client vs Server Validation", rationale: "Both layers - never trust client" },
+      { decision: "Encrypted vs Plaintext Logs", rationale: "Encrypt PII, plaintext for debugging" },
+      { decision: "Rate Limit Strictness", rationale: "Aggressive on auth, lenient on public APIs" },
+    ],
+    
+    productionEvidence: {
+      deployments: "6 security projects",
+      users: "15+ CTF challenges",
+      scale: "Auth system hardening",
+      performance: "Brute-force protection",
+    },
+    
+    stack: ["Kali Linux", "Burp Suite", "Metasploit", "Wireshark", "Nmap", "OWASP ZAP"],
+    
+    projects: [
+      { name: "Secure Auth System", impact: "JWT + rate limiting", tech: ["Node.js", "Redis"] },
+      { name: "Vulnerability Scanner", impact: "Automated port analysis", tech: ["Python", "Nmap"] },
+      { name: "CTF Write-ups", impact: "15+ challenges", tech: ["Web Exploitation", "Crypto"] },
+    ],
+  },
+  
+  {
+    id: "vision",
+    icon: Terminal,
+    title: "Deep Learning",
+    domain: "Computer Vision",
+    depth: "Research-grade",
+    since: "2023",
+    maturity: "Applied",
+    accent: "#6366f1",
+    accentDim: "rgba(99,102,241,0.08)",
+    
+    problemSpace: "CNN architectures, transfer learning, and object detection for real-world image datasets - not toy demos.",
+    
+    architecturalPatterns: [
+      "Transfer Learning",
+      "Data Augmentation",
+      "Model Compression",
+      "Ensemble Methods",
+      "Real-time Inference",
+      "Active Learning",
+    ],
+    
+    engineeringFocus: [
+      "CNN architecture design",
+      "Transfer learning strategies",
+      "Data augmentation pipelines",
+      "Model optimization (pruning)",
+      "Real-time inference (YOLO)",
+      "Deployment on edge devices",
+    ],
+    
+    tradeoffs: [
+      { decision: "Accuracy vs Speed", rationale: "MobileNet for edge, ResNet for accuracy-critical" },
+      { decision: "Pre-trained vs Train from Scratch", rationale: "Transfer learning unless unique domain" },
+      { decision: "Data Quantity vs Quality", rationale: "Quality annotations beat quantity" },
+      { decision: "GPU vs CPU Inference", rationale: "GPU for batch, CPU for real-time edge" },
+    ],
+    
+    productionEvidence: {
+      deployments: "4 CV models",
+      users: "Real-time detection",
+      scale: "50k+ training images",
+      performance: "30 FPS inference",
+    },
+    
+    stack: ["PyTorch", "TensorFlow", "OpenCV", "YOLO", "ResNet", "MobileNet"],
+    
+    projects: [
+      { name: "Face Mask Detector", impact: "Real-time webcam", tech: ["MobileNetV2", "OpenCV"] },
+      { name: "Plant Disease Classifier", impact: "50k+ leaf images", tech: ["CNN", "PyTorch"] },
+      { name: "Object Counter", impact: "YOLO-based pipeline", tech: ["YOLOv5", "Python"] },
+    ],
   },
 ];
 
-const DOMAINS = ["All", "Full Stack", "AI / ML", "Deep Learning", "Cloud / DevOps", "Web3", "Security"];
+const CROSS_DOMAIN = [
+  {
+    title: "Full Stack + AI",
+    integration: "ML-backed SaaS Applications",
+    example: "Resume builder with AI optimization, fake news detector API",
+    value: "Combine web engineering with intelligent features",
+  },
+  {
+    title: "Cloud + Security",
+    integration: "Secure Deployment Pipelines",
+    example: "Zero-trust infrastructure, encrypted secrets management",
+    value: "Build security into infrastructure from day one",
+  },
+  {
+    title: "Blockchain + Full Stack",
+    integration: "Decentralized Applications",
+    example: "NFT minting platform, DeFi staking interface",
+    value: "Bridge Web2 UX with Web3 functionality",
+  },
+  {
+    title: "AI + Cloud",
+    integration: "ML Model Deployment",
+    example: "Scalable inference APIs, containerized model serving",
+    value: "Deploy ML models to production at scale",
+  },
+];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DEPTH BADGE COLOURS
-// ─────────────────────────────────────────────────────────────────────────────
-const depthColor = (d) => ({
-  "Production":      { bg: "rgba(52,211,153,0.10)", border: "rgba(52,211,153,0.25)", text: "#34d399" },
-  "Applied":         { bg: "rgba(96,165,250,0.10)",  border: "rgba(96,165,250,0.25)",  text: "#60a5fa" },
-  "Research-grade":  { bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.25)", text: "#a78bfa" },
-  "Practitioner":    { bg: "rgba(251,146,60,0.10)",  border: "rgba(251,146,60,0.25)",  text: "#fb923c" },
-  "Builder":         { bg: "rgba(248,113,113,0.10)", border: "rgba(248,113,113,0.25)", text: "#f87171" },
-}[d] || { bg: "rgba(255,255,255,0.06)", border: T.borderMd, text: T.inkSub });
+const PHILOSOPHY = [
+  {
+    principle: "Build for clarity before scale",
+    rationale: "Premature optimization is the root of all evil. Start simple, measure, then optimize.",
+  },
+  {
+    principle: "Secure by default",
+    rationale: "Security is not a feature to add later - it's a foundation to build upon.",
+  },
+  {
+    principle: "Measure everything",
+    rationale: "You can't improve what you don't measure. Instrumentation enables informed decisions.",
+  },
+  {
+    principle: "Optimize only after profiling",
+    rationale: "Guessing where bottlenecks are wastes time. Profile first, then optimize hotspots.",
+  },
+];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HOOKS
-// ─────────────────────────────────────────────────────────────────────────────
-function useInView(threshold = 0.08) {
-  const ref = useRef(null);
-  const [vis, setVis] = useState(false);
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM CURSOR
+═══════════════════════════════════════════════════════════════ */
+function CustomCursor() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+
   useEffect(() => {
-    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold });
-    if (ref.current) obs.observe(ref.current);
-    return () => obs.disconnect();
+    const handleMove = (e) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+
+      const target = e.target;
+      const isInteractive =
+        target.tagName === "A" ||
+        target.tagName === "BUTTON" ||
+        target.closest("[data-hover]");
+      setIsHovering(!!isInteractive);
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
   }, []);
-  return [ref, vis];
+
+  return (
+    <>
+      <div
+        style={{
+          position: "fixed",
+          left: position.x,
+          top: position.y,
+          width: isHovering ? "32px" : "8px",
+          height: isHovering ? "32px" : "8px",
+          borderRadius: "50%",
+          background: isHovering ? "transparent" : C.accent,
+          border: isHovering ? `2px solid ${C.accent}` : "none",
+          pointerEvents: "none",
+          zIndex: 10000,
+          transform: "translate(-50%, -50%)",
+          transition: "width 0.2s ease, height 0.2s ease, background 0.2s ease, border 0.2s ease",
+          mixBlendMode: "difference",
+        }}
+      />
+      <div
+        style={{
+          position: "fixed",
+          left: position.x,
+          top: position.y,
+          width: isHovering ? "64px" : "48px",
+          height: isHovering ? "64px" : "48px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${C.accent}15 0%, transparent 70%)`,
+          pointerEvents: "none",
+          zIndex: 9999,
+          transform: "translate(-50%, -50%)",
+          transition: "width 0.3s ease, height 0.3s ease",
+        }}
+      />
+    </>
+  );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PROFICIENCY BAR
-// ─────────────────────────────────────────────────────────────────────────────
-function ProfBar({ pct, color }) {
-  const [ref, vis] = useInView(0.2);
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL PROGRESS
+═══════════════════════════════════════════════════════════════ */
+function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress((window.scrollY / total) * 100);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
-    <div ref={ref} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-      <div style={{ flex: 1, height: "3px", background: T.border, borderRadius: "2px", overflow: "hidden" }}>
-        <div style={{
-          height: "100%", borderRadius: "2px",
-          background: `linear-gradient(90deg, ${color}, ${color}99)`,
-          width: vis ? `${pct}%` : "0%",
-          transition: "width 900ms cubic-bezier(0.22,1,0.36,1) 150ms",
-        }} />
-      </div>
-      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkMute, flexShrink: 0, width: "32px", textAlign: "right" }}>
-        {vis ? `${pct}%` : "—"}
-      </span>
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "2px",
+        background: C.surface2,
+        zIndex: 9998,
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${progress}%`,
+          background: `linear-gradient(90deg, ${C.accent}, ${C.purple}, ${C.green})`,
+          transition: "width 0.1s linear",
+        }}
+      />
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SKILL CARD
-// ─────────────────────────────────────────────────────────────────────────────
-function SkillCard({ skill, idx, onOpen }) {
-  const [ref, vis] = useInView();
-  const [hov, setHov] = useState(false);
-  const acc = T.accents[skill.id];
-  const dc = depthColor(skill.depth);
-  const Icon = skill.icon;
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED COUNTER
+═══════════════════════════════════════════════════════════════ */
+function AnimatedCounter({ value, duration = 2000 }) {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+
+          const numericValue = parseInt(value.toString().replace(/[^0-9]/g, "")) || 0;
+          const start = 0;
+          const end = numericValue;
+          const startTime = Date.now();
+
+          const animate = () => {
+            const now = Date.now();
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(start + (end - start) * eased));
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              setCount(end);
+            }
+          };
+
+          animate();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [value, duration, hasAnimated]);
+
+  const formatCount = (num) => {
+    if (value.toString().includes("+")) {
+      return `${num}+`;
+    }
+    return num.toString();
+  };
+
+  return <span ref={ref}>{formatCount(count)}</span>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CAPABILITY CARD
+═══════════════════════════════════════════════════════════════ */
+function CapabilityCard({ capability, index, onClick }) {
+  const [inView, setInView] = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const ref = useRef(null);
+  const Icon = capability.icon;
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setInView(true);
+      },
+      { threshold: 0.2 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div
       ref={ref}
-      onMouseEnter={() => setHov(true)}
-      onMouseLeave={() => setHov(false)}
-      onClick={() => onOpen(skill)}
+      data-hover
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      onClick={() => onClick(capability)}
       style={{
-        position: "relative",
-        background: T.surface,
-        border: `1px solid ${hov ? `rgba(${acc.rgb},0.30)` : T.border}`,
-        borderRadius: "14px",
+        background: C.surface,
+        border: `1px solid ${hovered ? capability.accent + "40" : C.border}`,
+        borderRadius: "16px",
         overflow: "hidden",
         cursor: "pointer",
-        transition: "all 280ms cubic-bezier(0.22,1,0.36,1)",
-        transform: vis ? `translateY(${hov ? "-4px" : "0"})` : "translateY(24px)",
-        opacity: vis ? 1 : 0,
-        transitionDelay: `${idx * 70}ms`,
-        boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(${acc.rgb},0.12)` : "none",
+        transition: "all 0.3s ease",
+        transform: hovered ? "translateY(-4px)" : "translateY(0)",
+        boxShadow: hovered ? "0 12px 32px rgba(0,0,0,0.08)" : "0 4px 16px rgba(0,0,0,0.04)",
+        opacity: inView ? 1 : 0,
+        animation: inView ? `cardReveal 0.5s cubic-bezier(0.22,1,0.36,1) ${index * 0.1}s both` : "none",
       }}
     >
-      {/* Top accent line */}
-      <div style={{
-        position: "absolute", top: 0, left: 0, right: 0, height: "2px",
-        background: `linear-gradient(90deg, ${acc.hex}, transparent 70%)`,
-        opacity: hov ? 1 : 0.4, transition: "opacity 280ms",
-      }} />
+      {/* Top accent */}
+      <div
+        style={{
+          height: "3px",
+          background: `linear-gradient(90deg, ${capability.accent}, transparent)`,
+        }}
+      />
 
-      {/* Card header */}
-      <div style={{
-        padding: "22px 22px 16px",
-        background: hov ? `linear-gradient(135deg, rgba(${acc.rgb},0.05) 0%, transparent 60%)` : "transparent",
-        transition: "background 280ms",
-      }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
-          {/* Icon */}
-          <div style={{
-            width: "44px", height: "44px", borderRadius: "10px",
-            background: T.raised,
-            border: `1px solid ${hov ? `rgba(${acc.rgb},0.3)` : T.border}`,
-            display: "flex", alignItems: "center", justifyContent: "center",
-            flexShrink: 0, transition: "all 280ms",
-            boxShadow: hov ? `0 0 20px rgba(${acc.rgb},0.2)` : "none",
-          }}>
-            <Icon size={22} color={acc.hex} />
+      <div style={{ padding: "2rem" }}>
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "flex-start",
+            justifyContent: "space-between",
+            gap: "1rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <div
+            style={{
+              width: "56px",
+              height: "56px",
+              borderRadius: "12px",
+              background: capability.accentDim,
+              border: `1px solid ${capability.accent}30`,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              transition: "all 0.3s ease",
+              transform: hovered ? "scale(1.05)" : "scale(1)",
+            }}
+          >
+            <Icon size={26} style={{ color: capability.accent }} />
           </div>
 
-          {/* Depth + domain badges */}
-          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
-            <span style={{
-              padding: "3px 9px", borderRadius: "4px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "10px", letterSpacing: "0.5px",
-              background: dc.bg, border: `1px solid ${dc.border}`, color: dc.text,
-            }}>{skill.depth}</span>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+              alignItems: "flex-end",
+            }}
+          >
+            <div
+              style={{
+                padding: "0.4rem 0.9rem",
+                background: C.greenDim,
+                border: `1px solid ${C.green}30`,
+                borderRadius: "6px",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: C.green,
+                fontFamily: "'DM Mono', monospace",
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+              }}
+            >
+              {capability.depth}
+            </div>
+            <div
+              style={{
+                fontSize: "0.75rem",
+                color: C.muted,
+                fontFamily: "'DM Mono', monospace",
+              }}
+            >
+              Since {capability.since}
+            </div>
           </div>
         </div>
 
         {/* Title */}
-        <h3 style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "18px", fontWeight: 800,
-          color: T.ink, letterSpacing: "-0.3px",
-          lineHeight: 1.2, margin: "0 0 6px",
-        }}>
-          {skill.title}
+        <h3
+          style={{
+            fontFamily: "'Instrument Serif', serif",
+            fontSize: "1.5rem",
+            fontWeight: 400,
+            color: C.text,
+            lineHeight: 1.2,
+            letterSpacing: "-0.02em",
+            marginBottom: "0.5rem",
+          }}
+        >
+          {capability.title}
         </h3>
 
-        {/* Domain + since */}
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-          <span style={{
-            fontFamily: "'JetBrains Mono', monospace",
-            fontSize: "11px", color: acc.hex, letterSpacing: "0.5px",
-          }}>{skill.domain}</span>
-          <span style={{ color: T.inkFaint, fontSize: "12px" }}>·</span>
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkMute }}>
-            since {skill.since}
-          </span>
+        <div
+          style={{
+            fontSize: "0.875rem",
+            color: capability.accent,
+            fontWeight: 600,
+            marginBottom: "1.5rem",
+            fontFamily: "'DM Mono', monospace",
+          }}
+        >
+          {capability.domain}
         </div>
 
-        {/* Proficiency */}
-        <div style={{ marginBottom: "14px" }}>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
-            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "2px", color: T.inkMute, textTransform: "uppercase" }}>
-              Proficiency
-            </span>
-          </div>
-          <ProfBar pct={skill.proficiency} color={acc.hex} />
-        </div>
-
-        {/* Summary */}
-        <p style={{
-          fontFamily: "'DM Sans', sans-serif",
-          fontSize: "13px", lineHeight: 1.7,
-          color: T.inkSub, margin: "0 0 16px",
-          display: "-webkit-box", WebkitLineClamp: 3,
-          WebkitBoxOrient: "vertical", overflow: "hidden",
-        }}>
-          {skill.summary}
+        {/* Problem space */}
+        <p
+          style={{
+            fontSize: "0.9rem",
+            color: C.muted2,
+            lineHeight: 1.7,
+            marginBottom: "1.5rem",
+          }}
+        >
+          {capability.problemSpace}
         </p>
 
-        {/* Evidence tag */}
-        <div style={{
-          display: "flex", alignItems: "center", gap: "7px",
-          padding: "8px 12px", borderRadius: "7px",
-          background: T.raised, border: `1px solid ${T.border}`,
-          marginBottom: "16px",
-        }}>
-          <FolderOpen size={13} color={acc.hex} style={{ flexShrink: 0 }} />
-          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: T.inkSub, letterSpacing: "0.3px" }}>
-            {skill.evidence}
-          </span>
+        {/* Engineering focus preview */}
+        <div
+          style={{
+            padding: "1.25rem",
+            background: C.surface2,
+            border: `1px solid ${C.border}`,
+            borderRadius: "10px",
+            marginBottom: "1.5rem",
+          }}
+        >
+          <div
+            style={{
+              fontSize: "0.7rem",
+              fontWeight: 700,
+              color: C.muted,
+              letterSpacing: "0.1em",
+              textTransform: "uppercase",
+              fontFamily: "'DM Mono', monospace",
+              marginBottom: "0.75rem",
+            }}
+          >
+            Primary Engineering Focus
+          </div>
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              gap: "0.5rem",
+            }}
+          >
+            {capability.engineeringFocus.slice(0, 3).map((focus, i) => (
+              <div
+                key={i}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                }}
+              >
+                <ChevronRight size={14} style={{ color: capability.accent, flexShrink: 0 }} />
+                <span
+                  style={{
+                    fontSize: "0.85rem",
+                    color: C.muted2,
+                  }}
+                >
+                  {focus}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
 
-        {/* Stack chips */}
-        <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginBottom: "16px" }}>
-          {skill.stack.slice(0, 5).map(s => (
-            <span key={s} style={{
-              padding: "3px 9px", borderRadius: "4px",
-              fontFamily: "'JetBrains Mono', monospace",
-              fontSize: "11px",
-              color: T.inkSub, background: T.raised,
-              border: `1px solid ${T.border}`,
-            }}>{s}</span>
+        {/* Production evidence */}
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "0.75rem",
+            marginBottom: "1.5rem",
+          }}
+        >
+          {Object.entries(capability.productionEvidence).slice(0, 2).map(([key, value]) => (
+            <div
+              key={key}
+              style={{
+                padding: "0.75rem",
+                background: hovered ? capability.accentDim : C.surface2,
+                border: `1px solid ${hovered ? capability.accent + "30" : C.border}`,
+                borderRadius: "8px",
+                transition: "all 0.3s ease",
+              }}
+            >
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  color: C.muted,
+                  marginBottom: "0.25rem",
+                  fontFamily: "'DM Mono', monospace",
+                  textTransform: "uppercase",
+                }}
+              >
+                {key}
+              </div>
+              <div
+                style={{
+                  fontSize: "0.9rem",
+                  fontWeight: 600,
+                  color: C.text,
+                }}
+              >
+                {value}
+              </div>
+            </div>
           ))}
-          {skill.stack.length > 5 && (
-            <span style={{ padding: "3px 9px", borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkMute, background: T.raised, border: `1px solid ${T.border}` }}>
-              +{skill.stack.length - 5}
-            </span>
-          )}
         </div>
-      </div>
 
-      {/* Card footer */}
-      <div style={{
-        padding: "14px 22px",
-        borderTop: `1px solid ${T.border}`,
-        display: "flex", justifyContent: "space-between", alignItems: "center",
-      }}>
-        <span style={{
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: "11px", color: T.inkMute,
-        }}>
-          {skill.projects.length} projects
-        </span>
-        <div style={{
-          display: "flex", alignItems: "center", gap: "5px",
-          fontFamily: "'JetBrains Mono', monospace",
-          fontSize: "11px", letterSpacing: "1.5px", textTransform: "uppercase",
-          color: hov ? acc.hex : T.inkMute,
-          transition: "color 200ms",
-        }}>
-          VIEW PROJECTS
-          <ChevronRight size={13} />
+        {/* View details */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            paddingTop: "1rem",
+            borderTop: `1px solid ${C.border}`,
+          }}
+        >
+          <span
+            style={{
+              fontSize: "0.8rem",
+              color: C.muted,
+              fontFamily: "'DM Mono', monospace",
+            }}
+          >
+            {capability.projects.length} production projects
+          </span>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              fontSize: "0.8rem",
+              fontWeight: 600,
+              color: hovered ? capability.accent : C.muted,
+              fontFamily: "'DM Mono', monospace",
+              transition: "color 0.2s ease",
+            }}
+          >
+            VIEW DETAILS
+            <ArrowUpRight size={14} />
+          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DETAIL DRAWER
-// ─────────────────────────────────────────────────────────────────────────────
-function Drawer({ skill, onClose }) {
+/* ═══════════════════════════════════════════════════════════════
+   DETAIL PANEL
+═══════════════════════════════════════════════════════════════ */
+function DetailPanel({ capability, onClose }) {
   const [open, setOpen] = useState(false);
-  const acc = T.accents[skill.id];
-  const dc = depthColor(skill.depth);
-  const Icon = skill.icon;
+  const Icon = capability.icon;
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setOpen(true));
@@ -403,143 +870,486 @@ function Drawer({ skill, onClose }) {
     <div
       onClick={onClose}
       style={{
-        position: "fixed", inset: 0, zIndex: 9000,
-        background: "rgba(5,6,10,0.82)",
-        backdropFilter: "blur(12px) saturate(0.7)",
-        opacity: open ? 1 : 0, transition: "opacity 300ms ease",
+        position: "fixed",
+        inset: 0,
+        zIndex: 9000,
+        background: "rgba(0,0,0,0.6)",
+        backdropFilter: "blur(8px)",
+        opacity: open ? 1 : 0,
+        transition: "opacity 0.3s ease",
       }}
     >
       <div
-        onClick={e => e.stopPropagation()}
+        onClick={(e) => e.stopPropagation()}
         style={{
-          position: "fixed", top: 0, right: 0, bottom: 0,
-          width: "min(580px, 100vw)",
-          background: T.surface,
-          borderLeft: `1px solid ${T.borderMd}`,
-          display: "flex", flexDirection: "column",
+          position: "fixed",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: "min(680px, 100vw)",
+          background: C.bg,
+          borderLeft: `1px solid ${C.border2}`,
+          display: "flex",
+          flexDirection: "column",
           transform: open ? "translateX(0)" : "translateX(40px)",
           opacity: open ? 1 : 0,
-          transition: "transform 360ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease",
+          transition: "transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.3s ease",
           overflowY: "auto",
         }}
       >
-        {/* Accent top line */}
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${acc.hex}, transparent 60%)` }} />
+        {/* Top accent */}
+        <div
+          style={{
+            height: "3px",
+            background: `linear-gradient(90deg, ${capability.accent}, transparent)`,
+          }}
+        />
 
         {/* Header */}
-        <div style={{
-          position: "sticky", top: 0, zIndex: 10,
-          background: T.surface, borderBottom: `1px solid ${T.border}`,
-          padding: "20px 28px",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-        }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
-            <div style={{ width: "40px", height: "40px", borderRadius: "9px", background: T.raised, border: `1px solid rgba(${acc.rgb},0.28)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 0 16px rgba(${acc.rgb},0.18)` }}>
-              <Icon size={20} color={acc.hex} />
+        <div
+          style={{
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
+            background: C.bg,
+            borderBottom: `1px solid ${C.border}`,
+            padding: "2rem 2.5rem",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "1.25rem" }}>
+            <div
+              style={{
+                width: "52px",
+                height: "52px",
+                borderRadius: "12px",
+                background: capability.accentDim,
+                border: `1px solid ${capability.accent}40`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Icon size={24} style={{ color: capability.accent }} />
             </div>
             <div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase", marginBottom: "3px" }}>
-                {skill.domain}
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                  color: C.muted,
+                  fontFamily: "'DM Mono', monospace",
+                  marginBottom: "0.25rem",
+                }}
+              >
+                {capability.domain}
               </div>
-              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "17px", fontWeight: 800, color: T.ink, letterSpacing: "-0.3px" }}>
-                {skill.title}
+              <div
+                style={{
+                  fontFamily: "'Instrument Serif', serif",
+                  fontSize: "1.5rem",
+                  fontWeight: 400,
+                  color: C.text,
+                  letterSpacing: "-0.02em",
+                }}
+              >
+                {capability.title}
               </div>
             </div>
           </div>
           <button
             onClick={onClose}
-            style={{ width: "34px", height: "34px", borderRadius: "8px", border: `1px solid ${T.border}`, background: "transparent", color: T.inkMute, cursor: "pointer", fontSize: "18px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 180ms" }}
-            onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.color = T.ink; }}
-            onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.inkMute; }}
+            data-hover
+            style={{
+              width: "40px",
+              height: "40px",
+              borderRadius: "10px",
+              border: `1px solid ${C.border}`,
+              background: "transparent",
+              color: C.muted,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              flexShrink: 0,
+              transition: "all 0.2s ease",
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.borderColor = C.border3;
+              e.currentTarget.style.color = C.text;
+              e.currentTarget.style.background = C.surface;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.borderColor = C.border;
+              e.currentTarget.style.color = C.muted;
+              e.currentTarget.style.background = "transparent";
+            }}
           >
-            <X size={16} />
+            <X size={18} />
           </button>
         </div>
 
         {/* Body */}
-        <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: "28px" }}>
-
-          {/* Meta row */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1px", background: T.border, borderRadius: "10px", overflow: "hidden" }}>
+        <div style={{ padding: "2.5rem", display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+          {/* Meta grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "1rem",
+            }}
+          >
             {[
-              ["Depth", skill.depth, dc.text],
-              ["Since", skill.since, acc.hex],
-              ["Proficiency", `${skill.proficiency}%`, T.ink],
-            ].map(([k, v, col]) => (
-              <div key={k} style={{ background: T.raised, padding: "14px 16px" }}>
-                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "2.5px", color: T.inkMute, textTransform: "uppercase", marginBottom: "5px" }}>{k}</div>
-                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", fontWeight: 700, color: col }}>{v}</div>
+              { label: "Depth", value: capability.depth },
+              { label: "Since", value: capability.since },
+              { label: "Maturity", value: capability.maturity },
+            ].map((item) => (
+              <div
+                key={item.label}
+                style={{
+                  padding: "1.25rem",
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: "10px",
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "0.7rem",
+                    color: C.muted,
+                    marginBottom: "0.5rem",
+                    fontFamily: "'DM Mono', monospace",
+                    letterSpacing: "0.08em",
+                    textTransform: "uppercase",
+                  }}
+                >
+                  {item.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    color: C.text,
+                  }}
+                >
+                  {item.value}
+                </div>
               </div>
             ))}
           </div>
 
-          {/* Proficiency bar */}
+          {/* Problem Space */}
           <div>
-            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase", marginBottom: "10px" }}>Skill Depth</div>
-            <ProfBar pct={skill.proficiency} color={acc.hex} />
-          </div>
-
-          {/* Summary */}
-          <div style={{ borderLeft: `2px solid rgba(${acc.rgb},0.3)`, paddingLeft: "16px" }}>
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", color: T.inkSub, lineHeight: 1.8, margin: 0 }}>
-              {skill.summary}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Box size={16} style={{ color: capability.accent }} />
+              <h4
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: C.muted,
+                }}
+              >
+                Problem Space
+              </h4>
+            </div>
+            <p
+              style={{
+                fontSize: "1rem",
+                color: C.muted2,
+                lineHeight: 1.8,
+                paddingLeft: "2rem",
+                borderLeft: `2px solid ${capability.accent}40`,
+              }}
+            >
+              {capability.problemSpace}
             </p>
           </div>
 
-          {/* Technologies */}
+          {/* Architectural Patterns */}
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-              <Terminal size={13} color={acc.hex} />
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase" }}>Technologies Used</span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Layers size={16} style={{ color: capability.accent }} />
+              <h4
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: C.muted,
+                }}
+              >
+                Architectural Patterns Used
+              </h4>
             </div>
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              {skill.stack.map(s => (
-                <span key={s} style={{ padding: "5px 12px", borderRadius: "5px", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: acc.hex, background: `rgba(${acc.rgb},0.08)`, border: `1px solid rgba(${acc.rgb},0.22)` }}>
-                  {s}
-                </span>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: "0.75rem",
+              }}
+            >
+              {capability.architecturalPatterns.map((pattern) => (
+                <div
+                  key={pattern}
+                  style={{
+                    padding: "0.875rem 1rem",
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: "8px",
+                    fontSize: "0.85rem",
+                    color: C.muted2,
+                    fontWeight: 500,
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = capability.accentDim;
+                    e.currentTarget.style.borderColor = capability.accent + "40";
+                    e.currentTarget.style.color = C.text;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = C.surface;
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.color = C.muted2;
+                  }}
+                >
+                  {pattern}
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Tradeoffs Managed */}
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <TrendingUp size={16} style={{ color: capability.accent }} />
+              <h4
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: C.muted,
+                }}
+              >
+                Tradeoffs Managed
+              </h4>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {capability.tradeoffs.map((tradeoff, i) => (
+                <div
+                  key={i}
+                  style={{
+                    padding: "1.25rem",
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "0.95rem",
+                      fontWeight: 600,
+                      color: C.text,
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {tradeoff.decision}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.875rem",
+                      color: C.muted2,
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {tradeoff.rationale}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Production Evidence */}
+          <div>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <CheckCircle2 size={16} style={{ color: capability.accent }} />
+              <h4
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: C.muted,
+                }}
+              >
+                Production Evidence
+              </h4>
+            </div>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: "1rem",
+              }}
+            >
+              {Object.entries(capability.productionEvidence).map(([key, value]) => (
+                <div
+                  key={key}
+                  style={{
+                    padding: "1.25rem",
+                    background: capability.accentDim,
+                    border: `1px solid ${capability.accent}30`,
+                    borderRadius: "10px",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "0.7rem",
+                      color: C.muted,
+                      marginBottom: "0.5rem",
+                      fontFamily: "'DM Mono', monospace",
+                      letterSpacing: "0.08em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {key}
+                  </div>
+                  <div
+                    style={{
+                      fontFamily: "'Instrument Serif', serif",
+                      fontSize: "1.5rem",
+                      fontWeight: 400,
+                      color: capability.accent,
+                      letterSpacing: "-0.02em",
+                    }}
+                  >
+                    {value}
+                  </div>
+                </div>
               ))}
             </div>
           </div>
 
           {/* Projects */}
           <div>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
-              <Boxes size={13} color={acc.hex} />
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase" }}>
-                Projects Built · {skill.projects.length}
-              </span>
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+                marginBottom: "1rem",
+              }}
+            >
+              <Database size={16} style={{ color: capability.accent }} />
+              <h4
+                style={{
+                  fontFamily: "'DM Mono', monospace",
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  letterSpacing: "0.12em",
+                  textTransform: "uppercase",
+                  color: C.muted,
+                }}
+              >
+                Production Projects
+              </h4>
             </div>
-            <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
-              {skill.projects.map((p, i) => (
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {capability.projects.map((project, i) => (
                 <div
                   key={i}
                   style={{
-                    display: "flex", alignItems: "flex-start", justifyContent: "space-between",
-                    padding: "13px 15px",
-                    background: T.raised, border: `1px solid ${T.border}`,
-                    borderRadius: "8px", gap: "12px",
-                    transition: "all 180ms", cursor: "default",
+                    padding: "1.5rem",
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: "10px",
+                    transition: "all 0.2s ease",
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${acc.rgb},0.28)`; e.currentTarget.style.background = T.overlay; }}
-                  onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = T.raised; }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = capability.accent + "40";
+                    e.currentTarget.style.transform = "translateX(4px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.transform = "translateX(0)";
+                  }}
                 >
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "13px", fontWeight: 600, color: T.ink, marginBottom: "4px" }}>
-                      {p.name}
-                    </div>
-                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: T.inkSub, lineHeight: 1.55 }}>
-                      {p.desc}
-                    </div>
-                  </div>
-                  <a
-                    href={p.link} target="_blank" rel="noopener noreferrer"
-                    onClick={e => e.stopPropagation()}
-                    style={{ color: T.inkMute, flexShrink: 0, marginTop: "2px", transition: "color 150ms" }}
-                    onMouseEnter={e => { e.currentTarget.style.color = acc.hex; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = T.inkMute; }}
+                  <div
+                    style={{
+                      fontSize: "1.05rem",
+                      fontWeight: 600,
+                      color: C.text,
+                      marginBottom: "0.5rem",
+                    }}
                   >
-                    <ArrowUpRight size={14} />
-                  </a>
+                    {project.name}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "0.875rem",
+                      color: C.muted2,
+                      marginBottom: "0.75rem",
+                    }}
+                  >
+                    {project.impact}
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                    {project.tech.map((tech) => (
+                      <span
+                        key={tech}
+                        style={{
+                          padding: "0.35rem 0.75rem",
+                          background: C.surface2,
+                          border: `1px solid ${C.border}`,
+                          borderRadius: "6px",
+                          fontSize: "0.75rem",
+                          color: C.muted2,
+                          fontFamily: "'DM Mono', monospace",
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               ))}
             </div>
@@ -547,21 +1357,41 @@ function Drawer({ skill, onClose }) {
 
           {/* GitHub CTA */}
           <a
-            href={skill.github} target="_blank" rel="noopener noreferrer"
+            href="https://github.com/bhagavan444"
+            target="_blank"
+            rel="noopener noreferrer"
+            data-hover
             style={{
-              display: "flex", alignItems: "center", justifyContent: "center", gap: "9px",
-              padding: "14px", borderRadius: "8px",
-              background: T.raised, border: `1px solid ${T.borderMd}`,
-              color: T.inkSub, textDecoration: "none",
-              fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "2px",
-              transition: "all 200ms",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "0.75rem",
+              padding: "1.125rem",
+              background: C.surface,
+              border: `1px solid ${C.border2}`,
+              borderRadius: "10px",
+              color: C.text,
+              textDecoration: "none",
+              fontFamily: "'DM Mono', monospace",
+              fontSize: "0.875rem",
+              fontWeight: 600,
+              letterSpacing: "0.08em",
+              transition: "all 0.2s ease",
             }}
-            onMouseEnter={e => { e.currentTarget.style.background = `rgba(${acc.rgb},0.10)`; e.currentTarget.style.borderColor = `rgba(${acc.rgb},0.30)`; e.currentTarget.style.color = acc.hex; }}
-            onMouseLeave={e => { e.currentTarget.style.background = T.raised; e.currentTarget.style.borderColor = T.borderMd; e.currentTarget.style.color = T.inkSub; }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = capability.accentDim;
+              e.currentTarget.style.borderColor = capability.accent + "40";
+              e.currentTarget.style.color = capability.accent;
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = C.surface;
+              e.currentTarget.style.borderColor = C.border2;
+              e.currentTarget.style.color = C.text;
+            }}
           >
-            <Github size={15} />
-            EXPLORE ON GITHUB
-            <ExternalLink size={12} />
+            <Github size={18} />
+            VIEW ON GITHUB
+            <ExternalLink size={16} />
           </a>
         </div>
       </div>
@@ -569,270 +1399,757 @@ function Drawer({ skill, onClose }) {
   );
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MAIN
-// ─────────────────────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════
+   MAIN COMPONENT
+═══════════════════════════════════════════════════════════════ */
 export default function Workshops() {
-  const [active, setActive]   = useState(null);
-  const [domain, setDomain]   = useState("All");
-  const [search, setSearch]   = useState("");
-  const [heroIn, setHeroIn]   = useState(false);
+  const [activeCapability, setActiveCapability] = useState(null);
+  const [headerInView, setHeaderInView] = useState(false);
+  const [metricsInView, setMetricsInView] = useState(false);
+  const [gridInView, setGridInView] = useState(false);
+  const [crossDomainInView, setCrossDomainInView] = useState(false);
+  const [philosophyInView, setPhilosophyInView] = useState(false);
 
-  useEffect(() => { const r = requestAnimationFrame(() => setHeroIn(true)); return () => cancelAnimationFrame(r); }, []);
+  const headerRef = useRef(null);
+  const metricsRef = useRef(null);
+  const gridRef = useRef(null);
+  const crossDomainRef = useRef(null);
+  const philosophyRef = useRef(null);
 
-  const filtered = SKILLS
-    .filter(s => domain === "All" || s.domain === domain)
-    .filter(s =>
-      s.title.toLowerCase().includes(search.toLowerCase()) ||
-      s.stack.some(t => t.toLowerCase().includes(search.toLowerCase())) ||
-      s.domain.toLowerCase().includes(search.toLowerCase())
-    );
+  useEffect(() => {
+    const observers = [
+      { ref: headerRef, setter: setHeaderInView },
+      { ref: metricsRef, setter: setMetricsInView },
+      { ref: gridRef, setter: setGridInView },
+      { ref: crossDomainRef, setter: setCrossDomainInView },
+      { ref: philosophyRef, setter: setPhilosophyInView },
+    ];
+
+    const observerInstances = observers.map(({ ref, setter }) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setter(true);
+        },
+        { threshold: 0.2 }
+      );
+      if (ref.current) observer.observe(ref.current);
+      return observer;
+    });
+
+    return () => observerInstances.forEach((obs) => obs.disconnect());
+  }, []);
 
   return (
     <>
+      {/* ═══════ GLOBAL STYLES ═══════ */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-        .ws-root *, .ws-root *::before, .ws-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        .ws-root {
-          background: #0a0c12;
-          min-height: 100vh;
-          font-family: 'DM Sans', system-ui, sans-serif;
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap');
+
+        *, *::before, *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
+        body {
+          font-family: 'Geist', system-ui, sans-serif;
+          background: ${C.bg};
+          color: ${C.text};
           -webkit-font-smoothing: antialiased;
-          color: #e4e7f0;
+          cursor: none;
         }
-        .ws-root ::-webkit-scrollbar { width: 3px; }
-        .ws-root ::-webkit-scrollbar-track { background: transparent; }
-        .ws-root ::-webkit-scrollbar-thumb { background: #252838; border-radius: 2px; }
-        .ws-root input::placeholder { color: #424760; }
 
-        @keyframes wsSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        ::selection {
+          background: ${C.accentDim};
+          color: ${C.text};
+        }
 
-        @media (max-width: 900px) {
-          .ws-grid { grid-template-columns: 1fr 1fr !important; }
+        ::-webkit-scrollbar {
+          width: 6px;
         }
-        @media (max-width: 620px) {
-          .ws-inner { padding: 56px 18px 80px !important; }
-          .ws-grid { grid-template-columns: 1fr !important; }
-          .ws-hero-title { font-size: 38px !important; }
-          .ws-hero-ghost { font-size: 38px !important; }
-          .ws-summary-strip { flex-direction: column !important; gap: 14px !important; }
-          .ws-summary-item { border-right: none !important; padding-right: 0 !important; margin-right: 0 !important; }
-          .ws-filter-bar { justify-content: flex-start !important; overflow-x: auto; padding-bottom: 4px; flex-wrap: nowrap !important; }
+
+        ::-webkit-scrollbar-track {
+          background: ${C.bg};
         }
-        @media (max-width: 420px) {
-          .ws-inner { padding: 44px 14px 64px !important; }
-          .ws-hero-title { font-size: 30px !important; }
-          .ws-hero-ghost { font-size: 30px !important; }
+
+        ::-webkit-scrollbar-thumb {
+          background: ${C.border3};
+          border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${C.muted};
+        }
+
+        @keyframes cardReveal {
+          from {
+            opacity: 0;
+            transform: translateY(24px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        @keyframes lineGrow {
+          from { width: 0; }
+          to { width: 240px; }
+        }
+
+        @media (max-width: 768px) {
+          body {
+            cursor: auto;
+          }
+        }
+
+        @media (max-width: 1024px) {
+          .capability-grid {
+            grid-template-columns: repeat(2, 1fr) !important;
+          }
+        }
+
+        @media (max-width: 640px) {
+          .capability-grid {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
 
-      <div className="ws-root">
-        <main className="ws-inner" style={{ maxWidth: "1180px", margin: "0 auto", padding: "108px 40px 112px" }}>
+      {/* Custom cursor */}
+      <CustomCursor />
 
-          {/* ── HERO ── */}
-          <header style={{
-            marginBottom: "72px",
-            opacity: heroIn ? 1 : 0,
-            transform: heroIn ? "none" : "translateY(18px)",
-            transition: "opacity 600ms ease, transform 600ms ease",
-          }}>
-            {/* Eyebrow */}
-            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "24px" }}>
-              <div style={{ display: "flex", gap: "4px" }}>
-                <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#38bdf8" }} />
-                <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#a78bfa" }} />
-                <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#34d399" }} />
-              </div>
-              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "4px", color: T.inkMute, textTransform: "uppercase" }}>
-                Portfolio · Technical Depth
-              </span>
-            </div>
+      {/* Scroll progress */}
+      <ScrollProgress />
 
-            {/* Title stack */}
-            <div style={{ marginBottom: "22px" }}>
-              <div className="ws-hero-title" style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "clamp(40px, 7vw, 78px)",
-                fontWeight: 800, color: T.ink,
-                letterSpacing: "-2.5px", lineHeight: 0.93, display: "block",
-              }}>
-                Technical
-              </div>
-              <div className="ws-hero-ghost" style={{
-                fontFamily: "'DM Sans', sans-serif",
-                fontSize: "clamp(40px, 7vw, 78px)",
-                fontWeight: 800, color: "transparent",
-                letterSpacing: "-2.5px", lineHeight: 0.93,
-                WebkitTextStroke: "1.5px #252838", display: "block",
-              }}>
-                Specializations
-              </div>
-            </div>
+      {/* Background texture */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
 
-            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "15px", lineHeight: 1.8, color: T.inkSub, fontWeight: 400, maxWidth: "560px", margin: "0 0 36px" }}>
-              Technologies I've mastered through hands-on projects — each domain backed by shipped code, not just coursework.
-            </p>
+      {/* ═══════ PAGE WRAPPER ═══════ */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* ═══════ HERO HEADER ═══════ */}
+        <header
+          ref={headerRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "10rem 2rem 6rem",
+            borderBottom: `1px solid ${C.border}`,
+            position: "relative",
+            opacity: headerInView ? 1 : 0,
+            transform: headerInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          {/* Background glow */}
+          <div
+            style={{
+              position: "absolute",
+              top: "30%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "800px",
+              height: "400px",
+              borderRadius: "50%",
+              background: `radial-gradient(circle, ${C.accent}08 0%, transparent 70%)`,
+              filter: "blur(100px)",
+              pointerEvents: "none",
+            }}
+          />
 
-            {/* Summary strip */}
-            <div className="ws-summary-strip" style={{ display: "flex", borderTop: `1px solid ${T.border}`, paddingTop: "28px", flexWrap: "wrap" }}>
-              {[
-                ["6", "Skill Domains"],
-                ["30+", "Projects Built"],
-                ["Production", "Deployment Target"],
-              ].map(([v, l], i) => (
-                <div key={l} className="ws-summary-item" style={{ paddingRight: "32px", marginRight: "32px", borderRight: i < 2 ? `1px solid ${T.border}` : "none" }}>
-                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", fontWeight: 700, color: T.ink, marginBottom: "3px", letterSpacing: "-0.2px" }}>{v}</div>
-                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "2px", color: T.inkMute, textTransform: "uppercase" }}>{l}</div>
-                </div>
-              ))}
-            </div>
-          </header>
-
-          {/* ── SEARCH + FILTERS ── */}
-          <div style={{
-            marginBottom: "40px",
-            opacity: heroIn ? 1 : 0,
-            transition: "opacity 600ms ease 250ms",
-          }}>
-            {/* Search */}
-            <div style={{ position: "relative", maxWidth: "460px", marginBottom: "20px" }}>
-              <Search size={15} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: T.inkMute, pointerEvents: "none" }} />
-              <input
-                type="text"
-                placeholder="Search skill or technology..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                style={{
-                  width: "100%", padding: "10px 14px 10px 38px",
-                  background: T.surface,
-                  border: `1px solid ${T.border}`,
-                  borderRadius: "8px",
-                  color: T.ink, fontFamily: "'DM Sans', sans-serif", fontSize: "13px",
-                  outline: "none", transition: "border-color 200ms",
-                }}
-                onFocus={e => { e.target.style.borderColor = T.borderMd; }}
-                onBlur={e => { e.target.style.borderColor = T.border; }}
-              />
-            </div>
-
-            {/* Domain filters */}
-            <div className="ws-filter-bar" style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-              {DOMAINS.map(d => {
-                const isActive = domain === d;
-                return (
-                  <button
-                    key={d}
-                    onClick={() => setDomain(d)}
-                    style={{
-                      padding: "6px 14px", borderRadius: "6px",
-                      border: `1px solid ${isActive ? T.borderHi : T.border}`,
-                      background: isActive ? T.raised : "transparent",
-                      color: isActive ? T.ink : T.inkMute,
-                      fontFamily: "'JetBrains Mono', monospace",
-                      fontSize: "11px", letterSpacing: "1px",
-                      cursor: "pointer", transition: "all 180ms", outline: "none",
-                      flexShrink: 0,
-                    }}
-                    onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = T.borderMd; e.currentTarget.style.color = T.inkSub; } }}
-                    onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.inkMute; } }}
-                  >
-                    {d}
-                  </button>
-                );
-              })}
-              {/* Result count */}
-              <span style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkFaint, alignSelf: "center", paddingRight: "2px" }}>
-                {filtered.length}/{SKILLS.length}
-              </span>
-            </div>
-          </div>
-
-          {/* ── GRID ── */}
-          {filtered.length > 0 ? (
-            <div
-              className="ws-grid"
+          {/* Overline */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "2rem",
+            }}
+          >
+            <div style={{ width: "48px", height: "2px", background: C.accent }} />
+            <span
               style={{
-                display: "grid",
-                gridTemplateColumns: "repeat(3, 1fr)",
-                gap: "16px",
-                marginBottom: "64px",
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: C.accent,
               }}
             >
-              {filtered.map((s, i) => (
-                <SkillCard key={s.id} skill={s} idx={i} onOpen={setActive} />
-              ))}
-            </div>
-          ) : (
-            <div style={{ textAlign: "center", padding: "80px 20px", color: T.inkMute }}>
-              <Code2 size={48} color={T.inkFaint} style={{ margin: "0 auto 16px", display: "block" }} />
-              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "20px", fontWeight: 700, color: T.ink, marginBottom: "8px" }}>No results</h3>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", color: T.inkMute }}>Try a different search or filter</p>
-            </div>
-          )}
+              Technical Depth · System-Level Thinking
+            </span>
+          </div>
 
-          {/* ── FOOTER CTA ── */}
-          <div style={{
-            padding: "36px 40px",
-            background: T.surface,
-            border: `1px solid ${T.border}`,
-            borderRadius: "14px",
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            flexWrap: "wrap", gap: "24px",
-            animation: "wsSlideUp 0.6s ease 0.8s both",
-          }}>
-            <div>
-              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase", marginBottom: "6px" }}>
-                Open Source
+          {/* Main headline - Two lines */}
+          <div style={{ marginBottom: "1rem" }}>
+            <h1
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(3.5rem, 8vw, 7rem)",
+                fontWeight: 400,
+                color: C.text,
+                lineHeight: 1.05,
+                letterSpacing: "-0.04em",
+              }}
+            >
+              ENGINEERING
+            </h1>
+            <h1
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(3.5rem, 8vw, 7rem)",
+                fontWeight: 400,
+                color: "transparent",
+                WebkitTextStroke: `2px ${C.border3}`,
+                lineHeight: 1.05,
+                letterSpacing: "-0.04em",
+              }}
+            >
+              CAPABILITIES
+            </h1>
+          </div>
+
+          {/* Animated underline */}
+          <div
+            style={{
+              width: "240px",
+              height: "4px",
+              background: `linear-gradient(90deg, ${C.accent}, ${C.purple}, ${C.green})`,
+              borderRadius: "2px",
+              marginBottom: "2.5rem",
+              animation: headerInView ? "lineGrow 0.8s ease 0.2s both" : "none",
+            }}
+          />
+
+          {/* Subheadline */}
+          <p
+            style={{
+              fontSize: "1.25rem",
+              color: C.muted2,
+              lineHeight: 1.8,
+              maxWidth: "800px",
+            }}
+          >
+            Production-ready systems across Full Stack, AI, Cloud and Security — built, deployed, and maintained.
+          </p>
+        </header>
+
+        {/* ═══════ ENGINEERING METRICS BAR ═══════ */}
+        <section
+          ref={metricsRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "3rem 2rem",
+            opacity: metricsInView ? 1 : 0,
+            transform: metricsInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
+            {[
+              { value: "30+", label: "Production Systems", desc: "Deployed applications" },
+              { value: "6", label: "Core Domains", desc: "Technical expertise areas" },
+              { value: "12+", label: "Deployments", desc: "Cloud & containerized" },
+              { value: "3", label: "Cloud Environments", desc: "AWS, Azure, GCP" },
+              { value: "Active", label: "Open Source", desc: "GitHub contributions" },
+            ].map((metric, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: "1.5rem",
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: "12px",
+                  textAlign: "center",
+                  opacity: metricsInView ? 1 : 0,
+                  transform: metricsInView ? "translateY(0)" : "translateY(20px)",
+                  transition: `all 0.6s ease ${i * 0.1}s`,
+                }}
+              >
+                <div
+                  style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: "2rem",
+                    fontWeight: 400,
+                    color: C.text,
+                    lineHeight: 1,
+                    marginBottom: "0.5rem",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  {typeof metric.value === "number" ? (
+                    <AnimatedCounter value={metric.value} />
+                  ) : (
+                    metric.value
+                  )}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.875rem",
+                    fontWeight: 600,
+                    color: C.text,
+                    marginBottom: "0.25rem",
+                  }}
+                >
+                  {metric.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.75rem",
+                    color: C.muted,
+                    fontFamily: "'DM Mono', monospace",
+                  }}
+                >
+                  {metric.desc}
+                </div>
               </div>
-              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "20px", fontWeight: 800, color: T.ink, letterSpacing: "-0.3px", marginBottom: "6px" }}>
-                All implementations on GitHub
-              </h3>
-              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "13px", color: T.inkSub, lineHeight: 1.6 }}>
-                Source code, notebooks and deployment configs — not just descriptions.
-              </p>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════ DOMAIN ARCHITECTURE GRID ═══════ */}
+        <section
+          ref={gridRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "6rem 2rem",
+            borderTop: `1px solid ${C.border}`,
+            opacity: gridInView ? 1 : 0,
+            transform: gridInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          <div style={{ marginBottom: "3rem" }}>
+            <div
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "1rem",
+              }}
+            >
+              Engineering Capability Matrix
             </div>
-            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+            <h2
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(2rem, 4vw, 2.75rem)",
+                fontWeight: 400,
+                color: C.text,
+                letterSpacing: "-0.02em",
+                marginBottom: "0.75rem",
+              }}
+            >
+              Domain Architecture
+            </h2>
+            <p
+              style={{
+                fontSize: "1rem",
+                color: C.muted2,
+                lineHeight: 1.8,
+                maxWidth: "720px",
+              }}
+            >
+              Each domain represents production-ready capabilities with architectural decisions,
+              tradeoffs managed, and measurable outcomes.
+            </p>
+          </div>
+
+          <div
+            className="capability-grid"
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(3, 1fr)",
+              gap: "1.5rem",
+            }}
+          >
+            {CAPABILITIES.map((capability, i) => (
+              <CapabilityCard
+                key={capability.id}
+                capability={capability}
+                index={i}
+                onClick={setActiveCapability}
+              />
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════ CROSS-DOMAIN INTEGRATION ═══════ */}
+        <section
+          ref={crossDomainRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "6rem 2rem",
+            borderTop: `1px solid ${C.border}`,
+            opacity: crossDomainInView ? 1 : 0,
+            transform: crossDomainInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          <div style={{ marginBottom: "3rem" }}>
+            <div
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "1rem",
+              }}
+            >
+              Systems Thinking
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(2rem, 4vw, 2.75rem)",
+                fontWeight: 400,
+                color: C.text,
+                letterSpacing: "-0.02em",
+                marginBottom: "0.75rem",
+              }}
+            >
+              Cross-Domain Engineering
+            </h2>
+            <p
+              style={{
+                fontSize: "1rem",
+                color: C.muted2,
+                lineHeight: 1.8,
+                maxWidth: "720px",
+              }}
+            >
+              Real engineering problems don't fit in boxes. These integrations show how domains
+              connect to solve complex challenges.
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
+            {CROSS_DOMAIN.map((integration, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: "2rem",
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: "16px",
+                  transition: "all 0.3s ease",
+                  opacity: crossDomainInView ? 1 : 0,
+                  animation: crossDomainInView
+                    ? `cardReveal 0.5s cubic-bezier(0.22,1,0.36,1) ${i * 0.1}s both`
+                    : "none",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = C.accent + "40";
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = C.border;
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                <div
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    color: C.accent,
+                    marginBottom: "0.75rem",
+                    fontFamily: "'DM Mono', monospace",
+                  }}
+                >
+                  {integration.title}
+                </div>
+                <h3
+                  style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: "1.25rem",
+                    fontWeight: 400,
+                    color: C.text,
+                    lineHeight: 1.3,
+                    marginBottom: "1rem",
+                    letterSpacing: "-0.01em",
+                  }}
+                >
+                  {integration.integration}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "0.875rem",
+                    color: C.muted2,
+                    lineHeight: 1.6,
+                    marginBottom: "1rem",
+                  }}
+                >
+                  {integration.example}
+                </p>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    fontSize: "0.8rem",
+                    color: C.muted,
+                    fontStyle: "italic",
+                  }}
+                >
+                  <Zap size={14} style={{ color: C.accent }} />
+                  {integration.value}
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════ ENGINEERING PHILOSOPHY ═══════ */}
+        <section
+          ref={philosophyRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "6rem 2rem 8rem",
+            borderTop: `1px solid ${C.border}`,
+            opacity: philosophyInView ? 1 : 0,
+            transform: philosophyInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          <div style={{ marginBottom: "3rem" }}>
+            <div
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "1rem",
+              }}
+            >
+              Engineering Mindset
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(2rem, 4vw, 2.75rem)",
+                fontWeight: 400,
+                color: C.text,
+                letterSpacing: "-0.02em",
+                marginBottom: "0.75rem",
+              }}
+            >
+              How I Approach Systems
+            </h2>
+            <p
+              style={{
+                fontSize: "1rem",
+                color: C.muted2,
+                lineHeight: 1.8,
+                maxWidth: "720px",
+              }}
+            >
+              Principles that guide technical decision-making and system design
+            </p>
+          </div>
+
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
+            {PHILOSOPHY.map((item, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: "2rem",
+                  background: `linear-gradient(135deg, ${C.accentDim} 0%, ${C.surface} 100%)`,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: "16px",
+                  opacity: philosophyInView ? 1 : 0,
+                  animation: philosophyInView
+                    ? `cardReveal 0.5s cubic-bezier(0.22,1,0.36,1) ${i * 0.1}s both`
+                    : "none",
+                }}
+              >
+                <div
+                  style={{
+                    width: "40px",
+                    height: "40px",
+                    borderRadius: "10px",
+                    background: C.accentDim,
+                    border: `1px solid ${C.accent}30`,
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    marginBottom: "1.5rem",
+                  }}
+                >
+                  <CheckCircle2 size={20} style={{ color: C.accent }} />
+                </div>
+                <h3
+                  style={{
+                    fontSize: "1.125rem",
+                    fontWeight: 600,
+                    color: C.text,
+                    marginBottom: "0.75rem",
+                    lineHeight: 1.3,
+                  }}
+                >
+                  {item.principle}
+                </h3>
+                <p
+                  style={{
+                    fontSize: "0.875rem",
+                    color: C.muted2,
+                    lineHeight: 1.7,
+                  }}
+                >
+                  {item.rationale}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* GitHub CTA */}
+          <div
+            style={{
+              marginTop: "4rem",
+              padding: "3rem",
+              background: C.surface,
+              border: `1px solid ${C.border}`,
+              borderRadius: "20px",
+              textAlign: "center",
+            }}
+          >
+            <h3
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "1.75rem",
+                fontWeight: 400,
+                color: C.text,
+                marginBottom: "1rem",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              All Implementations on GitHub
+            </h3>
+            <p
+              style={{
+                fontSize: "1rem",
+                color: C.muted2,
+                lineHeight: 1.8,
+                maxWidth: "560px",
+                margin: "0 auto 2rem",
+              }}
+            >
+              Source code, deployment configs, and production evidence — not just descriptions.
+            </p>
+            <div style={{ display: "flex", justifyContent: "center", gap: "1rem" }}>
               <a
                 href="https://github.com/bhagavan444"
-                target="_blank" rel="noopener noreferrer"
+                target="_blank"
+                rel="noopener noreferrer"
+                data-hover
                 style={{
-                  display: "inline-flex", alignItems: "center", gap: "8px",
-                  padding: "11px 22px", borderRadius: "8px",
-                  background: T.raised, border: `1px solid ${T.borderMd}`,
-                  color: T.ink, textDecoration: "none",
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "1.5px",
-                  transition: "all 200ms",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "1rem 2rem",
+                  background: C.accent,
+                  borderRadius: "12px",
+                  fontSize: "0.95rem",
+                  fontWeight: 600,
+                  color: "#fff",
+                  textDecoration: "none",
+                  transition: "all 0.2s ease",
+                  fontFamily: "'Geist', sans-serif",
                 }}
-                onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.background = T.overlay; }}
-                onMouseLeave={e => { e.currentTarget.style.borderColor = T.borderMd; e.currentTarget.style.background = T.raised; }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = "translateY(-2px)";
+                  e.currentTarget.style.boxShadow = "0 8px 28px rgba(79,127,255,0.4)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               >
-                <Github size={15} />
+                <Github size={18} />
                 VIEW GITHUB
               </a>
               <a
                 href="mailto:g.sivasatyasaibhagavan@gmail.com"
+                data-hover
                 style={{
-                  display: "inline-flex", alignItems: "center", gap: "8px",
-                  padding: "11px 22px", borderRadius: "8px",
-                  background: "rgba(56,189,248,0.10)", border: "1px solid rgba(56,189,248,0.28)",
-                  color: "#38bdf8", textDecoration: "none",
-                  fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "1.5px",
-                  transition: "all 200ms",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  padding: "1rem 2rem",
+                  background: "transparent",
+                  border: `2px solid ${C.border2}`,
+                  borderRadius: "12px",
+                  fontSize: "0.95rem",
+                  fontWeight: 600,
+                  color: C.text,
+                  textDecoration: "none",
+                  transition: "all 0.2s ease",
+                  fontFamily: "'Geist', sans-serif",
                 }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(56,189,248,0.18)"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "rgba(56,189,248,0.10)"; }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = C.border3;
+                  e.currentTarget.style.background = C.surface;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = C.border2;
+                  e.currentTarget.style.background = "transparent";
+                }}
               >
-                <ArrowUpRight size={14} />
                 GET IN TOUCH
+                <ArrowUpRight size={18} />
               </a>
             </div>
           </div>
-
-        </main>
+        </section>
       </div>
 
-      {/* ── DRAWER ── */}
-      {active && <Drawer skill={active} onClose={() => setActive(null)} />}
+      {/* Detail Panel */}
+      {activeCapability && (
+        <DetailPanel capability={activeCapability} onClose={() => setActiveCapability(null)} />
+      )}
     </>
   );
 }

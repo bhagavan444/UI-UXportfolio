@@ -3,680 +3,1677 @@
 import React, { useState, useEffect, useRef } from "react";
 
 /* ═══════════════════════════════════════════════════════════════
-   DESIGN TOKENS
+   DESIGN TOKENS — PREMIUM NEUTRALS + ACCENT SYSTEM
 ═══════════════════════════════════════════════════════════════ */
 const C = {
-  bg:       "#0f1117",
-  surface:  "#14161e",
-  surface2: "#1a1d28",
-  surface3: "#1e2130",
-  border:   "rgba(255,255,255,0.06)",
-  border2:  "rgba(255,255,255,0.10)",
-  border3:  "rgba(255,255,255,0.15)",
-  text:     "#e8e9ee",
-  muted:    "#6b7280",
-  muted2:   "#9ca3af",
-  accent:   "#4f7fff",       // primary blue
-  accentDim:"rgba(79,127,255,0.12)",
-  green:    "#22c55e",
-  greenDim: "rgba(34,197,94,0.10)",
-  amber:    "#f59e0b",
-  amberDim: "rgba(245,158,11,0.10)",
-  rose:     "#f43f5e",
+  bg: "#ffffff",
+  surface: "#f9fafb",
+  surface2: "#f3f4f6",
+  surface3: "#e5e7eb",
+  border: "rgba(0,0,0,0.08)",
+  border2: "rgba(0,0,0,0.12)",
+  border3: "rgba(0,0,0,0.16)",
+  text: "#0f172a",
+  muted: "#64748b",
+  muted2: "#475569",
+  accent: "#4f7fff",
+  accentDim: "rgba(79,127,255,0.08)",
+  green: "#10b981",
+  greenDim: "rgba(16,185,129,0.08)",
+  amber: "#f59e0b",
+  amberDim: "rgba(245,158,11,0.08)",
+  purple: "#a78bfa",
+  purpleDim: "rgba(167,139,250,0.08)",
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   DATA
+   DATA — RESTRUCTURED FOR IMMERSIVE SECTIONS
 ═══════════════════════════════════════════════════════════════ */
 const pillars = [
   {
     id: "fullstack",
     number: "01",
-    role: "Full-Stack Engineer",
-    domain: "Full-Stack Engineering",
-    context: "Production · 2 Internship Projects",
-    contextType: "production",
+    title: "Full-Stack Engineering",
+    role: "Production Web Applications",
+    context: "2 Industry Internships · Production Code",
     summary:
-      "End-to-end product development across client, server, and database layers. Built and shipped two complete applications in production environments during industry internships.",
-    keyTech: ["React", "Node.js", "Express", "MongoDB", "JWT / OAuth", "REST API"],
-    outcomes: [
-      { metric: "40%", label: "API latency reduction through query optimization and caching" },
-      { metric: "2×", label: "Auth system rebuilt — migrated to OAuth 2.0 with zero downtime" },
+      "End-to-end product development from database design through API architecture to responsive UI. Shipped production applications serving real users with authentication, real-time features, and data persistence.",
+    highlight: "Built OAuth 2.0 migration with zero downtime",
+    metrics: [
+      { value: 40, suffix: "%", label: "API Latency Reduction", desc: "Query optimization & Redis caching" },
+      { value: 2, suffix: "×", label: "Auth System Rebuilt", desc: "OAuth 2.0 with JWT rotation" },
+      { value: 99.9, suffix: "%", label: "Uptime Maintained", desc: "During critical migrations" },
     ],
-    deployments: [
-      { name: "ATS Resume Builder", status: "Production", detail: "PDF & DOCX export, real-time preview" },
-      { name: "Secure Auth Service", status: "Production", detail: "OAuth 2.0, JWT rotation, rate limiting" },
+    tech: {
+      Frontend: ["React", "Next.js", "Tailwind CSS", "Redux"],
+      Backend: ["Node.js", "Express", "MongoDB", "PostgreSQL"],
+      Tools: ["JWT / OAuth", "REST API", "WebSockets", "Redis"],
+    },
+    projects: [
+      { name: "ATS Resume Builder", detail: "PDF & DOCX export, real-time preview, template system" },
+      { name: "Secure Auth Service", detail: "OAuth 2.0, JWT rotation, rate limiting, MFA support" },
     ],
-    internship: "StudyOwl Education Pvt Ltd",
+    source: "StudyOwl Education Pvt Ltd",
     accent: C.accent,
     accentDim: C.accentDim,
   },
   {
     id: "ml",
     number: "02",
-    role: "ML / AI Engineer",
-    domain: "Machine Learning & AI",
-    context: "Academic + Internship · 4 Models Shipped",
-    contextType: "mixed",
+    title: "Machine Learning & AI",
+    role: "Model Training & Deployment",
+    context: "Internship + Academic · 4 Models Shipped",
     summary:
-      "Applied ML and NLP across classification, detection, and deep learning tasks. Trained, evaluated, and deployed models on real datasets exceeding 50K records.",
-    keyTech: ["Python", "TensorFlow", "Keras", "Scikit-learn", "Pandas / NumPy", "OpenCV"],
-    outcomes: [
-      { metric: "89%", label: "Accuracy on Fake News Detection model using TF-IDF + Logistic Regression" },
-      { metric: "92%", label: "CNN accuracy on custom image classification dataset (3K+ samples)" },
+      "Applied ML across classification, NLP, and computer vision tasks. Trained models on 50K+ record datasets, deployed inference APIs, and integrated predictions into web applications.",
+    highlight: "89% accuracy on fake news detection pipeline",
+    metrics: [
+      { value: 89, suffix: "%", label: "NLP Model Accuracy", desc: "TF-IDF + Logistic Regression" },
+      { value: 92, suffix: "%", label: "CNN Accuracy", desc: "Custom image classification" },
+      { value: 50, suffix: "K+", label: "Training Records", desc: "Real-world datasets processed" },
     ],
-    deployments: [
-      { name: "Fake News Classifier", status: "GitHub", detail: "NLP pipeline, TF-IDF, 89% accuracy" },
-      { name: "Object Detection API", status: "Deployed", detail: "Flask + OpenCV, real-time inference" },
+    tech: {
+      Core: ["Python", "TensorFlow", "Keras", "Scikit-learn"],
+      Processing: ["Pandas", "NumPy", "OpenCV", "NLTK"],
+      Deployment: ["Flask API", "Docker", "REST endpoints"],
+    },
+    projects: [
+      { name: "Fake News Classifier", detail: "NLP pipeline, TF-IDF vectorization, 89% accuracy" },
+      { name: "Object Detection API", detail: "Flask + OpenCV, real-time inference, REST interface" },
     ],
-    internship: "Blackbucks · SmartBridge AI/ML Internship",
-    accent: "#a78bfa",
-    accentDim: "rgba(167,139,250,0.10)",
+    source: "Blackbucks · SmartBridge AI/ML Internship",
+    accent: C.purple,
+    accentDim: C.purpleDim,
   },
   {
     id: "cloud",
     number: "03",
-    role: "Cloud & Infrastructure",
-    domain: "Systems & Cloud",
-    context: "Self-Directed · Personal Projects",
-    contextType: "academic",
+    title: "Cloud & Infrastructure",
+    role: "DevOps & System Architecture",
+    context: "Self-Directed · Production Deployments",
     summary:
-      "Cloud deployment, containerization, and CI/CD pipeline setup for personal and internship-era projects. Comfortable operating at the infrastructure layer for Node.js and Python services.",
-    keyTech: ["AWS EC2 / S3", "Docker", "Kubernetes", "GitHub Actions", "Nginx", "Linux"],
-    outcomes: [
-      { metric: "3", label: "Microservices containerized and orchestrated with Docker Compose" },
-      { metric: "CI/CD", label: "Automated build-test-deploy pipeline with GitHub Actions" },
+      "Cloud deployment, containerization, and CI/CD pipeline configuration. Orchestrated multi-container applications, managed cloud infrastructure, and automated deployment workflows.",
+    highlight: "Zero-downtime deployment pipeline",
+    metrics: [
+      { value: 3, suffix: "", label: "Microservices", desc: "Containerized & orchestrated" },
+      { value: 100, suffix: "%", label: "CI/CD Coverage", desc: "Automated test & deploy" },
+      { value: 5, suffix: "min", label: "Deploy Time", desc: "From commit to production" },
     ],
-    deployments: [
-      { name: "AWS EC2 Deployment", status: "Live", detail: "Node.js + Nginx reverse proxy" },
-      { name: "Docker Compose Stack", status: "GitHub", detail: "Multi-container app orchestration" },
+    tech: {
+      Cloud: ["AWS EC2", "AWS S3", "AWS RDS", "CloudWatch"],
+      Containers: ["Docker", "Docker Compose", "Kubernetes"],
+      "CI/CD": ["GitHub Actions", "Nginx", "Linux", "Bash"],
+    },
+    projects: [
+      { name: "AWS EC2 Deployment", detail: "Node.js + Nginx reverse proxy, auto-scaling" },
+      { name: "Docker Compose Stack", detail: "Multi-container orchestration, volume management" },
     ],
-    internship: "Personal projects · Online coursework",
+    source: "Personal Projects · Online Coursework",
     accent: C.green,
     accentDim: C.greenDim,
   },
   {
     id: "foundations",
     number: "04",
-    role: "Software Engineer",
-    domain: "Programming Foundations",
-    context: "Academic + Competitive · LeetCode Top 5%",
-    contextType: "academic",
+    title: "Programming Foundations",
+    role: "Algorithms & Problem Solving",
+    context: "Competitive Programming · Top 5% LeetCode",
     summary:
-      "Strong algorithmic fundamentals developed through competitive programming and academic coursework. Consistent problem-solver with proven performance on structured platforms.",
-    keyTech: ["Python", "Java", "JavaScript", "C++", "Data Structures", "OOP"],
-    outcomes: [
-      { metric: "500+", label: "DSA problems solved across LeetCode and competitive platforms" },
-      { metric: "Top 5%", label: "Global LeetCode ranking — consistent active participation" },
+      "Strong algorithmic fundamentals developed through competitive programming. Consistent problem-solver with proven track record on structured platforms, focusing on optimization and clean code architecture.",
+    highlight: "Top 5% global LeetCode ranking",
+    metrics: [
+      { value: 500, suffix: "+", label: "Problems Solved", desc: "Across multiple platforms" },
+      { value: 5, suffix: "%", label: "Global Ranking", desc: "LeetCode percentile" },
+      { value: 365, suffix: "", label: "Day Streak", desc: "Consistent daily practice" },
     ],
-    deployments: [
-      { name: "LeetCode Profile", status: "Active", detail: "Top 5% global rank · 365-day streak" },
-      { name: "GitHub Portfolio", status: "Public", detail: "15+ repositories across languages" },
+    tech: {
+      Languages: ["Python", "JavaScript", "Java", "C++"],
+      Concepts: ["Data Structures", "Algorithms", "OOP", "Design Patterns"],
+      Practice: ["LeetCode", "HackerRank", "CodeForces"],
+    },
+    projects: [
+      { name: "LeetCode Profile", detail: "Top 5% global · 365-day active streak" },
+      { name: "GitHub Portfolio", detail: "15+ repositories across languages & frameworks" },
     ],
-    internship: "College coursework · Self-learning",
+    source: "College Coursework · Self-Learning",
     accent: C.amber,
     accentDim: C.amberDim,
   },
 ];
 
 const tooling = [
-  { name: "Git / GitHub", level: "Daily" },
-  { name: "Docker",       level: "Regular" },
-  { name: "AWS",          level: "Regular" },
-  { name: "VS Code",      level: "Daily" },
-  { name: "Jupyter",      level: "Regular" },
-  { name: "Postman",      level: "Daily" },
-  { name: "Linux / CLI",  level: "Regular" },
-  { name: "Figma",        level: "Occasional" },
+  { name: "Git / GitHub", level: "Daily", category: "Core" },
+  { name: "VS Code", level: "Daily", category: "Core" },
+  { name: "Postman", level: "Daily", category: "Core" },
+  { name: "Docker", level: "Regular", category: "Infra" },
+  { name: "AWS", level: "Regular", category: "Infra" },
+  { name: "Linux / CLI", level: "Regular", category: "Infra" },
+  { name: "Jupyter", level: "Regular", category: "ML" },
+  { name: "Figma", level: "Occasional", category: "Design" },
 ];
 
 const deepening = [
-  { area: "System Design",       detail: "Distributed systems, CAP theorem, load balancing patterns" },
-  { area: "LLM Engineering",     detail: "Fine-tuning, RAG pipelines, prompt engineering at scale" },
-  { area: "Kubernetes (CKA)",    detail: "Working toward Certified Kubernetes Administrator" },
-  { area: "TypeScript (Advanced)", detail: "Generics, utility types, strict type architecture" },
+  { area: "System Design", detail: "Distributed systems, CAP theorem, load balancing patterns", icon: "🏗️" },
+  { area: "LLM Engineering", detail: "Fine-tuning, RAG pipelines, prompt engineering at scale", icon: "🤖" },
+  { area: "Kubernetes (CKA)", detail: "Working toward Certified Kubernetes Administrator", icon: "☸️" },
+  { area: "TypeScript (Advanced)", detail: "Generics, utility types, strict type architecture", icon: "📘" },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
-   SUBCOMPONENTS
+   CUSTOM CURSOR COMPONENT
 ═══════════════════════════════════════════════════════════════ */
+function CustomCursor() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const [currentAccent, setCurrentAccent] = useState(C.accent);
 
-/** Thin horizontal rule */
-function Divider({ style }) {
-  return <div style={{ height:"1px", background:C.border, width:"100%", ...style }} />;
-}
-
-/** Context badge */
-function ContextBadge({ type, children }) {
-  const map = {
-    production: { bg:"rgba(34,197,94,0.08)",  border:"rgba(34,197,94,0.25)",  color:C.green },
-    mixed:      { bg:"rgba(79,127,255,0.08)",  border:"rgba(79,127,255,0.25)",  color:C.accent },
-    academic:   { bg:"rgba(245,158,11,0.08)",  border:"rgba(245,158,11,0.25)",  color:C.amber },
-  };
-  const s = map[type] || map.academic;
-  return (
-    <span style={{
-      display:"inline-flex", alignItems:"center", gap:"0.35rem",
-      padding:"0.25rem 0.7rem", borderRadius:"5px",
-      background:s.bg, border:`1px solid ${s.border}`,
-      fontSize:"0.7rem", fontWeight:600, color:s.color,
-      fontFamily:"'DM Mono',monospace", letterSpacing:"0.04em",
-      whiteSpace:"nowrap",
-    }}>
-      <span style={{ width:"5px", height:"5px", borderRadius:"50%", background:s.color, display:"inline-block" }} />
-      {children}
-    </span>
-  );
-}
-
-/** Deployment pill */
-function DeployBadge({ status }) {
-  const map = {
-    Production: { color:"#22c55e", bg:"rgba(34,197,94,0.08)",  border:"rgba(34,197,94,0.2)" },
-    Deployed:   { color:"#22c55e", bg:"rgba(34,197,94,0.08)",  border:"rgba(34,197,94,0.2)" },
-    Live:       { color:"#22c55e", bg:"rgba(34,197,94,0.08)",  border:"rgba(34,197,94,0.2)" },
-    GitHub:     { color:"#9ca3af", bg:"rgba(156,163,175,0.07)", border:"rgba(156,163,175,0.18)" },
-    Active:     { color:C.accent,  bg:C.accentDim,              border:"rgba(79,127,255,0.25)" },
-    Public:     { color:"#9ca3af", bg:"rgba(156,163,175,0.07)", border:"rgba(156,163,175,0.18)" },
-  };
-  const s = map[status] || map.GitHub;
-  return (
-    <span style={{
-      padding:"0.2rem 0.55rem", borderRadius:"4px",
-      background:s.bg, border:`1px solid ${s.border}`,
-      fontSize:"0.65rem", fontWeight:700, color:s.color,
-      fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em",
-    }}>
-      {status}
-    </span>
-  );
-}
-
-/* ─── useInView hook ─── */
-function useInView(threshold = 0.12) {
-  const ref = useRef(null);
-  const [inView, setInView] = useState(false);
   useEffect(() => {
-    const ob = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
-    if (ref.current) ob.observe(ref.current);
-    return () => ob.disconnect();
+    const handleMove = (e) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+
+      // Detect hover on interactive elements
+      const target = e.target;
+      const isInteractive =
+        target.tagName === "A" ||
+        target.tagName === "BUTTON" ||
+        target.closest("[data-magnetic]") ||
+        target.closest("[data-hover]");
+      setIsHovering(!!isInteractive);
+
+      // Detect section accent
+      const section = target.closest("[data-accent]");
+      if (section) {
+        setCurrentAccent(section.dataset.accent);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
   }, []);
-  return [ref, inView];
+
+  return (
+    <>
+      {/* Cursor dot */}
+      <div
+        style={{
+          position: "fixed",
+          left: position.x,
+          top: position.y,
+          width: isHovering ? "32px" : "8px",
+          height: isHovering ? "32px" : "8px",
+          borderRadius: "50%",
+          background: isHovering ? "transparent" : currentAccent,
+          border: isHovering ? `2px solid ${currentAccent}` : "none",
+          pointerEvents: "none",
+          zIndex: 10000,
+          transform: "translate(-50%, -50%)",
+          transition: "width 0.2s ease, height 0.2s ease, background 0.2s ease, border 0.2s ease",
+          mixBlendMode: "difference",
+        }}
+      />
+      {/* Cursor glow */}
+      <div
+        style={{
+          position: "fixed",
+          left: position.x,
+          top: position.y,
+          width: isHovering ? "64px" : "48px",
+          height: isHovering ? "64px" : "48px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${currentAccent}25 0%, transparent 70%)`,
+          pointerEvents: "none",
+          zIndex: 9999,
+          transform: "translate(-50%, -50%)",
+          transition: "width 0.3s ease, height 0.3s ease, background 0.3s ease",
+        }}
+      />
+    </>
+  );
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   PILLAR CARD
+   ANIMATED COUNTER
 ═══════════════════════════════════════════════════════════════ */
-function PillarCard({ pillar, index }) {
-  const [hovered, setHovered] = useState(false);
-  const [ref, inView] = useInView();
+function AnimatedCounter({ value, suffix = "", duration = 2000 }) {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          const start = 0;
+          const end = value;
+          const startTime = Date.now();
+
+          const animate = () => {
+            const now = Date.now();
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3); // ease-out-cubic
+            setCount(Math.floor(start + (end - start) * eased));
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            }
+          };
+
+          animate();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [value, duration, hasAnimated]);
+
+  return (
+    <span ref={ref}>
+      {count}
+      {suffix}
+    </span>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL PROGRESS INDICATOR
+═══════════════════════════════════════════════════════════════ */
+function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress((window.scrollY / total) * 100);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
     <div
-      ref={ref}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
       style={{
-        background:       C.surface,
-        border:           `1px solid ${hovered ? pillar.accent + "35" : C.border}`,
-        borderRadius:     "16px",
-        overflow:         "hidden",
-        transition:       "border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-        transform:        hovered ? "translateY(-4px)" : "translateY(0)",
-        boxShadow:        hovered ? `0 16px 48px rgba(0,0,0,0.5), 0 0 0 1px ${pillar.accent}20` : "0 2px 16px rgba(0,0,0,0.3)",
-        opacity:          inView ? 1 : 0,
-        animation:        inView ? `cardReveal 0.55s cubic-bezier(0.22,1,0.36,1) ${index * 0.1}s both` : "none",
-        position:         "relative",
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "2px",
+        background: C.surface2,
+        zIndex: 9998,
       }}
     >
-      {/* Subtle top accent line */}
-      <div style={{ height:"2px", background:`linear-gradient(90deg, ${pillar.accent}, transparent)` }} />
-
-      <div style={{ padding:"1.75rem 2rem 2rem" }}>
-
-        {/* ── Row 1: Number + Domain + Context ── */}
-        <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"1rem", marginBottom:"1.25rem", flexWrap:"wrap" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"0.9rem" }}>
-            <span style={{
-              fontFamily:"'DM Mono',monospace", fontSize:"0.72rem", fontWeight:600,
-              color:pillar.accent, letterSpacing:"0.12em",
-              background:pillar.accentDim, border:`1px solid ${pillar.accent}30`,
-              padding:"0.2rem 0.55rem", borderRadius:"4px",
-            }}>
-              {pillar.number}
-            </span>
-            <div>
-              <div style={{ fontSize:"1.15rem", fontWeight:700, color:C.text, fontFamily:"'Instrument Serif',serif", lineHeight:1.2 }}>
-                {pillar.domain}
-              </div>
-              <div style={{ fontSize:"0.78rem", color:C.muted2, fontWeight:500, marginTop:"0.2rem" }}>
-                {pillar.role}
-              </div>
-            </div>
-          </div>
-          <ContextBadge type={pillar.contextType}>{pillar.context}</ContextBadge>
-        </div>
-
-        <Divider style={{ marginBottom:"1.25rem" }} />
-
-        {/* ── Summary ── */}
-        <p style={{ fontSize:"0.875rem", color:C.muted2, lineHeight:1.75, marginBottom:"1.5rem", fontWeight:400 }}>
-          {pillar.summary}
-        </p>
-
-        {/* ── Outcome Metrics ── */}
-        <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"0.75rem", marginBottom:"1.5rem" }}>
-          {pillar.outcomes.map((o, i) => (
-            <div key={i} style={{
-              padding:"1rem 1.1rem",
-              background:C.surface2,
-              border:`1px solid ${C.border}`,
-              borderRadius:"10px",
-              transition:"border-color 0.25s ease",
-              borderColor: hovered ? pillar.accent + "22" : C.border,
-            }}>
-              <div style={{
-                fontFamily:"'Instrument Serif',serif",
-                fontSize:"1.6rem", fontWeight:400,
-                color:pillar.accent, lineHeight:1, marginBottom:"0.35rem",
-                letterSpacing:"-0.02em",
-              }}>
-                {o.metric}
-              </div>
-              <div style={{ fontSize:"0.72rem", color:C.muted, lineHeight:1.55, fontWeight:500 }}>
-                {o.label}
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* ── Core Technologies ── */}
-        <div style={{ marginBottom:"1.5rem" }}>
-          <div style={{ fontSize:"0.67rem", fontWeight:700, color:C.muted, letterSpacing:"0.13em", textTransform:"uppercase", fontFamily:"'DM Mono',monospace", marginBottom:"0.6rem" }}>
-            Core Technologies
-          </div>
-          <div style={{ display:"flex", flexWrap:"wrap", gap:"0.4rem" }}>
-            {pillar.keyTech.map((t, i) => (
-              <span key={i} style={{
-                padding:"0.3rem 0.7rem", borderRadius:"5px",
-                background:C.surface3, border:`1px solid ${C.border2}`,
-                fontSize:"0.75rem", fontWeight:500, color:C.muted2,
-                fontFamily:"'DM Mono',monospace",
-                transition:"all 0.2s ease",
-                ...(hovered ? { borderColor:pillar.accent+"28", color:C.text } : {}),
-              }}>
-                {t}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <Divider style={{ marginBottom:"1.25rem" }} />
-
-        {/* ── Deployments ── */}
-        <div style={{ marginBottom:"1.25rem" }}>
-          <div style={{ fontSize:"0.67rem", fontWeight:700, color:C.muted, letterSpacing:"0.13em", textTransform:"uppercase", fontFamily:"'DM Mono',monospace", marginBottom:"0.75rem" }}>
-            Shipped Work
-          </div>
-          <div style={{ display:"flex", flexDirection:"column", gap:"0.55rem" }}>
-            {pillar.deployments.map((d, i) => (
-              <div key={i} style={{ display:"flex", alignItems:"center", justifyContent:"space-between", gap:"1rem" }}>
-                <div style={{ flex:1 }}>
-                  <div style={{ fontSize:"0.825rem", fontWeight:600, color:C.text, marginBottom:"0.1rem" }}>{d.name}</div>
-                  <div style={{ fontSize:"0.72rem", color:C.muted }}>{d.detail}</div>
-                </div>
-                <DeployBadge status={d.status} />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* ── Source ── */}
-        <div style={{
-          display:"flex", alignItems:"center", gap:"0.5rem",
-          padding:"0.6rem 0.9rem",
-          background:C.bg, border:`1px solid ${C.border}`,
-          borderRadius:"8px",
-        }}>
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke={pillar.accent} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
-          <span style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>{pillar.internship}</span>
-        </div>
-      </div>
+      <div
+        style={{
+          height: "100%",
+          width: `${progress}%`,
+          background: `linear-gradient(90deg, ${C.accent}, ${C.purple})`,
+          transition: "width 0.1s linear",
+        }}
+      />
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MAIN PAGE
+   SECTION INDICATOR (STICKY LEFT SIDE)
 ═══════════════════════════════════════════════════════════════ */
-export default function Skills() {
-  const [scrollPct, setScrollPct] = useState(0);
-  const [toolHover, setToolHover] = useState(null);
-  const [headerRef, headerIn]     = useInView(0.2);
-  const [strengthRef, strengthIn] = useInView(0.2);
-  const [toolingRef, toolingIn]   = useInView(0.2);
-  const [deepenRef, deepenIn]     = useInView(0.2);
+function SectionIndicator() {
+  const [activeSection, setActiveSection] = useState(0);
 
   useEffect(() => {
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollPct((window.scrollY / max) * 100);
+    const handleScroll = () => {
+      const sections = document.querySelectorAll("[data-section]");
+      let current = 0;
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+          current = index;
+        }
+      });
+
+      setActiveSection(current);
     };
-    window.addEventListener("scroll", onScroll, { passive:true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        left: "2rem",
+        top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 100,
+        display: "flex",
+        flexDirection: "column",
+        gap: "1rem",
+      }}
+    >
+      {pillars.map((p, i) => (
+        <div
+          key={p.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "0.75rem",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+          }}
+          onClick={() => {
+            document.getElementById(p.id)?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          <div
+            style={{
+              width: activeSection === i ? "32px" : "16px",
+              height: "2px",
+              background: activeSection === i ? p.accent : C.border2,
+              transition: "all 0.3s ease",
+            }}
+          />
+          <span
+            style={{
+              fontSize: "0.7rem",
+              fontFamily: "'DM Mono', monospace",
+              color: activeSection === i ? C.text : C.muted,
+              opacity: activeSection === i ? 1 : 0,
+              transition: "all 0.3s ease",
+              whiteSpace: "nowrap",
+            }}
+          >
+            {p.number}
+          </span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAGNETIC BUTTON
+═══════════════════════════════════════════════════════════════ */
+function MagneticButton({ children, href, style }) {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const ref = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    setPosition({ x: x * 0.3, y: y * 0.3 });
+  };
+
+  const handleMouseLeave = () => {
+    setPosition({ x: 0, y: 0 });
+  };
+
+  const baseStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    padding: "0.75rem 1.5rem",
+    background: C.surface2,
+    border: `1px solid ${C.border2}`,
+    borderRadius: "8px",
+    fontSize: "0.875rem",
+    fontWeight: 500,
+    color: C.text,
+    textDecoration: "none",
+    transition: "all 0.2s ease",
+    transform: `translate(${position.x}px, ${position.y}px)`,
+    cursor: "pointer",
+    ...style,
+  };
+
+  return (
+    <a
+      ref={ref}
+      href={href}
+      data-magnetic
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={baseStyle}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = C.surface3;
+        e.currentTarget.style.borderColor = C.border3;
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = C.surface2;
+        e.currentTarget.style.borderColor = C.border2;
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   IMMERSIVE PILLAR SECTION
+═══════════════════════════════════════════════════════════════ */
+function PillarSection({ pillar, index }) {
+  const [inView, setInView] = useState(false);
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setInView(true);
+      },
+      { threshold: 0.2 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * 3, y: -x * 3 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
+  const isEven = index % 2 === 0;
+
+  return (
+    <section
+      id={pillar.id}
+      ref={ref}
+      data-section
+      data-accent={pillar.accent}
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        position: "relative",
+        padding: "8rem 0",
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translateY(0)" : "translateY(60px)",
+        transition: "opacity 0.8s ease, transform 0.8s ease",
+      }}
+    >
+      {/* Background number watermark */}
+      <div
+        style={{
+          position: "absolute",
+          [isEven ? "left" : "right"]: "-5%",
+          top: "50%",
+          transform: "translateY(-50%)",
+          fontSize: "clamp(12rem, 20vw, 24rem)",
+          fontFamily: "'Instrument Serif', serif",
+          fontWeight: 400,
+          color: pillar.accentDim,
+          lineHeight: 1,
+          userSelect: "none",
+          pointerEvents: "none",
+          opacity: 0.3,
+        }}
+      >
+        {pillar.number}
+      </div>
+
+      {/* Background glow */}
+      <div
+        style={{
+          position: "absolute",
+          [isEven ? "left" : "right"]: "10%",
+          top: "30%",
+          width: "500px",
+          height: "500px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${pillar.accent}15 0%, transparent 70%)`,
+          filter: "blur(80px)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div
+        style={{
+          maxWidth: "1240px",
+          margin: "0 auto",
+          padding: "0 2rem",
+          width: "100%",
+          display: "grid",
+          gridTemplateColumns: isEven ? "1fr 1fr" : "1fr 1fr",
+          gap: "6rem",
+          alignItems: "center",
+        }}
+      >
+        {/* Content side */}
+        <div
+          style={{
+            order: isEven ? 1 : 2,
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateX(0)" : `translateX(${isEven ? "-40px" : "40px"})`,
+            transition: "opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s",
+          }}
+        >
+          {/* Label */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "1.5rem",
+            }}
+          >
+            <div style={{ width: "24px", height: "1px", background: pillar.accent }} />
+            <span
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: pillar.accent,
+              }}
+            >
+              {pillar.number} · {pillar.context}
+            </span>
+          </div>
+
+          {/* Title */}
+          <h2
+            style={{
+              fontFamily: "'Instrument Serif', serif",
+              fontSize: "clamp(2.5rem, 5vw, 4rem)",
+              fontWeight: 400,
+              color: C.text,
+              lineHeight: 1.1,
+              letterSpacing: "-0.02em",
+              marginBottom: "1rem",
+            }}
+          >
+            {pillar.title}
+          </h2>
+
+          {/* Role */}
+          <div
+            style={{
+              fontSize: "1.125rem",
+              color: C.muted2,
+              fontWeight: 500,
+              marginBottom: "2rem",
+            }}
+          >
+            {pillar.role}
+          </div>
+
+          {/* Summary */}
+          <p
+            style={{
+              fontSize: "1rem",
+              color: C.muted2,
+              lineHeight: 1.8,
+              marginBottom: "2rem",
+            }}
+          >
+            {pillar.summary}
+          </p>
+
+          {/* Highlight */}
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              padding: "1rem 1.5rem",
+              background: pillar.accentDim,
+              border: `1px solid ${pillar.accent}30`,
+              borderRadius: "8px",
+              marginBottom: "2.5rem",
+            }}
+          >
+            <div
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                background: pillar.accent,
+              }}
+            />
+            <span
+              style={{
+                fontSize: "0.875rem",
+                color: C.text,
+                fontWeight: 500,
+              }}
+            >
+              {pillar.highlight}
+            </span>
+          </div>
+
+          {/* Technology Grid */}
+          <div style={{ marginBottom: "2.5rem" }}>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: C.muted,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                fontFamily: "'DM Mono', monospace",
+                marginBottom: "1.25rem",
+              }}
+            >
+              Technology Stack
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "1rem" }}>
+              {Object.entries(pillar.tech).map(([category, techs]) => (
+                <div key={category}>
+                  <div
+                    style={{
+                      fontSize: "0.75rem",
+                      color: pillar.accent,
+                      fontWeight: 600,
+                      marginBottom: "0.5rem",
+                      fontFamily: "'DM Mono', monospace",
+                    }}
+                  >
+                    {category}
+                  </div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.5rem" }}>
+                    {techs.map((tech) => (
+                      <span
+                        key={tech}
+                        data-hover
+                        style={{
+                          padding: "0.4rem 0.9rem",
+                          background: C.surface2,
+                          border: `1px solid ${C.border}`,
+                          borderRadius: "6px",
+                          fontSize: "0.8rem",
+                          fontWeight: 500,
+                          color: C.muted2,
+                          transition: "all 0.2s ease",
+                          cursor: "default",
+                        }}
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.background = C.surface3;
+                          e.currentTarget.style.borderColor = pillar.accent + "40";
+                          e.currentTarget.style.color = C.text;
+                          e.currentTarget.style.transform = "translateY(-2px)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.background = C.surface2;
+                          e.currentTarget.style.borderColor = C.border;
+                          e.currentTarget.style.color = C.muted2;
+                          e.currentTarget.style.transform = "translateY(0)";
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Projects */}
+          <div>
+            <div
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                color: C.muted,
+                letterSpacing: "0.15em",
+                textTransform: "uppercase",
+                fontFamily: "'DM Mono', monospace",
+                marginBottom: "1rem",
+              }}
+            >
+              Shipped Work
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem" }}>
+              {pillar.projects.map((project) => (
+                <div
+                  key={project.name}
+                  style={{
+                    padding: "1rem 1.25rem",
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: "8px",
+                    transition: "all 0.2s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.borderColor = pillar.accent + "30";
+                    e.currentTarget.style.transform = "translateX(4px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.transform = "translateX(0)";
+                  }}
+                >
+                  <div
+                    style={{
+                      fontSize: "0.9rem",
+                      fontWeight: 600,
+                      color: C.text,
+                      marginBottom: "0.25rem",
+                    }}
+                  >
+                    {project.name}
+                  </div>
+                  <div style={{ fontSize: "0.8rem", color: C.muted }}>
+                    {project.detail}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Metrics side */}
+        <div
+          style={{
+            order: isEven ? 2 : 1,
+            opacity: inView ? 1 : 0,
+            transform: inView ? "translateX(0)" : `translateX(${isEven ? "40px" : "-40px"})`,
+            transition: "opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s",
+          }}
+          onMouseMove={handleMouseMove}
+          onMouseLeave={handleMouseLeave}
+        >
+          <div
+            style={{
+              position: "relative",
+              padding: "3rem",
+              background: C.surface,
+              border: `1px solid ${C.border2}`,
+              borderRadius: "24px",
+              transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+              transition: "transform 0.2s ease",
+              boxShadow: `0 24px 48px rgba(0,0,0,0.08), 0 0 0 1px ${pillar.accent}10`,
+            }}
+          >
+            {/* Glow overlay */}
+            <div
+              style={{
+                position: "absolute",
+                inset: 0,
+                borderRadius: "24px",
+                background: `radial-gradient(circle at 50% 50%, ${pillar.accent}08 0%, transparent 60%)`,
+                pointerEvents: "none",
+              }}
+            />
+
+            <div style={{ display: "flex", flexDirection: "column", gap: "2.5rem" }}>
+              {pillar.metrics.map((metric, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position: "relative",
+                    paddingBottom: i < pillar.metrics.length - 1 ? "2.5rem" : 0,
+                    borderBottom:
+                      i < pillar.metrics.length - 1
+                        ? `1px solid ${C.border}`
+                        : "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      fontFamily: "'Instrument Serif', serif",
+                      fontSize: "4rem",
+                      fontWeight: 400,
+                      color: pillar.accent,
+                      lineHeight: 1,
+                      marginBottom: "0.75rem",
+                      letterSpacing: "-0.03em",
+                    }}
+                  >
+                    <AnimatedCounter value={metric.value} suffix={metric.suffix} />
+                  </div>
+                  <div
+                    style={{
+                      fontSize: "1.125rem",
+                      fontWeight: 600,
+                      color: C.text,
+                      marginBottom: "0.5rem",
+                    }}
+                  >
+                    {metric.label}
+                  </div>
+                  <div style={{ fontSize: "0.875rem", color: C.muted, lineHeight: 1.6 }}>
+                    {metric.desc}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Source badge */}
+            <div
+              style={{
+                marginTop: "2.5rem",
+                paddingTop: "2rem",
+                borderTop: `1px solid ${C.border}`,
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+              }}
+            >
+              <svg
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke={pillar.accent}
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" />
+                <circle cx="12" cy="10" r="3" />
+              </svg>
+              <span
+                style={{
+                  fontSize: "0.8rem",
+                  color: C.muted,
+                  fontFamily: "'DM Mono', monospace",
+                }}
+              >
+                {pillar.source}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN COMPONENT
+═══════════════════════════════════════════════════════════════ */
+export default function Skills() {
+  const [headerInView, setHeaderInView] = useState(false);
+  const [toolingInView, setToolingInView] = useState(false);
+  const [deepeningInView, setDeepeningInView] = useState(false);
+  const headerRef = useRef(null);
+  const toolingRef = useRef(null);
+  const deepeningRef = useRef(null);
+
+  useEffect(() => {
+    const observers = [
+      { ref: headerRef, setter: setHeaderInView },
+      { ref: toolingRef, setter: setToolingInView },
+      { ref: deepeningRef, setter: setDeepeningInView },
+    ];
+
+    const observerInstances = observers.map(({ ref, setter }) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setter(true);
+        },
+        { threshold: 0.2 }
+      );
+      if (ref.current) observer.observe(ref.current);
+      return observer;
+    });
+
+    return () => observerInstances.forEach((obs) => obs.disconnect());
   }, []);
 
   return (
     <>
-      {/* ── GLOBAL CSS ── */}
+      {/* ═══════ GLOBAL STYLES ═══════ */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap');
 
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior:smooth; }
-        body { font-family:'Geist','DM Sans',system-ui,sans-serif; background:${C.bg}; color:${C.text}; -webkit-font-smoothing:antialiased; }
-        ::selection { background:rgba(79,127,255,0.25); }
-        ::-webkit-scrollbar { width:5px; }
-        ::-webkit-scrollbar-track { background:${C.bg}; }
-        ::-webkit-scrollbar-thumb { background:rgba(79,127,255,0.3); border-radius:3px; }
+        *, *::before, *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
 
-        @keyframes cardReveal {
-          from { opacity:0; transform:translateY(24px); }
-          to   { opacity:1; transform:translateY(0); }
+        html {
+          scroll-behavior: smooth;
         }
-        @keyframes fadeSlide {
-          from { opacity:0; transform:translateX(-16px); }
-          to   { opacity:1; transform:translateX(0); }
+
+        body {
+          font-family: 'Geist', system-ui, sans-serif;
+          background: ${C.bg};
+          color: ${C.text};
+          -webkit-font-smoothing: antialiased;
+          cursor: none;
         }
-        @keyframes fadeUp {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
+
+        ::selection {
+          background: ${C.accentDim};
+          color: ${C.text};
         }
-        @keyframes lineGrow {
-          from { width:0; }
-          to   { width:100%; }
+
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: ${C.bg};
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: ${C.border3};
+          border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${C.muted};
+        }
+
+        @media (max-width: 768px) {
+          body {
+            cursor: auto;
+          }
         }
       `}</style>
 
-      {/* ── Scroll progress ── */}
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:"2px", background:C.surface2, zIndex:9999 }}>
-        <div style={{ width:`${scrollPct}%`, height:"100%", background:`linear-gradient(90deg, ${C.accent}, #a78bfa)`, transition:"width 0.1s linear" }} />
-      </div>
+      {/* Custom cursor */}
+      <CustomCursor />
 
-      {/* ── Very subtle background texture ── */}
-      <div style={{
-        position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
-        backgroundImage:`radial-gradient(ellipse 70% 50% at 50% 0%, rgba(79,127,255,0.05) 0%, transparent 60%)`,
-      }} />
+      {/* Scroll progress */}
+      <ScrollProgress />
+
+      {/* Section indicator */}
+      <SectionIndicator />
+
+      {/* Background texture */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.02'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
 
       {/* ═══════ PAGE WRAPPER ═══════ */}
-      <div style={{ maxWidth:"1240px", margin:"0 auto", padding:"0 1.5rem", position:"relative", zIndex:1 }}>
-
-        {/* ══════════════════════ HEADER ══════════════════════ */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* ═══════ HEADER ═══════ */}
         <header
           ref={headerRef}
-          style={{ padding:"5rem 0 3.5rem", borderBottom:`1px solid ${C.border}` }}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "8rem 2rem 4rem",
+            borderBottom: `1px solid ${C.border}`,
+            opacity: headerInView ? 1 : 0,
+            transform: headerInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
         >
-          {/* Label */}
-          <div style={{
-            opacity: headerIn ? 1 : 0,
-            animation: headerIn ? "fadeSlide 0.5s cubic-bezier(0.22,1,0.36,1) both" : "none",
-            display:"flex", alignItems:"center", gap:"0.6rem", marginBottom:"1.5rem",
-          }}>
-            <div style={{ width:"20px", height:"1px", background:C.accent }} />
-            <span style={{
-              fontFamily:"'DM Mono',monospace", fontSize:"0.72rem", fontWeight:600,
-              letterSpacing:"0.18em", textTransform:"uppercase", color:C.accent,
-            }}>
+          {/* Overline */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "2rem",
+            }}
+          >
+            <div style={{ width: "32px", height: "1px", background: C.accent }} />
+            <span
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: C.accent,
+              }}
+            >
               Technical Profile · 2026
             </span>
           </div>
 
-          {/* Headline */}
-          <div style={{
-            opacity: headerIn ? 1 : 0,
-            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.08s both" : "none",
-          }}>
-            <h1 style={{
-              fontFamily:"'Instrument Serif',serif",
-              fontSize:"clamp(2.4rem,5vw,3.8rem)", fontWeight:400,
-              color:C.text, lineHeight:1.1, letterSpacing:"-0.025em",
-              marginBottom:"1rem",
-            }}>
-              Skills &amp; Capabilities
-            </h1>
-            <p style={{ fontSize:"1rem", color:C.muted2, lineHeight:1.75, maxWidth:"680px", fontWeight:400 }}>
-              A structured overview of technical competencies organized by domain, with
-              production context, measurable outcomes, and experience classification.
-              Last updated February 2026.
-            </p>
-          </div>
+          {/* Main headline */}
+          <h1
+            style={{
+              fontFamily: "'Instrument Serif', serif",
+              fontSize: "clamp(3rem, 7vw, 5.5rem)",
+              fontWeight: 400,
+              color: C.text,
+              lineHeight: 1.05,
+              letterSpacing: "-0.03em",
+              marginBottom: "1.5rem",
+              maxWidth: "900px",
+            }}
+          >
+            Skills & Capabilities
+          </h1>
 
-          {/* Quick stats row */}
-          <div style={{
-            display:"flex", gap:"2.5rem", marginTop:"2.5rem", flexWrap:"wrap",
-            opacity: headerIn ? 1 : 0,
-            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.18s both" : "none",
-          }}>
+          {/* Subtitle */}
+          <p
+            style={{
+              fontSize: "1.125rem",
+              color: C.muted2,
+              lineHeight: 1.8,
+              maxWidth: "720px",
+              marginBottom: "3rem",
+            }}
+          >
+            A structured overview of technical competencies organized by domain, with
+            production context, measurable outcomes, and experience classification.
+            Last updated February 2026.
+          </p>
+
+          {/* Stats grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))",
+              gap: "3rem",
+              maxWidth: "800px",
+            }}
+          >
             {[
-              { value:"4",    label:"Capability Domains" },
-              { value:"3",    label:"Industry Internships" },
-              { value:"15+",  label:"Projects Shipped" },
-              { value:"20+",  label:"Certifications" },
-            ].map((s, i) => (
+              { value: "4", label: "Capability Domains" },
+              { value: "3", label: "Industry Internships" },
+              { value: "15+", label: "Projects Shipped" },
+              { value: "20+", label: "Certifications" },
+            ].map((stat, i) => (
               <div key={i}>
-                <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.8rem", color:C.text, letterSpacing:"-0.03em" }}>{s.value}</div>
-                <div style={{ fontSize:"0.75rem", color:C.muted, fontWeight:500, marginTop:"0.15rem" }}>{s.label}</div>
+                <div
+                  style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: "2.5rem",
+                    fontWeight: 400,
+                    color: C.text,
+                    lineHeight: 1,
+                    marginBottom: "0.5rem",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  {stat.value}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.8rem",
+                    color: C.muted,
+                    fontWeight: 500,
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
         </header>
 
-        {/* ══════════════════════ PRIMARY STRENGTH BANNER ══════════════════════ */}
+        {/* ═══════ PRIMARY STRENGTH HERO ═══════ */}
         <section
-          ref={strengthRef}
-          style={{ padding:"3rem 0" }}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "8rem 2rem",
+          }}
         >
-          <div style={{
-            background:     `linear-gradient(135deg, rgba(79,127,255,0.07) 0%, rgba(167,139,250,0.04) 100%)`,
-            border:         `1px solid rgba(79,127,255,0.2)`,
-            borderRadius:   "16px",
-            padding:        "2rem 2.5rem",
-            display:        "flex", alignItems:"center", gap:"2rem", flexWrap:"wrap",
-            opacity:        strengthIn ? 1 : 0,
-            animation:      strengthIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both" : "none",
-          }}>
-            {/* Label */}
-            <div style={{ flexShrink:0 }}>
-              <div style={{ fontSize:"0.67rem", fontWeight:700, color:C.accent, letterSpacing:"0.18em", fontFamily:"'DM Mono',monospace", textTransform:"uppercase", marginBottom:"0.5rem" }}>
-                Primary Strength
+          <div
+            style={{
+              position: "relative",
+              padding: "4rem 5rem",
+              background: `linear-gradient(135deg, ${C.accentDim} 0%, ${C.purpleDim} 100%)`,
+              border: `1px solid ${C.accent}20`,
+              borderRadius: "32px",
+              overflow: "hidden",
+            }}
+          >
+            {/* Background glow */}
+            <div
+              style={{
+                position: "absolute",
+                top: "50%",
+                left: "50%",
+                transform: "translate(-50%, -50%)",
+                width: "600px",
+                height: "600px",
+                background: `radial-gradient(circle, ${C.accent}20 0%, transparent 70%)`,
+                filter: "blur(80px)",
+                pointerEvents: "none",
+              }}
+            />
+
+            <div style={{ position: "relative", zIndex: 1 }}>
+              {/* Label */}
+              <div
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  padding: "0.5rem 1rem",
+                  background: `${C.accent}15`,
+                  border: `1px solid ${C.accent}40`,
+                  borderRadius: "6px",
+                  marginBottom: "2rem",
+                }}
+              >
+                <div
+                  style={{
+                    width: "6px",
+                    height: "6px",
+                    borderRadius: "50%",
+                    background: C.accent,
+                  }}
+                />
+                <span
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: "0.7rem",
+                    fontWeight: 700,
+                    letterSpacing: "0.15em",
+                    textTransform: "uppercase",
+                    color: C.accent,
+                  }}
+                >
+                  Primary Strength
+                </span>
               </div>
-              <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem", color:C.text, letterSpacing:"-0.02em" }}>
-                Full-Stack × AI Integration
+
+              {/* Title with gradient underline */}
+              <div style={{ marginBottom: "2rem" }}>
+                <h2
+                  style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: "clamp(2.5rem, 5vw, 4rem)",
+                    fontWeight: 400,
+                    color: C.text,
+                    lineHeight: 1.1,
+                    letterSpacing: "-0.03em",
+                    marginBottom: "1rem",
+                  }}
+                >
+                  Full-Stack × AI Integration
+                </h2>
+                <div
+                  style={{
+                    width: "200px",
+                    height: "3px",
+                    background: `linear-gradient(90deg, ${C.accent}, ${C.purple})`,
+                    borderRadius: "2px",
+                  }}
+                />
               </div>
-            </div>
 
-            <div style={{ width:"1px", height:"48px", background:C.border2, flexShrink:0, display:"block" }} />
+              {/* Description */}
+              <p
+                style={{
+                  fontSize: "1.125rem",
+                  color: C.muted2,
+                  lineHeight: 1.8,
+                  maxWidth: "800px",
+                  marginBottom: "3rem",
+                }}
+              >
+                The highest-leverage combination in my stack: building production-grade web
+                applications that incorporate ML inference — from model training through REST
+                API deployment to user-facing interface. Demonstrated across internship
+                projects at SmartBridge and StudyOwl.
+              </p>
 
-            <p style={{ fontSize:"0.875rem", color:C.muted2, lineHeight:1.75, flex:1, minWidth:"260px" }}>
-              The highest-leverage combination in my stack: building production-grade web applications
-              that incorporate ML inference — from model training through REST API deployment to
-              user-facing interface. Demonstrated across internship projects at SmartBridge and StudyOwl.
-            </p>
-
-            <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem", flexShrink:0 }}>
-              {["React × Flask API", "MongoDB × Python pipeline", "OAuth × JWT security"].map((t, i) => (
-                <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
-                  <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:C.accent, flexShrink:0 }} />
-                  <span style={{ fontSize:"0.775rem", color:C.muted2, fontFamily:"'DM Mono',monospace" }}>{t}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ══════════════════════ EXPERIENCE LEGEND ══════════════════════ */}
-        <div style={{ display:"flex", gap:"1.5rem", marginBottom:"2rem", flexWrap:"wrap", alignItems:"center" }}>
-          <span style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace", letterSpacing:"0.08em" }}>CONTEXT KEY</span>
-          {[
-            { type:"production", label:"Production · Internship" },
-            { type:"mixed",      label:"Mixed · Internship + Academic" },
-            { type:"academic",   label:"Academic · Self-Directed" },
-          ].map(b => <ContextBadge key={b.type} type={b.type}>{b.label}</ContextBadge>)}
-        </div>
-
-        {/* ══════════════════════ PILLARS GRID ══════════════════════ */}
-        <section style={{ paddingBottom:"3rem" }}>
-          <div style={{
-            display:"grid",
-            gridTemplateColumns:"repeat(auto-fill, minmax(min(100%, 520px), 1fr))",
-            gap:"1.25rem",
-          }}>
-            {pillars.map((p, i) => <PillarCard key={p.id} pillar={p} index={i} />)}
-          </div>
-        </section>
-
-        {/* ══════════════════════ TOOLING FAMILIARITY ══════════════════════ */}
-        <section ref={toolingRef} style={{ paddingBottom:"3rem" }}>
-          <div style={{
-            borderTop:`1px solid ${C.border}`, paddingTop:"2.5rem",
-            opacity: toolingIn ? 1 : 0,
-            animation: toolingIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both" : "none",
-          }}>
-            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem", marginBottom:"1.75rem" }}>
-              <div>
-                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:C.muted, marginBottom:"0.5rem" }}>Section 05</div>
-                <h2 style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem", fontWeight:400, color:C.text, letterSpacing:"-0.02em" }}>Tooling Familiarity</h2>
-              </div>
-              <div style={{ display:"flex", gap:"0.75rem", alignItems:"center" }}>
-                {["Daily","Regular","Occasional"].map((l, i) => (
-                  <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.35rem" }}>
-                    <div style={{ width:"6px", height:"6px", borderRadius:"50%", background: l === "Daily" ? C.accent : l === "Regular" ? C.green : C.amber }} />
-                    <span style={{ fontSize:"0.7rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>{l}</span>
+              {/* Tech stack highlights */}
+              <div
+                style={{
+                  display: "flex",
+                  flexWrap: "wrap",
+                  gap: "1rem",
+                }}
+              >
+                {[
+                  "React × Flask API",
+                  "MongoDB × Python pipeline",
+                  "OAuth × JWT security",
+                ].map((tech) => (
+                  <div
+                    key={tech}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                      padding: "1rem 1.5rem",
+                      background: C.surface,
+                      border: `1px solid ${C.border2}`,
+                      borderRadius: "8px",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: C.accent,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "0.875rem",
+                        color: C.text,
+                        fontWeight: 500,
+                        fontFamily: "'DM Mono', monospace",
+                      }}
+                    >
+                      {tech}
+                    </span>
                   </div>
                 ))}
               </div>
             </div>
-
-            <div style={{ display:"flex", flexWrap:"wrap", gap:"0.6rem" }}>
-              {tooling.map((t, i) => {
-                const levelColor = t.level === "Daily" ? C.accent : t.level === "Regular" ? C.green : C.amber;
-                const levelBg    = t.level === "Daily" ? C.accentDim : t.level === "Regular" ? C.greenDim : C.amberDim;
-                const isH = toolHover === i;
-                return (
-                  <div
-                    key={i}
-                    onMouseEnter={() => setToolHover(i)}
-                    onMouseLeave={() => setToolHover(null)}
-                    style={{
-                      display:"flex", alignItems:"center", gap:"0.6rem",
-                      padding:"0.55rem 1rem",
-                      background: isH ? levelBg : C.surface,
-                      border:`1px solid ${isH ? levelColor + "35" : C.border}`,
-                      borderRadius:"8px",
-                      transition:"all 0.22s ease",
-                      cursor:"default",
-                      animation: toolingIn ? `cardReveal 0.45s cubic-bezier(0.22,1,0.36,1) ${i * 0.04}s both` : "none",
-                    }}
-                  >
-                    <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:levelColor, flexShrink:0 }} />
-                    <span style={{ fontSize:"0.825rem", fontWeight:500, color: isH ? C.text : C.muted2, fontFamily:"'DM Mono',monospace", transition:"color 0.2s" }}>
-                      {t.name}
-                    </span>
-                    {isH && (
-                      <span style={{ fontSize:"0.65rem", color:levelColor, fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em" }}>
-                        {t.level}
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
           </div>
         </section>
 
-        {/* ══════════════════════ CURRENTLY DEEPENING ══════════════════════ */}
-        <section ref={deepenRef} style={{ paddingBottom:"5rem" }}>
-          <div style={{
-            borderTop:`1px solid ${C.border}`, paddingTop:"2.5rem",
-            opacity: deepenIn ? 1 : 0,
-            animation: deepenIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both" : "none",
-          }}>
-            <div style={{ marginBottom:"1.75rem" }}>
-              <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:C.muted, marginBottom:"0.5rem" }}>Section 06</div>
-              <h2 style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem", fontWeight:400, color:C.text, letterSpacing:"-0.02em", marginBottom:"0.5rem" }}>
-                Currently Deepening
-              </h2>
-              <p style={{ fontSize:"0.825rem", color:C.muted, lineHeight:1.65, maxWidth:"520px" }}>
-                Active learning areas with intentional focus — these will move to core pillars within 6 months.
-              </p>
-            </div>
+        {/* ═══════ PILLAR SECTIONS ═══════ */}
+        {pillars.map((pillar, index) => (
+          <PillarSection key={pillar.id} pillar={pillar} index={index} />
+        ))}
 
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(min(100%, 280px), 1fr))", gap:"0.9rem" }}>
-              {deepening.map((d, i) => (
-                <DeepCard key={i} item={d} delay={i * 0.08} triggered={deepenIn} />
+        {/* ═══════ TOOLING SECTION ═══════ */}
+        <section
+          ref={toolingRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "8rem 2rem",
+            borderTop: `1px solid ${C.border}`,
+            opacity: toolingInView ? 1 : 0,
+            transform: toolingInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          {/* Header */}
+          <div style={{ marginBottom: "3rem" }}>
+            <div
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "1rem",
+              }}
+            >
+              Section 05
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(2rem, 4vw, 3rem)",
+                fontWeight: 400,
+                color: C.text,
+                letterSpacing: "-0.02em",
+                marginBottom: "1rem",
+              }}
+            >
+              Tooling Familiarity
+            </h2>
+            <div
+              style={{
+                display: "flex",
+                gap: "2rem",
+                marginTop: "1.5rem",
+              }}
+            >
+              {[
+                { level: "Daily", color: C.accent },
+                { level: "Regular", color: C.green },
+                { level: "Occasional", color: C.amber },
+              ].map((item) => (
+                <div
+                  key={item.level}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                  }}
+                >
+                  <div
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      background: item.color,
+                    }}
+                  />
+                  <span
+                    style={{
+                      fontSize: "0.8rem",
+                      color: C.muted2,
+                      fontFamily: "'DM Mono', monospace",
+                    }}
+                  >
+                    {item.level}
+                  </span>
+                </div>
               ))}
             </div>
           </div>
+
+          {/* Tooling grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "1rem",
+            }}
+          >
+            {tooling.map((tool, i) => {
+              const levelColor =
+                tool.level === "Daily"
+                  ? C.accent
+                  : tool.level === "Regular"
+                  ? C.green
+                  : C.amber;
+              const levelBg =
+                tool.level === "Daily"
+                  ? C.accentDim
+                  : tool.level === "Regular"
+                  ? C.greenDim
+                  : C.amberDim;
+
+              return (
+                <div
+                  key={tool.name}
+                  data-hover
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    padding: "1.25rem 1.5rem",
+                    background: C.surface,
+                    border: `1px solid ${C.border}`,
+                    borderRadius: "12px",
+                    transition: "all 0.25s ease",
+                    cursor: "default",
+                    opacity: toolingInView ? 1 : 0,
+                    transform: toolingInView ? "translateY(0)" : "translateY(20px)",
+                    transitionDelay: `${i * 0.05}s`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = levelBg;
+                    e.currentTarget.style.borderColor = levelColor + "40";
+                    e.currentTarget.style.transform = "translateY(-4px)";
+                    e.currentTarget.style.boxShadow = `0 8px 24px rgba(0,0,0,0.08)`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = C.surface;
+                    e.currentTarget.style.borderColor = C.border;
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.75rem",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "8px",
+                        height: "8px",
+                        borderRadius: "50%",
+                        background: levelColor,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "0.95rem",
+                        fontWeight: 500,
+                        color: C.text,
+                        fontFamily: "'DM Mono', monospace",
+                      }}
+                    >
+                      {tool.name}
+                    </span>
+                  </div>
+                  <span
+                    style={{
+                      fontSize: "0.75rem",
+                      color: C.muted,
+                      fontFamily: "'DM Mono', monospace",
+                    }}
+                  >
+                    {tool.level}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
         </section>
 
-        {/* ══════════════════════ FOOTER STRIP ══════════════════════ */}
-        <footer style={{ borderTop:`1px solid ${C.border}`, padding:"2rem 0", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"0.6rem" }}>
-            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:C.green, animation:"none" }} />
-            <span style={{ fontSize:"0.75rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>Open to full-time roles · Immediate availability</span>
+        {/* ═══════ CURRENTLY DEEPENING ═══════ */}
+        <section
+          ref={deepeningRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "8rem 2rem",
+            borderTop: `1px solid ${C.border}`,
+            opacity: deepeningInView ? 1 : 0,
+            transform: deepeningInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          {/* Header */}
+          <div style={{ marginBottom: "3rem" }}>
+            <div
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "1rem",
+              }}
+            >
+              Section 06
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(2rem, 4vw, 3rem)",
+                fontWeight: 400,
+                color: C.text,
+                letterSpacing: "-0.02em",
+                marginBottom: "1rem",
+              }}
+            >
+              Currently Deepening
+            </h2>
+            <p
+              style={{
+                fontSize: "1rem",
+                color: C.muted2,
+                lineHeight: 1.8,
+                maxWidth: "640px",
+              }}
+            >
+              Active learning areas with intentional focus — these will move to core
+              pillars within 6 months.
+            </p>
           </div>
-          <div style={{ display:"flex", gap:"1.5rem" }}>
-            <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{ fontSize:"0.75rem", color:C.muted, textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"color 0.2s" }}
-              onMouseEnter={e => e.currentTarget.style.color = C.text}
-              onMouseLeave={e => e.currentTarget.style.color = C.muted}
+
+          {/* Deepening grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
+            {deepening.map((item, i) => (
+              <div
+                key={item.area}
+                data-hover
+                style={{
+                  position: "relative",
+                  padding: "2rem",
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: "16px",
+                  transition: "all 0.3s ease",
+                  cursor: "default",
+                  overflow: "hidden",
+                  opacity: deepeningInView ? 1 : 0,
+                  transform: deepeningInView ? "translateY(0)" : "translateY(20px)",
+                  transitionDelay: `${i * 0.1}s`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = C.accent + "40";
+                  e.currentTarget.style.transform = "translateY(-8px)";
+                  e.currentTarget.style.boxShadow = `0 16px 48px rgba(0,0,0,0.08)`;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = C.border;
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
+              >
+                {/* Accent line */}
+                <div
+                  style={{
+                    position: "absolute",
+                    left: 0,
+                    top: "25%",
+                    bottom: "25%",
+                    width: "3px",
+                    background: `linear-gradient(180deg, ${C.accent}, ${C.purple})`,
+                    borderRadius: "0 2px 2px 0",
+                  }}
+                />
+
+                <div style={{ paddingLeft: "1rem" }}>
+                  {/* Icon */}
+                  <div
+                    style={{
+                      fontSize: "2rem",
+                      marginBottom: "1rem",
+                    }}
+                  >
+                    {item.icon}
+                  </div>
+
+                  {/* Title */}
+                  <h3
+                    style={{
+                      fontSize: "1.125rem",
+                      fontWeight: 600,
+                      color: C.text,
+                      marginBottom: "0.75rem",
+                      fontFamily: "'DM Mono', monospace",
+                    }}
+                  >
+                    {item.area}
+                  </h3>
+
+                  {/* Description */}
+                  <p
+                    style={{
+                      fontSize: "0.875rem",
+                      color: C.muted,
+                      lineHeight: 1.7,
+                    }}
+                  >
+                    {item.detail}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ═══════ FOOTER ═══════ */}
+        <footer
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "4rem 2rem",
+            borderTop: `1px solid ${C.border}`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "2rem",
+            }}
+          >
+            {/* Status */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+              }}
             >
-              Email
-            </a>
-            <a href="https://github.com/bhagavan444" target="_blank" rel="noopener noreferrer" style={{ fontSize:"0.75rem", color:C.muted, textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"color 0.2s" }}
-              onMouseEnter={e => e.currentTarget.style.color = C.text}
-              onMouseLeave={e => e.currentTarget.style.color = C.muted}
-            >
-              GitHub
-            </a>
-            <a href="https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/" target="_blank" rel="noopener noreferrer" style={{ fontSize:"0.75rem", color:C.muted, textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"color 0.2s" }}
-              onMouseEnter={e => e.currentTarget.style.color = C.text}
-              onMouseLeave={e => e.currentTarget.style.color = C.muted}
-            >
-              LinkedIn
-            </a>
+              <div
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  background: C.green,
+                  animation: "pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+                }}
+              />
+              <span
+                style={{
+                  fontSize: "0.875rem",
+                  color: C.muted2,
+                  fontFamily: "'DM Mono', monospace",
+                }}
+              >
+                Open to full-time roles · Immediate availability
+              </span>
+            </div>
+
+            {/* Links */}
+            <div style={{ display: "flex", gap: "2rem" }}>
+              <MagneticButton href="mailto:g.sivasatyasaibhagavan@gmail.com">
+                Email
+              </MagneticButton>
+              <MagneticButton
+                href="https://github.com/bhagavan444"
+                style={{ target: "_blank", rel: "noopener noreferrer" }}
+              >
+                GitHub
+              </MagneticButton>
+              <MagneticButton
+                href="https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/"
+                style={{ target: "_blank", rel: "noopener noreferrer" }}
+              >
+                LinkedIn
+              </MagneticButton>
+            </div>
           </div>
         </footer>
       </div>
-    </>
-  );
-}
 
-/* ─── Currently Deepening card ─── */
-function DeepCard({ item, delay, triggered }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        padding:"1.1rem 1.25rem",
-        background: hovered ? C.surface2 : C.surface,
-        border:`1px solid ${hovered ? C.border3 : C.border}`,
-        borderRadius:"10px",
-        transition:"all 0.25s ease",
-        opacity: triggered ? 1 : 0,
-        animation: triggered ? `cardReveal 0.5s cubic-bezier(0.22,1,0.36,1) ${delay}s both` : "none",
-        cursor:"default",
-        position:"relative", overflow:"hidden",
-      }}
-    >
-      {/* Thin left accent */}
-      <div style={{ position:"absolute", left:0, top:"20%", bottom:"20%", width:"2px", background:C.accent, borderRadius:"1px", opacity: hovered ? 1 : 0.4, transition:"opacity 0.25s" }} />
-      <div style={{ paddingLeft:"0.75rem" }}>
-        <div style={{ fontSize:"0.875rem", fontWeight:600, color:C.text, marginBottom:"0.35rem" }}>{item.area}</div>
-        <div style={{ fontSize:"0.775rem", color:C.muted, lineHeight:1.6 }}>{item.detail}</div>
-      </div>
-    </div>
+      {/* Pulse animation for status indicator */}
+      <style>{`
+        @keyframes pulse {
+          0%, 100% {
+            opacity: 1;
+          }
+          50% {
+            opacity: 0.5;
+          }
+        }
+      `}</style>
+    </>
   );
 }

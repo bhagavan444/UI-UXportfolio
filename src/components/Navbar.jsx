@@ -8,15 +8,29 @@ import {
   GraduationCap, Trophy, Shield
 } from "lucide-react";
 
-// ─────────────────────────────────────────────────────────────
-// DESIGN SYSTEM
-// ─────────────────────────────────────────────────────────────
-const BRAND = "#3b82f6"; // Refined blue accent
-const EASE = "cubic-bezier(.16,1,.3,1)";
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════════════ */
+const T = {
+  accent: "#5b7fff",
+  accentDark: "#4c6fe8",
+  bg: "#ffffff",
+  bgGlass: "rgba(255, 255, 255, 0.9)",
+  border: "rgba(0, 0, 0, 0.08)",
+  borderHover: "rgba(0, 0, 0, 0.12)",
+  text: "#000000",
+  textMuted: "#4a4a52",
+  textLight: "#7a7a85",
+  shadow: "rgba(0, 0, 0, 0.04)",
+  shadowMd: "rgba(0, 0, 0, 0.08)",
+  shadowLg: "rgba(0, 0, 0, 0.12)",
+  ease: "cubic-bezier(0.16, 1, 0.3, 1)",
+  easeSpring: "cubic-bezier(0.34, 1.56, 0.64, 1)",
+};
 
-// ─────────────────────────────────────────────────────────────
-// NAVIGATION DATA
-// ─────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════
+   NAVIGATION DATA
+═══════════════════════════════════════════════════════════════ */
 const PRIMARY_NAV = [
   { label: "About", path: "/home", Icon: User },
   { label: "Projects", path: "/projects", Icon: FolderGit2 },
@@ -30,218 +44,438 @@ const SECONDARY_NAV = [
   { label: "Certifications", path: "/certifications", Icon: Shield },
   { label: "Competitions", path: "/hackathons", Icon: Trophy },
   { label: "Achievements", path: "/achivements", Icon: Award },
-   { label: "Workshops", path: "/workshops", Icon: FileText },
+  { label: "Workshops", path: "/workshops", Icon: FileText },
   { label: "Resume", path: "/resume", Icon: FileText },
 ];
 
-// ─────────────────────────────────────────────────────────────
-// LOGO COMPONENT
-// ─────────────────────────────────────────────────────────────
-const Logo = ({ onClick }) => (
-  <button
-    onClick={onClick}
-    style={{
-      display: "flex",
-      alignItems: "center",
-      gap: "12px",
-      background: "none",
-      border: "none",
-      cursor: "pointer",
-      padding: 0,
-    }}
-  >
-    <div
-      style={{
-        width: "36px",
-        height: "36px",
-        borderRadius: "8px",
-        background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        boxShadow: "0 2px 8px rgba(59, 130, 246, 0.15)",
-      }}
-    >
-      <Code2 size={18} color="#ffffff" strokeWidth={2.5} />
-    </div>
-    <span
-      style={{
-        fontFamily: "'Space Grotesk', sans-serif",
-        fontSize: "17px",
-        fontWeight: 600,
-        color: "#f1f5f9",
-        letterSpacing: "-0.02em",
-      }}
-    >
-      Bhagavan
-    </span>
-  </button>
-);
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL STYLES
+═══════════════════════════════════════════════════════════════ */
+const GLOBAL_STYLES = `
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap');
+  
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px) scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  
+  @keyframes slideInRight {
+    from {
+      opacity: 0;
+      transform: translateX(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+  
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow: 0 0 20px rgba(91, 127, 255, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 30px rgba(91, 127, 255, 0.5);
+    }
+  }
+  
+  @keyframes scalePress {
+    0% { transform: scale(1); }
+    50% { transform: scale(0.98); }
+    100% { transform: scale(1); }
+  }
+  
+  ::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.15);
+  }
+`;
 
-// ─────────────────────────────────────────────────────────────
-// NAV LINK COMPONENT
-// ─────────────────────────────────────────────────────────────
-const NavLink = ({ item, active, onClick }) => {
-  const [isHover, setIsHover] = useState(false);
+/* ═══════════════════════════════════════════════════════════════
+   CUSTOM CURSOR COMPONENT
+═══════════════════════════════════════════════════════════════ */
+function CustomCursor() {
+  const cursorDotRef = useRef(null);
+  const cursorGlowRef = useRef(null);
+  const [isHovering, setIsHovering] = useState(false);
+  
+  useEffect(() => {
+    const moveCursor = (e) => {
+      const { clientX: x, clientY: y } = e;
+      
+      if (cursorDotRef.current) {
+        cursorDotRef.current.style.left = `${x}px`;
+        cursorDotRef.current.style.top = `${y}px`;
+      }
+      
+      if (cursorGlowRef.current) {
+        cursorGlowRef.current.style.left = `${x}px`;
+        cursorGlowRef.current.style.top = `${y}px`;
+      }
+    };
+    
+    const handleHoverStart = () => setIsHovering(true);
+    const handleHoverEnd = () => setIsHovering(false);
+    
+    window.addEventListener("mousemove", moveCursor);
+    
+    // Attach hover listeners to interactive elements
+    const interactiveElements = document.querySelectorAll("a, button, [role='button']");
+    interactiveElements.forEach((el) => {
+      el.addEventListener("mouseenter", handleHoverStart);
+      el.addEventListener("mouseleave", handleHoverEnd);
+    });
+    
+    return () => {
+      window.removeEventListener("mousemove", moveCursor);
+      interactiveElements.forEach((el) => {
+        el.removeEventListener("mouseenter", handleHoverStart);
+        el.removeEventListener("mouseleave", handleHoverEnd);
+      });
+    };
+  }, []);
+  
+  return (
+    <>
+      {/* Cursor Glow */}
+      <div
+        ref={cursorGlowRef}
+        style={{
+          position: "fixed",
+          width: isHovering ? "40px" : "32px",
+          height: isHovering ? "40px" : "32px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${T.accent}15, transparent 70%)`,
+          pointerEvents: "none",
+          transform: "translate(-50%, -50%)",
+          transition: `width 0.3s ${T.ease}, height 0.3s ${T.ease}`,
+          zIndex: 10001,
+          mixBlendMode: "multiply",
+        }}
+      />
+      
+      {/* Cursor Dot */}
+      <div
+        ref={cursorDotRef}
+        style={{
+          position: "fixed",
+          width: isHovering ? "8px" : "6px",
+          height: isHovering ? "8px" : "6px",
+          borderRadius: "50%",
+          background: T.accent,
+          pointerEvents: "none",
+          transform: "translate(-50%, -50%)",
+          transition: `width 0.2s ${T.ease}, height 0.2s ${T.ease}`,
+          zIndex: 10002,
+        }}
+      />
+    </>
+  );
+}
 
+/* ═══════════════════════════════════════════════════════════════
+   LOGO COMPONENT
+═══════════════════════════════════════════════════════════════ */
+function Logo({ onClick, isScrolled }) {
+  const [isHovered, setIsHovered] = useState(false);
+  
   return (
     <button
       onClick={onClick}
-      onMouseEnter={() => setIsHover(true)}
-      onMouseLeave={() => setIsHover(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
-        position: "relative",
-        padding: "8px 16px",
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
         background: "none",
         border: "none",
-        color: active ? "#f1f5f9" : "#94a3b8",
-        fontSize: "14.5px",
-        fontWeight: active ? 500 : 400,
+        cursor: "pointer",
+        padding: 0,
+        transition: `transform 0.3s ${T.easeSpring}`,
+        transform: isHovered ? "scale(1.02)" : "scale(1)",
+      }}
+    >
+      <div
+        style={{
+          width: isScrolled ? "32px" : "36px",
+          height: isScrolled ? "32px" : "36px",
+          borderRadius: "10px",
+          background: `linear-gradient(135deg, ${T.accent} 0%, ${T.accentDark} 100%)`,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: isHovered 
+            ? `0 8px 24px ${T.accent}30` 
+            : `0 4px 12px ${T.accent}20`,
+          transition: `all 0.3s ${T.ease}`,
+        }}
+      >
+        <Code2 
+          size={isScrolled ? 16 : 18} 
+          color="#ffffff" 
+          strokeWidth={2.5}
+          style={{ transition: `all 0.3s ${T.ease}` }}
+        />
+      </div>
+      <span
+        style={{
+          fontFamily: "'Space Grotesk', sans-serif",
+          fontSize: isScrolled ? "16px" : "17px",
+          fontWeight: 700,
+          color: T.text,
+          letterSpacing: "-0.02em",
+          transition: `all 0.3s ${T.ease}`,
+        }}
+      >
+        Bhagavan - Developer
+      </span>
+    </button>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAGNETIC NAV LINK COMPONENT
+═══════════════════════════════════════════════════════════════ */
+function NavLink({ item, active, onClick }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const linkRef = useRef(null);
+  
+  const handleMouseMove = (e) => {
+    if (!linkRef.current) return;
+    const rect = linkRef.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    
+    const distance = Math.sqrt(x * x + y * y);
+    const maxDistance = 60;
+    
+    if (distance < maxDistance) {
+      const strength = (maxDistance - distance) / maxDistance;
+      const moveX = x * strength * 0.15;
+      const moveY = y * strength * 0.15;
+      linkRef.current.style.transform = `translate(${moveX}px, ${moveY}px)`;
+    }
+  };
+  
+  const handleMouseLeave = () => {
+    if (linkRef.current) {
+      linkRef.current.style.transform = "translate(0, 0)";
+    }
+    setIsHovered(false);
+  };
+  
+  return (
+    <button
+      ref={linkRef}
+      onClick={onClick}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        position: "relative",
+        padding: "10px 18px",
+        background: "none",
+        border: "none",
+        color: active ? T.text : T.textMuted,
+        fontSize: "15px",
+        fontWeight: active ? 600 : 500,
         fontFamily: "'Inter', sans-serif",
         cursor: "pointer",
-        transition: `color 240ms ${EASE}`,
+        transition: `color 0.3s ${T.ease}, transform 0.2s ${T.ease}`,
         whiteSpace: "nowrap",
       }}
     >
       {item.label}
       
-      {/* Active indicator */}
+      {/* Underline */}
       <div
         style={{
           position: "absolute",
-          bottom: "-1px",
-          left: "16px",
-          right: "16px",
+          bottom: "4px",
+          left: "50%",
+          width: active ? "60%" : isHovered ? "40%" : "0%",
           height: "2px",
-          background: BRAND,
-          borderRadius: "2px 2px 0 0",
-          opacity: active ? 1 : 0,
-          transform: active ? "scaleX(1)" : "scaleX(0.7)",
-          transition: `all 280ms ${EASE}`,
+          background: `linear-gradient(90deg, transparent, ${T.accent}, transparent)`,
+          borderRadius: "2px",
+          transform: "translateX(-50%)",
+          transition: `width 0.4s ${T.easeSpring}`,
         }}
       />
       
-      {/* Hover background */}
-      <div
-        style={{
-          position: "absolute",
-          inset: 0,
-          background: "rgba(148, 163, 184, 0.06)",
-          borderRadius: "6px",
-          opacity: isHover && !active ? 1 : 0,
-          transition: `opacity 200ms ${EASE}`,
-          pointerEvents: "none",
-        }}
-      />
+      {/* Glow on active */}
+      {active && (
+        <div
+          style={{
+            position: "absolute",
+            inset: "-8px",
+            background: `radial-gradient(circle at center, ${T.accent}08, transparent 70%)`,
+            borderRadius: "12px",
+            pointerEvents: "none",
+          }}
+        />
+      )}
     </button>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────
-// DROPDOWN MENU
-// ─────────────────────────────────────────────────────────────
-const Dropdown = ({ isOpen, currentRoute, onNavigate }) => {
+/* ═══════════════════════════════════════════════════════════════
+   DROPDOWN MENU
+═══════════════════════════════════════════════════════════════ */
+function Dropdown({ isOpen, currentRoute, onNavigate }) {
   if (!isOpen) return null;
-
+  
   return (
     <div
       style={{
         position: "absolute",
-        top: "calc(100% + 8px)",
+        top: "calc(100% + 12px)",
         right: 0,
-        width: "220px",
-        background: "#1a1d29",
-        border: "1px solid rgba(148, 163, 184, 0.12)",
-        borderRadius: "12px",
-        boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2)",
+        width: "240px",
+        background: "rgba(255, 255, 255, 0.98)",
+        backdropFilter: "blur(20px) saturate(180%)",
+        border: `1px solid ${T.border}`,
+        borderRadius: "16px",
+        boxShadow: `
+          0 20px 40px ${T.shadowLg},
+          0 0 0 1px rgba(0, 0, 0, 0.03)
+        `,
         overflow: "hidden",
-        animation: "dropdownIn 280ms cubic-bezier(.16,1,.3,1)",
+        animation: "slideDown 0.3s cubic-bezier(0.16, 1, 0.3, 1)",
         zIndex: 100,
       }}
     >
-      <style>
-        {`
-          @keyframes dropdownIn {
-            from {
-              opacity: 0;
-              transform: translateY(-8px);
-            }
-            to {
-              opacity: 1;
-              transform: translateY(0);
-            }
-          }
-        `}
-      </style>
-      
       <div
         style={{
-          padding: "8px 12px",
+          padding: "12px 16px 8px",
           fontSize: "11px",
-          fontWeight: 600,
-          letterSpacing: "0.06em",
-          color: "#64748b",
+          fontWeight: 700,
+          letterSpacing: "0.08em",
+          color: T.textLight,
           textTransform: "uppercase",
-          borderBottom: "1px solid rgba(148, 163, 184, 0.08)",
+          borderBottom: `1px solid ${T.border}`,
         }}
       >
         More
       </div>
-
-      {SECONDARY_NAV.map((item) => {
-        const active = currentRoute === item.path;
-        const { Icon } = item;
-        
-        return (
-          <DropdownItem
-            key={item.path}
-            item={item}
-            active={active}
-            Icon={Icon}
-            onClick={() => onNavigate(item.path)}
-          />
-        );
-      })}
+      
+      {SECONDARY_NAV.map((item, index) => (
+        <DropdownItem
+          key={item.path}
+          item={item}
+          active={currentRoute === item.path}
+          onClick={() => onNavigate(item.path)}
+          delay={index * 0.03}
+        />
+      ))}
     </div>
   );
-};
+}
 
-const DropdownItem = ({ item, active, Icon, onClick }) => {
-  const [isHover, setIsHover] = useState(false);
-
+function DropdownItem({ item, active, onClick, delay }) {
+  const [isHovered, setIsHovered] = useState(false);
+  const { Icon } = item;
+  
   return (
     <button
       onClick={onClick}
-      onMouseEnter={() => setIsHover(true)}
-      onMouseLeave={() => setIsHover(false)}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
       style={{
         display: "flex",
         alignItems: "center",
         gap: "12px",
         width: "100%",
-        padding: "10px 16px",
-        background: active ? "rgba(59, 130, 246, 0.08)" : isHover ? "rgba(148, 163, 184, 0.06)" : "transparent",
+        padding: "12px 16px",
+        background: active 
+          ? `${T.accent}08` 
+          : isHovered 
+          ? "rgba(0, 0, 0, 0.02)" 
+          : "transparent",
         border: "none",
-        color: active ? BRAND : "#cbd5e1",
-        fontSize: "14px",
-        fontWeight: active ? 500 : 400,
+        color: active ? T.accent : T.text,
+        fontSize: "14.5px",
+        fontWeight: active ? 600 : 500,
         textAlign: "left",
         cursor: "pointer",
-        transition: `all 180ms ${EASE}`,
+        transition: `all 0.2s ${T.ease}`,
+        animation: `slideInRight 0.3s ${T.ease} ${delay}s both`,
+        transform: isHovered && !active ? "translateX(4px)" : "translateX(0)",
       }}
     >
-      <Icon size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
+      <Icon 
+        size={17} 
+        strokeWidth={2}
+        style={{ 
+          flexShrink: 0,
+          opacity: active ? 1 : 0.6,
+          transition: `opacity 0.2s ${T.ease}`,
+        }} 
+      />
       <span>{item.label}</span>
+      
+      {active && (
+        <div
+          style={{
+            marginLeft: "auto",
+            width: "6px",
+            height: "6px",
+            borderRadius: "50%",
+            background: T.accent,
+          }}
+        />
+      )}
     </button>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────
-// MOBILE MENU
-// ─────────────────────────────────────────────────────────────
-const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
+/* ═══════════════════════════════════════════════════════════════
+   MOBILE MENU
+═══════════════════════════════════════════════════════════════ */
+function MobileMenu({ isOpen, currentRoute, onNavigate, onClose }) {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+    }
+    
+    return () => {
+      document.body.style.overflow = "";
+    };
+  }, [isOpen]);
+  
   if (!isOpen) return null;
-
+  
   return (
     <>
       {/* Backdrop */}
@@ -250,26 +484,13 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
         style={{
           position: "fixed",
           inset: 0,
-          background: "rgba(0, 0, 0, 0.4)",
-          backdropFilter: "blur(4px)",
+          background: "rgba(0, 0, 0, 0.3)",
+          backdropFilter: "blur(8px)",
           zIndex: 9998,
-          animation: "fadeIn 200ms ease-out",
+          animation: "fadeIn 0.2s ease-out",
         }}
       />
       
-      <style>
-        {`
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
-          @keyframes slideIn {
-            from { transform: translateX(100%); }
-            to { transform: translateX(0); }
-          }
-        `}
-      </style>
-
       {/* Panel */}
       <div
         style={{
@@ -277,13 +498,12 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
           top: 0,
           right: 0,
           bottom: 0,
-          width: "min(340px, 85vw)",
-          background: "#12141d",
-          borderLeft: "1px solid rgba(148, 163, 184, 0.12)",
-          boxShadow: "-8px 0 32px rgba(0, 0, 0, 0.6)",
+          width: "min(380px, 90vw)",
+          background: "#ffffff",
+          boxShadow: "-12px 0 48px rgba(0, 0, 0, 0.15)",
           zIndex: 9999,
           overflowY: "auto",
-          animation: "slideIn 320ms cubic-bezier(.16,1,.3,1)",
+          animation: "slideInRight 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
         }}
       >
         {/* Header */}
@@ -292,16 +512,17 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "20px 24px",
-            borderBottom: "1px solid rgba(148, 163, 184, 0.12)",
+            padding: "24px 28px",
+            borderBottom: `1px solid ${T.border}`,
           }}
         >
           <span
             style={{
-              fontSize: "15px",
-              fontWeight: 600,
-              color: "#f1f5f9",
+              fontSize: "16px",
+              fontWeight: 700,
+              color: T.text,
               fontFamily: "'Space Grotesk', sans-serif",
+              letterSpacing: "-0.01em",
             }}
           >
             Navigation
@@ -312,37 +533,45 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              width: "32px",
-              height: "32px",
-              background: "rgba(148, 163, 184, 0.08)",
+              width: "36px",
+              height: "36px",
+              background: "rgba(0, 0, 0, 0.04)",
               border: "none",
-              borderRadius: "6px",
-              color: "#cbd5e1",
+              borderRadius: "10px",
+              color: T.text,
               cursor: "pointer",
-              transition: `all 180ms ${EASE}`,
+              transition: `all 0.2s ${T.ease}`,
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.background = "rgba(0, 0, 0, 0.08)";
+              e.currentTarget.style.transform = "scale(1.05)";
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.background = "rgba(0, 0, 0, 0.04)";
+              e.currentTarget.style.transform = "scale(1)";
             }}
           >
-            <X size={18} strokeWidth={2} />
+            <X size={18} strokeWidth={2.5} />
           </button>
         </div>
-
+        
         {/* Content */}
-        <div style={{ padding: "24px" }}>
+        <div style={{ padding: "28px" }}>
           {/* Primary Nav */}
-          <div style={{ marginBottom: "32px" }}>
+          <div style={{ marginBottom: "36px" }}>
             <div
               style={{
                 fontSize: "11px",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                color: "#64748b",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                color: T.textLight,
                 textTransform: "uppercase",
-                marginBottom: "12px",
+                marginBottom: "16px",
               }}
             >
               Main
             </div>
-            {PRIMARY_NAV.map((item) => (
+            {PRIMARY_NAV.map((item, index) => (
               <MobileMenuItem
                 key={item.path}
                 item={item}
@@ -351,25 +580,26 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
                   onNavigate(item.path);
                   onClose();
                 }}
+                delay={index * 0.05}
               />
             ))}
           </div>
-
+          
           {/* Secondary Nav */}
           <div>
             <div
               style={{
                 fontSize: "11px",
-                fontWeight: 600,
-                letterSpacing: "0.06em",
-                color: "#64748b",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                color: T.textLight,
                 textTransform: "uppercase",
-                marginBottom: "12px",
+                marginBottom: "16px",
               }}
             >
               More
             </div>
-            {SECONDARY_NAV.map((item) => (
+            {SECONDARY_NAV.map((item, index) => (
               <MobileMenuItem
                 key={item.path}
                 item={item}
@@ -378,12 +608,19 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
                   onNavigate(item.path);
                   onClose();
                 }}
+                delay={(PRIMARY_NAV.length + index) * 0.05}
               />
             ))}
           </div>
-
-          {/* Resume CTA */}
-          <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: "1px solid rgba(148, 163, 184, 0.12)" }}>
+          
+          {/* CTA */}
+          <div 
+            style={{ 
+              marginTop: "36px", 
+              paddingTop: "28px", 
+              borderTop: `1px solid ${T.border}` 
+            }}
+          >
             <button
               onClick={() => {
                 onNavigate("/resume");
@@ -393,21 +630,29 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                gap: "8px",
+                gap: "10px",
                 width: "100%",
-                padding: "12px",
-                background: BRAND,
+                padding: "14px",
+                background: `linear-gradient(135deg, ${T.accent} 0%, ${T.accentDark} 100%)`,
                 border: "none",
-                borderRadius: "8px",
+                borderRadius: "12px",
                 color: "#ffffff",
-                fontSize: "14px",
-                fontWeight: 500,
+                fontSize: "15px",
+                fontWeight: 600,
                 cursor: "pointer",
-                boxShadow: "0 2px 8px rgba(59, 130, 246, 0.25)",
-                transition: `all 200ms ${EASE}`,
+                boxShadow: `0 4px 16px ${T.accent}30`,
+                transition: `all 0.2s ${T.ease}`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-2px) scale(1.02)";
+                e.currentTarget.style.boxShadow = `0 8px 24px ${T.accent}40`;
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0) scale(1)";
+                e.currentTarget.style.boxShadow = `0 4px 16px ${T.accent}30`;
               }}
             >
-              <FileText size={16} strokeWidth={2} />
+              <FileText size={18} strokeWidth={2.5} />
               View Resume
             </button>
           </div>
@@ -415,9 +660,9 @@ const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
       </div>
     </>
   );
-};
+}
 
-const MobileMenuItem = ({ item, active, onClick }) => {
+function MobileMenuItem({ item, active, onClick, delay }) {
   const { Icon } = item;
   
   return (
@@ -426,46 +671,89 @@ const MobileMenuItem = ({ item, active, onClick }) => {
       style={{
         display: "flex",
         alignItems: "center",
-        gap: "12px",
+        gap: "14px",
         width: "100%",
-        padding: "12px 16px",
-        marginBottom: "6px",
-        background: active ? "rgba(59, 130, 246, 0.08)" : "transparent",
-        border: active ? "1px solid rgba(59, 130, 246, 0.2)" : "1px solid transparent",
-        borderRadius: "8px",
-        color: active ? BRAND : "#cbd5e1",
-        fontSize: "14.5px",
-        fontWeight: active ? 500 : 400,
+        padding: "14px 16px",
+        marginBottom: "8px",
+        background: active ? `${T.accent}08` : "transparent",
+        border: active ? `1.5px solid ${T.accent}30` : "1.5px solid transparent",
+        borderRadius: "12px",
+        color: active ? T.accent : T.text,
+        fontSize: "15px",
+        fontWeight: active ? 600 : 500,
         textAlign: "left",
         cursor: "pointer",
-        transition: `all 200ms ${EASE}`,
+        transition: `all 0.25s ${T.ease}`,
+        animation: `slideInRight 0.3s ${T.ease} ${delay}s both`,
+      }}
+      onMouseEnter={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = "rgba(0, 0, 0, 0.02)";
+          e.currentTarget.style.transform = "translateX(4px)";
+        }
+      }}
+      onMouseLeave={(e) => {
+        if (!active) {
+          e.currentTarget.style.background = "transparent";
+          e.currentTarget.style.transform = "translateX(0)";
+        }
       }}
     >
-      <Icon size={18} strokeWidth={2} style={{ flexShrink: 0 }} />
+      <Icon 
+        size={19} 
+        strokeWidth={2}
+        style={{ 
+          flexShrink: 0,
+          opacity: active ? 1 : 0.6,
+        }} 
+      />
       <span>{item.label}</span>
+      
+      {active && (
+        <div
+          style={{
+            marginLeft: "auto",
+            width: "7px",
+            height: "7px",
+            borderRadius: "50%",
+            background: T.accent,
+            boxShadow: `0 0 8px ${T.accent}50`,
+          }}
+        />
+      )}
     </button>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────
-// MAIN NAVBAR
-// ─────────────────────────────────────────────────────────────
-const ExecutiveNavbar = () => {
+/* ═══════════════════════════════════════════════════════════════
+   MAIN NAVBAR
+═══════════════════════════════════════════════════════════════ */
+export default function EliteNavbar() {
   const location = useLocation();
   const navigate = useNavigate();
   
   const [scrolled, setScrolled] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   const [moreOpen, setMoreOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
   
   const moreRef = useRef(null);
-  
   const currentRoute = location.pathname === "/" ? "/home" : location.pathname;
-
-  // Detect scroll
+  
+  /* ───────────────────────────────────────────────────────────
+     SCROLL EFFECTS
+  ─────────────────────────────────────────────────────────── */
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollTop / docHeight) * 100;
+      
+      setScrolled(scrollTop > 30);
+      setScrollProgress(progress);
+    };
+    
     const handleResize = () => setIsMobile(window.innerWidth < 1024);
     
     handleScroll();
@@ -479,8 +767,10 @@ const ExecutiveNavbar = () => {
       window.removeEventListener("resize", handleResize);
     };
   }, []);
-
-  // Close more dropdown on outside click
+  
+  /* ───────────────────────────────────────────────────────────
+     CLOSE DROPDOWN ON OUTSIDE CLICK
+  ─────────────────────────────────────────────────────────── */
   useEffect(() => {
     if (!moreOpen) return;
     
@@ -493,60 +783,44 @@ const ExecutiveNavbar = () => {
     document.addEventListener("mousedown", handleClick);
     return () => document.removeEventListener("mousedown", handleClick);
   }, [moreOpen]);
-
-  // Close menus on route change
+  
+  /* ───────────────────────────────────────────────────────────
+     CLOSE MENUS ON ROUTE CHANGE
+  ─────────────────────────────────────────────────────────── */
   useEffect(() => {
     setMoreOpen(false);
     setMobileOpen(false);
   }, [location.pathname]);
-
+  
   const handleNavigate = (path) => {
     if (path !== currentRoute) {
       navigate(path);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-
+  
   return (
     <>
       {/* Global Styles */}
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
-          
-          * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-          }
-          
-          body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: #0f1117;
-            color: #e2e8f0;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-          }
-
-          ::-webkit-scrollbar {
-            width: 6px;
-          }
-
-          ::-webkit-scrollbar-track {
-            background: transparent;
-          }
-
-          ::-webkit-scrollbar-thumb {
-            background: rgba(148, 163, 184, 0.3);
-            border-radius: 3px;
-          }
-
-          ::-webkit-scrollbar-thumb:hover {
-            background: rgba(148, 163, 184, 0.5);
-          }
-        `}
-      </style>
-
+      <style>{GLOBAL_STYLES}</style>
+      
+      {/* Custom Cursor (Desktop Only) */}
+      {!isMobile && <CustomCursor />}
+      
+      {/* Scroll Progress Bar */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          width: `${scrollProgress}%`,
+          height: "2px",
+          background: `linear-gradient(90deg, ${T.accent}, ${T.accentDark})`,
+          zIndex: 10000,
+          transition: "width 0.1s linear",
+        }}
+      />
+      
       {/* Navbar */}
       <nav
         style={{
@@ -554,30 +828,50 @@ const ExecutiveNavbar = () => {
           top: 0,
           left: 0,
           right: 0,
-          height: scrolled ? "64px" : "72px",
-          background: scrolled ? "rgba(15, 17, 23, 0.85)" : "rgba(15, 17, 23, 0.7)",
-          backdropFilter: scrolled ? "blur(24px) saturate(180%)" : "blur(20px) saturate(160%)",
-          borderBottom: `1px solid ${scrolled ? "rgba(148, 163, 184, 0.12)" : "rgba(148, 163, 184, 0.08)"}`,
-          boxShadow: scrolled ? "0 4px 24px rgba(0, 0, 0, 0.12)" : "none",
-          transition: `all 320ms ${EASE}`,
+          height: scrolled ? "68px" : "80px",
+          background: scrolled 
+            ? "rgba(255, 255, 255, 0.95)"
+            : "rgba(255, 255, 255, 0.8)",
+          backdropFilter: scrolled 
+            ? "blur(24px) saturate(180%)" 
+            : "blur(16px) saturate(150%)",
+          borderBottom: `1px solid ${scrolled ? T.border : "rgba(0, 0, 0, 0.05)"}`,
+          boxShadow: scrolled 
+            ? `0 8px 32px ${T.shadowMd}` 
+            : "0 2px 8px rgba(0, 0, 0, 0.03)",
+          transition: `all 0.4s ${T.ease}`,
           zIndex: 9000,
         }}
       >
+        {/* Top Gradient Fade */}
+        {scrolled && (
+          <div
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              height: "1px",
+              background: "linear-gradient(90deg, transparent, rgba(91, 127, 255, 0.2), transparent)",
+            }}
+          />
+        )}
+        
         <div
           style={{
-            maxWidth: "1400px",
+            maxWidth: "1440px",
             height: "100%",
             margin: "0 auto",
-            padding: "0 32px",
+            padding: "0 36px",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            gap: "48px",
+            gap: "56px",
           }}
         >
           {/* Logo */}
-          <Logo onClick={() => handleNavigate("/home")} />
-
+          <Logo onClick={() => handleNavigate("/home")} isScrolled={scrolled} />
+          
           {/* Desktop Navigation */}
           {!isMobile && (
             <>
@@ -587,7 +881,7 @@ const ExecutiveNavbar = () => {
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  gap: "4px",
+                  gap: "8px",
                 }}
               >
                 {PRIMARY_NAV.map((item) => (
@@ -599,8 +893,8 @@ const ExecutiveNavbar = () => {
                   />
                 ))}
               </div>
-
-              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              
+              <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                 {/* More Dropdown */}
                 <div style={{ position: "relative" }} ref={moreRef}>
                   <button
@@ -609,24 +903,34 @@ const ExecutiveNavbar = () => {
                       display: "flex",
                       alignItems: "center",
                       gap: "6px",
-                      padding: "8px 14px",
-                      background: moreOpen ? "rgba(148, 163, 184, 0.08)" : "transparent",
+                      padding: "10px 16px",
+                      background: moreOpen ? "rgba(0, 0, 0, 0.04)" : "transparent",
                       border: "none",
-                      borderRadius: "6px",
-                      color: "#94a3b8",
-                      fontSize: "14px",
-                      fontWeight: 400,
+                      borderRadius: "10px",
+                      color: T.textMuted,
+                      fontSize: "15px",
+                      fontWeight: 500,
                       cursor: "pointer",
-                      transition: `all 200ms ${EASE}`,
+                      transition: `all 0.2s ${T.ease}`,
+                    }}
+                    onMouseEnter={(e) => {
+                      if (!moreOpen) {
+                        e.currentTarget.style.background = "rgba(0, 0, 0, 0.02)";
+                      }
+                    }}
+                    onMouseLeave={(e) => {
+                      if (!moreOpen) {
+                        e.currentTarget.style.background = "transparent";
+                      }
                     }}
                   >
                     More
                     <ChevronDown
-                      size={14}
-                      strokeWidth={2}
+                      size={16}
+                      strokeWidth={2.5}
                       style={{
                         transform: moreOpen ? "rotate(180deg)" : "rotate(0deg)",
-                        transition: `transform 280ms ${EASE}`,
+                        transition: `transform 0.3s ${T.ease}`,
                       }}
                     />
                   </button>
@@ -637,45 +941,47 @@ const ExecutiveNavbar = () => {
                     onNavigate={handleNavigate}
                   />
                 </div>
-
+                
                 {/* Resume CTA */}
                 <button
                   onClick={() => handleNavigate("/resume")}
                   style={{
                     display: "flex",
                     alignItems: "center",
-                    gap: "8px",
-                    padding: "9px 18px",
-                    background: currentRoute === "/resume" ? "#2563eb" : BRAND,
+                    gap: "10px",
+                    padding: "11px 22px",
+                    background: currentRoute === "/resume"
+                      ? `linear-gradient(135deg, ${T.accentDark} 0%, ${T.accent} 100%)`
+                      : `linear-gradient(135deg, ${T.accent} 0%, ${T.accentDark} 100%)`,
                     border: "none",
-                    borderRadius: "7px",
+                    borderRadius: "11px",
                     color: "#ffffff",
-                    fontSize: "14px",
-                    fontWeight: 500,
+                    fontSize: "14.5px",
+                    fontWeight: 600,
                     cursor: "pointer",
-                    boxShadow: "0 2px 8px rgba(59, 130, 246, 0.2)",
-                    transition: `all 220ms ${EASE}`,
+                    boxShadow: `0 4px 16px ${T.accent}30`,
+                    transition: `all 0.3s ${T.easeSpring}`,
+                    animation: currentRoute === "/resume" ? "none" : "glowPulse 3s ease-in-out infinite",
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.background = "#2563eb";
-                    e.currentTarget.style.transform = "translateY(-1px)";
-                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(59, 130, 246, 0.3)";
+                    e.currentTarget.style.transform = "translateY(-2px) scale(1.03)";
+                    e.currentTarget.style.boxShadow = `0 8px 24px ${T.accent}40`;
                   }}
                   onMouseLeave={(e) => {
-                    if (currentRoute !== "/resume") {
-                      e.currentTarget.style.background = BRAND;
-                    }
-                    e.currentTarget.style.transform = "translateY(0)";
-                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(59, 130, 246, 0.2)";
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    e.currentTarget.style.boxShadow = `0 4px 16px ${T.accent}30`;
+                  }}
+                  onMouseDown={(e) => {
+                    e.currentTarget.style.animation = "scalePress 0.2s ease";
                   }}
                 >
-                  <FileText size={15} strokeWidth={2} />
+                  <FileText size={16} strokeWidth={2.5} />
                   Resume
                 </button>
               </div>
             </>
           )}
-
+          
           {/* Mobile Menu Button */}
           {isMobile && (
             <button
@@ -684,22 +990,30 @@ const ExecutiveNavbar = () => {
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                width: "40px",
-                height: "40px",
-                background: "rgba(148, 163, 184, 0.08)",
+                width: "44px",
+                height: "44px",
+                background: "rgba(0, 0, 0, 0.04)",
                 border: "none",
-                borderRadius: "8px",
-                color: "#cbd5e1",
+                borderRadius: "11px",
+                color: T.text,
                 cursor: "pointer",
-                transition: `all 180ms ${EASE}`,
+                transition: `all 0.2s ${T.ease}`,
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.background = "rgba(0, 0, 0, 0.08)";
+                e.currentTarget.style.transform = "scale(1.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.background = "rgba(0, 0, 0, 0.04)";
+                e.currentTarget.style.transform = "scale(1)";
               }}
             >
-              <Menu size={20} strokeWidth={2} />
+              <Menu size={22} strokeWidth={2.5} />
             </button>
           )}
         </div>
       </nav>
-
+      
       {/* Mobile Menu */}
       {isMobile && (
         <MobileMenu
@@ -711,6 +1025,4 @@ const ExecutiveNavbar = () => {
       )}
     </>
   );
-};
-
-export default ExecutiveNavbar;
+}

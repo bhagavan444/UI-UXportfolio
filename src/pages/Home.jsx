@@ -7,361 +7,591 @@ import resumePdf from "../assets/bhagavanresume.pdf";
 import {
   Download, Github, Linkedin, Mail, Phone, ArrowRight,
   ExternalLink, CheckCircle, Verified, ChevronRight, ChevronLeft,
-  Sparkles, MapPin
+  Sparkles, MapPin, MousePointer2
 } from "lucide-react";
 
-/* ─────────────────────────────────────────────────────────────────
+/* ═══════════════════════════════════════════════════════════════
    DESIGN SYSTEM TOKENS
-───────────────────────────────────────────────────────────────── */
+═══════════════════════════════════════════════════════════════ */
 const T = {
-  bg:       "#0e0e11",
-  surface:  "#16161a",
-  surface2: "#1c1c22",
-  border:   "rgba(255,255,255,0.07)",
-  border2:  "rgba(255,255,255,0.12)",
-  text:     "#f0f0f0",
-  muted:    "#6e6e7a",
-  muted2:   "#9898a8",
+  bg:       "#ffffff",
+  surface:  "#f8f9fa",
+  surface2: "#f0f2f5",
+  border:   "rgba(0,0,0,0.08)",
+  border2:  "rgba(0,0,0,0.12)",
+  text:     "#0a0a0f",
+  muted:    "#6b6b78",
+  muted2:   "#494956",
   accent:   "#5b7fff",
   accent2:  "#8b5cf6",
-  green:    "#34d399",
+  green:    "#10b981",
   gold:     "#f59e0b",
 };
 
-/* ─────────────────────────────────────────────────────────────────
-   GLOBAL STYLES
-───────────────────────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════
+   GLOBAL STYLES WITH ANIMATIONS
+═══════════════════════════════════════════════════════════════ */
 const GLOBAL_CSS = `
-  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  *, *::before, *::after { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+  }
 
-  html { scroll-behavior: smooth; }
+  html { 
+    scroll-behavior: smooth; 
+    overflow-x: hidden;
+  }
 
   body {
-    font-family: 'DM Sans', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     background: ${T.bg};
     color: ${T.text};
     overflow-x: hidden;
     -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  ::selection { background: rgba(91,127,255,0.3); color: #fff; }
+  ::selection { 
+    background: rgba(91,127,255,0.25); 
+    color: #fff; 
+  }
 
-  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar { width: 8px; }
   ::-webkit-scrollbar-track { background: ${T.bg}; }
-  ::-webkit-scrollbar-thumb { background: rgba(91,127,255,0.4); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb { 
+    background: rgba(91,127,255,0.4); 
+    border-radius: 4px; 
+  }
+  ::-webkit-scrollbar-thumb:hover { 
+    background: rgba(91,127,255,0.6); 
+  }
 
-  /* ── Keyframes ── */
+  /* ══════════════════════════════════════════════════════════════
+     KEYFRAME ANIMATIONS
+  ══════════════════════════════════════════════════════════════ */
   @keyframes fadeUp {
-    from { opacity:0; transform:translateY(28px); }
-    to   { opacity:1; transform:translateY(0); }
+    from { 
+      opacity: 0; 
+      transform: translateY(32px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateY(0); 
+    }
   }
+
   @keyframes fadeIn {
-    from { opacity:0; } to { opacity:1; }
+    from { opacity: 0; } 
+    to { opacity: 1; }
   }
-  @keyframes meshMove {
-    0%,100% { background-position: 0% 50%; }
-    50%      { background-position: 100% 50%; }
+
+  @keyframes slideInLeft {
+    from { 
+      opacity: 0; 
+      transform: translateX(-30px); 
+    }
+    to { 
+      opacity: 1; 
+      transform: translateX(0); 
+    }
   }
+
   @keyframes float {
-    0%,100% { transform: translateY(0px); }
-    50%      { transform: translateY(-12px); }
+    0%, 100% { transform: translateY(0px) translateX(0px); }
+    25% { transform: translateY(-20px) translateX(10px); }
+    50% { transform: translateY(-10px) translateX(-10px); }
+    75% { transform: translateY(-25px) translateX(5px); }
   }
+
+  @keyframes floatSlow {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-12px); }
+  }
+
   @keyframes pulse-ring {
-    0%   { box-shadow: 0 0 0 0 rgba(91,127,255,0.3); }
-    70%  { box-shadow: 0 0 0 18px rgba(91,127,255,0); }
+    0% { box-shadow: 0 0 0 0 rgba(91,127,255,0.4); }
+    70% { box-shadow: 0 0 0 20px rgba(91,127,255,0); }
     100% { box-shadow: 0 0 0 0 rgba(91,127,255,0); }
   }
+
   @keyframes marquee {
     from { transform: translateX(0); }
-    to   { transform: translateX(-50%); }
+    to { transform: translateX(-50%); }
   }
-  @keyframes counter {
-    from { opacity:0; transform: scale(0.6); }
-    to   { opacity:1; transform: scale(1); }
-  }
+
   @keyframes glowPulse {
-    0%,100% { opacity:0.4; }
-    50%      { opacity:0.8; }
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 0.9; }
   }
+
   @keyframes rotateSlow {
     from { transform: rotate(0deg); }
-    to   { transform: rotate(360deg); }
-  }
-  @keyframes slideIn {
-    from { opacity:0; transform: translateX(-20px); }
-    to   { opacity:1; transform: translateX(0); }
-  }
-  @keyframes cursorGlow {
-    0%,100% { transform: scale(1); opacity:0.6; }
-    50%      { transform: scale(1.4); opacity:1; }
+    to { transform: rotate(360deg); }
   }
 
-  /* ── Utility classes ── */
-  .fade-up   { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both; }
-  .fade-in   { animation: fadeIn 0.6s ease both; }
-  .d1 { animation-delay:0.05s; }
-  .d2 { animation-delay:0.12s; }
-  .d3 { animation-delay:0.20s; }
-  .d4 { animation-delay:0.30s; }
-  .d5 { animation-delay:0.42s; }
-  .d6 { animation-delay:0.55s; }
-  .d7 { animation-delay:0.68s; }
+  @keyframes scaleIn {
+    from { 
+      opacity: 0; 
+      transform: scale(0.92); 
+    }
+    to { 
+      opacity: 1; 
+      transform: scale(1); 
+    }
+  }
+
+  @keyframes shimmer {
+    0% { background-position: -1000px 0; }
+    100% { background-position: 1000px 0; }
+  }
+
+  @keyframes particle1 {
+    0%, 100% { 
+      transform: translate(0, 0) scale(1); 
+      opacity: 0.6;
+    }
+    25% { 
+      transform: translate(150px, -200px) scale(1.2); 
+      opacity: 0.8;
+    }
+    50% { 
+      transform: translate(-100px, -400px) scale(0.8); 
+      opacity: 0.4;
+    }
+    75% { 
+      transform: translate(200px, -300px) scale(1.1); 
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes particle2 {
+    0%, 100% { 
+      transform: translate(0, 0) scale(1); 
+      opacity: 0.5;
+    }
+    33% { 
+      transform: translate(-180px, -250px) scale(1.3); 
+      opacity: 0.7;
+    }
+    66% { 
+      transform: translate(120px, -350px) scale(0.9); 
+      opacity: 0.3;
+    }
+  }
+
+  @keyframes particle3 {
+    0%, 100% { 
+      transform: translate(0, 0) scale(1); 
+      opacity: 0.4;
+    }
+    40% { 
+      transform: translate(100px, -300px) scale(1.1); 
+      opacity: 0.6;
+    }
+    80% { 
+      transform: translate(-150px, -200px) scale(0.85); 
+      opacity: 0.5;
+    }
+  }
+
+  @keyframes textGlow {
+    0%, 100% { 
+      text-shadow: 0 0 20px rgba(91,127,255,0.3);
+    }
+    50% { 
+      text-shadow: 0 0 40px rgba(91,127,255,0.6), 0 0 60px rgba(91,127,255,0.4);
+    }
+  }
+
+  @keyframes borderGlow {
+    0%, 100% { 
+      box-shadow: 0 0 20px rgba(91,127,255,0.2), inset 0 0 20px rgba(91,127,255,0.1);
+    }
+    50% { 
+      box-shadow: 0 0 40px rgba(91,127,255,0.4), inset 0 0 30px rgba(91,127,255,0.2);
+    }
+  }
+
+  @keyframes scanline {
+    0% { transform: translateY(-100%); }
+    100% { transform: translateY(100%); }
+  }
+
+  @keyframes orbitSlow {
+    from { transform: rotate(0deg) translateX(40px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(40px) rotate(-360deg); }
+  }
+
+  /* ══════════════════════════════════════════════════════════════
+     UTILITY CLASSES
+  ══════════════════════════════════════════════════════════════ */
+  .fade-up { animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .fade-in { animation: fadeIn 0.6s ease both; }
+  .slide-in-left { animation: slideInLeft 0.7s cubic-bezier(0.16, 1, 0.3, 1) both; }
+  .scale-in { animation: scaleIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  .d1 { animation-delay: 0.05s; }
+  .d2 { animation-delay: 0.12s; }
+  .d3 { animation-delay: 0.20s; }
+  .d4 { animation-delay: 0.30s; }
+  .d5 { animation-delay: 0.42s; }
+  .d6 { animation-delay: 0.55s; }
+  .d7 { animation-delay: 0.68s; }
 
   .glass {
-    background: rgba(255,255,255,0.03);
-    backdrop-filter: blur(24px);
-    -webkit-backdrop-filter: blur(24px);
+    background: rgba(255,255,255,0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
     border: 1px solid ${T.border};
-    border-radius: 20px;
+    border-radius: 24px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
   }
 
-  .hover-lift {
-    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, border-color 0.3s ease;
-  }
-  .hover-lift:hover {
-    transform: translateY(-6px);
-    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
-    border-color: rgba(91,127,255,0.25);
-  }
-
-  .btn-primary {
-    display: inline-flex; align-items:center; gap:0.5rem;
-    background: ${T.accent};
-    color: #fff;
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 600; font-size: 0.9rem;
-    padding: 0.75rem 1.6rem;
-    border-radius: 12px; border: none; cursor:pointer;
-    text-decoration:none; letter-spacing:0.01em;
-    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
-    box-shadow: 0 4px 24px rgba(91,127,255,0.35);
-    white-space:nowrap;
-  }
-  .btn-primary:hover {
-    transform: translateY(-2px) scale(1.03);
-    box-shadow: 0 8px 32px rgba(91,127,255,0.5);
-    background: #7090ff;
-  }
-
-  .btn-ghost {
-    display: inline-flex; align-items:center; gap:0.5rem;
-    background: transparent;
-    color: ${T.muted2};
-    font-family: 'DM Sans', sans-serif;
-    font-weight: 500; font-size: 0.9rem;
-    padding: 0.75rem 1.6rem;
-    border-radius: 12px;
-    border: 1px solid ${T.border2};
-    cursor:pointer; text-decoration:none; letter-spacing:0.01em;
-    transition: all 0.25s ease;
-    white-space:nowrap;
-  }
-  .btn-ghost:hover {
-    color: #fff;
-    border-color: rgba(255,255,255,0.25);
-    background: rgba(255,255,255,0.05);
+  .display-heading {
+    font-family: 'Fraunces', serif;
+    line-height: 1;
+    letter-spacing: -0.04em;
+    font-weight: 600;
   }
 
   .section-label {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 0.72rem; font-weight:600;
-    letter-spacing: 0.18em; text-transform:uppercase;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
     color: ${T.accent};
+    opacity: 0.9;
   }
 
-  .display-heading {
-    font-family: 'DM Serif Display', serif;
-    line-height: 1.05;
-    letter-spacing: -0.03em;
-  }
-
-  /* Marquee */
+  /* Marquee Animation */
   .marquee-track {
     display: flex;
     width: max-content;
-    animation: marquee 35s linear infinite;
+    animation: marquee 40s linear infinite;
   }
-  .marquee-track:hover { animation-play-state: paused; }
-
-  /* Skill card hover */
-  .skill-card { transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
-  .skill-card:hover {
-    transform: translateY(-8px) scale(1.02);
-    border-color: rgba(91,127,255,0.3) !important;
-    background: rgba(91,127,255,0.06) !important;
+  .marquee-track:hover { 
+    animation-play-state: paused; 
   }
 
-  /* Nav link */
-  .nav-link {
-    font-size:0.875rem; font-weight:500; color:${T.muted2};
-    text-decoration:none; padding:0.4rem 0.8rem;
-    border-radius:8px; transition:all 0.2s ease;
-  }
-  .nav-link:hover { color:#fff; background:rgba(255,255,255,0.06); }
-
-  /* Badge */
-  .badge {
-    display:inline-flex; align-items:center; gap:0.4rem;
-    padding:0.3rem 0.75rem; border-radius:999px;
-    font-size:0.72rem; font-weight:600;
-    letter-spacing:0.04em;
+  /* Hover Effects */
+  .hover-glow:hover {
+    animation: borderGlow 2s ease-in-out infinite;
   }
 
-  /* Timeline item */
-  .timeline-item { transition: all 0.3s ease; }
-  .timeline-item:hover .timeline-dot { box-shadow: 0 0 0 8px rgba(91,127,255,0.15); }
-
-  /* Testimonial card */
-  .testimonial-slide {
-    transition: all 0.5s cubic-bezier(0.34,1,0.64,1);
+  /* ══════════════════════════════════════════════════════════════
+     RESPONSIVE DESIGN
+  ══════════════════════════════════════════════════════════════ */
+  @media (max-width: 1024px) {
+    .hero-grid { grid-template-columns: 1fr !important; gap: 3rem !important; }
+    .hero-image-col { max-width: 400px !important; margin: 0 auto !important; }
   }
 
-  /* Cursor glow */
-  #cursor-glow {
-    position: fixed; pointer-events:none;
-    width:400px; height:400px;
-    border-radius:50%;
-    background: radial-gradient(circle, rgba(91,127,255,0.06) 0%, transparent 70%);
-    transform: translate(-50%,-50%);
-    transition: left 0.08s ease, top 0.08s ease;
-    z-index:0;
+  @media (max-width: 768px) {
+    .nav-links { display: none !important; }
+    .cta-row { flex-direction: column !important; width: 100% !important; }
+    .metrics-grid { grid-template-columns: 1fr 1fr !important; gap: 1rem !important; }
+    .skills-grid { grid-template-columns: 1fr !important; }
+    .project-grid { grid-template-columns: 1fr !important; }
+    .footer-content { flex-direction: column !important; gap: 1.5rem !important; text-align: center !important; }
+    .footer-links { justify-content: center !important; }
   }
 
-  /* Number counter animation */
-  .stat-number {
-    animation: counter 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
-  }
-
-  @media (max-width:1024px) {
-    .hero-grid { grid-template-columns:1fr !important; }
-    .hero-image-col { display:none !important; }
-  }
-  @media (max-width:768px) {
-    .nav-links { display:none !important; }
-    .cta-row { flex-direction:column !important; }
-    .trust-row { flex-wrap:wrap !important; gap:0.75rem !important; }
-    .metrics-grid { grid-template-columns:1fr 1fr !important; }
-    .skills-grid { grid-template-columns:1fr !important; }
-    .footer-links { flex-direction:column !important; gap:1rem !important; }
+  @media (max-width: 480px) {
+    .metrics-grid { grid-template-columns: 1fr !important; }
+    .trust-row { flex-direction: column !important; align-items: flex-start !important; gap: 0.75rem !important; }
   }
 `;
 
-/* ─────────────────────────────────────────────────────────────────
-   HELPER: ANIMATED COUNTER
-───────────────────────────────────────────────────────────────── */
-function AnimCounter({ target, suffix = "", duration = 1400, triggered }) {
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED PARTICLES COMPONENT
+═══════════════════════════════════════════════════════════════ */
+function AnimatedParticles() {
+  return (
+    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
+      {/* Floating Particles */}
+      {[...Array(8)].map((_, i) => (
+        <div
+          key={i}
+          style={{
+            position: "absolute",
+            width: i % 3 === 0 ? "4px" : i % 3 === 1 ? "6px" : "3px",
+            height: i % 3 === 0 ? "4px" : i % 3 === 1 ? "6px" : "3px",
+            borderRadius: "50%",
+            background: i % 2 === 0 ? T.accent : T.accent2,
+            left: `${10 + i * 12}%`,
+            top: `${20 + (i * 15) % 60}%`,
+            opacity: 0.4,
+            animation: `particle${(i % 3) + 1} ${15 + i * 2}s ease-in-out infinite`,
+            animationDelay: `${i * 0.8}s`,
+            filter: "blur(1px)",
+            boxShadow: `0 0 ${i % 2 === 0 ? "20px" : "15px"} ${i % 2 === 0 ? T.accent : T.accent2}`,
+          }}
+        />
+      ))}
+      
+      {/* Orbiting Dots */}
+      {[...Array(3)].map((_, i) => (
+        <div
+          key={`orbit-${i}`}
+          style={{
+            position: "absolute",
+            left: "50%",
+            top: "30%",
+            width: "8px",
+            height: "8px",
+            borderRadius: "50%",
+            background: i === 0 ? T.accent : i === 1 ? T.green : T.accent2,
+            animation: `orbitSlow ${20 + i * 5}s linear infinite`,
+            animationDelay: `${i * 3}s`,
+            opacity: 0.5,
+            boxShadow: `0 0 15px ${i === 0 ? T.accent : i === 1 ? T.green : T.accent2}`,
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ENHANCED BUTTON COMPONENT (Performance Optimized)
+═══════════════════════════════════════════════════════════════ */
+function MagneticButton({ children, href, onClick, className = "", isPrimary = false, download }) {
+  const [isHovered, setIsHovered] = useState(false);
+
+  const baseStyle = {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "0.5rem",
+    fontFamily: "'Inter', sans-serif",
+    fontWeight: 600,
+    fontSize: "0.875rem",
+    padding: isPrimary ? "0.875rem 1.75rem" : "0.875rem 1.75rem",
+    borderRadius: "12px",
+    border: isPrimary ? "none" : `1.5px solid ${T.border2}`,
+    cursor: "pointer",
+    textDecoration: "none",
+    letterSpacing: "-0.01em",
+    transition: "all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)",
+    whiteSpace: "nowrap",
+    position: "relative",
+    overflow: "hidden",
+    background: isPrimary 
+      ? `linear-gradient(135deg, ${T.accent} 0%, ${T.accent2} 100%)`
+      : "rgba(0,0,0,0.03)",
+    color: isPrimary ? "#fff" : T.text,
+    boxShadow: isPrimary 
+      ? `0 4px 24px rgba(91,127,255,0.3)` 
+      : "none",
+  };
+
+  const hoverStyle = isHovered ? {
+    transform: "translateY(-3px) scale(1.03)",
+    boxShadow: isPrimary 
+      ? `0 8px 32px rgba(91,127,255,0.5)` 
+      : `0 4px 20px rgba(91,127,255,0.2)`,
+    borderColor: isPrimary ? "transparent" : T.accent,
+    color: isPrimary ? "#fff" : "#fff",
+    background: isPrimary 
+      ? `linear-gradient(135deg, ${T.accent} 0%, ${T.accent2} 100%)`
+      : "rgba(91,127,255,0.08)",
+  } : {};
+
+  const Component = href ? "a" : "button";
+
+  return (
+    <Component
+      href={href}
+      onClick={onClick}
+      download={download}
+      className={className}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      style={{ ...baseStyle, ...hoverStyle }}
+      target={href && href.startsWith("http") ? "_blank" : undefined}
+      rel={href && href.startsWith("http") ? "noopener noreferrer" : undefined}
+    >
+      {isHovered && (
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: `linear-gradient(90deg, transparent, rgba(91,127,255,0.15), transparent)`,
+            animation: "shimmer 2s ease-in-out infinite",
+          }}
+        />
+      )}
+      <span style={{ position: "relative", zIndex: 1, display: "flex", alignItems: "center", gap: "0.5rem" }}>
+        {children}
+      </span>
+    </Component>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED COUNTER COMPONENT
+═══════════════════════════════════════════════════════════════ */
+function AnimCounter({ target, suffix = "", duration = 1600, triggered }) {
   const [val, setVal] = useState(0);
   const started = useRef(false);
 
   useEffect(() => {
     if (!triggered || started.current) return;
     started.current = true;
+    
     const num = parseInt(target.replace(/\D/g, ""), 10);
-    const step = Math.ceil(num / (duration / 16));
-    let cur = 0;
-    const id = setInterval(() => {
-      cur = Math.min(cur + step, num);
-      setVal(cur);
-      if (cur >= num) clearInterval(id);
-    }, 16);
-    return () => clearInterval(id);
-  }, [triggered]);
+    const steps = 60;
+    const stepValue = num / steps;
+    let current = 0;
+    
+    const timer = setInterval(() => {
+      current += stepValue;
+      if (current >= num) {
+        setVal(num);
+        clearInterval(timer);
+      } else {
+        setVal(Math.floor(current));
+      }
+    }, duration / steps);
+
+    return () => clearInterval(timer);
+  }, [triggered, target, duration]);
 
   return <span>{val}{suffix}</span>;
 }
 
-/* ─────────────────────────────────────────────────────────────────
-   HOOK: INTERSECTION OBSERVER
-───────────────────────────────────────────────────────────────── */
-function useInView(threshold = 0.15) {
+/* ═══════════════════════════════════════════════════════════════
+   INTERSECTION OBSERVER HOOK
+═══════════════════════════════════════════════════════════════ */
+function useInView(threshold = 0.2) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
+
   useEffect(() => {
-    const ob = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
-    if (ref.current) ob.observe(ref.current);
-    return () => ob.disconnect();
-  }, []);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+        }
+      },
+      { threshold }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, [threshold]);
+
   return [ref, inView];
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MAIN COMPONENT
+   MAIN HOME COMPONENT
 ═══════════════════════════════════════════════════════════════ */
-export default function FinalHome() {
+export default function Home() {
   const navigate = useNavigate();
 
-  // Navbar scroll state
-  const [scrolled, setScrolled]   = useState(false);
+  // Navbar state
+  const [scrolled, setScrolled] = useState(false);
   const [scrollPct, setScrollPct] = useState(0);
 
-  // Role cycling (elegant fade, not typing)
+  // Role cycling
   const roles = ["Full-Stack Engineer", "AI/ML Architect", "Cloud Systems Expert", "Systems Designer"];
-  const [roleIdx, setRoleIdx]       = useState(0);
+  const [roleIdx, setRoleIdx] = useState(0);
   const [roleFading, setRoleFading] = useState(false);
 
   // Testimonial slider
   const [testIdx, setTestIdx] = useState(0);
 
-  // Cursor
-  const cursorRef = useRef(null);
-
-  /* ── Scroll Effects ── */
+  /* ══════════════════════════════════════════════════════════════
+     SCROLL EFFECTS
+  ══════════════════════════════════════════════════════════════ */
   useEffect(() => {
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 40);
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollPct((y / max) * 100);
+    const handleScroll = () => {
+      const scrollTop = window.scrollY;
+      setScrolled(scrollTop > 50);
+      
+      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct((scrollTop / maxScroll) * 100);
     };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  /* ── Cursor Glow ── */
+  /* ══════════════════════════════════════════════════════════════
+     ROLE CYCLING
+  ══════════════════════════════════════════════════════════════ */
   useEffect(() => {
-    const onMove = (e) => {
-      if (!cursorRef.current) return;
-      cursorRef.current.style.left = e.clientX + "px";
-      cursorRef.current.style.top  = e.clientY + "px";
-    };
-    window.addEventListener("mousemove", onMove);
-    return () => window.removeEventListener("mousemove", onMove);
-  }, []);
-
-  /* ── Role Cycling ── */
-  useEffect(() => {
-    const id = setInterval(() => {
+    const interval = setInterval(() => {
       setRoleFading(true);
       setTimeout(() => {
-        setRoleIdx(p => (p + 1) % roles.length);
+        setRoleIdx((prev) => (prev + 1) % roles.length);
         setRoleFading(false);
-      }, 350);
-    }, 3000);
-    return () => clearInterval(id);
+      }, 400);
+    }, 3200);
+
+    return () => clearInterval(interval);
   }, []);
 
-  /* ── Testimonial Auto ── */
+  /* ══════════════════════════════════════════════════════════════
+     TESTIMONIAL AUTO-PLAY
+  ══════════════════════════════════════════════════════════════ */
   useEffect(() => {
-    const id = setInterval(() => setTestIdx(p => (p + 1) % testimonials.length), 5500);
-    return () => clearInterval(id);
+    const interval = setInterval(() => {
+      setTestIdx((prev) => (prev + 1) % testimonials.length);
+    }, 6000);
+
+    return () => clearInterval(interval);
   }, []);
 
-  /* ─── InView refs ─── */
-  const [metricsRef, metricsIn]       = useInView();
-  const [skillsRef,  skillsIn]        = useInView();
-  const [achievRef,  achievIn]        = useInView();
-  const [testRef,    testIn]          = useInView();
-  const [projectRef, projectIn]       = useInView();
-  const [ctaRef,     ctaIn]           = useInView();
+  /* ══════════════════════════════════════════════════════════════
+     INTERSECTION OBSERVERS
+  ══════════════════════════════════════════════════════════════ */
+  const [metricsRef, metricsIn] = useInView();
+  const [skillsRef, skillsIn] = useInView();
+  const [achievRef, achievIn] = useInView();
+  const [testRef, testIn] = useInView();
+  const [projectRef, projectIn] = useInView();
+  const [ctaRef, ctaIn] = useInView();
 
-  /* ─────────────────────────────────── DATA ───────────────────── */
+  /* ══════════════════════════════════════════════════════════════
+     DATA
+  ══════════════════════════════════════════════════════════════ */
   const metrics = [
-    { value: "15", suffix: "+", label: "Production Projects", sub: "Shipped across 3 internships", color: T.accent },
-    { value: "20", suffix: "+", label: "Certifications",      sub: "AWS, Azure, GCP & more",       color: T.accent2 },
-    { value: "30", suffix: "+", label: "Tech Stack",          sub: "Languages, frameworks, tools",  color: T.green },
-    { value: "100", suffix: "%", label: "Client Satisfaction", sub: "Zero bug production record",   color: T.gold },
+    { 
+      value: "15", 
+      suffix: "+", 
+      label: "Production Projects", 
+      sub: "Shipped across 3 internships", 
+      color: T.accent 
+    },
+    { 
+      value: "20", 
+      suffix: "+", 
+      label: "Certifications", 
+      sub: "AWS, Azure, GCP & more", 
+      color: T.accent2 
+    },
+    { 
+      value: "30", 
+      suffix: "+", 
+      label: "Tech Stack", 
+      sub: "Languages, frameworks, tools", 
+      color: T.green 
+    },
+    { 
+      value: "100", 
+      suffix: "%", 
+      label: "Client Satisfaction", 
+      sub: "Zero bug production record", 
+      color: T.gold 
+    },
   ];
 
   const skillGroups = [
@@ -370,26 +600,26 @@ export default function FinalHome() {
       color: T.accent2,
       dot: "#8b5cf6",
       skills: ["TensorFlow", "PyTorch", "NLP", "LLMs", "Computer Vision", "Deep Learning"],
-      desc: "Building intelligent systems that learn and scale in production.",
+      desc: "Building intelligent systems that learn and scale in production environments.",
     },
     {
       category: "Full-Stack Engineering",
       color: T.accent,
       dot: "#5b7fff",
       skills: ["React", "Node.js", "Python", "TypeScript", "REST/GraphQL", "Microservices"],
-      desc: "End-to-end product development from database to polished UI.",
+      desc: "End-to-end product development from database architecture to polished UI.",
     },
     {
       category: "Cloud & DevOps",
       color: T.green,
       dot: "#34d399",
       skills: ["AWS", "Azure", "Docker", "Kubernetes", "CI/CD", "Terraform"],
-      desc: "Scalable, resilient infrastructure built for high availability.",
+      desc: "Scalable, resilient infrastructure engineered for high availability.",
     },
     {
       category: "Data & Architecture",
       color: T.gold,
-      dot: "#f59e0b",
+      dot: "#fbbf24",
       skills: ["PostgreSQL", "MongoDB", "Redis", "System Design", "Kafka", "Elasticsearch"],
       desc: "Designing data layers that power real-time, high-throughput systems.",
     },
@@ -399,262 +629,675 @@ export default function FinalHome() {
     "React", "Node.js", "Python", "TypeScript", "Docker",
     "Kubernetes", "AWS", "TensorFlow", "MongoDB", "PostgreSQL",
     "Azure", "Redis", "Next.js", "GraphQL", "FastAPI",
+    // Duplicate for seamless marquee
     "React", "Node.js", "Python", "TypeScript", "Docker",
     "Kubernetes", "AWS", "TensorFlow", "MongoDB", "PostgreSQL",
     "Azure", "Redis", "Next.js", "GraphQL", "FastAPI",
   ];
 
   const achievements = [
-    { year: "2025", title: "AWS Solutions Architect Professional", issuer: "Amazon Web Services", color: T.gold },
-    { year: "2025", title: "Azure AI Engineer Associate",          issuer: "Microsoft Azure",     color: T.accent },
-    { year: "2024", title: "Google Cloud Professional",            issuer: "Google Cloud",        color: T.green },
-    { year: "2024", title: "Top 5% — LeetCode",                   issuer: "500+ Problems Solved", color: T.accent2 },
-    { year: "2024", title: "365-Day Coding Streak",               issuer: "Continuous Excellence", color: "#f59e0b" },
+    { 
+      year: "2025", 
+      title: "AWS Solutions Architect Professional", 
+      issuer: "Amazon Web Services", 
+      color: T.gold 
+    },
+    { 
+      year: "2025", 
+      title: "Azure AI Engineer Associate", 
+      issuer: "Microsoft Azure", 
+      color: T.accent 
+    },
+    { 
+      year: "2024", 
+      title: "Google Cloud Professional", 
+      issuer: "Google Cloud", 
+      color: T.green 
+    },
+    { 
+      year: "2024", 
+      title: "Top 5% — LeetCode", 
+      issuer: "500+ Problems Solved", 
+      color: T.accent2 
+    },
+    { 
+      year: "2024", 
+      title: "365-Day Coding Streak", 
+      issuer: "Continuous Excellence", 
+      color: "#f59e0b" 
+    },
   ];
 
   const testimonials = [
     {
       quote: "Rare combination of technical depth and communication clarity. Delivered our ML pipeline two weeks ahead of schedule, with documentation that actually made sense.",
-      name: "Sarah Chen", role: "CTO, TechVision Inc.", avatar: "SC", color: T.accent,
+      name: "Sarah Chen",
+      role: "CTO, TechVision Inc.",
+      avatar: "SC",
+      color: T.accent,
     },
     {
       quote: "Transformed our legacy monolith into a modern microservices architecture with minimal downtime. The kind of engineer you build a team around.",
-      name: "Priya Sharma", role: "VP of Engineering, CloudNative Co.", avatar: "PS", color: T.accent2,
+      name: "Priya Sharma",
+      role: "VP of Engineering, CloudNative Co.",
+      avatar: "PS",
+      color: T.accent2,
     },
     {
       quote: "His ability to bridge AI research and production engineering is exceptional. Brought measurable impact within the first sprint.",
-      name: "Michael Rodriguez", role: "Director, Engineering, DataForge", avatar: "MR", color: T.green,
+      name: "Michael Rodriguez",
+      role: "Director, Engineering, DataForge",
+      avatar: "MR",
+      color: T.green,
     },
   ];
 
-const featuredProject = {
-  title: "Real-Time Leave Automation System",
-  tag: "Low-Code × Enterprise Automation × Microsoft 365",
-  desc: "Enterprise-grade leave management system built using Microsoft Power Apps and Power Automate. Automates leave requests, multi-level approvals, real-time status tracking, and HR reporting dashboards — integrated with SharePoint and Microsoft Teams for seamless organizational workflow.",
-  stats: [
-    { label: "Approval Time Reduced", value: "65%" },
-    { label: "Manual Processing Eliminated", value: "90%" },
-    { label: "User Adoption", value: "100+ Employees" },
-  ],
-  tech: [
-    "Microsoft Power Apps",
-    "Power Automate",
-    "SharePoint",
-    "Microsoft 365",
-    "Dataverse",
-    "Power BI"
-  ],
-  color: T.accent,
-};
+  const featuredProject = {
+    title: "Real-Time Leave Automation System",
+    tag: "Low-Code × Enterprise Automation × Microsoft 365",
+    desc: "Enterprise-grade leave management system built using Microsoft Power Apps and Power Automate. Automates leave requests, multi-level approvals, real-time status tracking, and HR reporting dashboards — integrated with SharePoint and Microsoft Teams for seamless organizational workflow.",
+    stats: [
+      { label: "Approval Time Reduced", value: "65%" },
+      { label: "Manual Processing Eliminated", value: "90%" },
+      { label: "User Adoption", value: "100+ Employees" },
+    ],
+    tech: [
+      "Microsoft Power Apps",
+      "Power Automate",
+      "SharePoint",
+      "Microsoft 365",
+      "Dataverse",
+      "Power BI",
+    ],
+    color: T.accent,
+  };
 
-
-  /* ════════════════════════════════════════════════════════════
+  /* ══════════════════════════════════════════════════════════════
      RENDER
-  ════════════════════════════════════════════════════════════ */
+  ══════════════════════════════════════════════════════════════ */
   return (
     <>
       <style>{GLOBAL_CSS}</style>
 
-      {/* Cursor glow */}
-      <div id="cursor-glow" ref={cursorRef} />
+      {/* Animated Particles */}
+      <AnimatedParticles />
 
-      {/* Scroll progress */}
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:"2px", background:T.surface, zIndex:9999 }}>
-        <div style={{ width:`${scrollPct}%`, height:"100%", background:`linear-gradient(90deg, ${T.accent}, ${T.accent2})`, transition:"width 0.1s linear" }} />
+      {/* Scroll Progress */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "2px",
+          background: T.surface,
+          zIndex: 10000,
+        }}
+      >
+        <div
+          style={{
+            width: `${scrollPct}%`,
+            height: "100%",
+            background: `linear-gradient(90deg, ${T.accent}, ${T.accent2})`,
+            transition: "width 0.1s linear",
+          }}
+        />
       </div>
 
-      {/* ══════ NAVBAR ══════ */}
-      <nav style={{
-        position:"fixed", top:0, left:0, right:0, zIndex:900,
-        padding:"0 2rem", height:"60px",
-        display:"flex", alignItems:"center", justifyContent:"space-between",
-        background: scrolled ? "rgba(14,14,17,0.85)" : "transparent",
-        backdropFilter: scrolled ? "blur(20px)" : "none",
-        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
-        borderBottom: scrolled ? `1px solid ${T.border}` : "1px solid transparent",
-        transition:"all 0.4s ease",
-        maxWidth:"100vw",
-      }}>
-        <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:"1.15rem", fontWeight:400, color:T.text, letterSpacing:"-0.02em" }}>
-          Bhagavan<span style={{ color:T.accent }}>.</span>
+      {/* ══════════════════════════════════════════════════════════
+          NAVBAR
+      ══════════════════════════════════════════════════════════ */}
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          padding: "0 2.5rem",
+          height: "72px",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          background: scrolled ? "rgba(255,255,255,0.9)" : "transparent",
+          backdropFilter: scrolled ? "blur(24px) saturate(180%)" : "none",
+          WebkitBackdropFilter: scrolled ? "blur(24px) saturate(180%)" : "none",
+          borderBottom: scrolled ? `1px solid ${T.border}` : "1px solid transparent",
+          transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+        }}
+      >
+        {/* Logo */}
+        <div
+          style={{
+            fontFamily: "'Fraunces', serif",
+            fontSize: "1.25rem",
+            fontWeight: 600,
+            color: T.text,
+            letterSpacing: "-0.03em",
+          }}
+        >
+          Bhagavan<span style={{ color: T.accent }}>.</span>
         </div>
-        <div className="nav-links" style={{ display:"flex", alignItems:"center", gap:"0.25rem" }}>
-          {["About","Projects","Skills","Contact"].map(l => (
-            <a key={l} href={`#${l.toLowerCase()}`} className="nav-link">{l}</a>
+
+        {/* Nav Links */}
+        <div className="nav-links" style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+          {["About", "Projects", "Skills", "Contact"].map((link) => (
+            <a
+              key={link}
+              href={`#${link.toLowerCase()}`}
+              style={{
+                fontSize: "0.875rem",
+                fontWeight: 500,
+                color: T.muted2,
+                textDecoration: "none",
+                padding: "0.5rem 1rem",
+                borderRadius: "8px",
+                transition: "all 0.2s ease",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.color = "#fff";
+                e.currentTarget.style.background = "rgba(255,255,255,0.05)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.color = T.muted2;
+                e.currentTarget.style.background = "transparent";
+              }}
+            >
+              {link}
+            </a>
           ))}
         </div>
-        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
-            <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:T.green, animation:"pulse-ring 2.5s ease-in-out infinite" }} />
-            <span style={{ fontSize:"0.75rem", fontWeight:600, color:T.green, fontFamily:"'JetBrains Mono',monospace" }}>Available</span>
+
+        {/* Right Actions */}
+        <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+          {/* Availability Badge */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.5rem",
+              padding: "0.4rem 0.9rem",
+              background: "rgba(16,185,129,0.1)",
+              border: `1px solid rgba(16,185,129,0.3)`,
+              borderRadius: "999px",
+            }}
+          >
+            <div
+              style={{
+                width: "6px",
+                height: "6px",
+                borderRadius: "50%",
+                background: T.green,
+                animation: "pulse-ring 2s ease-in-out infinite",
+              }}
+            />
+            <span
+              style={{
+                fontSize: "0.75rem",
+                fontWeight: 600,
+                color: T.green,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
+              Available
+            </span>
           </div>
-          <a href={resumePdf} download className="btn-ghost" style={{ padding:"0.4rem 1rem", fontSize:"0.8rem" }}>
-            <Download size={13} /> Resume
-          </a>
+
+          {/* Resume Button */}
+          <MagneticButton href={resumePdf} download>
+            <Download size={14} /> Resume
+          </MagneticButton>
         </div>
       </nav>
 
-      {/* ══════ MAIN ══════ */}
-      <main style={{ position:"relative", zIndex:1 }}>
-
-        {/* ─── GRADIENT MESH BG ─── */}
-        <div style={{
-          position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
-          background:`
-            radial-gradient(ellipse 80% 60% at 15% 10%, rgba(91,127,255,0.08) 0%, transparent 60%),
-            radial-gradient(ellipse 60% 50% at 85% 85%, rgba(139,92,246,0.07) 0%, transparent 60%),
-            radial-gradient(ellipse 50% 40% at 60% 40%, rgba(52,211,153,0.04) 0%, transparent 55%)
-          `,
-        }} />
-
-        {/* ─────────────────── HERO ─────────────────── */}
-        <section id="about" style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", zIndex:1 }}>
-          {/* Subtle grid overlay */}
-          <div style={{
-            position:"absolute", inset:0, zIndex:0, pointerEvents:"none",
-            backgroundImage:`
-              linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
-              linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)
+      {/* ══════════════════════════════════════════════════════════
+          MAIN CONTENT
+      ══════════════════════════════════════════════════════════ */}
+      <main style={{ position: "relative", zIndex: 1 }}>
+        {/* Background Gradient Mesh */}
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            background: `
+              radial-gradient(ellipse 80% 60% at 20% 20%, rgba(91,127,255,0.06) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 50% at 80% 80%, rgba(139,92,246,0.05) 0%, transparent 60%),
+              radial-gradient(ellipse 50% 40% at 50% 50%, rgba(52,211,153,0.03) 0%, transparent 55%)
             `,
-            backgroundSize:"64px 64px",
-          }} />
+          }}
+        />
 
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem", width:"100%", position:"relative", zIndex:1, paddingTop:"80px", paddingBottom:"40px" }}>
-            <div className="hero-grid" style={{ display:"grid", gridTemplateColumns:"1fr 420px", gap:"6rem", alignItems:"center" }}>
+        {/* Noise Texture Overlay */}
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            zIndex: 0,
+            pointerEvents: "none",
+            opacity: 0.03,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+          }}
+        />
 
+        {/* ══════════════════════════════════════════════════════════
+            HERO SECTION
+        ══════════════════════════════════════════════════════════ */}
+        <section
+          id="about"
+          style={{
+            minHeight: "100vh",
+            display: "flex",
+            alignItems: "center",
+            position: "relative",
+            zIndex: 1,
+            paddingTop: "72px",
+          }}
+        >
+          {/* Grid Overlay */}
+          <div
+            style={{
+              position: "absolute",
+              inset: 0,
+              zIndex: 0,
+              pointerEvents: "none",
+              backgroundImage: `
+                linear-gradient(rgba(0,0,0,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,0,0,0.03) 1px, transparent 1px)
+              `,
+              backgroundSize: "80px 80px",
+              maskImage: "radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%)",
+              WebkitMaskImage: "radial-gradient(ellipse 80% 60% at 50% 50%, black 0%, transparent 100%)",
+            }}
+          />
+
+          <div
+            style={{
+              maxWidth: "1400px",
+              margin: "0 auto",
+              padding: "0 2.5rem",
+              width: "100%",
+              position: "relative",
+              zIndex: 1,
+            }}
+          >
+            <div
+              className="hero-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 440px",
+                gap: "6rem",
+                alignItems: "center",
+              }}
+            >
               {/* LEFT: Content */}
               <div>
-                {/* Availability badge */}
-                <div className="fade-up d1" style={{ marginBottom:"2rem" }}>
-                  <span className="badge" style={{ background:"rgba(52,211,153,0.08)", border:`1px solid rgba(52,211,153,0.2)`, color:T.green }}>
-                    <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:T.green, animation:"pulse-ring 2s ease-in-out infinite" }} />
+                {/* Availability Badge */}
+                <div className="fade-up d1" style={{ marginBottom: "2.5rem" }}>
+                  <span
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.6rem",
+                      padding: "0.5rem 1.1rem",
+                      background: "rgba(16,185,129,0.1)",
+                      border: `1px solid rgba(16,185,129,0.3)`,
+                      borderRadius: "999px",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      color: T.green,
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: T.green,
+                        animation: "pulse-ring 2s ease-in-out infinite",
+                      }}
+                    />
                     Open to full-time roles · 2026 Graduate
-                    <MapPin size={11} />
+                    <MapPin size={12} />
                     India / Remote
                   </span>
                 </div>
 
                 {/* Headline */}
-                <h1 className="display-heading fade-up d2" style={{ fontSize:"clamp(3rem,6vw,5.2rem)", marginBottom:"0.5rem", color:T.text }}>
+                <h1
+                  className="display-heading fade-up d2"
+                  style={{
+                    fontSize: "clamp(3.5rem, 7vw, 6rem)",
+                    marginBottom: "0.4rem",
+                    color: T.text,
+                  }}
+                >
                   Siva Satya Sai
                 </h1>
-                <h1 className="display-heading fade-up d3" style={{ fontSize:"clamp(3rem,6vw,5.2rem)", marginBottom:"1.5rem" }}>
-                  <span style={{ color:T.accent }}>Bhagavan</span>
+                <h1
+                  className="display-heading fade-up d3"
+                  style={{
+                    fontSize: "clamp(3.5rem, 7vw, 6rem)",
+                    marginBottom: "2rem",
+                    background: `linear-gradient(135deg, ${T.accent} 0%, ${T.accent2} 100%)`,
+                    WebkitBackgroundClip: "text",
+                    WebkitTextFillColor: "transparent",
+                    backgroundClip: "text",
+                    animation: "textGlow 3s ease-in-out infinite",
+                    position: "relative",
+                  }}
+                >
+                  Bhagavan
+                  {/* Scanline Effect */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(transparent 50%, rgba(91,127,255,0.05) 50%)",
+                      backgroundSize: "100% 4px",
+                      pointerEvents: "none",
+                      animation: "scanline 8s linear infinite",
+                    }}
+                  />
                 </h1>
 
-                {/* Role transition */}
-                <div className="fade-up d4" style={{ display:"flex", alignItems:"center", gap:"0.75rem", marginBottom:"2rem" }}>
-                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.8rem", color:T.muted, letterSpacing:"0.12em" }}>CURRENTLY →</span>
-                  <span style={{
-                    fontFamily:"'DM Sans',sans-serif", fontSize:"1.05rem", fontWeight:600,
-                    color:T.muted2,
-                    opacity: roleFading ? 0 : 1,
-                    transform: roleFading ? "translateY(8px)" : "translateY(0)",
-                    transition:"opacity 0.35s ease, transform 0.35s ease",
-                  }}>
+                {/* Role Transition */}
+                <div
+                  className="fade-up d4"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.75rem",
+                    marginBottom: "2.5rem",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "0.75rem",
+                      color: T.muted,
+                      letterSpacing: "0.15em",
+                    }}
+                  >
+                    CURRENTLY →
+                  </span>
+                  <span
+                    style={{
+                      fontFamily: "'Inter', sans-serif",
+                      fontSize: "1.1rem",
+                      fontWeight: 600,
+                      color: T.text,
+                      opacity: roleFading ? 0 : 1,
+                      transform: roleFading ? "translateY(10px)" : "translateY(0)",
+                      transition: "opacity 0.4s ease, transform 0.4s ease",
+                    }}
+                  >
                     {roles[roleIdx]}
                   </span>
                 </div>
 
                 {/* Description */}
-                <p className="fade-up d5" style={{ fontSize:"1.1rem", lineHeight:1.75, color:T.muted2, maxWidth:"560px", marginBottom:"2.5rem", fontWeight:400 }}>
-                  Elite software engineer with <strong style={{ color:T.text, fontWeight:600 }}>3 industry internships</strong> and
-                  {" "}<strong style={{ color:T.text, fontWeight:600 }}>15+ production systems</strong> shipped.
-                  Specializing in AI-powered applications and scalable cloud architecture that drives real business outcomes.
+                <p
+                  className="fade-up d5"
+                  style={{
+                    fontSize: "1.15rem",
+                    lineHeight: 1.8,
+                    color: T.muted2,
+                    maxWidth: "600px",
+                    marginBottom: "3rem",
+                    fontWeight: 400,
+                  }}
+                >
+                  Elite software engineer with{" "}
+                  <strong style={{ color: T.text, fontWeight: 600 }}>
+                    3 industry internships
+                  </strong>{" "}
+                  and{" "}
+                  <strong style={{ color: T.text, fontWeight: 600 }}>
+                    15+ production systems
+                  </strong>{" "}
+                  shipped. Specializing in AI-powered applications and scalable cloud
+                  architecture that drives real business outcomes.
                 </p>
 
                 {/* CTAs */}
-                <div className="cta-row fade-up d6" style={{ display:"flex", gap:"0.9rem", marginBottom:"3rem", flexWrap:"wrap", alignItems:"center" }}>
-                  <button className="btn-primary" onClick={() => navigate('/projects')}>
-                    View Work <ArrowRight size={15} />
-                  </button>
-                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" className="btn-ghost">
-                    <Mail size={14} /> Get in Touch
-                  </a>
-                  <a href={resumePdf} download className="btn-ghost">
-                    <Download size={14} /> Resume
-                  </a>
+                <div
+                  className="cta-row fade-up d6"
+                  style={{
+                    display: "flex",
+                    gap: "1rem",
+                    marginBottom: "3.5rem",
+                    flexWrap: "wrap",
+                    alignItems: "center",
+                  }}
+                >
+                  <MagneticButton isPrimary onClick={() => navigate("/projects")}>
+                    View Work <ArrowRight size={16} />
+                  </MagneticButton>
+                  <MagneticButton href="mailto:g.sivasatyasaibhagavan@gmail.com">
+                    <Mail size={15} /> Get in Touch
+                  </MagneticButton>
+                  <MagneticButton href={resumePdf} download>
+                    <Download size={15} /> Resume
+                  </MagneticButton>
                 </div>
 
-                {/* Trust indicators */}
-                <div className="trust-row fade-up d7" style={{ display:"flex", gap:"1.5rem", alignItems:"center", paddingTop:"2rem", borderTop:`1px solid ${T.border}` }}>
+                {/* Trust Indicators */}
+                <div
+                  className="trust-row fade-up d7"
+                  style={{
+                    display: "flex",
+                    gap: "2rem",
+                    alignItems: "center",
+                    paddingTop: "2.5rem",
+                    borderTop: `1px solid ${T.border}`,
+                  }}
+                >
                   {[
-                    { icon:"🏅", text:"20+ Certifications" },
-                    { icon:"🚀", text:"15+ Projects" },
-                    { icon:"⭐", text:"LeetCode Top 5%" },
-                  ].map((t, i) => (
-                    <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
-                      <span style={{ fontSize:"1rem" }}>{t.icon}</span>
-                      <span style={{ fontSize:"0.8rem", fontWeight:500, color:T.muted2 }}>{t.text}</span>
+                    { icon: "🏅", text: "20+ Certifications" },
+                    { icon: "🚀", text: "15+ Projects" },
+                    { icon: "⭐", text: "LeetCode Top 5%" },
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.6rem",
+                      }}
+                    >
+                      <span style={{ fontSize: "1.1rem" }}>{item.icon}</span>
+                      <span
+                        style={{
+                          fontSize: "0.85rem",
+                          fontWeight: 500,
+                          color: T.muted2,
+                        }}
+                      >
+                        {item.text}
+                      </span>
                     </div>
                   ))}
                 </div>
               </div>
 
               {/* RIGHT: Portrait */}
-              <div className="hero-image-col fade-in d3" style={{ position:"relative" }}>
-                {/* Glow behind */}
-                <div style={{
-                  position:"absolute", inset:"-20px",
-                  background:`radial-gradient(ellipse at center, rgba(91,127,255,0.18) 0%, transparent 70%)`,
-                  animation:"glowPulse 4s ease-in-out infinite",
-                  borderRadius:"32px",
-                  zIndex:0,
-                }} />
+              <div className="hero-image-col fade-in d3" style={{ position: "relative" }}>
+                {/* Glow Effect */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: "-30px",
+                    background: `radial-gradient(ellipse at center, rgba(91,127,255,0.15) 0%, transparent 70%)`,
+                    animation: "glowPulse 4s ease-in-out infinite",
+                    borderRadius: "36px",
+                    zIndex: 0,
+                  }}
+                />
 
                 {/* Card */}
-                <div style={{
-                  position:"relative", zIndex:1,
-                  borderRadius:"28px",
-                  border:`1px solid ${T.border2}`,
-                  overflow:"hidden",
-                  background:T.surface,
-                  boxShadow:`0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)`,
-                  animation:"float 7s ease-in-out infinite",
-                }}>
+                <div
+                  className="hover-glow"
+                  style={{
+                    position: "relative",
+                    zIndex: 1,
+                    borderRadius: "32px",
+                    border: `1.5px solid ${T.border2}`,
+                    overflow: "hidden",
+                    background: "#fff",
+                    boxShadow: `
+                      0 40px 100px rgba(0,0,0,0.15),
+                      0 0 0 1px rgba(0,0,0,0.05)
+                    `,
+                    animation: "floatSlow 8s ease-in-out infinite",
+                    transition: "transform 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "scale(1.02) translateY(-8px)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "scale(1) translateY(0)";
+                  }}
+                >
                   <img
-                    src={profileImg} alt="Siva Satya Sai Bhagavan"
-                    style={{ width:"100%", display:"block", aspectRatio:"4/5", objectFit:"cover" }}
+                    src={profileImg}
+                    alt="Siva Satya Sai Bhagavan"
+                    style={{
+                      width: "100%",
+                      display: "block",
+                      aspectRatio: "4/5",
+                      objectFit: "cover",
+                    }}
                   />
-                  {/* Overlay gradient */}
-                  <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(14,14,17,0.9) 0%, rgba(14,14,17,0.1) 50%, transparent 100%)" }} />
 
-                  {/* Floating status chip */}
-                  <div style={{
-                    position:"absolute", top:"20px", left:"50%", transform:"translateX(-50%)",
-                    background:"rgba(14,14,17,0.9)", border:`1px solid ${T.border2}`,
-                    backdropFilter:"blur(20px)", borderRadius:"999px",
-                    padding:"0.45rem 1rem", display:"flex", alignItems:"center", gap:"0.5rem",
-                    whiteSpace:"nowrap",
-                  }}>
-                    <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:T.green, animation:"pulse-ring 2s ease-in-out infinite" }} />
-                    <span style={{ fontSize:"0.7rem", fontWeight:600, color:T.text, fontFamily:"'JetBrains Mono',monospace" }}>AVAILABLE · IMMEDIATE</span>
+                  {/* Gradient Overlay */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background:
+                        "linear-gradient(to top, rgba(255,255,255,0.95) 0%, rgba(255,255,255,0.3) 50%, transparent 100%)",
+                    }}
+                  />
+
+                  {/* Floating Status Chip */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      top: "24px",
+                      left: "50%",
+                      transform: "translateX(-50%)",
+                      background: "rgba(255,255,255,0.95)",
+                      border: `1px solid ${T.border2}`,
+                      backdropFilter: "blur(24px)",
+                      borderRadius: "999px",
+                      padding: "0.5rem 1.2rem",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.5rem",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "6px",
+                        height: "6px",
+                        borderRadius: "50%",
+                        background: T.green,
+                        animation: "pulse-ring 2s ease-in-out infinite",
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "0.7rem",
+                        fontWeight: 600,
+                        color: T.text,
+                        fontFamily: "'JetBrains Mono', monospace",
+                      }}
+                    >
+                      AVAILABLE · IMMEDIATE
+                    </span>
                   </div>
 
-                  {/* Bottom info bar */}
-                  <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"1.5rem" }}>
-                    <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:"1.3rem", color:"#fff", marginBottom:"0.3rem" }}>
+                  {/* Bottom Info Bar */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 0,
+                      left: 0,
+                      right: 0,
+                      padding: "1.75rem",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: "'Fraunces', serif",
+                        fontSize: "1.4rem",
+                        color: "#fff",
+                        marginBottom: "0.4rem",
+                        fontWeight: 600,
+                      }}
+                    >
                       Bhagavan
                     </div>
-                    <div style={{ fontSize:"0.8rem", color:T.muted2, marginBottom:"1rem" }}>Full-Stack · AI/ML · Cloud</div>
-                    <div style={{ display:"flex", gap:"0.6rem" }}>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        color: T.muted2,
+                        marginBottom: "1.2rem",
+                      }}
+                    >
+                      Full-Stack · AI/ML · Cloud
+                    </div>
+
+                    {/* Social Links */}
+                    <div style={{ display: "flex", gap: "0.7rem" }}>
                       {[
-                        { icon: Github,   href:"https://github.com/bhagavan444",                                               color:"#fff" },
-                        { icon: Linkedin, href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", color:"#0a91fb" },
-                        { icon: Mail,     href:"mailto:g.sivasatyasaibhagavan@gmail.com",                                      color:T.accent },
-                      ].map((s, i) => (
-                        <a key={i} href={s.href} target="_blank" rel="noopener noreferrer"
+                        {
+                          icon: Github,
+                          href: "https://github.com/bhagavan444",
+                          color: "#fff",
+                        },
+                        {
+                          icon: Linkedin,
+                          href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/",
+                          color: "#0a91fb",
+                        },
+                        {
+                          icon: Mail,
+                          href: "mailto:g.sivasatyasaibhagavan@gmail.com",
+                          color: T.accent,
+                        },
+                      ].map((social, i) => (
+                        <a
+                          key={i}
+                          href={social.href}
+                          target="_blank"
+                          rel="noopener noreferrer"
                           style={{
-                            width:"36px", height:"36px", borderRadius:"10px",
-                            background:"rgba(255,255,255,0.08)", border:`1px solid ${T.border}`,
-                            display:"flex", alignItems:"center", justifyContent:"center",
-                            color:s.color, textDecoration:"none",
-                            transition:"all 0.25s ease",
+                            width: "38px",
+                            height: "38px",
+                            borderRadius: "10px",
+                            background: "rgba(0,0,0,0.04)",
+                            border: `1px solid ${T.border}`,
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: social.color,
+                            textDecoration: "none",
+                            transition: "all 0.3s ease",
                           }}
-                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "scale(1.12)"; }}
-                          onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "scale(1)"; }}
+                          onMouseEnter={(e) => {
+                            e.currentTarget.style.background = "rgba(91,127,255,0.1)";
+                            e.currentTarget.style.transform = "scale(1.15) translateY(-2px)";
+                          }}
+                          onMouseLeave={(e) => {
+                            e.currentTarget.style.background = "rgba(0,0,0,0.04)";
+                            e.currentTarget.style.transform = "scale(1) translateY(0)";
+                          }}
                         >
-                          <s.icon size={15} />
+                          <social.icon size={16} />
                         </a>
                       ))}
                     </div>
@@ -665,57 +1308,177 @@ const featuredProject = {
           </div>
         </section>
 
-        {/* ─────────────────── METRICS ─────────────────── */}
-        <section ref={metricsRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
-            <div className="metrics-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1.25rem" }}>
-              {metrics.map((m, i) => (
-                <div key={i} className="glass hover-lift" style={{
-                  padding:"2rem 1.75rem",
-                  opacity: metricsIn ? 1 : 0,
-                  animation: metricsIn ? `fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.08}s both` : "none",
-                }}>
-                  <div className="stat-number" style={{
-                    fontFamily:"'DM Serif Display',serif",
-                    fontSize:"2.8rem", fontWeight:400,
-                    color:m.color, marginBottom:"0.5rem",
-                    letterSpacing:"-0.03em",
-                    animation: metricsIn ? `counter 0.6s cubic-bezier(0.34,1.56,0.64,1) ${0.3 + i * 0.08}s both` : "none",
-                  }}>
-                    <AnimCounter target={m.value} suffix={m.suffix} triggered={metricsIn} />
+        {/* ══════════════════════════════════════════════════════════
+            METRICS SECTION
+        ══════════════════════════════════════════════════════════ */}
+        <section ref={metricsRef} style={{ padding: "8rem 0", position: "relative", zIndex: 1 }}>
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2.5rem" }}>
+            <div
+              className="metrics-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(4, 1fr)",
+                gap: "1.5rem",
+              }}
+            >
+              {metrics.map((metric, i) => (
+                <div
+                  key={i}
+                  className="glass"
+                  style={{
+                    padding: "2.5rem 2rem",
+                    opacity: metricsIn ? 1 : 0,
+                    animation: metricsIn
+                      ? `fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s both`
+                      : "none",
+                    transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                    cursor: "default",
+                    position: "relative",
+                    overflow: "hidden",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-8px) scale(1.02)";
+                    e.currentTarget.style.borderColor = "rgba(91,127,255,0.2)";
+                    e.currentTarget.style.boxShadow = "0 24px 64px rgba(0,0,0,0.1)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    e.currentTarget.style.borderColor = T.border;
+                    e.currentTarget.style.boxShadow = "none";
+                  }}
+                >
+                  {/* Shimmer Effect on Hover */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "linear-gradient(90deg, transparent, rgba(91,127,255,0.08), transparent)",
+                      animation: "shimmer 3s ease-in-out infinite",
+                      pointerEvents: "none",
+                    }}
+                  />
+                  
+                  <div style={{ position: "relative", zIndex: 1 }}>
+                    <div
+                      style={{
+                        fontFamily: "'Fraunces', serif",
+                        fontSize: "3rem",
+                        fontWeight: 600,
+                        color: metric.color,
+                        marginBottom: "0.6rem",
+                        letterSpacing: "-0.04em",
+                        lineHeight: 1,
+                      }}
+                    >
+                      <AnimCounter
+                        target={metric.value}
+                        suffix={metric.suffix}
+                        triggered={metricsIn}
+                      />
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.95rem",
+                        fontWeight: 600,
+                        color: T.text,
+                        marginBottom: "0.4rem",
+                      }}
+                    >
+                      {metric.label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.8rem",
+                        color: T.muted,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {metric.sub}
+                    </div>
                   </div>
-                  <div style={{ fontSize:"0.925rem", fontWeight:600, color:T.text, marginBottom:"0.35rem" }}>{m.label}</div>
-                  <div style={{ fontSize:"0.775rem", color:T.muted, lineHeight:1.5 }}>{m.sub}</div>
                 </div>
               ))}
             </div>
           </div>
         </section>
 
-        {/* ─────────────────── TECH MARQUEE ─────────────────── */}
-        <section style={{ padding:"3rem 0 5rem", overflow:"hidden", position:"relative", zIndex:1 }}>
-          <div style={{ marginBottom:"1.5rem", textAlign:"center" }}>
+        {/* ══════════════════════════════════════════════════════════
+            TECH MARQUEE
+        ══════════════════════════════════════════════════════════ */}
+        <section
+          style={{
+            padding: "4rem 0 6rem",
+            overflow: "hidden",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <div style={{ marginBottom: "2rem", textAlign: "center" }}>
             <span className="section-label">Technology Arsenal</span>
           </div>
-          {/* Fade masks */}
-          <div style={{ position:"relative" }}>
-            <div style={{ position:"absolute", left:0, top:0, bottom:0, width:"140px", background:`linear-gradient(90deg, ${T.bg}, transparent)`, zIndex:2, pointerEvents:"none" }} />
-            <div style={{ position:"absolute", right:0, top:0, bottom:0, width:"140px", background:`linear-gradient(270deg, ${T.bg}, transparent)`, zIndex:2, pointerEvents:"none" }} />
-            <div style={{ overflow:"hidden" }}>
+
+          {/* Fade Masks */}
+          <div style={{ position: "relative" }}>
+            <div
+              style={{
+                position: "absolute",
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: "150px",
+                background: `linear-gradient(90deg, ${T.bg}, transparent)`,
+                zIndex: 2,
+                pointerEvents: "none",
+              }}
+            />
+            <div
+              style={{
+                position: "absolute",
+                right: 0,
+                top: 0,
+                bottom: 0,
+                width: "150px",
+                background: `linear-gradient(270deg, ${T.bg}, transparent)`,
+                zIndex: 2,
+                pointerEvents: "none",
+              }}
+            />
+
+            <div style={{ overflow: "hidden" }}>
               <div className="marquee-track">
-                {techStack.map((t, i) => (
-                  <div key={i} style={{
-                    display:"inline-flex", alignItems:"center", gap:"0.6rem",
-                    margin:"0 0.75rem", padding:"0.6rem 1.25rem",
-                    background:T.surface, border:`1px solid ${T.border}`,
-                    borderRadius:"999px", whiteSpace:"nowrap",
-                    fontSize:"0.85rem", fontWeight:500, color:T.muted2,
-                    transition:"all 0.25s ease", cursor:"default",
-                  }}
-                    onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.background = "rgba(91,127,255,0.08)"; }}
-                    onMouseLeave={e => { e.currentTarget.style.color = T.muted2; e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = T.surface; }}
+                {techStack.map((tech, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "0.7rem",
+                      margin: "0 0.9rem",
+                      padding: "0.7rem 1.4rem",
+                      background: "#fff",
+                      border: `1px solid ${T.border}`,
+                      borderRadius: "999px",
+                      whiteSpace: "nowrap",
+                      fontSize: "0.875rem",
+                      fontWeight: 500,
+                      color: T.muted2,
+                      transition: "all 0.3s ease",
+                      cursor: "default",
+                    }}
+                    onMouseEnter={(e) => {
+                      e.currentTarget.style.color = T.text;
+                      e.currentTarget.style.borderColor = T.accent;
+                      e.currentTarget.style.background = "rgba(91,127,255,0.08)";
+                      e.currentTarget.style.transform = "scale(1.05)";
+                    }}
+                    onMouseLeave={(e) => {
+                      e.currentTarget.style.color = T.muted2;
+                      e.currentTarget.style.borderColor = T.border;
+                      e.currentTarget.style.background = "#fff";
+                      e.currentTarget.style.transform = "scale(1)";
+                    }}
                   >
-                    {t}
+                    {tech}
                   </div>
                 ))}
               </div>
@@ -723,44 +1486,137 @@ const featuredProject = {
           </div>
         </section>
 
-        {/* ─────────────────── SKILLS ─────────────────── */}
-        <section id="skills" ref={skillsRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
-            <div style={{ marginBottom:"3.5rem" }}>
-              <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Expertise</span>
-              <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text, maxWidth:"500px" }}>
-                Skills &amp; Competencies
+        {/* ══════════════════════════════════════════════════════════
+            SKILLS SECTION
+        ══════════════════════════════════════════════════════════ */}
+        <section
+          id="skills"
+          ref={skillsRef}
+          style={{ padding: "8rem 0", position: "relative", zIndex: 1 }}
+        >
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2.5rem" }}>
+            <div style={{ marginBottom: "4rem" }}>
+              <span className="section-label" style={{ display: "block", marginBottom: "1.2rem" }}>
+                Expertise
+              </span>
+              <h2
+                className="display-heading"
+                style={{
+                  fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                  color: T.text,
+                  maxWidth: "600px",
+                }}
+              >
+                Skills & Competencies
               </h2>
             </div>
 
-            <div className="skills-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"1.25rem" }}>
-              {skillGroups.map((g, i) => (
-                <div key={i} className="skill-card glass" style={{
-                  padding:"2rem",
-                  opacity: skillsIn ? 1 : 0,
-                  animation: skillsIn ? `fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.1}s both` : "none",
-                  cursor:"default",
-                }}>
+            <div
+              className="skills-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(2, 1fr)",
+                gap: "1.5rem",
+              }}
+            >
+              {skillGroups.map((group, i) => (
+                <div
+                  key={i}
+                  className="glass"
+                  style={{
+                    padding: "2.5rem",
+                    opacity: skillsIn ? 1 : 0,
+                    animation: skillsIn
+                      ? `fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.12}s both`
+                      : "none",
+                    cursor: "default",
+                    transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "translateY(-10px) scale(1.02)";
+                    e.currentTarget.style.borderColor = "rgba(91,127,255,0.25)";
+                    e.currentTarget.style.background = "rgba(91,127,255,0.04)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "translateY(0) scale(1)";
+                    e.currentTarget.style.borderColor = T.border;
+                    e.currentTarget.style.background = "rgba(255,255,255,0.8)";
+                  }}
+                >
                   {/* Header */}
-                  <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", marginBottom:"1rem" }}>
-                    <div style={{ width:"10px", height:"10px", borderRadius:"50%", background:g.dot, boxShadow:`0 0 12px ${g.dot}80` }} />
-                    <span style={{ fontSize:"0.875rem", fontWeight:700, color:T.text }}>{g.category}</span>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.9rem",
+                      marginBottom: "1.2rem",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: "10px",
+                        height: "10px",
+                        borderRadius: "50%",
+                        background: group.dot,
+                        boxShadow: `0 0 16px ${group.dot}`,
+                      }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "0.95rem",
+                        fontWeight: 700,
+                        color: T.text,
+                      }}
+                    >
+                      {group.category}
+                    </span>
                   </div>
+
                   {/* Description */}
-                  <p style={{ fontSize:"0.825rem", color:T.muted, lineHeight:1.6, marginBottom:"1.25rem" }}>{g.desc}</p>
-                  {/* Skill chips */}
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:"0.5rem" }}>
-                    {g.skills.map((sk, j) => (
-                      <span key={j} style={{
-                        padding:"0.3rem 0.75rem",
-                        borderRadius:"6px",
-                        background:`rgba(${g.color === T.accent ? "91,127,255" : g.color === T.accent2 ? "139,92,246" : g.color === T.green ? "52,211,153" : "245,158,11"},0.1)`,
-                        border:`1px solid rgba(${g.color === T.accent ? "91,127,255" : g.color === T.accent2 ? "139,92,246" : g.color === T.green ? "52,211,153" : "245,158,11"},0.2)`,
-                        fontSize:"0.75rem", fontWeight:500,
-                        color:g.color,
-                        fontFamily:"'JetBrains Mono',monospace",
-                      }}>
-                        {sk}
+                  <p
+                    style={{
+                      fontSize: "0.875rem",
+                      color: T.muted,
+                      lineHeight: 1.7,
+                      marginBottom: "1.5rem",
+                    }}
+                  >
+                    {group.desc}
+                  </p>
+
+                  {/* Skill Chips */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+                    {group.skills.map((skill, j) => (
+                      <span
+                        key={j}
+                        style={{
+                          padding: "0.35rem 0.85rem",
+                          borderRadius: "8px",
+                          background: `rgba(${
+                            group.color === T.accent
+                              ? "91,127,255"
+                              : group.color === T.accent2
+                              ? "139,92,246"
+                              : group.color === T.green
+                              ? "52,211,153"
+                              : "251,191,36"
+                          },0.08)`,
+                          border: `1px solid rgba(${
+                            group.color === T.accent
+                              ? "91,127,255"
+                              : group.color === T.accent2
+                              ? "139,92,246"
+                              : group.color === T.green
+                              ? "52,211,153"
+                              : "251,191,36"
+                          },0.2)`,
+                          fontSize: "0.775rem",
+                          fontWeight: 500,
+                          color: group.color,
+                          fontFamily: "'JetBrains Mono', monospace",
+                        }}
+                      >
+                        {skill}
                       </span>
                     ))}
                   </div>
@@ -770,141 +1626,377 @@ const featuredProject = {
           </div>
         </section>
 
-        {/* ─────────────────── FEATURED PROJECT ─────────────────── */}
-        <section ref={projectRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
-            <div style={{ marginBottom:"3rem" }}>
-              <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Featured Work</span>
-              <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text }}>
+        {/* ══════════════════════════════════════════════════════════
+            FEATURED PROJECT
+        ══════════════════════════════════════════════════════════ */}
+        <section
+          ref={projectRef}
+          style={{ padding: "8rem 0", position: "relative", zIndex: 1 }}
+        >
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2.5rem" }}>
+            <div style={{ marginBottom: "4rem" }}>
+              <span className="section-label" style={{ display: "block", marginBottom: "1.2rem" }}>
+                Featured Work
+              </span>
+              <h2
+                className="display-heading"
+                style={{
+                  fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                  color: T.text,
+                }}
+              >
                 Selected Project
               </h2>
             </div>
 
-            <div style={{
-              borderRadius:"24px", overflow:"hidden",
-              border:`1px solid ${T.border2}`,
-              background:T.surface,
-              opacity: projectIn ? 1 : 0,
-              animation: projectIn ? "fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both" : "none",
-            }}>
-              {/* Top banner */}
-              <div style={{
-                height:"220px", position:"relative", overflow:"hidden",
-                background:`linear-gradient(135deg, rgba(91,127,255,0.15), rgba(139,92,246,0.1), rgba(52,211,153,0.08))`,
-                borderBottom:`1px solid ${T.border}`,
-                display:"flex", alignItems:"center", justifyContent:"center",
-              }}>
-                {/* Abstract grid */}
-                <div style={{
-                  position:"absolute", inset:0,
-                  backgroundImage:`
-                    linear-gradient(rgba(91,127,255,0.08) 1px, transparent 1px),
-                    linear-gradient(90deg, rgba(91,127,255,0.08) 1px, transparent 1px)
-                  `,
-                  backgroundSize:"40px 40px",
-                }} />
-                {/* Orbs */}
+            <div
+              style={{
+                borderRadius: "28px",
+                overflow: "hidden",
+                border: `1.5px solid ${T.border2}`,
+                background: "#fff",
+                opacity: projectIn ? 1 : 0,
+                animation: projectIn
+                  ? "fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both"
+                  : "none",
+                transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.transform = "translateY(-6px)";
+                e.currentTarget.style.boxShadow = "0 32px 80px rgba(0,0,0,0.12)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.transform = "translateY(0)";
+                e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.06)";
+              }}
+            >
+              {/* Top Banner */}
+              <div
+                style={{
+                  height: "240px",
+                  position: "relative",
+                  overflow: "hidden",
+                  background: `linear-gradient(135deg, rgba(91,127,255,0.12), rgba(139,92,246,0.08), rgba(52,211,153,0.06))`,
+                  borderBottom: `1px solid ${T.border}`,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {/* Grid Pattern */}
+                <div
+                  style={{
+                    position: "absolute",
+                    inset: 0,
+                    backgroundImage: `
+                      linear-gradient(rgba(91,127,255,0.06) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(91,127,255,0.06) 1px, transparent 1px)
+                    `,
+                    backgroundSize: "48px 48px",
+                  }}
+                />
+
+                {/* Floating Orbs */}
                 {[
-                  { size:200, x:"10%", y:"50%", c:T.accent, o:0.15 },
-                  { size:160, x:"70%", y:"30%", c:T.accent2, o:0.12 },
-                  { size:120, x:"85%", y:"75%", c:T.green, o:0.10 },
+                  { size: 220, x: "15%", y: "50%", c: T.accent, o: 0.15 },
+                  { size: 180, x: "70%", y: "35%", c: T.accent2, o: 0.12 },
+                  { size: 140, x: "85%", y: "70%", c: T.green, o: 0.10 },
                 ].map((orb, i) => (
-                  <div key={i} style={{
-                    position:"absolute", left:orb.x, top:orb.y,
-                    width:orb.size, height:orb.size,
-                    borderRadius:"50%", background:orb.c,
-                    opacity:orb.o, filter:"blur(60px)",
-                    transform:"translate(-50%,-50%)",
-                    animation:`float ${6 + i}s ease-in-out infinite`,
-                    animationDelay:`${i * 0.8}s`,
-                  }} />
+                  <div
+                    key={i}
+                    style={{
+                      position: "absolute",
+                      left: orb.x,
+                      top: orb.y,
+                      width: orb.size,
+                      height: orb.size,
+                      borderRadius: "50%",
+                      background: orb.c,
+                      opacity: orb.o,
+                      filter: "blur(70px)",
+                      transform: "translate(-50%, -50%)",
+                      animation: `float ${7 + i}s ease-in-out infinite`,
+                      animationDelay: `${i * 0.9}s`,
+                    }}
+                  />
                 ))}
-                <div style={{ position:"relative", zIndex:1, textAlign:"center" }}>
-                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.72rem", color:T.accent, letterSpacing:"0.15em", marginBottom:"0.5rem" }}>
+
+                {/* Content */}
+                <div style={{ position: "relative", zIndex: 1, textAlign: "center" }}>
+                  <div
+                    style={{
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "0.75rem",
+                      color: T.accent,
+                      letterSpacing: "0.18em",
+                      marginBottom: "0.7rem",
+                    }}
+                  >
                     {featuredProject.tag}
                   </div>
-                  <div className="display-heading" style={{ fontSize:"2rem", color:T.text }}>
+                  <div
+                    className="display-heading"
+                    style={{
+                      fontSize: "2.2rem",
+                      color: T.text,
+                    }}
+                  >
                     {featuredProject.title}
                   </div>
                 </div>
               </div>
 
-              {/* Bottom content */}
-              <div style={{ padding:"2rem 2.5rem", display:"grid", gridTemplateColumns:"1fr auto", gap:"2rem", alignItems:"start" }}>
+              {/* Bottom Content */}
+              <div
+                className="project-grid"
+                style={{
+                  padding: "2.5rem 3rem",
+                  display: "grid",
+                  gridTemplateColumns: "1fr auto",
+                  gap: "2.5rem",
+                  alignItems: "start",
+                }}
+              >
                 <div>
-                  <p style={{ fontSize:"0.95rem", color:T.muted2, lineHeight:1.75, marginBottom:"1.5rem", maxWidth:"600px" }}>
+                  <p
+                    style={{
+                      fontSize: "1rem",
+                      color: T.muted2,
+                      lineHeight: 1.8,
+                      marginBottom: "1.8rem",
+                      maxWidth: "640px",
+                    }}
+                  >
                     {featuredProject.desc}
                   </p>
-                  <div style={{ display:"flex", flexWrap:"wrap", gap:"0.5rem" }}>
-                    {featuredProject.tech.map((t, i) => (
-                      <span key={i} style={{ padding:"0.28rem 0.7rem", borderRadius:"6px", background:"rgba(255,255,255,0.04)", border:`1px solid ${T.border}`, fontSize:"0.75rem", color:T.muted2, fontFamily:"'JetBrains Mono',monospace" }}>
-                        {t}
+
+                  {/* Tech Stack */}
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "0.6rem" }}>
+                    {featuredProject.tech.map((tech, i) => (
+                      <span
+                        key={i}
+                        style={{
+                          padding: "0.35rem 0.85rem",
+                          borderRadius: "8px",
+                          background: "rgba(0,0,0,0.04)",
+                          border: `1px solid ${T.border}`,
+                          fontSize: "0.775rem",
+                          color: T.muted2,
+                          fontFamily: "'JetBrains Mono', monospace",
+                        }}
+                      >
+                        {tech}
                       </span>
                     ))}
                   </div>
                 </div>
 
-                <div style={{ display:"flex", flexDirection:"column", gap:"1rem", minWidth:"180px" }}>
-                  {featuredProject.stats.map((s, i) => (
-                    <div key={i} style={{ textAlign:"right" }}>
-                      <div style={{ fontSize:"1.5rem", fontFamily:"'DM Serif Display',serif", color:T.accent, letterSpacing:"-0.02em" }}>{s.value}</div>
-                      <div style={{ fontSize:"0.75rem", color:T.muted, marginTop:"0.1rem" }}>{s.label}</div>
+                {/* Stats */}
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "1.2rem",
+                    minWidth: "200px",
+                  }}
+                >
+                  {featuredProject.stats.map((stat, i) => (
+                    <div key={i} style={{ textAlign: "right" }}>
+                      <div
+                        style={{
+                          fontSize: "1.8rem",
+                          fontFamily: "'Fraunces', serif",
+                          color: T.accent,
+                          letterSpacing: "-0.03em",
+                          fontWeight: 600,
+                        }}
+                      >
+                        {stat.value}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.8rem",
+                          color: T.muted,
+                          marginTop: "0.2rem",
+                        }}
+                      >
+                        {stat.label}
+                      </div>
                     </div>
                   ))}
-                  <button className="btn-primary" style={{ marginTop:"0.5rem", justifyContent:"center" }} onClick={() => navigate('/projects')}>
-                    See All Work <ArrowRight size={14} />
-                  </button>
+
+                  <MagneticButton
+                    isPrimary
+                    onClick={() => navigate("/projects")}
+                    style={{ marginTop: "0.8rem", justifyContent: "center" }}
+                  >
+                    See All Work <ArrowRight size={15} />
+                  </MagneticButton>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
-        {/* ─────────────────── ACHIEVEMENTS ─────────────────── */}
-        <section ref={achievRef} id="achievements" style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
-            <div style={{ marginBottom:"3.5rem" }}>
-              <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Credentials</span>
-              <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text }}>
-                Certifications &amp; Awards
+        {/* ══════════════════════════════════════════════════════════
+            ACHIEVEMENTS
+        ══════════════════════════════════════════════════════════ */}
+        <section
+          ref={achievRef}
+          id="achievements"
+          style={{ padding: "8rem 0", position: "relative", zIndex: 1 }}
+        >
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2.5rem" }}>
+            <div style={{ marginBottom: "4rem" }}>
+              <span className="section-label" style={{ display: "block", marginBottom: "1.2rem" }}>
+                Credentials
+              </span>
+              <h2
+                className="display-heading"
+                style={{
+                  fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                  color: T.text,
+                }}
+              >
+                Certifications & Awards
               </h2>
             </div>
 
-            <div style={{ position:"relative", paddingLeft:"2px" }}>
-              {/* Timeline line */}
-              <div style={{ position:"absolute", left:"19px", top:"24px", bottom:"24px", width:"1px", background:`linear-gradient(180deg, ${T.accent}, ${T.accent2}, ${T.green})` }} />
+            <div style={{ position: "relative", paddingLeft: "2px" }}>
+              {/* Timeline Line */}
+              <div
+                style={{
+                  position: "absolute",
+                  left: "19px",
+                  top: "28px",
+                  bottom: "28px",
+                  width: "2px",
+                  background: `linear-gradient(180deg, ${T.accent}, ${T.accent2}, ${T.green})`,
+                }}
+              />
 
-              <div style={{ display:"flex", flexDirection:"column", gap:"0" }}>
-                {achievements.map((a, i) => (
-                  <div key={i} className="timeline-item" style={{
-                    display:"flex", gap:"2rem", alignItems:"center",
-                    padding:"1rem 0",
-                    opacity: achievIn ? 1 : 0,
-                    animation: achievIn ? `fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.08}s both` : "none",
-                  }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: "0" }}>
+                {achievements.map((achievement, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      display: "flex",
+                      gap: "2.5rem",
+                      alignItems: "center",
+                      padding: "1.2rem 0",
+                      opacity: achievIn ? 1 : 0,
+                      animation: achievIn
+                        ? `fadeUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) ${i * 0.1}s both`
+                        : "none",
+                    }}
+                  >
                     {/* Dot */}
-                    <div className="timeline-dot" style={{
-                      width:"38px", height:"38px", minWidth:"38px",
-                      borderRadius:"50%",
-                      background:T.surface2, border:`2px solid ${a.color}`,
-                      display:"flex", alignItems:"center", justifyContent:"center",
-                      position:"relative", zIndex:1,
-                      transition:"box-shadow 0.3s ease",
-                      boxShadow:`0 0 0 4px ${T.bg}`,
-                    }}>
-                      <CheckCircle size={16} style={{ color:a.color }} />
+                    <div
+                      style={{
+                        width: "40px",
+                        height: "40px",
+                        minWidth: "40px",
+                        borderRadius: "50%",
+                        background: "#fff",
+                        border: `2.5px solid ${achievement.color}`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        position: "relative",
+                        zIndex: 1,
+                        transition: "all 0.3s ease",
+                        boxShadow: `0 0 0 5px ${T.bg}`,
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.boxShadow = `0 0 0 10px ${achievement.color}20, 0 0 0 5px ${T.bg}`;
+                        e.currentTarget.style.transform = "scale(1.1)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.boxShadow = `0 0 0 5px ${T.bg}`;
+                        e.currentTarget.style.transform = "scale(1)";
+                      }}
+                    >
+                      <CheckCircle size={18} style={{ color: achievement.color }} />
                     </div>
 
                     {/* Card */}
-                    <div className="glass hover-lift" style={{ flex:1, padding:"1.1rem 1.5rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"1rem" }}>
+                    <div
+                      className="glass"
+                      style={{
+                        flex: 1,
+                        padding: "1.3rem 1.8rem",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "space-between",
+                        gap: "1.5rem",
+                        transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.transform = "translateY(-6px)";
+                        e.currentTarget.style.borderColor = "rgba(91,127,255,0.2)";
+                        e.currentTarget.style.boxShadow = "0 20px 60px rgba(0,0,0,0.08)";
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.transform = "translateY(0)";
+                        e.currentTarget.style.borderColor = T.border;
+                        e.currentTarget.style.boxShadow = "0 4px 24px rgba(0,0,0,0.06)";
+                      }}
+                    >
                       <div>
-                        <div style={{ fontSize:"0.95rem", fontWeight:600, color:T.text, marginBottom:"0.2rem" }}>{a.title}</div>
-                        <div style={{ fontSize:"0.775rem", color:T.muted }}>{a.issuer}</div>
+                        <div
+                          style={{
+                            fontSize: "1rem",
+                            fontWeight: 600,
+                            color: T.text,
+                            marginBottom: "0.3rem",
+                          }}
+                        >
+                          {achievement.title}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "0.8rem",
+                            color: T.muted,
+                          }}
+                        >
+                          {achievement.issuer}
+                        </div>
                       </div>
-                      <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
-                        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.72rem", color:T.muted, fontWeight:600 }}>{a.year}</span>
-                        <span className="badge" style={{ background:`rgba(${a.color === T.gold ? "245,158,11" : a.color === T.accent ? "91,127,255" : a.color === T.green ? "52,211,153" : "139,92,246"},0.08)`, border:`1px solid ${a.color}40`, color:a.color }}>
-                          <Verified size={10} /> Verified
+
+                      <div style={{ display: "flex", alignItems: "center", gap: "1rem" }}>
+                        <span
+                          style={{
+                            fontFamily: "'JetBrains Mono', monospace",
+                            fontSize: "0.75rem",
+                            color: T.muted,
+                            fontWeight: 600,
+                          }}
+                        >
+                          {achievement.year}
+                        </span>
+                        <span
+                          style={{
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "0.4rem",
+                            padding: "0.3rem 0.8rem",
+                            borderRadius: "999px",
+                            background: `rgba(${
+                              achievement.color === T.gold
+                                ? "251,191,36"
+                                : achievement.color === T.accent
+                                ? "91,127,255"
+                                : achievement.color === T.green
+                                ? "52,211,153"
+                                : "139,92,246"
+                            },0.08)`,
+                            border: `1px solid ${achievement.color}40`,
+                            fontSize: "0.7rem",
+                            fontWeight: 600,
+                            color: achievement.color,
+                          }}
+                        >
+                          <Verified size={11} /> Verified
                         </span>
                       </div>
                     </div>
@@ -915,87 +2007,220 @@ const featuredProject = {
           </div>
         </section>
 
-        {/* ─────────────────── TESTIMONIALS ─────────────────── */}
-        <section ref={testRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
-            <div style={{ marginBottom:"3.5rem", display:"flex", alignItems:"flex-end", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
+        {/* ══════════════════════════════════════════════════════════
+            TESTIMONIALS
+        ══════════════════════════════════════════════════════════ */}
+        <section
+          ref={testRef}
+          style={{ padding: "8rem 0", position: "relative", zIndex: 1 }}
+        >
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2.5rem" }}>
+            <div
+              style={{
+                marginBottom: "4rem",
+                display: "flex",
+                alignItems: "flex-end",
+                justifyContent: "space-between",
+                flexWrap: "wrap",
+                gap: "1.5rem",
+              }}
+            >
               <div>
-                <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Social Proof</span>
-                <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text }}>
+                <span className="section-label" style={{ display: "block", marginBottom: "1.2rem" }}>
+                  Social Proof
+                </span>
+                <h2
+                  className="display-heading"
+                  style={{
+                    fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                    color: T.text,
+                  }}
+                >
                   What Leaders Say
                 </h2>
               </div>
-              <div style={{ display:"flex", gap:"0.5rem" }}>
+
+              {/* Navigation Buttons */}
+              <div style={{ display: "flex", gap: "0.7rem" }}>
                 <button
-                  onClick={() => setTestIdx(p => (p - 1 + testimonials.length) % testimonials.length)}
-                  style={{ width:"40px", height:"40px", borderRadius:"10px", background:T.surface, border:`1px solid ${T.border}`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:T.muted2, transition:"all 0.2s" }}
-                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = T.border2; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = T.muted2; e.currentTarget.style.borderColor = T.border; }}
+                  onClick={() =>
+                    setTestIdx((prev) => (prev - 1 + testimonials.length) % testimonials.length)
+                  }
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "12px",
+                    background: T.surface,
+                    border: `1px solid ${T.border}`,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: T.muted2,
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "#fff";
+                    e.currentTarget.style.borderColor = T.border2;
+                    e.currentTarget.style.transform = "scale(1.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = T.muted2;
+                    e.currentTarget.style.borderColor = T.border;
+                    e.currentTarget.style.transform = "scale(1)";
+                  }}
                 >
-                  <ChevronLeft size={16} />
+                  <ChevronLeft size={18} />
                 </button>
                 <button
-                  onClick={() => setTestIdx(p => (p + 1) % testimonials.length)}
-                  style={{ width:"40px", height:"40px", borderRadius:"10px", background:T.surface, border:`1px solid ${T.border}`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:T.muted2, transition:"all 0.2s" }}
-                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = T.border2; }}
-                  onMouseLeave={e => { e.currentTarget.style.color = T.muted2; e.currentTarget.style.borderColor = T.border; }}
+                  onClick={() => setTestIdx((prev) => (prev + 1) % testimonials.length)}
+                  style={{
+                    width: "44px",
+                    height: "44px",
+                    borderRadius: "12px",
+                    background: T.surface,
+                    border: `1px solid ${T.border}`,
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    color: T.muted2,
+                    transition: "all 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = "#fff";
+                    e.currentTarget.style.borderColor = T.border2;
+                    e.currentTarget.style.transform = "scale(1.05)";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = T.muted2;
+                    e.currentTarget.style.borderColor = T.border;
+                    e.currentTarget.style.transform = "scale(1)";
+                  }}
                 >
-                  <ChevronRight size={16} />
+                  <ChevronRight size={18} />
                 </button>
               </div>
             </div>
 
-            {/* Testimonial cards */}
-            <div style={{ position:"relative", minHeight:"220px" }}>
-              {testimonials.map((t, i) => (
-                <div key={i} className="testimonial-slide glass" style={{
-                  position: i === testIdx ? "relative" : "absolute",
-                  top:0, left:0, right:0,
-                  padding:"2.5rem",
-                  opacity: i === testIdx ? 1 : 0,
-                  visibility: i === testIdx ? "visible" : "hidden",
-                  transform: i === testIdx ? "translateY(0) scale(1)" : "translateY(20px) scale(0.98)",
-                  boxShadow: i === testIdx ? "0 24px 80px rgba(0,0,0,0.4)" : "none",
-                }}>
-                  <div style={{ display:"flex", gap:"2rem", alignItems:"flex-start", flexWrap:"wrap" }}>
+            {/* Testimonial Cards */}
+            <div style={{ position: "relative", minHeight: "260px" }}>
+              {testimonials.map((testimonial, i) => (
+                <div
+                  key={i}
+                  className="glass"
+                  style={{
+                    position: i === testIdx ? "relative" : "absolute",
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    padding: "3rem",
+                    opacity: i === testIdx ? 1 : 0,
+                    visibility: i === testIdx ? "visible" : "hidden",
+                    transform:
+                      i === testIdx ? "translateY(0) scale(1)" : "translateY(25px) scale(0.96)",
+                    transition: "all 0.6s cubic-bezier(0.16, 1, 0.3, 1)",
+                    boxShadow: i === testIdx ? "0 28px 90px rgba(0,0,0,0.12)" : "none",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "2.5rem",
+                      alignItems: "flex-start",
+                      flexWrap: "wrap",
+                    }}
+                  >
                     {/* Avatar */}
-                    <div style={{
-                      width:"56px", height:"56px", minWidth:"56px",
-                      borderRadius:"16px",
-                      background:`linear-gradient(135deg, ${t.color}30, ${t.color}10)`,
-                      border:`2px solid ${t.color}40`,
-                      display:"flex", alignItems:"center", justifyContent:"center",
-                      fontSize:"1rem", fontWeight:700, color:t.color,
-                      fontFamily:"'DM Serif Display',serif",
-                    }}>
-                      {t.avatar}
+                    <div
+                      style={{
+                        width: "64px",
+                        height: "64px",
+                        minWidth: "64px",
+                        borderRadius: "18px",
+                        background: `linear-gradient(135deg, ${testimonial.color}30, ${testimonial.color}10)`,
+                        border: `2.5px solid ${testimonial.color}40`,
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "1.1rem",
+                        fontWeight: 700,
+                        color: testimonial.color,
+                        fontFamily: "'Fraunces', serif",
+                      }}
+                    >
+                      {testimonial.avatar}
                     </div>
 
                     {/* Content */}
-                    <div style={{ flex:1 }}>
+                    <div style={{ flex: 1 }}>
                       {/* Stars */}
-                      <div style={{ display:"flex", gap:"0.2rem", marginBottom:"1rem" }}>
-                        {[...Array(5)].map((_, si) => <Sparkles key={si} size={12} style={{ color:T.gold }} />)}
+                      <div style={{ display: "flex", gap: "0.3rem", marginBottom: "1.2rem" }}>
+                        {[...Array(5)].map((_, si) => (
+                          <Sparkles key={si} size={13} style={{ color: T.gold }} />
+                        ))}
                       </div>
-                      <blockquote style={{ fontSize:"1.05rem", lineHeight:1.75, color:T.muted2, marginBottom:"1.5rem", fontStyle:"italic", maxWidth:"700px" }}>
-                        "{t.quote}"
+
+                      {/* Quote */}
+                      <blockquote
+                        style={{
+                          fontSize: "1.1rem",
+                          lineHeight: 1.8,
+                          color: T.muted2,
+                          marginBottom: "1.8rem",
+                          fontStyle: "italic",
+                          maxWidth: "720px",
+                        }}
+                      >
+                        "{testimonial.quote}"
                       </blockquote>
+
+                      {/* Author */}
                       <div>
-                        <div style={{ fontSize:"0.9rem", fontWeight:600, color:T.text }}>{t.name}</div>
-                        <div style={{ fontSize:"0.8rem", color:T.muted }}>{t.role}</div>
+                        <div
+                          style={{
+                            fontSize: "0.95rem",
+                            fontWeight: 600,
+                            color: T.text,
+                          }}
+                        >
+                          {testimonial.name}
+                        </div>
+                        <div
+                          style={{
+                            fontSize: "0.85rem",
+                            color: T.muted,
+                          }}
+                        >
+                          {testimonial.role}
+                        </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Indicator dots */}
-                  <div style={{ display:"flex", gap:"0.5rem", marginTop:"2rem", justifyContent:"flex-end" }}>
+                  {/* Indicator Dots */}
+                  <div
+                    style={{
+                      display: "flex",
+                      gap: "0.6rem",
+                      marginTop: "2.5rem",
+                      justifyContent: "flex-end",
+                    }}
+                  >
                     {testimonials.map((_, di) => (
-                      <button key={di} onClick={() => setTestIdx(di)} style={{
-                        width: di === testIdx ? "24px" : "8px", height:"8px",
-                        borderRadius:"4px", border:"none", cursor:"pointer",
-                        background: di === testIdx ? t.color : T.border2,
-                        transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-                      }} />
+                      <button
+                        key={di}
+                        onClick={() => setTestIdx(di)}
+                        style={{
+                          width: di === testIdx ? "28px" : "8px",
+                          height: "8px",
+                          borderRadius: "4px",
+                          border: "none",
+                          cursor: "pointer",
+                          background: di === testIdx ? testimonial.color : T.border2,
+                          transition: "all 0.4s cubic-bezier(0.16, 1, 0.3, 1)",
+                        }}
+                      />
                     ))}
                   </div>
                 </div>
@@ -1004,60 +2229,140 @@ const featuredProject = {
           </div>
         </section>
 
-        {/* ─────────────────── CTA ─────────────────── */}
-        <section ref={ctaRef} id="contact" style={{ padding:"6rem 0 8rem", position:"relative", zIndex:1 }}>
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
-            <div style={{
-              borderRadius:"28px", padding:"4rem 3rem",
-              background:`linear-gradient(135deg, ${T.surface} 0%, rgba(91,127,255,0.05) 100%)`,
-              border:`1px solid ${T.border2}`,
-              position:"relative", overflow:"hidden",
-              opacity: ctaIn ? 1 : 0,
-              animation: ctaIn ? "fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both" : "none",
-            }}>
-              {/* BG orb */}
-              <div style={{
-                position:"absolute", right:"-10%", top:"-30%",
-                width:"400px", height:"400px", borderRadius:"50%",
-                background:`radial-gradient(circle, rgba(91,127,255,0.12), transparent 70%)`,
-                pointerEvents:"none",
-              }} />
+        {/* ══════════════════════════════════════════════════════════
+            CTA SECTION
+        ══════════════════════════════════════════════════════════ */}
+        <section
+          ref={ctaRef}
+          id="contact"
+          style={{ padding: "8rem 0 10rem", position: "relative", zIndex: 1 }}
+        >
+          <div style={{ maxWidth: "1400px", margin: "0 auto", padding: "0 2.5rem" }}>
+            <div
+              style={{
+                borderRadius: "32px",
+                padding: "5rem 4rem",
+                background: `linear-gradient(135deg, ${T.surface} 0%, rgba(91,127,255,0.06) 100%)`,
+                border: `1.5px solid ${T.border2}`,
+                position: "relative",
+                overflow: "hidden",
+                opacity: ctaIn ? 1 : 0,
+                animation: ctaIn ? "fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) both" : "none",
+              }}
+            >
+              {/* Background Orb */}
+              <div
+                style={{
+                  position: "absolute",
+                  right: "-12%",
+                  top: "-35%",
+                  width: "480px",
+                  height: "480px",
+                  borderRadius: "50%",
+                  background: `radial-gradient(circle, rgba(91,127,255,0.1), transparent 70%)`,
+                  pointerEvents: "none",
+                }}
+              />
 
-              <div style={{ position:"relative", zIndex:1, maxWidth:"680px" }}>
-                <span className="section-label" style={{ display:"block", marginBottom:"1.25rem" }}>
+              <div style={{ position: "relative", zIndex: 1, maxWidth: "720px" }}>
+                <span className="section-label" style={{ display: "block", marginBottom: "1.5rem" }}>
                   Let's build something great
                 </span>
-                <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4.5vw,3.2rem)", color:T.text, marginBottom:"1.25rem" }}>
-                  Ready to make an<br />
-                  <span style={{ color:T.accent }}>immediate impact</span>
+
+                <h2
+                  className="display-heading"
+                  style={{
+                    fontSize: "clamp(2.5rem, 5vw, 3.8rem)",
+                    color: T.text,
+                    marginBottom: "1.5rem",
+                    lineHeight: 1.1,
+                  }}
+                >
+                  Ready to make an
+                  <br />
+                  <span
+                    style={{
+                      background: `linear-gradient(135deg, ${T.accent} 0%, ${T.accent2} 100%)`,
+                      WebkitBackgroundClip: "text",
+                      WebkitTextFillColor: "transparent",
+                      backgroundClip: "text",
+                    }}
+                  >
+                    immediate impact
+                  </span>
                 </h2>
-                <p style={{ fontSize:"1rem", color:T.muted2, lineHeight:1.75, marginBottom:"2.5rem", maxWidth:"500px" }}>
-                  Seeking full-time engineering roles where I can ship AI-powered products, architect scalable systems, and grow alongside exceptional teams.
+
+                <p
+                  style={{
+                    fontSize: "1.05rem",
+                    color: T.muted2,
+                    lineHeight: 1.8,
+                    marginBottom: "3rem",
+                    maxWidth: "560px",
+                  }}
+                >
+                  Seeking full-time engineering roles where I can ship AI-powered products,
+                  architect scalable systems, and grow alongside exceptional teams.
                 </p>
 
-                {/* CTA buttons */}
-                <div style={{ display:"flex", gap:"0.9rem", flexWrap:"wrap", marginBottom:"2.5rem" }}>
-                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" className="btn-primary">
-                    Schedule Interview <ArrowRight size={15} />
-                  </a>
-                  <button className="btn-ghost" onClick={() => navigate('/projects')}>
-                    View Portfolio <ExternalLink size={14} />
-                  </button>
+                {/* CTA Buttons */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "1rem",
+                    flexWrap: "wrap",
+                    marginBottom: "3rem",
+                  }}
+                >
+                  <MagneticButton isPrimary href="mailto:g.sivasatyasaibhagavan@gmail.com">
+                    Schedule Interview <ArrowRight size={16} />
+                  </MagneticButton>
+                  <MagneticButton onClick={() => navigate("/projects")}>
+                    View Portfolio <ExternalLink size={15} />
+                  </MagneticButton>
                 </div>
 
-                {/* Contact info */}
-                <div style={{ display:"flex", gap:"2rem", flexWrap:"wrap", paddingTop:"2rem", borderTop:`1px solid ${T.border}` }}>
-                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{ display:"flex", alignItems:"center", gap:"0.5rem", color:T.muted2, textDecoration:"none", fontSize:"0.875rem", transition:"color 0.2s" }}
-                    onMouseEnter={e => e.currentTarget.style.color = "#fff"}
-                    onMouseLeave={e => e.currentTarget.style.color = T.muted2}
+                {/* Contact Info */}
+                <div
+                  style={{
+                    display: "flex",
+                    gap: "2.5rem",
+                    flexWrap: "wrap",
+                    paddingTop: "2.5rem",
+                    borderTop: `1px solid ${T.border}`,
+                  }}
+                >
+                  <a
+                    href="mailto:g.sivasatyasaibhagavan@gmail.com"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.6rem",
+                      color: T.muted2,
+                      textDecoration: "none",
+                      fontSize: "0.9rem",
+                      transition: "color 0.2s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = T.muted2)}
                   >
-                    <Mail size={15} style={{ color:T.accent }} /> g.sivasatyasaibhagavan@gmail.com
+                    <Mail size={16} style={{ color: T.accent }} /> g.sivasatyasaibhagavan@gmail.com
                   </a>
-                  <a href="tel:+917569205626" style={{ display:"flex", alignItems:"center", gap:"0.5rem", color:T.muted2, textDecoration:"none", fontSize:"0.875rem", transition:"color 0.2s" }}
-                    onMouseEnter={e => e.currentTarget.style.color = "#fff"}
-                    onMouseLeave={e => e.currentTarget.style.color = T.muted2}
+                  <a
+                    href="tel:+917569205626"
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "0.6rem",
+                      color: T.muted2,
+                      textDecoration: "none",
+                      fontSize: "0.9rem",
+                      transition: "color 0.2s",
+                    }}
+                    onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                    onMouseLeave={(e) => (e.currentTarget.style.color = T.muted2)}
                   >
-                    <Phone size={15} style={{ color:T.green }} /> +91 7569205626
+                    <Phone size={16} style={{ color: T.green }} /> +91 7569205626
                   </a>
                 </div>
               </div>
@@ -1065,30 +2370,94 @@ const featuredProject = {
           </div>
         </section>
 
-        {/* ─────────────────── FOOTER ─────────────────── */}
-        <footer style={{ borderTop:`1px solid ${T.border}`, padding:"2.5rem 0", position:"relative", zIndex:1 }}>
-          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
-            <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:"1rem", color:T.muted }}>
-              Bhagavan<span style={{ color:T.accent }}>.</span>
+        {/* ══════════════════════════════════════════════════════════
+            FOOTER
+        ══════════════════════════════════════════════════════════ */}
+        <footer
+          style={{
+            borderTop: `1px solid ${T.border}`,
+            padding: "3rem 0",
+            position: "relative",
+            zIndex: 1,
+          }}
+        >
+          <div
+            className="footer-content"
+            style={{
+              maxWidth: "1400px",
+              margin: "0 auto",
+              padding: "0 2.5rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "1.5rem",
+            }}
+          >
+            {/* Logo */}
+            <div
+              style={{
+                fontFamily: "'Fraunces', serif",
+                fontSize: "1.1rem",
+                fontWeight: 600,
+                color: T.muted,
+              }}
+            >
+              Bhagavan<span style={{ color: T.accent }}>.</span>
             </div>
 
-            <div className="footer-links" style={{ display:"flex", gap:"2rem", alignItems:"center" }}>
+            {/* Links */}
+            <div
+              className="footer-links"
+              style={{
+                display: "flex",
+                gap: "2.5rem",
+                alignItems: "center",
+              }}
+            >
               {[
-                { icon:Github,   href:"https://github.com/bhagavan444", label:"GitHub" },
-                { icon:Linkedin, href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", label:"LinkedIn" },
-                { icon:Mail,     href:"mailto:g.sivasatyasaibhagavan@gmail.com", label:"Email" },
-              ].map((l, i) => (
-                <a key={i} href={l.href} target="_blank" rel="noopener noreferrer"
-                  style={{ display:"flex", alignItems:"center", gap:"0.4rem", color:T.muted, textDecoration:"none", fontSize:"0.8rem", transition:"color 0.2s" }}
-                  onMouseEnter={e => e.currentTarget.style.color = "#fff"}
-                  onMouseLeave={e => e.currentTarget.style.color = T.muted}
+                { icon: Github, href: "https://github.com/bhagavan444", label: "GitHub" },
+                {
+                  icon: Linkedin,
+                  href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/",
+                  label: "LinkedIn",
+                },
+                {
+                  icon: Mail,
+                  href: "mailto:g.sivasatyasaibhagavan@gmail.com",
+                  label: "Email",
+                },
+              ].map((link, i) => (
+                <a
+                  key={i}
+                  href={link.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "0.5rem",
+                    color: T.muted,
+                    textDecoration: "none",
+                    fontSize: "0.85rem",
+                    transition: "color 0.2s",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = "#fff")}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = T.muted)}
                 >
-                  <l.icon size={13} /> {l.label}
+                  <link.icon size={14} /> {link.label}
                 </a>
               ))}
             </div>
 
-            <div style={{ fontSize:"0.75rem", color:T.muted, fontFamily:"'JetBrains Mono',monospace" }}>
+            {/* Copyright */}
+            <div
+              style={{
+                fontSize: "0.8rem",
+                color: T.muted,
+                fontFamily: "'JetBrains Mono', monospace",
+              }}
+            >
               © 2026 · Built with precision
             </div>
           </div>

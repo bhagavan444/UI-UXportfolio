@@ -1,44 +1,56 @@
 "use client";
 
-import React, { useState, useRef } from "react";
-import { ExternalLink, MapPin, Calendar, ArrowUpRight, ChevronDown, ChevronUp } from "lucide-react";
+import React, { useState, useEffect, useRef } from "react";
+import { ExternalLink, MapPin, Calendar, CheckCircle2, ArrowUpRight } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════════
-   DESIGN TOKENS
+   DESIGN TOKENS — WHITE BACKGROUND PREMIUM
 ═══════════════════════════════════════════════════════════════ */
 const C = {
-  bg:       "#0f1117",
-  surface:  "#141720",
-  surface2: "#191c26",
-  surface3: "#1e2130",
-  border:   "rgba(255,255,255,0.06)",
-  border2:  "rgba(255,255,255,0.10)",
-  border3:  "rgba(255,255,255,0.15)",
-  text:     "#e8e9ef",
-  muted:    "#6b7280",
-  muted2:   "#9ca3af",
-  accent:   "#4f7fff",
-  green:    "#22c55e",
-  greenDim: "rgba(34,197,94,0.08)",
-  amber:    "#f59e0b",
+  bg: "#ffffff",
+  surface: "#f9fafb",
+  surface2: "#f3f4f6",
+  surface3: "#e5e7eb",
+  border: "rgba(0,0,0,0.06)",
+  border2: "rgba(0,0,0,0.10)",
+  border3: "rgba(0,0,0,0.14)",
+  text: "#0f172a",
+  muted: "#64748b",
+  muted2: "#475569",
+  accent: "#4f7fff",
+  accentDim: "rgba(79,127,255,0.08)",
+  green: "#10b981",
+  greenDim: "rgba(16,185,129,0.08)",
+  amber: "#f59e0b",
+  amberDim: "rgba(245,158,11,0.08)",
+  purple: "#a78bfa",
+  purpleDim: "rgba(167,139,250,0.08)",
 };
 
 /* ═══════════════════════════════════════════════════════════════
-   DATA
+   DATA — TIMELINE STRUCTURE
 ═══════════════════════════════════════════════════════════════ */
-const internships = [
+const experiences = [
   {
     id: 1,
+    year: "2025",
     role: "MERN Stack Intern",
     company: "StudyOwl Education Pvt Ltd",
     period: "May – July 2025",
     duration: "3 months",
     location: "Hybrid",
     type: "Full-Stack Engineering",
-    accentColor: C.accent,
-    accentDim: "rgba(79,127,255,0.08)",
+    accent: C.accent,
+    accentDim: C.accentDim,
     certId: "1bwbNlc9mdPYQOIyUpoiBIOhpyxaMBvbC",
-    responsibilities: [
+    summary: "Built production-grade full-stack applications serving 1,000+ active users with secure authentication and optimized performance.",
+    impact: [
+      { metric: "3", label: "Production Apps", detail: "Complete MERN stack deployments" },
+      { metric: "1,000+", label: "Active Users", detail: "Post-launch engagement" },
+      { metric: "40%", label: "API Optimization", detail: "Reduced response latency" },
+      { metric: "Zero", label: "Downtime", detail: "OAuth 2.0 migration" },
+    ],
+    contributions: [
       "Built 3 full-stack web applications using React, Node.js, Express, and MongoDB — each deployed to production environments",
       "Implemented OAuth 2.0 and JWT-based authentication with role-based access control, replacing an insecure session approach",
       "Optimized REST API response times by 40% through query indexing, caching, and payload restructuring",
@@ -46,31 +58,33 @@ const internships = [
       "Delivered ATS-compatible résumé builder with PDF and DOCX export — used by 1,000+ active users post-launch",
     ],
     stack: {
-      languages:    ["JavaScript", "Node.js", "Python"],
-      frameworks:   ["React", "Express.js", "Mongoose"],
-      databases:    ["MongoDB Atlas", "Redis"],
-      architecture: ["REST API", "OAuth 2.0", "JWT Auth", "Role-Based Access"],
-      deployment:   ["Cloud (AWS)", "Vercel", "CI/CD via GitHub Actions"],
+      "Frontend": ["React", "Redux", "Tailwind CSS"],
+      "Backend": ["Node.js", "Express.js", "Mongoose"],
+      "Database": ["MongoDB Atlas", "Redis Cache"],
+      "Auth & Security": ["OAuth 2.0", "JWT", "bcrypt", "Role-Based Access"],
+      "Deployment": ["AWS EC2", "Vercel", "GitHub Actions CI/CD"],
     },
-    metrics: [
-      { label: "Applications built",   value: "3" },
-      { label: "Active users served",  value: "1,000+" },
-      { label: "API latency reduced",  value: "40%" },
-      { label: "Auth method upgraded", value: "OAuth 2.0" },
-    ],
   },
   {
     id: 2,
+    year: "2025",
     role: "AI / ML Intern",
     company: "SmartBridge",
     period: "May – June 2025",
     duration: "2 months",
     location: "Remote",
     type: "Machine Learning & Computer Vision",
-    accentColor: "#a78bfa",
-    accentDim: "rgba(167,139,250,0.08)",
+    accent: C.purple,
+    accentDim: C.purpleDim,
     certId: "1-_8ZI8uZ3DcrFpfZ3pts7VSYrAqPN5Zw",
-    responsibilities: [
+    summary: "Trained and deployed ML models achieving 85%+ accuracy across classification and object detection tasks with real-time inference capabilities.",
+    impact: [
+      { metric: "5+", label: "ML Models", detail: "Classification & detection" },
+      { metric: "85%", label: "Accuracy", detail: "CNN image classifier" },
+      { metric: "35%", label: "Speed Gain", detail: "Inference optimization" },
+      { metric: "3,000+", label: "Samples", detail: "Training dataset size" },
+    ],
+    contributions: [
       "Trained and evaluated 5+ machine learning and deep learning models across classification and object detection tasks",
       "Built CNN-based image classifier achieving 85% accuracy on a custom dataset of 3,000+ labeled samples",
       "Implemented end-to-end ML pipeline: data ingestion, preprocessing, model training, evaluation, and Flask API deployment",
@@ -78,31 +92,33 @@ const internships = [
       "Deployed real-time object detection system using OpenCV and Flask, accessible via REST endpoint",
     ],
     stack: {
-      languages:    ["Python"],
-      frameworks:   ["TensorFlow", "Keras", "Scikit-learn", "Flask"],
-      libraries:    ["OpenCV", "NumPy", "Pandas", "Matplotlib"],
-      architecture: ["CNN Architecture", "TF-IDF Pipeline", "REST Inference API"],
-      deployment:   ["Flask Server", "Docker", "Google Colab"],
+      "Core ML": ["TensorFlow", "Keras", "Scikit-learn"],
+      "Computer Vision": ["OpenCV", "PIL", "Albumentations"],
+      "Data Processing": ["NumPy", "Pandas", "Matplotlib"],
+      "Deployment": ["Flask", "Docker", "REST API"],
+      "Environment": ["Google Colab", "Jupyter", "Python 3.9"],
     },
-    metrics: [
-      { label: "ML/DL models built",       value: "5+" },
-      { label: "Image classification acc.", value: "85%" },
-      { label: "Inference time reduced",    value: "35%" },
-      { label: "Training samples",          value: "3,000+" },
-    ],
   },
   {
     id: 3,
+    year: "2024",
     role: "Machine Learning & Data Science Intern",
     company: "Blackbucks",
     period: "May – June 2024",
     duration: "2 months",
     location: "Remote",
     type: "Data Science & ML Engineering",
-    accentColor: C.green,
+    accent: C.green,
     accentDim: C.greenDim,
     certId: "1yQQqBf32o8d3sYlheDCdaLTKj5_hepfY",
-    responsibilities: [
+    summary: "Processed 100K+ records and built supervised learning models achieving 92% accuracy with advanced feature engineering.",
+    impact: [
+      { metric: "100K+", label: "Records", detail: "Cleaned and processed" },
+      { metric: "92%", label: "Accuracy", detail: "Best model performance" },
+      { metric: "6", label: "Models", detail: "Supervised learning" },
+      { metric: "89%", label: "NLP", detail: "Fake news detection" },
+    ],
+    contributions: [
       "Processed and cleaned datasets exceeding 100,000 records using Pandas and NumPy, resolving nulls, duplicates, and schema inconsistencies",
       "Built 6 supervised learning models (Logistic Regression, SVM, Random Forest, XGBoost) with cross-validated accuracy reaching 92%",
       "Engineered 15+ features using domain analysis, correlation filtering, and PCA — improving model F1-score by 12%",
@@ -110,535 +126,1359 @@ const internships = [
       "Automated data cleaning and validation workflows, reducing manual preprocessing time by 60%",
     ],
     stack: {
-      languages:    ["Python"],
-      frameworks:   ["Scikit-learn", "XGBoost"],
-      libraries:    ["Pandas", "NumPy", "Matplotlib", "Seaborn"],
-      architecture: ["Supervised Learning Pipeline", "TF-IDF + Logistic Regression", "Feature Engineering"],
-      deployment:   ["Jupyter Notebook", "GitHub"],
+      "ML Frameworks": ["Scikit-learn", "XGBoost", "LightGBM"],
+      "Data Science": ["Pandas", "NumPy", "SciPy"],
+      "Visualization": ["Matplotlib", "Seaborn", "Plotly"],
+      "NLP": ["NLTK", "TF-IDF", "CountVectorizer"],
+      "Environment": ["Jupyter Notebook", "Python 3.8", "Git"],
     },
-    metrics: [
-      { label: "Records processed",        value: "100,000+" },
-      { label: "Models trained",            value: "6" },
-      { label: "Best model accuracy",       value: "92%" },
-      { label: "Fake news classifier acc.", value: "89%" },
-    ],
   },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
-   HELPERS
+   CUSTOM CURSOR
 ═══════════════════════════════════════════════════════════════ */
-const getCertUrl  = (id) => `https://drive.google.com/file/d/${id}/view`;
-const getThumbUrl = (id) => `https://drive.google.com/thumbnail?id=${id}&sz=w800`;
+function CustomCursor() {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const [isHovering, setIsHovering] = useState(false);
+  const [currentAccent, setCurrentAccent] = useState(C.accent);
 
-function useInView(threshold = 0.12) {
-  const ref  = useRef(null);
-  const [inView, setInView] = React.useState(false);
-  React.useEffect(() => {
-    const ob = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
-    if (ref.current) ob.observe(ref.current);
-    return () => ob.disconnect();
+  useEffect(() => {
+    const handleMove = (e) => {
+      setPosition({ x: e.clientX, y: e.clientY });
+
+      const target = e.target;
+      const isInteractive =
+        target.tagName === "A" ||
+        target.tagName === "BUTTON" ||
+        target.closest("[data-magnetic]") ||
+        target.closest("[data-hover]");
+      setIsHovering(!!isInteractive);
+
+      const section = target.closest("[data-accent]");
+      if (section) {
+        setCurrentAccent(section.dataset.accent);
+      }
+    };
+
+    window.addEventListener("mousemove", handleMove);
+    return () => window.removeEventListener("mousemove", handleMove);
   }, []);
-  return [ref, inView];
-}
 
-/* ─── Thin divider ─── */
-function Hr({ style }) {
-  return <div style={{ height: "1px", background: C.border, ...style }} />;
-}
-
-/* ─── Stack table row ─── */
-function StackRow({ label, items }) {
-  if (!items || items.length === 0) return null;
   return (
-    <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start", padding: "0.55rem 0", borderBottom: `1px solid ${C.border}` }}>
-      <span style={{ fontSize: "0.72rem", fontFamily: "'DM Mono',monospace", color: C.muted, letterSpacing: "0.06em", minWidth: "100px", paddingTop: "0.15rem", flexShrink: 0 }}>
-        {label}
-      </span>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "0.35rem" }}>
-        {items.map((t, i) => (
-          <span key={i} style={{
-            padding: "0.2rem 0.6rem", borderRadius: "4px",
-            background: C.surface3, border: `1px solid ${C.border2}`,
-            fontSize: "0.72rem", fontWeight: 500, color: C.muted2,
-            fontFamily: "'DM Mono',monospace",
-          }}>
-            {t}
-          </span>
-        ))}
-      </div>
+    <>
+      <div
+        style={{
+          position: "fixed",
+          left: position.x,
+          top: position.y,
+          width: isHovering ? "32px" : "8px",
+          height: isHovering ? "32px" : "8px",
+          borderRadius: "50%",
+          background: isHovering ? "transparent" : currentAccent,
+          border: isHovering ? `2px solid ${currentAccent}` : "none",
+          pointerEvents: "none",
+          zIndex: 10000,
+          transform: "translate(-50%, -50%)",
+          transition: "width 0.2s ease, height 0.2s ease, background 0.2s ease, border 0.2s ease",
+          mixBlendMode: "difference",
+        }}
+      />
+      <div
+        style={{
+          position: "fixed",
+          left: position.x,
+          top: position.y,
+          width: isHovering ? "64px" : "48px",
+          height: isHovering ? "64px" : "48px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${currentAccent}15 0%, transparent 70%)`,
+          pointerEvents: "none",
+          zIndex: 9999,
+          transform: "translate(-50%, -50%)",
+          transition: "width 0.3s ease, height 0.3s ease",
+        }}
+      />
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ANIMATED COUNTER
+═══════════════════════════════════════════════════════════════ */
+function AnimatedCounter({ value, duration = 2000 }) {
+  const [count, setCount] = useState(0);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasAnimated) {
+          setHasAnimated(true);
+          
+          // Handle string values like "1,000+" or "100K+"
+          const numericValue = parseInt(value.toString().replace(/[^0-9]/g, "")) || 0;
+          const start = 0;
+          const end = numericValue;
+          const startTime = Date.now();
+
+          const animate = () => {
+            const now = Date.now();
+            const progress = Math.min((now - startTime) / duration, 1);
+            const eased = 1 - Math.pow(1 - progress, 3);
+            setCount(Math.floor(start + (end - start) * eased));
+
+            if (progress < 1) {
+              requestAnimationFrame(animate);
+            } else {
+              setCount(end);
+            }
+          };
+
+          animate();
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, [value, duration, hasAnimated]);
+
+  // Format the count back to original format
+  const formatCount = (num) => {
+    if (value.toString().includes("K")) {
+      return `${(num / 1000).toFixed(0)}K+`;
+    }
+    if (value.toString().includes(",")) {
+      return `${num.toLocaleString()}+`;
+    }
+    return num.toString();
+  };
+
+  return <span ref={ref}>{formatCount(count)}</span>;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SCROLL PROGRESS
+═══════════════════════════════════════════════════════════════ */
+function ScrollProgress() {
+  const [progress, setProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const total = document.documentElement.scrollHeight - window.innerHeight;
+      setProgress((window.scrollY / total) * 100);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  return (
+    <div
+      style={{
+        position: "fixed",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "2px",
+        background: C.surface2,
+        zIndex: 9998,
+      }}
+    >
+      <div
+        style={{
+          height: "100%",
+          width: `${progress}%`,
+          background: `linear-gradient(90deg, ${C.accent}, ${C.purple}, ${C.green})`,
+          transition: "width 0.1s linear",
+        }}
+      />
     </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   INTERNSHIP CARD
+   STICKY TIMELINE RAIL
 ═══════════════════════════════════════════════════════════════ */
-function InternshipCard({ data, index }) {
-  const [expanded, setExpanded] = useState(false);
-  const [hovered,  setHovered]  = useState(false);
-  const [ref, inView]           = useInView();
+function TimelineRail() {
+  const [activeIndex, setActiveIndex] = useState(0);
 
-  const ac  = data.accentColor;
-  const dim = data.accentDim;
+  useEffect(() => {
+    const handleScroll = () => {
+      const sections = document.querySelectorAll("[data-experience]");
+      let current = 0;
+
+      sections.forEach((section, index) => {
+        const rect = section.getBoundingClientRect();
+        if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
+          current = index;
+        }
+      });
+
+      setActiveIndex(current);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   return (
-    <article
-      ref={ref}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
+    <div
       style={{
-        background:    C.surface,
-        border:        `1px solid ${hovered ? ac + "28" : C.border}`,
-        borderRadius:  "18px",
-        overflow:      "hidden",
-        transition:    "border-color 0.3s ease, box-shadow 0.3s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1)",
-        transform:     hovered ? "translateY(-4px)" : "translateY(0)",
-        boxShadow:     hovered ? `0 20px 56px rgba(0,0,0,0.45)` : "0 2px 16px rgba(0,0,0,0.3)",
-        opacity:       inView ? 1 : 0,
-        animation:     inView ? `cardReveal 0.6s cubic-bezier(0.22,1,0.36,1) ${index * 0.12}s both` : "none",
+        position: "fixed",
+        left: "3rem",
+        top: "50%",
+        transform: "translateY(-50%)",
+        zIndex: 100,
+        display: "flex",
+        flexDirection: "column",
+        gap: "2rem",
       }}
     >
-      {/* Accent top line */}
-      <div style={{ height: "2px", background: `linear-gradient(90deg, ${ac}, transparent 70%)` }} />
-
-      {/* ── HEADER ── */}
-      <div style={{ padding: "1.75rem 2rem 0" }}>
-        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "1rem", marginBottom: "1.25rem", flexWrap: "wrap" }}>
-
-          {/* Left: role + company */}
-          <div style={{ flex: 1 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.65rem", marginBottom: "0.4rem" }}>
-              <span style={{
-                fontFamily: "'DM Mono',monospace", fontSize: "0.68rem", fontWeight: 600,
-                letterSpacing: "0.14em", textTransform: "uppercase",
-                color: ac, background: dim,
-                border: `1px solid ${ac}30`,
-                padding: "0.2rem 0.6rem", borderRadius: "4px",
-              }}>
-                {String(index + 1).padStart(2, "0")}
-              </span>
-              <span style={{ fontSize: "0.72rem", color: C.muted, fontFamily: "'DM Mono',monospace", letterSpacing: "0.08em" }}>
-                {data.type}
-              </span>
-            </div>
-
-            <h3 style={{
-              fontFamily: "'Instrument Serif',serif",
-              fontSize: "1.45rem", fontWeight: 400,
-              color: C.text, letterSpacing: "-0.025em",
-              lineHeight: 1.2, marginBottom: "0.3rem",
-            }}>
-              {data.role}
-            </h3>
-            <div style={{ fontSize: "1rem", fontWeight: 600, color: C.muted2 }}>{data.company}</div>
-          </div>
-
-          {/* Right: meta + cert link */}
-          <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem", alignItems: "flex-end", flexShrink: 0 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.775rem", color: C.muted, fontFamily: "'DM Mono',monospace" }}>
-              <Calendar size={12} style={{ color: C.muted }} /> {data.period} · {data.duration}
-            </div>
-            <div style={{ display: "flex", alignItems: "center", gap: "0.4rem", fontSize: "0.775rem", color: C.muted, fontFamily: "'DM Mono',monospace" }}>
-              <MapPin size={12} style={{ color: C.muted }} /> {data.location}
-            </div>
-            <a
-              href={getCertUrl(data.certId)}
-              target="_blank"
-              rel="noopener noreferrer"
+      {experiences.map((exp, i) => (
+        <div
+          key={exp.id}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "1rem",
+            cursor: "pointer",
+            transition: "all 0.3s ease",
+          }}
+          onClick={() => {
+            document.getElementById(`exp-${exp.id}`)?.scrollIntoView({ behavior: "smooth" });
+          }}
+        >
+          <div
+            style={{
+              width: activeIndex === i ? "48px" : "24px",
+              height: "2px",
+              background: activeIndex === i ? exp.accent : C.border2,
+              transition: "all 0.3s ease",
+            }}
+          />
+          <div
+            style={{
+              opacity: activeIndex === i ? 1 : 0,
+              transform: activeIndex === i ? "translateX(0)" : "translateX(-8px)",
+              transition: "all 0.3s ease",
+            }}
+          >
+            <div
               style={{
-                display: "inline-flex", alignItems: "center", gap: "0.3rem",
-                marginTop: "0.25rem",
-                fontSize: "0.72rem", fontWeight: 600, color: ac,
-                fontFamily: "'DM Mono',monospace",
-                textDecoration: "none", letterSpacing: "0.04em",
-                padding: "0.25rem 0.65rem",
-                border: `1px solid ${ac}30`,
-                borderRadius: "5px",
-                background: dim,
-                transition: "all 0.2s ease",
+                fontSize: "0.7rem",
+                fontFamily: "'DM Mono', monospace",
+                color: exp.accent,
+                fontWeight: 600,
+                whiteSpace: "nowrap",
               }}
-              onMouseEnter={e => { e.currentTarget.style.background = ac + "18"; e.currentTarget.style.borderColor = ac + "60"; }}
-              onMouseLeave={e => { e.currentTarget.style.background = dim; e.currentTarget.style.borderColor = ac + "30"; }}
             >
-              <ExternalLink size={10} /> View Certificate
-            </a>
-          </div>
-        </div>
-
-        <Hr />
-
-        {/* ── METRICS ROW ── */}
-        <div style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "0",
-          margin: "0 -2rem",
-          borderBottom: `1px solid ${C.border}`,
-        }}>
-          {data.metrics.map((m, i) => (
-            <div key={i} style={{
-              padding: "1rem 1.25rem",
-              borderRight: i < data.metrics.length - 1 ? `1px solid ${C.border}` : "none",
-              textAlign: "center",
-            }}>
-              <div style={{
-                fontFamily: "'Instrument Serif',serif",
-                fontSize: "1.45rem", fontWeight: 400,
-                color: ac, letterSpacing: "-0.02em",
-                marginBottom: "0.2rem",
-              }}>
-                {m.value}
-              </div>
-              <div style={{ fontSize: "0.68rem", color: C.muted, lineHeight: 1.4, fontWeight: 500 }}>
-                {m.label}
-              </div>
+              {exp.year}
             </div>
-          ))}
-        </div>
-      </div>
-
-      {/* ── RESPONSIBILITIES ── */}
-      <div style={{ padding: "1.5rem 2rem 0" }}>
-        <div style={{ fontSize: "0.67rem", fontWeight: 700, color: C.muted, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "'DM Mono',monospace", marginBottom: "1rem" }}>
-          Key Contributions
-        </div>
-        <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "0.7rem", marginBottom: "1.5rem" }}>
-          {data.responsibilities.map((r, i) => (
-            <li key={i} style={{ display: "flex", gap: "0.75rem", alignItems: "flex-start" }}>
-              <span style={{
-                marginTop: "0.35rem", width: "5px", height: "5px", borderRadius: "50%",
-                background: ac, flexShrink: 0, opacity: 0.9,
-              }} />
-              <span style={{ fontSize: "0.85rem", color: C.muted2, lineHeight: 1.7, fontWeight: 400 }}>
-                {r}
-              </span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {/* ── EXPAND TOGGLE ── */}
-      <button
-        onClick={() => setExpanded(v => !v)}
-        style={{
-          width: "100%", background: "none", border: "none",
-          borderTop: `1px solid ${C.border}`,
-          padding: "0.9rem 2rem",
-          display: "flex", alignItems: "center", justifyContent: "space-between",
-          cursor: "pointer",
-          color: C.muted, fontSize: "0.775rem", fontFamily: "'DM Mono',monospace",
-          fontWeight: 500, letterSpacing: "0.06em",
-          transition: "background 0.2s ease",
-        }}
-        onMouseEnter={e => e.currentTarget.style.background = C.surface2}
-        onMouseLeave={e => e.currentTarget.style.background = "transparent"}
-      >
-        <span>{expanded ? "Hide technical details" : "View technical stack & architecture"}</span>
-        {expanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-      </button>
-
-      {/* ── EXPANDABLE: STACK ── */}
-      {expanded && (
-        <div style={{
-          padding: "1.5rem 2rem 2rem",
-          background: C.surface2,
-          borderTop: `1px solid ${C.border}`,
-          animation: "expandDown 0.25s ease both",
-        }}>
-          <div style={{ fontSize: "0.67rem", fontWeight: 700, color: C.muted, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "'DM Mono',monospace", marginBottom: "1rem" }}>
-            Technical Stack
-          </div>
-
-          <div style={{ borderTop: `1px solid ${C.border}` }}>
-            <StackRow label="Languages"    items={data.stack.languages} />
-            <StackRow label="Frameworks"   items={data.stack.frameworks} />
-            <StackRow label="Libraries"    items={data.stack.libraries} />
-            <StackRow label="Architecture" items={data.stack.architecture} />
-            <StackRow label="Deployment"   items={data.stack.deployment} />
-          </div>
-
-          {/* Certificate preview thumbnail */}
-          <div style={{ marginTop: "1.5rem" }}>
-            <div style={{ fontSize: "0.67rem", fontWeight: 700, color: C.muted, letterSpacing: "0.15em", textTransform: "uppercase", fontFamily: "'DM Mono',monospace", marginBottom: "0.75rem" }}>
-              Certificate of Completion
-            </div>
-            <div style={{
-              borderRadius: "10px", overflow: "hidden",
-              border: `1px solid ${C.border2}`,
-              background: C.surface3,
-              position: "relative", maxWidth: "380px",
-            }}>
-              <img
-                src={getThumbUrl(data.certId)}
-                alt={`${data.company} certificate`}
-                style={{ width: "100%", display: "block", opacity: 0.85 }}
-                loading="lazy"
-              />
-              <a
-                href={getCertUrl(data.certId)}
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  position: "absolute", inset: 0,
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  background: "rgba(0,0,0,0)",
-                  transition: "background 0.2s ease",
-                  textDecoration: "none",
-                }}
-                onMouseEnter={e => { e.currentTarget.style.background = "rgba(0,0,0,0.55)"; e.currentTarget.querySelector("span").style.opacity = "1"; }}
-                onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,0,0,0)"; e.currentTarget.querySelector("span").style.opacity = "0"; }}
-              >
-                <span style={{
-                  opacity: 0, transition: "opacity 0.2s ease",
-                  display: "inline-flex", alignItems: "center", gap: "0.4rem",
-                  fontSize: "0.8rem", fontWeight: 600, color: "#fff",
-                  fontFamily: "'DM Mono',monospace",
-                  padding: "0.5rem 1rem",
-                  background: "rgba(0,0,0,0.8)",
-                  border: "1px solid rgba(255,255,255,0.15)",
-                  borderRadius: "6px",
-                }}>
-                  <ArrowUpRight size={13} /> Open Certificate
-                </span>
-              </a>
+            <div
+              style={{
+                fontSize: "0.65rem",
+                fontFamily: "'DM Mono', monospace",
+                color: C.muted,
+                whiteSpace: "nowrap",
+              }}
+            >
+              {exp.company.split(" ")[0]}
             </div>
           </div>
         </div>
-      )}
-    </article>
+      ))}
+    </div>
   );
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   MAIN PAGE
+   MAGNETIC BUTTON
+═══════════════════════════════════════════════════════════════ */
+function MagneticButton({ children, href, accent, style }) {
+  const [position, setPosition] = useState({ x: 0, y: 0 });
+  const ref = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    setPosition({ x: x * 0.3, y: y * 0.3 });
+  };
+
+  const handleMouseLeave = () => {
+    setPosition({ x: 0, y: 0 });
+  };
+
+  return (
+    <a
+      ref={ref}
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      data-magnetic
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        gap: "0.5rem",
+        padding: "0.75rem 1.5rem",
+        background: accent + "10",
+        border: `1px solid ${accent}40`,
+        borderRadius: "8px",
+        fontSize: "0.875rem",
+        fontWeight: 600,
+        color: accent,
+        textDecoration: "none",
+        fontFamily: "'DM Mono', monospace",
+        transition: "all 0.2s ease",
+        transform: `translate(${position.x}px, ${position.y}px)`,
+        ...style,
+      }}
+      onMouseEnter={(e) => {
+        e.currentTarget.style.background = accent + "20";
+        e.currentTarget.style.borderColor = accent + "60";
+      }}
+      onMouseLeave={(e) => {
+        e.currentTarget.style.background = accent + "10";
+        e.currentTarget.style.borderColor = accent + "40";
+      }}
+    >
+      {children}
+    </a>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   EXPERIENCE SECTION
+═══════════════════════════════════════════════════════════════ */
+function ExperienceSection({ data, index, isLast }) {
+  const [inView, setInView] = useState(false);
+  const [activeTab, setActiveTab] = useState("contributions");
+  const [tilt, setTilt] = useState({ x: 0, y: 0 });
+  const ref = useRef(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) setInView(true);
+      },
+      { threshold: 0.2 }
+    );
+    if (ref.current) observer.observe(ref.current);
+    return () => observer.disconnect();
+  }, []);
+
+  const handleMouseMove = (e) => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setTilt({ x: y * 2, y: -x * 2 });
+  };
+
+  const handleMouseLeave = () => {
+    setTilt({ x: 0, y: 0 });
+  };
+
+  return (
+    <section
+      id={`exp-${data.id}`}
+      ref={ref}
+      data-experience
+      data-accent={data.accent}
+      style={{
+        minHeight: "100vh",
+        display: "flex",
+        alignItems: "center",
+        position: "relative",
+        padding: "8rem 0",
+        opacity: inView ? 1 : 0,
+        transform: inView ? "translateY(0)" : "translateY(60px)",
+        transition: "opacity 0.8s ease, transform 0.8s ease",
+        borderBottom: isLast ? "none" : `1px solid ${C.border}`,
+      }}
+    >
+      {/* Year watermark */}
+      <div
+        style={{
+          position: "absolute",
+          left: "-2%",
+          top: "20%",
+          fontSize: "clamp(10rem, 18vw, 20rem)",
+          fontFamily: "'Instrument Serif', serif",
+          fontWeight: 400,
+          color: data.accentDim,
+          lineHeight: 1,
+          userSelect: "none",
+          pointerEvents: "none",
+          opacity: 0.4,
+        }}
+      >
+        {data.year}
+      </div>
+
+      {/* Background glow */}
+      <div
+        style={{
+          position: "absolute",
+          left: "15%",
+          top: "30%",
+          width: "600px",
+          height: "600px",
+          borderRadius: "50%",
+          background: `radial-gradient(circle, ${data.accent}10 0%, transparent 70%)`,
+          filter: "blur(100px)",
+          pointerEvents: "none",
+        }}
+      />
+
+      <div
+        style={{
+          maxWidth: "1240px",
+          margin: "0 auto",
+          padding: "0 2rem",
+          width: "100%",
+        }}
+      >
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1.2fr 1fr",
+            gap: "6rem",
+            alignItems: "start",
+          }}
+        >
+          {/* Left: Content */}
+          <div
+            style={{
+              opacity: inView ? 1 : 0,
+              transform: inView ? "translateX(0)" : "translateX(-40px)",
+              transition: "opacity 0.8s ease 0.2s, transform 0.8s ease 0.2s",
+            }}
+          >
+            {/* Header */}
+            <div style={{ marginBottom: "2rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.75rem",
+                  marginBottom: "1rem",
+                }}
+              >
+                <div style={{ width: "32px", height: "2px", background: data.accent }} />
+                <span
+                  style={{
+                    fontFamily: "'DM Mono', monospace",
+                    fontSize: "0.7rem",
+                    fontWeight: 600,
+                    letterSpacing: "0.2em",
+                    textTransform: "uppercase",
+                    color: data.accent,
+                  }}
+                >
+                  {data.period} · {data.duration}
+                </span>
+              </div>
+
+              <div
+                style={{
+                  fontSize: "0.875rem",
+                  color: C.muted,
+                  fontFamily: "'DM Mono', monospace",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {data.type}
+              </div>
+
+              <h2
+                style={{
+                  fontFamily: "'Instrument Serif', serif",
+                  fontSize: "clamp(2.5rem, 5vw, 3.5rem)",
+                  fontWeight: 400,
+                  color: C.text,
+                  lineHeight: 1.1,
+                  letterSpacing: "-0.02em",
+                  marginBottom: "0.5rem",
+                }}
+              >
+                {data.role}
+              </h2>
+
+              <div
+                style={{
+                  fontSize: "1.25rem",
+                  fontWeight: 600,
+                  color: C.muted2,
+                  marginBottom: "0.75rem",
+                }}
+              >
+                {data.company}
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "0.5rem",
+                  fontSize: "0.875rem",
+                  color: C.muted,
+                }}
+              >
+                <MapPin size={14} />
+                {data.location}
+              </div>
+            </div>
+
+            {/* Animated underline */}
+            <div
+              style={{
+                width: "120px",
+                height: "3px",
+                background: `linear-gradient(90deg, ${data.accent}, transparent)`,
+                borderRadius: "2px",
+                marginBottom: "2rem",
+                animation: inView ? "lineGrow 0.8s ease 0.4s both" : "none",
+              }}
+            />
+
+            {/* Summary */}
+            <p
+              style={{
+                fontSize: "1.05rem",
+                color: C.muted2,
+                lineHeight: 1.8,
+                marginBottom: "3rem",
+              }}
+            >
+              {data.summary}
+            </p>
+
+            {/* Tab navigation */}
+            <div style={{ marginBottom: "2rem" }}>
+              <div
+                style={{
+                  display: "flex",
+                  gap: "2rem",
+                  borderBottom: `1px solid ${C.border}`,
+                  position: "relative",
+                }}
+              >
+                {["contributions", "stack"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    style={{
+                      background: "none",
+                      border: "none",
+                      padding: "1rem 0",
+                      fontSize: "0.875rem",
+                      fontWeight: 600,
+                      color: activeTab === tab ? C.text : C.muted,
+                      cursor: "pointer",
+                      transition: "color 0.2s ease",
+                      textTransform: "capitalize",
+                      position: "relative",
+                    }}
+                  >
+                    {tab}
+                    {activeTab === tab && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          bottom: -1,
+                          left: 0,
+                          right: 0,
+                          height: "2px",
+                          background: data.accent,
+                          animation: "slideIn 0.3s ease",
+                        }}
+                      />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Tab content */}
+            <div
+              style={{
+                minHeight: "300px",
+              }}
+            >
+              {activeTab === "contributions" && (
+                <div
+                  style={{
+                    animation: "fadeSlide 0.4s ease",
+                  }}
+                >
+                  <ul
+                    style={{
+                      listStyle: "none",
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1rem",
+                    }}
+                  >
+                    {data.contributions.map((item, i) => (
+                      <li
+                        key={i}
+                        style={{
+                          display: "flex",
+                          gap: "1rem",
+                          alignItems: "flex-start",
+                        }}
+                      >
+                        <div
+                          style={{
+                            marginTop: "0.4rem",
+                            width: "6px",
+                            height: "6px",
+                            borderRadius: "50%",
+                            background: data.accent,
+                            flexShrink: 0,
+                          }}
+                        />
+                        <span
+                          style={{
+                            fontSize: "0.95rem",
+                            color: C.muted2,
+                            lineHeight: 1.7,
+                          }}
+                        >
+                          {item}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {activeTab === "stack" && (
+                <div
+                  style={{
+                    animation: "fadeSlide 0.4s ease",
+                  }}
+                >
+                  <div
+                    style={{
+                      display: "flex",
+                      flexDirection: "column",
+                      gap: "1.5rem",
+                    }}
+                  >
+                    {Object.entries(data.stack).map(([category, items]) => (
+                      <div key={category}>
+                        <div
+                          style={{
+                            fontSize: "0.75rem",
+                            fontWeight: 700,
+                            color: data.accent,
+                            marginBottom: "0.75rem",
+                            fontFamily: "'DM Mono', monospace",
+                            letterSpacing: "0.1em",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {category}
+                        </div>
+                        <div
+                          style={{
+                            display: "flex",
+                            flexWrap: "wrap",
+                            gap: "0.5rem",
+                          }}
+                        >
+                          {items.map((tech) => (
+                            <span
+                              key={tech}
+                              data-hover
+                              style={{
+                                padding: "0.5rem 1rem",
+                                background: C.surface,
+                                border: `1px solid ${C.border}`,
+                                borderRadius: "6px",
+                                fontSize: "0.85rem",
+                                fontWeight: 500,
+                                color: C.muted2,
+                                transition: "all 0.2s ease",
+                                cursor: "default",
+                              }}
+                              onMouseEnter={(e) => {
+                                e.currentTarget.style.background = data.accentDim;
+                                e.currentTarget.style.borderColor = data.accent + "40";
+                                e.currentTarget.style.color = C.text;
+                                e.currentTarget.style.transform = "translateY(-2px)";
+                              }}
+                              onMouseLeave={(e) => {
+                                e.currentTarget.style.background = C.surface;
+                                e.currentTarget.style.borderColor = C.border;
+                                e.currentTarget.style.color = C.muted2;
+                                e.currentTarget.style.transform = "translateY(0)";
+                              }}
+                            >
+                              {tech}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Certificate button */}
+            <div style={{ marginTop: "3rem" }}>
+              <MagneticButton href={`https://drive.google.com/file/d/${data.certId}/view`} accent={data.accent}>
+                <CheckCircle2 size={16} />
+                View Verified Certificate
+              </MagneticButton>
+            </div>
+          </div>
+
+          {/* Right: Metrics */}
+          <div
+            style={{
+              opacity: inView ? 1 : 0,
+              transform: inView ? "translateX(0)" : "translateX(40px)",
+              transition: "opacity 0.8s ease 0.4s, transform 0.8s ease 0.4s",
+              position: "sticky",
+              top: "6rem",
+            }}
+            onMouseMove={handleMouseMove}
+            onMouseLeave={handleMouseLeave}
+          >
+            <div
+              style={{
+                position: "relative",
+                padding: "3rem 2.5rem",
+                background: C.surface,
+                border: `1px solid ${C.border}`,
+                borderRadius: "24px",
+                transform: `perspective(1000px) rotateX(${tilt.x}deg) rotateY(${tilt.y}deg)`,
+                transition: "transform 0.2s ease",
+                boxShadow: `0 20px 48px rgba(0,0,0,0.06)`,
+              }}
+            >
+              {/* Glow overlay */}
+              <div
+                style={{
+                  position: "absolute",
+                  inset: 0,
+                  borderRadius: "24px",
+                  background: `radial-gradient(circle at 50% 50%, ${data.accent}08 0%, transparent 60%)`,
+                  pointerEvents: "none",
+                }}
+              />
+
+              <div
+                style={{
+                  fontSize: "0.7rem",
+                  fontWeight: 700,
+                  color: C.muted,
+                  letterSpacing: "0.15em",
+                  textTransform: "uppercase",
+                  fontFamily: "'DM Mono', monospace",
+                  marginBottom: "2rem",
+                }}
+              >
+                Impact Metrics
+              </div>
+
+              <div
+                style={{
+                  display: "flex",
+                  flexDirection: "column",
+                  gap: "2rem",
+                }}
+              >
+                {data.impact.map((item, i) => (
+                  <div
+                    key={i}
+                    style={{
+                      paddingBottom: i < data.impact.length - 1 ? "2rem" : 0,
+                      borderBottom:
+                        i < data.impact.length - 1 ? `1px solid ${C.border}` : "none",
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontFamily: "'Instrument Serif', serif",
+                        fontSize: "3rem",
+                        fontWeight: 400,
+                        color: data.accent,
+                        lineHeight: 1,
+                        marginBottom: "0.5rem",
+                        letterSpacing: "-0.03em",
+                      }}
+                    >
+                      <AnimatedCounter value={item.metric} />
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "1rem",
+                        fontWeight: 600,
+                        color: C.text,
+                        marginBottom: "0.25rem",
+                      }}
+                    >
+                      {item.label}
+                    </div>
+                    <div
+                      style={{
+                        fontSize: "0.85rem",
+                        color: C.muted,
+                        lineHeight: 1.6,
+                      }}
+                    >
+                      {item.detail}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Certificate thumbnail */}
+              <div
+                style={{
+                  marginTop: "2.5rem",
+                  paddingTop: "2rem",
+                  borderTop: `1px solid ${C.border}`,
+                }}
+              >
+                <div
+                  style={{
+                    borderRadius: "12px",
+                    overflow: "hidden",
+                    border: `1px solid ${C.border}`,
+                    position: "relative",
+                    transition: "all 0.3s ease",
+                    cursor: "pointer",
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.transform = "scale(1.02)";
+                    e.currentTarget.querySelector(".cert-overlay").style.opacity = "1";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.transform = "scale(1)";
+                    e.currentTarget.querySelector(".cert-overlay").style.opacity = "0";
+                  }}
+                >
+                  <img
+                    src={`https://drive.google.com/thumbnail?id=${data.certId}&sz=w800`}
+                    alt={`${data.company} certificate`}
+                    style={{
+                      width: "100%",
+                      display: "block",
+                      transition: "all 0.3s ease",
+                    }}
+                    loading="lazy"
+                  />
+                  <div
+                    className="cert-overlay"
+                    style={{
+                      position: "absolute",
+                      inset: 0,
+                      background: "rgba(0,0,0,0.6)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      opacity: 0,
+                      transition: "opacity 0.3s ease",
+                    }}
+                  >
+                    <div
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "0.5rem",
+                        fontSize: "0.875rem",
+                        fontWeight: 600,
+                        color: "#fff",
+                        padding: "0.75rem 1.25rem",
+                        background: "rgba(0,0,0,0.8)",
+                        borderRadius: "8px",
+                        border: `1px solid ${data.accent}60`,
+                      }}
+                    >
+                      <ArrowUpRight size={16} />
+                      View Certificate
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN COMPONENT
 ═══════════════════════════════════════════════════════════════ */
 export default function Internships() {
-  const [scrollPct, setScrollPct] = React.useState(0);
-  const [headerRef, headerIn]     = useInView(0.2);
-  const [summaryRef, summaryIn]   = useInView(0.2);
+  const [headerInView, setHeaderInView] = useState(false);
+  const [summaryInView, setSummaryInView] = useState(false);
+  const headerRef = useRef(null);
+  const summaryRef = useRef(null);
 
-  React.useEffect(() => {
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollPct(max > 0 ? (window.scrollY / max) * 100 : 0);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+  useEffect(() => {
+    const observers = [
+      { ref: headerRef, setter: setHeaderInView },
+      { ref: summaryRef, setter: setSummaryInView },
+    ];
+
+    const observerInstances = observers.map(({ ref, setter }) => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) setter(true);
+        },
+        { threshold: 0.2 }
+      );
+      if (ref.current) observer.observe(ref.current);
+      return observer;
+    });
+
+    return () => observerInstances.forEach((obs) => obs.disconnect());
   }, []);
 
   return (
     <>
-      {/* ── GLOBAL CSS ── */}
+      {/* ═══════ GLOBAL STYLES ═══════ */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500;600;700&family=Geist:wght@300;400;500;600;700&display=swap');
 
-        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-        html { scroll-behavior:smooth; }
+        *, *::before, *::after {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
+
+        html {
+          scroll-behavior: smooth;
+        }
+
         body {
-          font-family:'Geist','DM Sans',system-ui,sans-serif;
-          background:${C.bg};
-          color:${C.text};
-          -webkit-font-smoothing:antialiased;
-          overflow-x:hidden;
+          font-family: 'Geist', system-ui, sans-serif;
+          background: ${C.bg};
+          color: ${C.text};
+          -webkit-font-smoothing: antialiased;
+          cursor: none;
         }
-        ::selection { background:rgba(79,127,255,0.25); }
-        ::-webkit-scrollbar { width:5px; }
-        ::-webkit-scrollbar-track { background:${C.bg}; }
-        ::-webkit-scrollbar-thumb { background:rgba(79,127,255,0.3); border-radius:3px; }
 
-        @keyframes cardReveal {
-          from { opacity:0; transform:translateY(24px); }
-          to   { opacity:1; transform:translateY(0); }
+        ::selection {
+          background: ${C.accentDim};
+          color: ${C.text};
         }
+
+        ::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: ${C.bg};
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: ${C.border3};
+          border-radius: 3px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: ${C.muted};
+        }
+
+        @keyframes lineGrow {
+          from { width: 0; }
+          to { width: 120px; }
+        }
+
         @keyframes fadeSlide {
-          from { opacity:0; transform:translateX(-16px); }
-          to   { opacity:1; transform:translateX(0); }
-        }
-        @keyframes fadeUp {
-          from { opacity:0; transform:translateY(18px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        @keyframes expandDown {
-          from { opacity:0; transform:translateY(-8px); }
-          to   { opacity:1; transform:translateY(0); }
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
         }
 
-        @media (max-width:768px) {
-          .metrics-row { grid-template-columns:repeat(2,1fr) !important; }
-          .header-row  { flex-direction:column !important; gap:1rem !important; }
-          .summary-grid { grid-template-columns:1fr 1fr !important; }
+        @keyframes slideIn {
+          from {
+            transform: scaleX(0);
+          }
+          to {
+            transform: scaleX(1);
+          }
         }
-        @media (max-width:520px) {
-          .metrics-row { grid-template-columns:1fr 1fr !important; }
+
+        @media (max-width: 768px) {
+          body {
+            cursor: auto;
+          }
+        }
+
+        @media (max-width: 1024px) {
+          [style*="gridTemplateColumns: 1.2fr 1fr"] {
+            grid-template-columns: 1fr !important;
+          }
         }
       `}</style>
 
+      {/* Custom cursor */}
+      <CustomCursor />
+
       {/* Scroll progress */}
-      <div style={{ position:"fixed", top:0, left:0, right:0, height:"2px", background:C.surface, zIndex:9999 }}>
-        <div style={{ width:`${scrollPct}%`, height:"100%", background:`linear-gradient(90deg,${C.accent},#a78bfa)`, transition:"width 0.1s linear" }} />
-      </div>
+      <ScrollProgress />
 
-      {/* Very faint mesh bg */}
-      <div style={{
-        position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
-        backgroundImage:`radial-gradient(ellipse 60% 40% at 50% 0%, rgba(79,127,255,0.04) 0%, transparent 60%)`,
-      }} />
+      {/* Timeline rail */}
+      <TimelineRail />
 
-      {/* ═══════ WRAPPER ═══════ */}
-      <div style={{ maxWidth:"960px", margin:"0 auto", padding:"0 1.5rem", position:"relative", zIndex:1 }}>
+      {/* Background texture */}
+      <div
+        style={{
+          position: "fixed",
+          inset: 0,
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23000000' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          pointerEvents: "none",
+          zIndex: 0,
+        }}
+      />
 
-        {/* ══════════════════ HEADER ══════════════════ */}
-        <header ref={headerRef} style={{ padding:"5rem 0 3.5rem", borderBottom:`1px solid ${C.border}` }}>
+      {/* ═══════ PAGE WRAPPER ═══════ */}
+      <div style={{ position: "relative", zIndex: 1 }}>
+        {/* ═══════ HERO HEADER ═══════ */}
+        <header
+          ref={headerRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "10rem 2rem 6rem",
+            borderBottom: `1px solid ${C.border}`,
+            opacity: headerInView ? 1 : 0,
+            transform: headerInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+            position: "relative",
+          }}
+        >
+          {/* Background glow */}
+          <div
+            style={{
+              position: "absolute",
+              top: "20%",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "800px",
+              height: "400px",
+              borderRadius: "50%",
+              background: `radial-gradient(circle, ${C.accent}08 0%, transparent 70%)`,
+              filter: "blur(100px)",
+              pointerEvents: "none",
+            }}
+          />
 
-          <div style={{
-            opacity: headerIn ? 1 : 0,
-            animation: headerIn ? "fadeSlide 0.5s cubic-bezier(0.22,1,0.36,1) both" : "none",
-            display:"flex", alignItems:"center", gap:"0.65rem", marginBottom:"1.5rem",
-          }}>
-            <div style={{ width:"22px", height:"1px", background:C.accent }} />
-            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.72rem", fontWeight:600, letterSpacing:"0.18em", textTransform:"uppercase", color:C.accent }}>
+          {/* Overline */}
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "0.75rem",
+              marginBottom: "2rem",
+            }}
+          >
+            <div style={{ width: "48px", height: "2px", background: C.accent }} />
+            <span
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 600,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: C.accent,
+              }}
+            >
               Industry Experience · 2024 – 2025
             </span>
           </div>
 
-          <h1 style={{
-            fontFamily:"'Instrument Serif',serif",
-            fontSize:"clamp(2.4rem,5vw,3.8rem)",
-            fontWeight:400, color:C.text,
-            lineHeight:1.1, letterSpacing:"-0.025em",
-            marginBottom:"1rem",
-            opacity: headerIn ? 1 : 0,
-            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.08s both" : "none",
-          }}>
+          {/* Main headline */}
+          <h1
+            style={{
+              fontFamily: "'Instrument Serif', serif",
+              fontSize: "clamp(3.5rem, 8vw, 6.5rem)",
+              fontWeight: 400,
+              color: C.text,
+              lineHeight: 1.05,
+              letterSpacing: "-0.03em",
+              marginBottom: "1rem",
+              maxWidth: "1000px",
+            }}
+          >
             Professional Experience
           </h1>
 
-          <p style={{
-            fontSize:"1rem", color:C.muted2, lineHeight:1.8,
-            maxWidth:"600px", fontWeight:400,
-            opacity: headerIn ? 1 : 0,
-            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.16s both" : "none",
-          }}>
-            Three industry internships across full-stack engineering, machine learning,
-            and data science — each resulting in production-deployed or independently
-            validated outcomes.
+          {/* Animated underline */}
+          <div
+            style={{
+              width: "240px",
+              height: "4px",
+              background: `linear-gradient(90deg, ${C.accent}, ${C.purple}, ${C.green})`,
+              borderRadius: "2px",
+              marginBottom: "2.5rem",
+              animation: headerInView ? "lineGrow 1s ease 0.2s both" : "none",
+            }}
+          />
+
+          {/* Subtitle */}
+          <p
+            style={{
+              fontSize: "1.25rem",
+              color: C.muted2,
+              lineHeight: 1.8,
+              maxWidth: "720px",
+              marginBottom: "4rem",
+            }}
+          >
+            Three industry internships across full-stack engineering, machine learning, and
+            data science — each resulting in production-deployed or independently validated
+            outcomes.
           </p>
 
-          {/* Quick-scan header stats */}
-          <div style={{
-            display:"flex", gap:"2.5rem", marginTop:"2.5rem",
-            paddingTop:"2rem", borderTop:`1px solid ${C.border}`,
-            flexWrap:"wrap",
-            opacity: headerIn ? 1 : 0,
-            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.24s both" : "none",
-          }}>
+          {/* Stats grid */}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+              gap: "3rem",
+              maxWidth: "900px",
+            }}
+          >
             {[
-              { value:"3",    label:"Internships" },
-              { value:"7+",   label:"Months total" },
-              { value:"15+",  label:"Projects shipped" },
-              { value:"3",    label:"Verified certificates" },
-            ].map((s, i) => (
+              { value: 3, label: "Industry Internships" },
+              { value: 7, label: "Months Total Experience" },
+              { value: 15, label: "Projects Shipped" },
+              { value: 100, label: "Verified Credentials" },
+            ].map((stat, i) => (
               <div key={i}>
-                <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.7rem", color:C.text, letterSpacing:"-0.03em" }}>{s.value}</div>
-                <div style={{ fontSize:"0.75rem", color:C.muted, marginTop:"0.1rem", fontWeight:500 }}>{s.label}</div>
+                <div
+                  style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: "3rem",
+                    fontWeight: 400,
+                    color: C.text,
+                    lineHeight: 1,
+                    marginBottom: "0.5rem",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  <AnimatedCounter value={stat.value} />
+                  {stat.value === 100 && "%"}
+                  {stat.value === 15 && "+"}
+                  {stat.value === 7 && "+"}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.85rem",
+                    color: C.muted,
+                    fontWeight: 500,
+                    letterSpacing: "0.02em",
+                  }}
+                >
+                  {stat.label}
+                </div>
               </div>
             ))}
           </div>
         </header>
 
-        {/* ══════════════════ TIMELINE LABEL ══════════════════ */}
-        <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", padding:"2rem 0 1.5rem", flexWrap:"wrap", gap:"0.75rem" }}>
-          <div style={{ display:"flex", gap:"1rem", alignItems:"center" }}>
-            {[
-              { color:C.accent,   label:"Full-Stack" },
-              { color:"#a78bfa",  label:"AI / ML" },
-              { color:C.green,    label:"Data Science" },
-            ].map((b, i) => (
-              <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.4rem" }}>
-                <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:b.color, flexShrink:0 }} />
-                <span style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>{b.label}</span>
-              </div>
-            ))}
-          </div>
-          <span style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>
-            Chronological · newest first
-          </span>
-        </div>
+        {/* ═══════ EXPERIENCE SECTIONS ═══════ */}
+        {experiences.map((exp, i) => (
+          <ExperienceSection
+            key={exp.id}
+            data={exp}
+            index={i}
+            isLast={i === experiences.length - 1}
+          />
+        ))}
 
-        {/* ══════════════════ CARDS ══════════════════ */}
-        <section style={{ display:"flex", flexDirection:"column", gap:"1.25rem", paddingBottom:"3.5rem" }}>
-          {internships.map((d, i) => (
-            <InternshipCard key={d.id} data={d} index={i} />
-          ))}
-        </section>
-
-        {/* ══════════════════ AGGREGATE SUMMARY ══════════════════ */}
-        <section ref={summaryRef} style={{
-          borderTop:`1px solid ${C.border}`, paddingTop:"2.5rem", paddingBottom:"4rem",
-          opacity: summaryIn ? 1 : 0,
-          animation: summaryIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both" : "none",
-        }}>
-          <div style={{ marginBottom:"1.75rem" }}>
-            <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:C.muted, marginBottom:"0.5rem" }}>
-              Aggregate Overview
-            </div>
-            <h2 style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem", fontWeight:400, color:C.text, letterSpacing:"-0.02em" }}>
+        {/* ═══════ AGGREGATE SUMMARY ═══════ */}
+        <section
+          ref={summaryRef}
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "8rem 2rem",
+            borderTop: `1px solid ${C.border}`,
+            opacity: summaryInView ? 1 : 0,
+            transform: summaryInView ? "translateY(0)" : "translateY(40px)",
+            transition: "opacity 0.8s ease, transform 0.8s ease",
+          }}
+        >
+          <div style={{ marginBottom: "3rem" }}>
+            <div
+              style={{
+                fontFamily: "'DM Mono', monospace",
+                fontSize: "0.7rem",
+                fontWeight: 700,
+                letterSpacing: "0.2em",
+                textTransform: "uppercase",
+                color: C.muted,
+                marginBottom: "1rem",
+              }}
+            >
               Combined Impact
+            </div>
+            <h2
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontSize: "clamp(2rem, 4vw, 3rem)",
+                fontWeight: 400,
+                color: C.text,
+                letterSpacing: "-0.02em",
+              }}
+            >
+              Aggregate Overview
             </h2>
           </div>
 
-          <div className="summary-grid" style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", gap:"1rem" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+              gap: "1.5rem",
+            }}
+          >
             {[
-              { value:"5+",      label:"Production apps",          sub:"Deployed and serving real users" },
-              { value:"100K+",   label:"Data records processed",   sub:"Cleaned, engineered, and modeled" },
-              { value:"6",       label:"ML models trained",        sub:"Supervised classification & CV" },
-              { value:"≥85%",    label:"Model accuracy achieved",  sub:"Across NLP and image tasks" },
-              { value:"40%",     label:"API latency reduced",      sub:"Through indexing and caching" },
-              { value:"1,000+",  label:"Active users served",      sub:"Post-launch, live product" },
-            ].map((s, i) => (
-              <div key={i} style={{
-                padding:"1.25rem 1.5rem",
-                background:C.surface, border:`1px solid ${C.border}`,
-                borderRadius:"12px",
-                transition:"border-color 0.25s ease",
-                animation: summaryIn ? `cardReveal 0.5s cubic-bezier(0.22,1,0.36,1) ${i * 0.07}s both` : "none",
-              }}
-                onMouseEnter={e => e.currentTarget.style.borderColor = C.border3}
-                onMouseLeave={e => e.currentTarget.style.borderColor = C.border}
+              { value: "5+", label: "Production Apps", detail: "Deployed and serving real users" },
+              { value: "100K+", label: "Data Records", detail: "Cleaned, engineered, and modeled" },
+              { value: "6", label: "ML Models", detail: "Supervised classification & CV" },
+              { value: "≥85%", label: "Model Accuracy", detail: "Across NLP and image tasks" },
+              { value: "40%", label: "API Optimization", detail: "Through indexing and caching" },
+              { value: "1,000+", label: "Active Users", detail: "Post-launch, live product" },
+            ].map((stat, i) => (
+              <div
+                key={i}
+                style={{
+                  padding: "2rem",
+                  background: C.surface,
+                  border: `1px solid ${C.border}`,
+                  borderRadius: "16px",
+                  transition: "all 0.3s ease",
+                  opacity: summaryInView ? 1 : 0,
+                  transform: summaryInView ? "translateY(0)" : "translateY(20px)",
+                  transitionDelay: `${i * 0.1}s`,
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = C.accent + "40";
+                  e.currentTarget.style.transform = "translateY(-4px)";
+                  e.currentTarget.style.boxShadow = "0 12px 32px rgba(0,0,0,0.08)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = C.border;
+                  e.currentTarget.style.transform = "translateY(0)";
+                  e.currentTarget.style.boxShadow = "none";
+                }}
               >
-                <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.6rem", color:C.text, letterSpacing:"-0.02em", marginBottom:"0.3rem" }}>
-                  {s.value}
+                <div
+                  style={{
+                    fontFamily: "'Instrument Serif', serif",
+                    fontSize: "2.5rem",
+                    fontWeight: 400,
+                    color: C.text,
+                    lineHeight: 1,
+                    marginBottom: "0.75rem",
+                    letterSpacing: "-0.03em",
+                  }}
+                >
+                  {stat.value}
                 </div>
-                <div style={{ fontSize:"0.8rem", fontWeight:600, color:C.muted2, marginBottom:"0.2rem" }}>{s.label}</div>
-                <div style={{ fontSize:"0.72rem", color:C.muted, lineHeight:1.5 }}>{s.sub}</div>
+                <div
+                  style={{
+                    fontSize: "1rem",
+                    fontWeight: 600,
+                    color: C.muted2,
+                    marginBottom: "0.5rem",
+                  }}
+                >
+                  {stat.label}
+                </div>
+                <div
+                  style={{
+                    fontSize: "0.875rem",
+                    color: C.muted,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {stat.detail}
+                </div>
               </div>
             ))}
           </div>
         </section>
 
-        {/* ══════════════════ FOOTER STRIP ══════════════════ */}
-        <footer style={{ borderTop:`1px solid ${C.border}`, padding:"2rem 0", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
-          <div style={{ display:"flex", alignItems:"center", gap:"0.55rem" }}>
-            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:C.green }} />
-            <span style={{ fontSize:"0.75rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>
-              All certificates independently verifiable via Google Drive
-            </span>
-          </div>
-          <div style={{ display:"flex", gap:"1.5rem" }}>
-            {[
-              { label:"Email",    href:"mailto:g.sivasatyasaibhagavan@gmail.com" },
-              { label:"LinkedIn", href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/" },
-              { label:"GitHub",   href:"https://github.com/bhagavan444" },
-            ].map((l, i) => (
-              <a key={i} href={l.href} target="_blank" rel="noopener noreferrer"
-                style={{ fontSize:"0.75rem", color:C.muted, textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"color 0.2s" }}
-                onMouseEnter={e => e.currentTarget.style.color = C.text}
-                onMouseLeave={e => e.currentTarget.style.color = C.muted}
+        {/* ═══════ FOOTER ═══════ */}
+        <footer
+          style={{
+            maxWidth: "1240px",
+            margin: "0 auto",
+            padding: "4rem 2rem",
+            borderTop: `1px solid ${C.border}`,
+          }}
+        >
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "2rem",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "0.75rem",
+              }}
+            >
+              <CheckCircle2 size={18} color={C.green} />
+              <span
+                style={{
+                  fontSize: "0.875rem",
+                  color: C.muted2,
+                  fontFamily: "'DM Mono', monospace",
+                }}
               >
-                {l.label}
-              </a>
-            ))}
+                All certificates independently verifiable via Google Drive
+              </span>
+            </div>
+
+            <div style={{ display: "flex", gap: "2rem" }}>
+              {[
+                { label: "Email", href: "mailto:g.sivasatyasaibhagavan@gmail.com" },
+                { label: "LinkedIn", href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/" },
+                { label: "GitHub", href: "https://github.com/bhagavan444" },
+              ].map((link) => (
+                <MagneticButton
+                  key={link.label}
+                  href={link.href}
+                  accent={C.accent}
+                  style={{ padding: "0.5rem 1rem", fontSize: "0.8rem" }}
+                >
+                  {link.label}
+                </MagneticButton>
+              ))}
+            </div>
           </div>
         </footer>
       </div>
