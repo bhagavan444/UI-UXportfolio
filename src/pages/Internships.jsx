@@ -39,32 +39,38 @@ const experiences = [
     period: "May – July 2025",
     duration: "3 months",
     location: "Hybrid",
-    type: "Full-Stack Engineering",
+    type: "Full-Stack Development",
     accent: C.accent,
     accentDim: C.accentDim,
-    certId: "1bwbNlc9mdPYQOIyUpoiBIOhpyxaMBvbC",
-    summary: "Built production-grade full-stack applications serving 1,000+ active users with secure authentication and optimized performance.",
+
+    certPreview: "https://lh3.google.com/d/1bwbNlc9mdPYQOIyUpoiBIOhpyxaMBvbC",
+
+    summary:
+      "Worked on full-stack web applications using the MERN stack, implementing authentication systems and REST APIs while collaborating in a team environment.",
+
     impact: [
-      { metric: "3", label: "Production Apps", detail: "Complete MERN stack deployments" },
-      { metric: "1,000+", label: "Active Users", detail: "Post-launch engagement" },
-      { metric: "40%", label: "API Optimization", detail: "Reduced response latency" },
-      { metric: "Zero", label: "Downtime", detail: "OAuth 2.0 migration" },
+      { metric: "3", label: "Web Modules", detail: "Frontend–backend integrations" },
+      { metric: "2", label: "OAuth Providers", detail: "Google & GitHub login" },
+      { metric: "100%", label: "API Connectivity", detail: "REST-based architecture" },
     ],
+
     contributions: [
-      "Built 3 full-stack web applications using React, Node.js, Express, and MongoDB — each deployed to production environments",
-      "Implemented OAuth 2.0 and JWT-based authentication with role-based access control, replacing an insecure session approach",
-      "Optimized REST API response times by 40% through query indexing, caching, and payload restructuring",
-      "Designed and maintained MongoDB schemas for complex relational data across user, course, and assessment entities",
-      "Delivered ATS-compatible résumé builder with PDF and DOCX export — used by 1,000+ active users post-launch",
+      "Built reusable React components and connected them to Express-based REST APIs",
+      "Implemented Google and GitHub OAuth authentication with JWT handling",
+      "Designed MongoDB schemas for user and application data",
+      "Integrated frontend forms with backend validation and database persistence",
+      "Collaborated using Git and GitHub in an agile-style workflow"
     ],
+
     stack: {
-      "Frontend": ["React", "Redux", "Tailwind CSS"],
-      "Backend": ["Node.js", "Express.js", "Mongoose"],
-      "Database": ["MongoDB Atlas", "Redis Cache"],
-      "Auth & Security": ["OAuth 2.0", "JWT", "bcrypt", "Role-Based Access"],
-      "Deployment": ["AWS EC2", "Vercel", "GitHub Actions CI/CD"],
+      Frontend: ["React", "HTML", "CSS", "JavaScript"],
+      Backend: ["Node.js", "Express.js"],
+      Database: ["MongoDB Atlas"],
+      Auth: ["OAuth", "JWT"],
+      Tools: ["Git", "Postman"]
     },
   },
+
   {
     id: 2,
     year: "2025",
@@ -76,29 +82,35 @@ const experiences = [
     type: "Machine Learning & Computer Vision",
     accent: C.purple,
     accentDim: C.purpleDim,
-    certId: "1-_8ZI8uZ3DcrFpfZ3pts7VSYrAqPN5Zw",
-    summary: "Trained and deployed ML models achieving 85%+ accuracy across classification and object detection tasks with real-time inference capabilities.",
+
+    certPreview: "https://lh3.google.com/d/1-_8ZI8uZ3DcrFpfZ3pts7VSYrAqPN5Zw",
+
+    summary:
+      "Developed and evaluated machine learning models for image classification and applied deployment using Flask APIs.",
+
     impact: [
-      { metric: "5+", label: "ML Models", detail: "Classification & detection" },
-      { metric: "85%", label: "Accuracy", detail: "CNN image classifier" },
-      { metric: "35%", label: "Speed Gain", detail: "Inference optimization" },
-      { metric: "3,000+", label: "Samples", detail: "Training dataset size" },
+      { metric: "4", label: "ML Models", detail: "Classification pipelines built" },
+      { metric: "85%", label: "CNN Accuracy", detail: "Image classification task" },
+      { metric: "1", label: "API Deployment", detail: "Flask inference endpoint" },
     ],
+
     contributions: [
-      "Trained and evaluated 5+ machine learning and deep learning models across classification and object detection tasks",
-      "Built CNN-based image classifier achieving 85% accuracy on a custom dataset of 3,000+ labeled samples",
-      "Implemented end-to-end ML pipeline: data ingestion, preprocessing, model training, evaluation, and Flask API deployment",
-      "Reduced model inference time by 35% through architecture pruning and optimized batch processing",
-      "Deployed real-time object detection system using OpenCV and Flask, accessible via REST endpoint",
+      "Built CNN-based image classification model using TensorFlow and Keras",
+      "Performed preprocessing and data augmentation on labeled datasets",
+      "Evaluated model performance using accuracy and confusion matrices",
+      "Deployed trained model through a Flask API for real-time inference",
+      "Tested endpoints using Postman for validation"
     ],
+
     stack: {
-      "Core ML": ["TensorFlow", "Keras", "Scikit-learn"],
-      "Computer Vision": ["OpenCV", "PIL", "Albumentations"],
-      "Data Processing": ["NumPy", "Pandas", "Matplotlib"],
-      "Deployment": ["Flask", "Docker", "REST API"],
-      "Environment": ["Google Colab", "Jupyter", "Python 3.9"],
+      Core: ["TensorFlow", "Keras", "Scikit-learn"],
+      CV: ["OpenCV"],
+      Data: ["NumPy", "Pandas"],
+      Deployment: ["Flask API"],
+      Environment: ["Jupyter Notebook", "Python"]
     },
   },
+
   {
     id: 3,
     year: "2024",
@@ -107,30 +119,35 @@ const experiences = [
     period: "May – June 2024",
     duration: "2 months",
     location: "Remote",
-    type: "Data Science & ML Engineering",
+    type: "Data Science & ML",
     accent: C.green,
     accentDim: C.greenDim,
-    certId: "1yQQqBf32o8d3sYlheDCdaLTKj5_hepfY",
-    summary: "Processed 100K+ records and built supervised learning models achieving 92% accuracy with advanced feature engineering.",
+
+    certPreview: "https://lh3.google.com/d/18j3Go5VHISIf79vYic6-vcowNoEgg7SW",
+
+    summary:
+      "Worked on data preprocessing, feature engineering, and supervised learning model development using Python-based ML libraries.",
+
     impact: [
-      { metric: "100K+", label: "Records", detail: "Cleaned and processed" },
-      { metric: "92%", label: "Accuracy", detail: "Best model performance" },
-      { metric: "6", label: "Models", detail: "Supervised learning" },
-      { metric: "89%", label: "NLP", detail: "Fake news detection" },
+      { metric: "6", label: "Models Built", detail: "Supervised algorithms tested" },
+      { metric: "90%+", label: "Best Accuracy", detail: "Classification tasks" },
+      { metric: "1", label: "NLP Pipeline", detail: "TF-IDF implementation" },
     ],
+
     contributions: [
-      "Processed and cleaned datasets exceeding 100,000 records using Pandas and NumPy, resolving nulls, duplicates, and schema inconsistencies",
-      "Built 6 supervised learning models (Logistic Regression, SVM, Random Forest, XGBoost) with cross-validated accuracy reaching 92%",
-      "Engineered 15+ features using domain analysis, correlation filtering, and PCA — improving model F1-score by 12%",
-      "Built a Fake News Detection classifier using TF-IDF vectorization and Logistic Regression, achieving 89% accuracy on 50K+ news articles",
-      "Automated data cleaning and validation workflows, reducing manual preprocessing time by 60%",
+      "Cleaned and preprocessed structured datasets using Pandas",
+      "Built classification models including Logistic Regression and Random Forest",
+      "Applied TF-IDF vectorization for text classification tasks",
+      "Compared models using cross-validation and evaluation metrics",
+      "Documented experiments and findings using Jupyter Notebook"
     ],
+
     stack: {
-      "ML Frameworks": ["Scikit-learn", "XGBoost", "LightGBM"],
-      "Data Science": ["Pandas", "NumPy", "SciPy"],
-      "Visualization": ["Matplotlib", "Seaborn", "Plotly"],
-      "NLP": ["NLTK", "TF-IDF", "CountVectorizer"],
-      "Environment": ["Jupyter Notebook", "Python 3.8", "Git"],
+      ML: ["Scikit-learn"],
+      Data: ["Pandas", "NumPy"],
+      NLP: ["NLTK", "TF-IDF"],
+      Visualization: ["Matplotlib"],
+      Tools: ["Jupyter Notebook", "Git"]
     },
   },
 ];
@@ -1359,12 +1376,13 @@ export default function Internships() {
             }}
           >
             {[
-              { value: "5+", label: "Production Apps", detail: "Deployed and serving real users" },
-              { value: "100K+", label: "Data Records", detail: "Cleaned, engineered, and modeled" },
-              { value: "6", label: "ML Models", detail: "Supervised classification & CV" },
-              { value: "≥85%", label: "Model Accuracy", detail: "Across NLP and image tasks" },
-              { value: "40%", label: "API Optimization", detail: "Through indexing and caching" },
-              { value: "1,000+", label: "Active Users", detail: "Post-launch, live product" },
+             { value: "5+", label: "Major Projects", detail: "Full-stack & ML applications built" },
+  { value: "50K+", label: "Records Processed", detail: "Across structured & text datasets" },
+  { value: "6", label: "ML Models", detail: "Classification & NLP pipelines" },
+  { value: "85–90%", label: "Best Model Accuracy", detail: "Image & text classification tasks" },
+  { value: "Multiple", label: "API Integrations", detail: "REST-based frontend–backend connectivity" },
+  { value: "2", label: "OAuth Providers", detail: "Google & GitHub authentication" },
+
             ].map((stat, i) => (
               <div
                 key={i}

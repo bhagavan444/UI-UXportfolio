@@ -33,107 +33,131 @@ const pillars = [
   {
     id: "fullstack",
     number: "01",
-    title: "Full-Stack Engineering",
-    role: "Production Web Applications",
-    context: "2 Industry Internships · Production Code",
+    title: "Full-Stack Development",
+    role: "MERN Stack Applications",
+    context: "MERN Internship · Academic Projects",
     summary:
-      "End-to-end product development from database design through API architecture to responsive UI. Shipped production applications serving real users with authentication, real-time features, and data persistence.",
-    highlight: "Built OAuth 2.0 migration with zero downtime",
+      "Built end-to-end web applications using React, Node.js, and MongoDB. Implemented authentication systems, REST APIs, and frontend–backend integration with real-world project deployment experience.",
+
+    highlight: "Implemented Google & GitHub OAuth authentication",
+
     metrics: [
-      { value: 40, suffix: "%", label: "API Latency Reduction", desc: "Query optimization & Redis caching" },
-      { value: 2, suffix: "×", label: "Auth System Rebuilt", desc: "OAuth 2.0 with JWT rotation" },
-      { value: 99.9, suffix: "%", label: "Uptime Maintained", desc: "During critical migrations" },
+      { value: 3, suffix: "+", label: "Full-Stack Projects", desc: "MERN-based applications" },
+      { value: 2, suffix: "", label: "OAuth Providers", desc: "Google & GitHub integration" },
+      { value: 100, suffix: "%", label: "REST Integration", desc: "Frontend–backend connectivity" },
     ],
+
     tech: {
-      Frontend: ["React", "Next.js", "Tailwind CSS", "Redux"],
-      Backend: ["Node.js", "Express", "MongoDB", "PostgreSQL"],
-      Tools: ["JWT / OAuth", "REST API", "WebSockets", "Redis"],
+      Frontend: ["React.js", "HTML", "CSS", "JavaScript"],
+      Backend: ["Node.js", "Express.js"],
+      Database: ["MongoDB"],
+      Tools: ["JWT", "REST APIs", "Git"]
     },
+
     projects: [
-      { name: "ATS Resume Builder", detail: "PDF & DOCX export, real-time preview, template system" },
-      { name: "Secure Auth Service", detail: "OAuth 2.0, JWT rotation, rate limiting, MFA support" },
+      { name: "ATS Resume Builder", detail: "Resume templates, keyword scoring, PDF parsing" },
+      { name: "AI Chatbot Web App", detail: "React frontend + Flask backend integration" },
     ],
-    source: "StudyOwl Education Pvt Ltd",
+
+    source: "StudyOwl Education Pvt Ltd · Academic Projects",
     accent: C.accent,
     accentDim: C.accentDim,
   },
+
   {
     id: "ml",
     number: "02",
     title: "Machine Learning & AI",
-    role: "Model Training & Deployment",
-    context: "Internship + Academic · 4 Models Shipped",
+    role: "Model Training & Web Deployment",
+    context: "Blackbucks · SmartBridge Internships",
     summary:
-      "Applied ML across classification, NLP, and computer vision tasks. Trained models on 50K+ record datasets, deployed inference APIs, and integrated predictions into web applications.",
-    highlight: "89% accuracy on fake news detection pipeline",
+      "Trained and evaluated machine learning models for classification and NLP tasks. Deployed models using Flask APIs and integrated predictions into web interfaces.",
+
+    highlight: "CNN-based image classification deployed via Flask",
+
     metrics: [
-      { value: 89, suffix: "%", label: "NLP Model Accuracy", desc: "TF-IDF + Logistic Regression" },
-      { value: 92, suffix: "%", label: "CNN Accuracy", desc: "Custom image classification" },
-      { value: 50, suffix: "K+", label: "Training Records", desc: "Real-world datasets processed" },
+      { value: 90, suffix: "%+", label: "NLP Model Accuracy", desc: "TF-IDF + classification" },
+      { value: 92, suffix: "%", label: "CNN Accuracy", desc: "Image classification model" },
+      { value: 4, suffix: "", label: "ML Projects", desc: "Classification & NLP systems" },
     ],
+
     tech: {
       Core: ["Python", "TensorFlow", "Keras", "Scikit-learn"],
-      Processing: ["Pandas", "NumPy", "OpenCV", "NLTK"],
-      Deployment: ["Flask API", "Docker", "REST endpoints"],
+      Processing: ["Pandas", "NumPy", "NLTK"],
+      Deployment: ["Flask API", "REST Endpoints"]
     },
+
     projects: [
-      { name: "Fake News Classifier", detail: "NLP pipeline, TF-IDF vectorization, 89% accuracy" },
-      { name: "Object Detection API", detail: "Flask + OpenCV, real-time inference, REST interface" },
+      { name: "Fake News Detector", detail: "TF-IDF vectorization + classifier pipeline" },
+      { name: "Career Path Recommender", detail: "Supervised ML-based prediction system" },
     ],
+
     source: "Blackbucks · SmartBridge AI/ML Internship",
     accent: C.purple,
     accentDim: C.purpleDim,
   },
+
   {
-    id: "cloud",
+    id: "deployment",
     number: "03",
-    title: "Cloud & Infrastructure",
-    role: "DevOps & System Architecture",
-    context: "Self-Directed · Production Deployments",
+    title: "Application Deployment",
+    role: "Cloud & Hosting Basics",
+    context: "Self-Learning · Project Deployment",
     summary:
-      "Cloud deployment, containerization, and CI/CD pipeline configuration. Orchestrated multi-container applications, managed cloud infrastructure, and automated deployment workflows.",
-    highlight: "Zero-downtime deployment pipeline",
+      "Deployed web and ML applications using cloud hosting platforms. Configured environment variables, backend APIs, and production-ready builds for demo usage.",
+
+    highlight: "Successfully deployed full-stack demo applications",
+
     metrics: [
-      { value: 3, suffix: "", label: "Microservices", desc: "Containerized & orchestrated" },
-      { value: 100, suffix: "%", label: "CI/CD Coverage", desc: "Automated test & deploy" },
-      { value: 5, suffix: "min", label: "Deploy Time", desc: "From commit to production" },
+      { value: 5, suffix: "+", label: "Apps Deployed", desc: "Demo-ready deployments" },
+      { value: 1, suffix: "", label: "Cloud Platform", desc: "Vercel / Similar hosting" },
+      { value: 100, suffix: "%", label: "Environment Setup", desc: "Configured APIs & variables" },
     ],
+
     tech: {
-      Cloud: ["AWS EC2", "AWS S3", "AWS RDS", "CloudWatch"],
-      Containers: ["Docker", "Docker Compose", "Kubernetes"],
-      "CI/CD": ["GitHub Actions", "Nginx", "Linux", "Bash"],
+      Hosting: ["Vercel", "Cloud-based hosting"],
+      Backend: ["Flask Deployment", "Node Deployment"],
+      Tools: ["Environment Config", "GitHub"]
     },
+
     projects: [
-      { name: "AWS EC2 Deployment", detail: "Node.js + Nginx reverse proxy, auto-scaling" },
-      { name: "Docker Compose Stack", detail: "Multi-container orchestration, volume management" },
+      { name: "AI Chatbot Deployment", detail: "Frontend + Flask API hosted" },
+      { name: "Resume Builder Deployment", detail: "OAuth + MongoDB Atlas integration" },
     ],
-    source: "Personal Projects · Online Coursework",
+
+    source: "Personal Projects",
     accent: C.green,
     accentDim: C.greenDim,
   },
+
   {
     id: "foundations",
     number: "04",
     title: "Programming Foundations",
-    role: "Algorithms & Problem Solving",
-    context: "Competitive Programming · Top 5% LeetCode",
+    role: "Data Structures & OOP",
+    context: "College Coursework · Coding Practice",
     summary:
-      "Strong algorithmic fundamentals developed through competitive programming. Consistent problem-solver with proven track record on structured platforms, focusing on optimization and clean code architecture.",
-    highlight: "Top 5% global LeetCode ranking",
+      "Strong fundamentals in object-oriented programming and basic data structures. Practiced problem solving across arrays, strings, searching, and sorting algorithms.",
+
+    highlight: "Consistent coding practice across multiple platforms",
+
     metrics: [
-      { value: 500, suffix: "+", label: "Problems Solved", desc: "Across multiple platforms" },
-      { value: 5, suffix: "%", label: "Global Ranking", desc: "LeetCode percentile" },
-      { value: 365, suffix: "", label: "Day Streak", desc: "Consistent daily practice" },
+      { value: 100, suffix: "+", label: "Problems Solved", desc: "LeetCode & practice platforms" },
+      { value: 3, suffix: "", label: "Languages Used", desc: "Python, Java, C" },
+      { value: 1, suffix: "", label: "Core Strength", desc: "OOP Concepts" },
     ],
+
     tech: {
-      Languages: ["Python", "JavaScript", "Java", "C++"],
-      Concepts: ["Data Structures", "Algorithms", "OOP", "Design Patterns"],
-      Practice: ["LeetCode", "HackerRank", "CodeForces"],
+      Languages: ["Python", "Java", "C"],
+      Concepts: ["Data Structures", "OOP", "Searching & Sorting"],
+      Practice: ["LeetCode", "College Lab Work"]
     },
+
     projects: [
-      { name: "LeetCode Profile", detail: "Top 5% global · 365-day active streak" },
-      { name: "GitHub Portfolio", detail: "15+ repositories across languages & frameworks" },
+      { name: "LeetCode Practice", detail: "100+ coding problems solved" },
+      { name: "Academic Coursework", detail: "OOP and DSA implementations" },
     ],
+
     source: "College Coursework · Self-Learning",
     accent: C.amber,
     accentDim: C.amberDim,
@@ -144,18 +168,34 @@ const tooling = [
   { name: "Git / GitHub", level: "Daily", category: "Core" },
   { name: "VS Code", level: "Daily", category: "Core" },
   { name: "Postman", level: "Daily", category: "Core" },
-  { name: "Docker", level: "Regular", category: "Infra" },
-  { name: "AWS", level: "Regular", category: "Infra" },
-  { name: "Linux / CLI", level: "Regular", category: "Infra" },
-  { name: "Jupyter", level: "Regular", category: "ML" },
-  { name: "Figma", level: "Occasional", category: "Design" },
+  { name: "MongoDB Atlas", level: "Regular", category: "Database" },
+  { name: "Jupyter Notebook", level: "Regular", category: "ML" },
+  { name: "Flask Deployment (Local)", level: "Regular", category: "Backend" },
+  { name: "Vercel / Demo Hosting", level: "Occasional", category: "Deployment" },
+  { name: "Figma (Basic UI Mockups)", level: "Occasional", category: "Design" },
 ];
 
 const deepening = [
-  { area: "System Design", detail: "Distributed systems, CAP theorem, load balancing patterns", icon: "🏗️" },
-  { area: "LLM Engineering", detail: "Fine-tuning, RAG pipelines, prompt engineering at scale", icon: "🤖" },
-  { area: "Kubernetes (CKA)", detail: "Working toward Certified Kubernetes Administrator", icon: "☸️" },
-  { area: "TypeScript (Advanced)", detail: "Generics, utility types, strict type architecture", icon: "📘" },
+  {
+    area: "System Design Fundamentals",
+    detail: "Learning REST architecture, database indexing, caching concepts, and scalability basics",
+    icon: "🏗️"
+  },
+  {
+    area: "LLM Integration",
+    detail: "Exploring prompt engineering and API-based LLM integration in web applications",
+    icon: "🤖"
+  },
+  {
+    area: "Cloud & Deployment Basics",
+    detail: "Studying containerization concepts and cloud deployment workflows",
+    icon: "☁️"
+  },
+  {
+    area: "TypeScript Fundamentals",
+    detail: "Improving type safety and component structure in React projects",
+    icon: "📘"
+  },
 ];
 
 /* ═══════════════════════════════════════════════════════════════
@@ -1080,7 +1120,7 @@ export default function Skills() {
             {[
               { value: "4", label: "Capability Domains" },
               { value: "3", label: "Industry Internships" },
-              { value: "15+", label: "Projects Shipped" },
+              { value: "5+", label: "Projects Shipped" },
               { value: "20+", label: "Certifications" },
             ].map((stat, i) => (
               <div key={i}>

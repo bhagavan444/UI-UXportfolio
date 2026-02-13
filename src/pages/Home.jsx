@@ -565,7 +565,7 @@ export default function Home() {
   ══════════════════════════════════════════════════════════════ */
   const metrics = [
     { 
-      value: "15", 
+      value: "5", 
       suffix: "+", 
       label: "Production Projects", 
       sub: "Shipped across 3 internships", 
@@ -579,14 +579,14 @@ export default function Home() {
       color: T.accent2 
     },
     { 
-      value: "30", 
+      value: "15", 
       suffix: "+", 
       label: "Tech Stack", 
       sub: "Languages, frameworks, tools", 
       color: T.green 
     },
     { 
-      value: "100", 
+      value: "80", 
       suffix: "%", 
       label: "Client Satisfaction", 
       sub: "Zero bug production record", 
@@ -595,122 +595,175 @@ export default function Home() {
   ];
 
   const skillGroups = [
-    {
-      category: "AI & Machine Learning",
-      color: T.accent2,
-      dot: "#8b5cf6",
-      skills: ["TensorFlow", "PyTorch", "NLP", "LLMs", "Computer Vision", "Deep Learning"],
-      desc: "Building intelligent systems that learn and scale in production environments.",
-    },
-    {
-      category: "Full-Stack Engineering",
-      color: T.accent,
-      dot: "#5b7fff",
-      skills: ["React", "Node.js", "Python", "TypeScript", "REST/GraphQL", "Microservices"],
-      desc: "End-to-end product development from database architecture to polished UI.",
-    },
-    {
-      category: "Cloud & DevOps",
-      color: T.green,
-      dot: "#34d399",
-      skills: ["AWS", "Azure", "Docker", "Kubernetes", "CI/CD", "Terraform"],
-      desc: "Scalable, resilient infrastructure engineered for high availability.",
-    },
-    {
-      category: "Data & Architecture",
-      color: T.gold,
-      dot: "#fbbf24",
-      skills: ["PostgreSQL", "MongoDB", "Redis", "System Design", "Kafka", "Elasticsearch"],
-      desc: "Designing data layers that power real-time, high-throughput systems.",
-    },
-  ];
+  {
+    category: "AI & Machine Learning",
+    color: T.accent2,
+    dot: "#8b5cf6",
+    skills: [
+      "TensorFlow",
+      "Keras",
+      "Scikit-learn",
+      "CNN",
+      "NLP (TF-IDF)",
+      "Supervised Learning"
+    ],
+    desc: "Building and deploying machine learning models with real-world datasets and Flask-based inference pipelines.",
+  },
+  {
+    category: "Full-Stack Development",
+    color: T.accent,
+    dot: "#5b7fff",
+    skills: [
+      "React.js",
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "JavaScript",
+      "REST APIs"
+    ],
+    desc: "Developing end-to-end web applications with secure authentication and frontend–backend integration.",
+  },
+  {
+    category: "Backend & Integration",
+    color: T.green,
+    dot: "#34d399",
+    skills: [
+      "Flask",
+      "API Integration",
+      "OAuth (Google/GitHub)",
+      "PDF Parsing",
+      "Asynchronous Requests"
+    ],
+    desc: "Designing backend services and integrating third-party APIs for AI-powered applications.",
+  },
+  {
+    category: "Tools & Foundations",
+    color: T.gold,
+    dot: "#fbbf24",
+    skills: [
+      "Git",
+      "GitHub",
+      "Postman",
+      "VS Code",
+      "OOP (Java & Python)",
+      "Basic DSA"
+    ],
+    desc: "Strong programming fundamentals with collaborative development practices.",
+  },
+];
 
-  const techStack = [
-    "React", "Node.js", "Python", "TypeScript", "Docker",
-    "Kubernetes", "AWS", "TensorFlow", "MongoDB", "PostgreSQL",
-    "Azure", "Redis", "Next.js", "GraphQL", "FastAPI",
-    // Duplicate for seamless marquee
-    "React", "Node.js", "Python", "TypeScript", "Docker",
-    "Kubernetes", "AWS", "TensorFlow", "MongoDB", "PostgreSQL",
-    "Azure", "Redis", "Next.js", "GraphQL", "FastAPI",
-  ];
+const techStack = [
+  "React.js",
+  "Node.js",
+  "Express.js",
+  "MongoDB",
+  "JavaScript",
+  "Python",
+  "TensorFlow",
+  "Keras",
+  "Flask",
+  "Scikit-learn",
+  "HTML5",
+  "CSS3",
+  "Git",
+  "GitHub",
+  "REST APIs",
+];
 
-  const achievements = [
-    { 
-      year: "2025", 
-      title: "AWS Solutions Architect Professional", 
-      issuer: "Amazon Web Services", 
-      color: T.gold 
-    },
-    { 
-      year: "2025", 
-      title: "Azure AI Engineer Associate", 
-      issuer: "Microsoft Azure", 
-      color: T.accent 
-    },
-    { 
-      year: "2024", 
-      title: "Google Cloud Professional", 
-      issuer: "Google Cloud", 
-      color: T.green 
-    },
-    { 
-      year: "2024", 
-      title: "Top 5% — LeetCode", 
-      issuer: "500+ Problems Solved", 
-      color: T.accent2 
-    },
-    { 
-      year: "2024", 
-      title: "365-Day Coding Streak", 
-      issuer: "Continuous Excellence", 
-      color: "#f59e0b" 
-    },
-  ];
 
-  const testimonials = [
-    {
-      quote: "Rare combination of technical depth and communication clarity. Delivered our ML pipeline two weeks ahead of schedule, with documentation that actually made sense.",
-      name: "Sarah Chen",
-      role: "CTO, TechVision Inc.",
-      avatar: "SC",
-      color: T.accent,
-    },
-    {
-      quote: "Transformed our legacy monolith into a modern microservices architecture with minimal downtime. The kind of engineer you build a team around.",
-      name: "Priya Sharma",
-      role: "VP of Engineering, CloudNative Co.",
-      avatar: "PS",
-      color: T.accent2,
-    },
-    {
-      quote: "His ability to bridge AI research and production engineering is exceptional. Brought measurable impact within the first sprint.",
-      name: "Michael Rodriguez",
-      role: "Director, Engineering, DataForge",
-      avatar: "MR",
-      color: T.green,
-    },
-  ];
+
+ const achievements = [
+  { 
+    year: "2025", 
+    title: "AWS Certified Cloud Practitioner", 
+    issuer: "Amazon Web Services", 
+    color: T.gold 
+  },
+  { 
+    year: "2025", 
+    title: "24-Hour Hackathon Finalist", 
+    issuer: "Brainovision × Ramachandra College of Engineering", 
+    color: T.accent 
+  },
+  { 
+    year: "2024", 
+    title: "AIML Internship Completion", 
+    issuer: "Blackbucks Paid Online", 
+    color: T.green 
+  },
+  { 
+    year: "2025", 
+    title: "100+ DSA Problems Solved", 
+    issuer: "LeetCode & Practice Platforms", 
+    color: T.accent2 
+  },
+  { 
+    year: "2024", 
+    title: "Consistent Coding Streak (300+ Days)", 
+    issuer: "GitHub Activity & Daily Practice", 
+    color: "#f59e0b" 
+  },
+];
+
+
+ const testimonials = [
+  {
+    quote: "Bhagavan led the backend architecture during our 24-hour hackathon. He handled MongoDB integration and authentication under pressure and ensured the deployment worked before submission.",
+    name: "M Dhana Pujitha",
+    role: "Team Lead – 24hr Hackathon, Ramachandra College of Engineering",
+    avatar: "DP",
+    color: T.accent,
+  },
+  {
+    quote: "During his AIML internship, he quickly understood TensorFlow concepts and independently implemented model evaluation pipelines. Strong learning mindset.",
+    name: "Internship Mentor",
+    role: "Blackbucks Paid Online – AIML & Data Science",
+    avatar: "IM",
+    color: T.accent2,
+  },
+  {
+    quote: "He consistently takes ownership of MERN stack features instead of just implementing assigned tasks. Shows initiative beyond academics.",
+    name: "Project Guide",
+    role: "Faculty – B.Tech AIDS",
+    avatar: "PG",
+    color: T.green,
+  },
+];
+
 
   const featuredProject = {
-    title: "Real-Time Leave Automation System",
-    tag: "Low-Code × Enterprise Automation × Microsoft 365",
-    desc: "Enterprise-grade leave management system built using Microsoft Power Apps and Power Automate. Automates leave requests, multi-level approvals, real-time status tracking, and HR reporting dashboards — integrated with SharePoint and Microsoft Teams for seamless organizational workflow.",
-    stats: [
-      { label: "Approval Time Reduced", value: "65%" },
-      { label: "Manual Processing Eliminated", value: "90%" },
-      { label: "User Adoption", value: "100+ Employees" },
-    ],
-    tech: [
-      "Microsoft Power Apps",
-      "Power Automate",
-      "SharePoint",
-      "Microsoft 365",
-      "Dataverse",
-      "Power BI",
-    ],
-    color: T.accent,
-  };
+  title: "Real-Time Leave Automation System",
+  subtitle: "Final Year Project (B.Tech 4-2)",
+  tag: "Low-Code × Enterprise Workflow Automation × Microsoft 365",
+  desc: `
+  Designed and implemented an enterprise-ready Leave Management System as a final year project (4-2) 
+  using Microsoft Power Apps and Power Automate. The system digitizes leave requests, 
+  automates multi-level approval workflows, and provides real-time visibility for employees, managers, and HR teams.
+
+  Integrated SharePoint as the centralized data repository and configured dynamic approval flows 
+  using Power Automate with role-based access control. Implemented automated notifications via 
+  Microsoft Teams and Outlook to reduce communication delays. Developed HR dashboards 
+  using Power BI for leave analytics, department-level trends, and policy compliance monitoring.
+
+  Focused on reducing manual paperwork, minimizing approval bottlenecks, and improving operational efficiency 
+  within an organizational environment.
+  `,
+  stats: [
+    { label: "Approval Time Reduced", value: "60–70%" },
+    { label: "Manual Processing Reduced", value: "85–90%" },
+    { label: "Pilot Users", value: "100+ Simulated Employees" },
+  ],
+  tech: [
+    "Microsoft Power Apps",
+    "Power Automate",
+    "SharePoint Online",
+    "Microsoft 365",
+    "Dataverse",
+    "Power BI",
+  ],
+  color: T.accent,
+};
+
 
   /* ══════════════════════════════════════════════════════════════
      RENDER
@@ -1049,13 +1102,13 @@ export default function Home() {
                     fontWeight: 400,
                   }}
                 >
-                  Elite software engineer with{" "}
+                  Full-stack engineer building scalable AI-powered systems.{" "}
                   <strong style={{ color: T.text, fontWeight: 600 }}>
                     3 industry internships
                   </strong>{" "}
                   and{" "}
                   <strong style={{ color: T.text, fontWeight: 600 }}>
-                    15+ production systems
+                    5+ production systems
                   </strong>{" "}
                   shipped. Specializing in AI-powered applications and scalable cloud
                   architecture that drives real business outcomes.
@@ -1096,7 +1149,7 @@ export default function Home() {
                 >
                   {[
                     { icon: "🏅", text: "20+ Certifications" },
-                    { icon: "🚀", text: "15+ Projects" },
+                    { icon: "🚀", text: "5+ Projects" },
                     { icon: "⭐", text: "LeetCode Top 5%" },
                   ].map((item, i) => (
                     <div

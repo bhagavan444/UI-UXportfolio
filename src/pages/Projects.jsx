@@ -9,183 +9,180 @@ import {
 const allProjects = [
   {
     id: 1,
-    title: "ATS Resume Builder",
-    tagline: "AI-powered resume optimization platform",
-    subtitle: "Solving the 75% rejection rate problem",
+    title: "ATS-Based Resume Builder",
+    tagline: "Full-stack resume optimization platform",
+    subtitle: "Improving ATS compatibility using keyword analysis",
     github: "https://github.com/bhagavan444/Resumebuilderwebapp",
-    live: "https://resumebuilder-demo.vercel.app",
-    year: "2024",
+    live: null,
+    year: "2025",
     duration: "3 months",
     color: "#2563eb",
     featured: true,
-    
-    insight: "Discovered that 75% of qualified candidates never reach human recruiters due to ATS filters optimized for keywords over competence.",
-    
-    problem: "Qualified candidates face 75% rejection rates from ATS filters before human review, losing opportunities due to formatting and keyword mismatches rather than qualifications.",
-    
-    solution: "Built an intelligent resume builder that analyzes job descriptions, suggests ATS-compatible formatting, and optimizes keyword placement while maintaining readability.",
-    
+
+    problem:
+      "Many candidates lose job opportunities due to poorly formatted resumes and missing keywords required by Applicant Tracking Systems (ATS).",
+
+    solution:
+      "Built a MERN stack application that allows users to create structured resumes and analyze keyword relevance against job descriptions using backend parsing logic and scoring algorithms.",
+
     impact: [
-      { label: "Interview Rate", value: 2, suffix: "×" },
-      { label: "ATS Score", value: 90, suffix: "%+" },
-      { label: "Active Users", value: 3000, suffix: "+" }
+      { label: "ATS Score Achieved", value: 90, suffix: "%+" },
+      { label: "Resume Templates", value: 5, suffix: "+" },
+      { label: "OAuth Providers", value: 2, suffix: "" }
     ],
-    
+
     architecture: [
-      { label: "Frontend", value: "React + Context API for state management" },
-      { label: "Backend", value: "Express.js REST API with JWT authentication" },
-      { label: "AI Engine", value: "OpenAI GPT-3.5 with custom keyword extraction" },
-      { label: "Database", value: "MongoDB for user profiles and resume templates" },
-      { label: "Infrastructure", value: "Vercel + Railway with CDN for static assets" }
+      { label: "Frontend", value: "React with Context API" },
+      { label: "Backend", value: "Node.js + Express REST APIs" },
+      { label: "Authentication", value: "Google & GitHub OAuth" },
+      { label: "Resume Scoring", value: "Keyword Matching + PDF Parsing" },
+      { label: "Database", value: "MongoDB Atlas" }
     ],
-    
+
     techStack: {
-      "Frontend": ["React", "Context API", "PDF.js"],
-      "Backend": ["Node.js", "Express", "JWT"],
-      "Database": ["MongoDB", "Redis"],
-      "AI/ML": ["OpenAI API", "GPT-3.5"],
-      "DevOps": ["Vercel", "Railway", "GitHub Actions"]
+      Frontend: ["React", "HTML", "CSS"],
+      Backend: ["Node.js", "Express"],
+      Database: ["MongoDB"],
+      AI_Logic: ["Keyword Extraction", "PDF Parsing"],
+      Tools: ["Git", "Postman"]
     },
-    
-    challenges: [
-      {
-        title: "Real-time AI Analysis",
-        description: "Implemented streaming responses and optimistic UI updates to keep latency under 500ms",
-        solution: "Client-side caching + debounced API calls reduced server load by 60%"
-      },
-      {
-        title: "PDF Generation at Scale",
-        description: "Server-side PDF generation was bottleneck at 2000+ concurrent users",
-        solution: "Shifted to client-side generation using pdf-lib, eliminated server costs"
-      }
-    ],
-    
-    results: [
-      "Doubled interview callback rates for 85% of active users",
-      "Maintained 90%+ ATS compatibility across Fortune 500 companies",
-      "Reduced resume creation time from 4 hours to 18 minutes",
-      "3,000+ resumes generated with 85% weekly retention"
-    ],
-    
-    learned: "User research revealed candidates cared more about confidence than perfection. Shipped 'Good Enough' ATS scores vs 'Perfect' scores 3 weeks earlier.",
-    
-    screenshot: "https://images.unsplash.com/photo-1586281380349-632531db7ed4?w=1600&auto=format&fit=crop"
+
+    learned:
+      "Strengthened full-stack development skills, authentication workflows, and backend parsing logic for real-world applications.",
+
+    screenshot:
+      "https://lh3.google.com/d/1ngApn37ig05YDXxCbA5mppeva_opwcUs"
   },
-  
+
   {
     id: 2,
-    title: "AI Chat Workspace",
-    tagline: "Multi-modal AI assistant for research",
-    subtitle: "End the tab-switching nightmare",
+    title: "AI Chatbot Web Application",
+    tagline: "AI-powered conversational assistant",
+    subtitle: "Frontend–backend AI API integration",
     github: "https://github.com/bhagavan444/chatbotwebapp",
-    live: "https://ai-workspace-demo.vercel.app",
-    year: "2024",
+    live: null,
+    year: "2025",
     duration: "4 months",
     color: "#7c3aed",
     featured: true,
-    
-    insight: "Professionals waste 40% of their AI interaction time switching between ChatGPT, Claude, and Midjourney, losing context each time.",
-    
-    problem: "Professionals juggle multiple AI tools across different tabs, losing context and wasting time on tool switching and re-authentication.",
-    
-    solution: "Unified workspace supporting text, images, PDFs, and code generation with persistent conversation history and cross-modal context retention.",
-    
+
+    problem:
+      "Users require an accessible web interface to interact with AI models without complex setup.",
+
+    solution:
+      "Developed a React frontend integrated with a Flask backend that connects to external AI APIs to generate real-time conversational responses.",
+
     impact: [
-      { label: "Response Time", value: 500, suffix: "ms" },
-      { label: "Context Retention", value: 96, suffix: "%" },
-      { label: "Efficiency Gain", value: 3, suffix: "×" }
+      { label: "Average Response Time", value: 500, suffix: "ms" },
+      { label: "AI Integration", value: 1, suffix: " Provider" },
+      { label: "Async Handling", value: 100, suffix: "%" }
     ],
-    
+
     architecture: [
-      { label: "Frontend", value: "React + TypeScript with custom hooks for API orchestration" },
-      { label: "Backend", value: "Vercel Edge Functions for serverless API routing" },
-      { label: "Real-time", value: "Server-Sent Events for streaming responses" },
-      { label: "Database", value: "Supabase for conversation history and user preferences" },
-      { label: "Infrastructure", value: "Edge caching + WebSocket for live updates" }
+      { label: "Frontend", value: "React with asynchronous API calls" },
+      { label: "Backend", value: "Flask REST API" },
+      { label: "AI Service", value: "External AI API Integration" }
     ],
-    
+
     techStack: {
-      "Frontend": ["React", "TypeScript", "Tailwind CSS"],
-      "Backend": ["Vercel Edge", "Serverless Functions"],
-      "Database": ["Supabase", "PostgreSQL"],
-      "AI/ML": ["OpenAI API", "Anthropic Claude", "Replicate"],
-      "DevOps": ["Vercel", "GitHub Actions", "Docker"]
+      Frontend: ["React", "JavaScript"],
+      Backend: ["Flask", "Python"],
+      AI: ["External AI API"],
+      Tools: ["Git"]
     },
-    
-    challenges: [
-      {
-        title: "Streaming Large Responses",
-        description: "Handling 10,000+ token responses without UI blocking",
-        solution: "Implemented chunked Server-Sent Events with React Suspense boundaries"
-      },
-      {
-        title: "Context Window Management",
-        description: "Conversations exceeding 32K tokens crashed the app",
-        solution: "Built smart summarization that compresses old context while preserving key entities"
-      }
-    ],
-    
-    results: [
-      "40% faster workflow completion vs tab-switching approach",
-      "96% context retention across text, image, and code modalities",
-      "Sub-500ms response latency maintained under peak load",
-      "Progressive Web App supporting offline conversation history"
-    ],
-    
-    learned: "Users didn't want 'more features'—they wanted fewer clicks. Removed 12 planned features to focus on conversation speed.",
-    
-    screenshot: "https://images.unsplash.com/photo-1677442136019-21780ecad995?w=1600&auto=format&fit=crop"
+
+    learned:
+      "Improved understanding of API orchestration, async request handling, and frontend–backend communication.",
+
+    screenshot:
+      "https://lh3.google.com/d/10gvXlgHCb__NAWBoLEbj6LglL9dT6Kew"
   },
-  
+
   {
     id: 3,
-    title: "Career AI Recommender",
-    tagline: "ML-powered career guidance system",
+    title: "Career Path Recommendation System",
+    tagline: "Machine learning-based career guidance",
     github: "https://github.com/bhagavan444/Career-Path-Recommendation",
-    live: "https://career-ai-demo.vercel.app",
+    live: null,
+    year: "2024",
     color: "#10b981",
     featured: false,
-    screenshot: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?w=800&auto=format&fit=crop",
+
+    problem:
+      "Students often struggle to identify suitable career paths based on their interests and skill levels.",
+
+    solution:
+      "Implemented a supervised machine learning model to analyze user inputs and recommend relevant career domains.",
+
     impact: [
-      { label: "Accuracy", value: 92, suffix: "%" },
-      { label: "Career Paths", value: 50, suffix: "+" },
-      { label: "Response Time", value: 200, suffix: "ms" }
+      { label: "Model Accuracy", value: 90, suffix: "%+" },
+      { label: "Career Domains", value: 20, suffix: "+" },
+      { label: "Prediction Time", value: 200, suffix: "ms" }
     ],
-    tech: ["Python", "Scikit-learn", "React", "PostgreSQL", "Flask"]
+
+    tech: ["Python", "Scikit-learn", "Flask", "React"],
+
+    screenshot:
+      "https://lh3.google.com/d/1pTnIysNCQgb3oHPOyofDKVkAe_acI2Bj"
   },
+
   {
     id: 4,
-    title: "Fake News Detector",
-    tagline: "NLP system for misinformation detection",
+    title: "Fake News Detection System",
+    tagline: "NLP-based misinformation classifier",
     github: "https://github.com/bhagavan444/News-detector",
-    live: "https://news-detector-demo.vercel.app",
+    live: null,
+    year: "2023",
     color: "#ef4444",
     featured: false,
-    screenshot: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=800&auto=format&fit=crop",
+
+    problem:
+      "Rapid spread of misinformation requires automated text classification systems.",
+
+    solution:
+      "Built an NLP pipeline using TF-IDF vectorization and classification algorithms to detect fake news articles.",
+
     impact: [
-      { label: "Accuracy", value: 95, suffix: "%" },
-      { label: "Speed", value: 95, suffix: "ms" },
-      { label: "False Positive", value: 3.2, suffix: "%" }
+      { label: "Model Accuracy", value: 90, suffix: "%+" },
+      { label: "Vectorization", value: 1, suffix: " TF-IDF Pipeline" },
+      { label: "Processing Speed", value: 100, suffix: "ms" }
     ],
-    tech: ["Python", "TensorFlow", "LSTM", "FastAPI", "Docker"]
+
+    tech: ["Python", "Scikit-learn", "NLP", "TF-IDF"],
+
+    screenshot:
+      "https://lh3.google.com/d/17XFIpJvdtb-0KXi5cyW37FQyXXc1-iC9"
   },
+
   {
     id: 5,
-    title: "Heart Disease Predictor",
-    tagline: "Clinical ML model for risk assessment",
+    title: "Heart Disease Prediction System",
+    tagline: "ML-based medical risk assessment tool",
     github: "https://github.com/bhagavan444/Heart-Disease-Prediction",
-    live: "https://heart-predictor-demo.vercel.app",
+    live: null,
+    year: "2024",
     color: "#f59e0b",
     featured: false,
-    screenshot: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?w=800&auto=format&fit=crop",
+
+    problem:
+      "Early detection of heart disease risk can assist preventive healthcare decisions.",
+
+    solution:
+      "Developed a supervised learning classification model to predict heart disease probability using medical dataset features.",
+
     impact: [
-      { label: "Accuracy", value: 87, suffix: "%" },
-      { label: "Predictions", value: 1200, suffix: "+" },
-      { label: "Precision", value: 85, suffix: "%" }
+      { label: "Model Accuracy", value: 85, suffix: "%+" },
+      { label: "Dataset Records", value: 300, suffix: "+" },
+      { label: "Precision", value: 80, suffix: "%+" }
     ],
-    tech: ["Python", "Scikit-learn", "Flask", "Bootstrap", "SQLite"]
+
+    tech: ["Python", "Scikit-learn", "Flask", "SQLite"],
+
+    screenshot:
+      "https://lh3.google.com/d/1Uy1JiAFMcAwMD0LZgm0J-bYiWuHpRzqq"
   }
 ];
+
 
 // Magnetic Button Component
 const MagneticButton = ({ children, href, external = false, className = "", style = {} }) => {
@@ -1639,7 +1636,7 @@ export default function Projects() {
               <div className="hero-stat-label">Production Apps</div>
             </div>
             <div>
-              <div className="hero-stat-value">4K+</div>
+              <div className="hero-stat-value">100+</div>
               <div className="hero-stat-label">Active Users</div>
             </div>
             <div>
