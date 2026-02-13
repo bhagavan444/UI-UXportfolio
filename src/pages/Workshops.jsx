@@ -1,445 +1,838 @@
 import { useState, useEffect, useRef } from "react";
 import {
   Cpu, Brain, Microscope, Cloud, Network, Shield,
-  Rocket, Zap, Star, Trophy, Award, TrendingUp, CheckCircle2,
-  Clock, Users, Calendar, Layers, Target, Terminal,
-  Eye, Heart, Share2, X, ChevronRight, Filter, Search, Github, Mail
+  Github, ExternalLink, ChevronRight, X, Terminal,
+  Code2, Layers, Boxes, ArrowUpRight, FolderOpen, Search
 } from "lucide-react";
 
-const workshops = [
-  {
-    id: 1, title: "MERN Stack Development", icon: Cpu,
-    gradient: "linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)", color: "#06b6d4",
-    category: "Full Stack", level: "Intermediate", duration: "3 Months",
-    students: 1247, rating: 4.8, reviews: 342, progress: 100, projects: 5, difficulty: 65,
-    tags: ["React", "Node.js", "MongoDB", "Express", "REST API"],
-    description: "Master full-stack development with the MERN stack through hands-on projects.",
-    highlights: ["Build 5+ production apps", "Master React hooks", "Design REST APIs", "MongoDB schemas", "Cloud deployment"],
-    outcomes: ["Launch SaaS products", "Full-stack developer role", "Open-source contributor"],
-    featured: true, popular: true
-  },
-  {
-    id: 2, title: "Machine Learning & AI", icon: Brain,
-    gradient: "linear-gradient(135deg, #a855f7 0%, #ec4899 100%)", color: "#a855f7",
-    category: "AI/ML", level: "Advanced", duration: "4 Months",
-    students: 892, rating: 4.9, reviews: 267, progress: 100, projects: 6, difficulty: 80,
-    tags: ["Python", "TensorFlow", "Scikit-learn", "Pandas", "NumPy"],
-    description: "Deep dive into machine learning algorithms and AI model deployment.",
-    highlights: ["Train ML models", "Deep learning", "Data pipelines", "Production ML", "Real datasets"],
-    outcomes: ["Build AI apps", "ML engineer role", "Predictive systems"],
-    featured: true, popular: true
-  },
-  {
-    id: 3, title: "Deep Learning & Computer Vision", icon: Microscope,
-    gradient: "linear-gradient(135deg, #3b82f6 0%, #6366f1 100%)", color: "#3b82f6",
-    category: "Deep Learning", level: "Expert", duration: "3 Months",
-    students: 634, rating: 4.9, reviews: 189, progress: 100, projects: 4, difficulty: 85,
-    tags: ["TensorFlow", "Keras", "CNN", "PyTorch", "OpenCV"],
-    description: "Master computer vision and deep learning with CNNs and transformers.",
-    highlights: ["Image classification", "Object detection", "Facial recognition", "Model deployment", "Performance optimization"],
-    outcomes: ["CV products", "AI research", "Autonomous systems"],
-    featured: true, popular: false
-  },
-  {
-    id: 4, title: "Cloud Architecture & DevOps", icon: Cloud,
-    gradient: "linear-gradient(135deg, #10b981 0%, #14b8a6 100%)", color: "#10b981",
-    category: "Cloud & DevOps", level: "Advanced", duration: "3 Months",
-    students: 1089, rating: 4.7, reviews: 423, progress: 85, projects: 7, difficulty: 70,
-    tags: ["AWS", "Docker", "Kubernetes", "CI/CD", "Terraform"],
-    description: "Master cloud infrastructure and modern DevOps practices.",
-    highlights: ["Cloud architecture", "CI/CD pipelines", "Container orchestration", "Infrastructure as Code", "Cost optimization"],
-    outcomes: ["Cloud architect", "DevOps lead", "Enterprise optimization"],
-    featured: false, popular: true
-  },
-  {
-    id: 5, title: "Blockchain & Web3", icon: Network,
-    gradient: "linear-gradient(135deg, #f97316 0%, #ef4444 100%)", color: "#f97316",
-    category: "Web3", level: "Advanced", duration: "4 Months",
-    students: 567, rating: 4.8, reviews: 201, progress: 75, projects: 5, difficulty: 75,
-    tags: ["Solidity", "Ethereum", "Web3.js", "Smart Contracts", "DeFi"],
-    description: "Build decentralized applications and smart contracts.",
-    highlights: ["Smart contracts", "DeFi protocols", "NFT marketplaces", "Web3 frontends", "Security audits"],
-    outcomes: ["Launch DApps", "Web3 startups", "Blockchain solutions"],
-    featured: false, popular: true
-  },
-  {
-    id: 6, title: "Cybersecurity & Ethical Hacking", icon: Shield,
-    gradient: "linear-gradient(135deg, #ef4444 0%, #f43f5e 100%)", color: "#ef4444",
-    category: "Security", level: "Advanced", duration: "3 Months",
-    students: 723, rating: 4.9, reviews: 298, progress: 90, projects: 6, difficulty: 80,
-    tags: ["Penetration Testing", "Kali Linux", "Network Security", "OSINT", "Cryptography"],
-    description: "Learn ethical hacking and enterprise security practices.",
-    highlights: ["Security assessments", "Pen testing tools", "Cryptography", "Security practices", "Malware analysis"],
-    outcomes: ["Ethical hacker", "Cybersecurity firm", "Enterprise protection"],
-    featured: true, popular: false
+// ─────────────────────────────────────────────────────────────────────────────
+// DESIGN TOKENS
+// ─────────────────────────────────────────────────────────────────────────────
+const T = {
+  bg:       "#0a0c12",
+  surface:  "#0f1119",
+  raised:   "#151821",
+  overlay:  "#1a1e2e",
+  border:   "rgba(255,255,255,0.06)",
+  borderMd: "rgba(255,255,255,0.10)",
+  borderHi: "rgba(255,255,255,0.18)",
+  ink:      "#e4e7f0",
+  inkSub:   "#7880a0",
+  inkMute:  "#424760",
+  inkFaint: "#252838",
+  // Accent palette — one per skill domain
+  accents: {
+    fullstack:  { hex: "#38bdf8", rgb: "56,189,248"   },
+    aiml:       { hex: "#a78bfa", rgb: "167,139,250"  },
+    vision:     { hex: "#60a5fa", rgb: "96,165,250"   },
+    cloud:      { hex: "#34d399", rgb: "52,211,153"   },
+    blockchain: { hex: "#fb923c", rgb: "251,146,60"   },
+    security:   { hex: "#f87171", rgb: "248,113,113"  },
   }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SKILL DATA
+// ─────────────────────────────────────────────────────────────────────────────
+const SKILLS = [
+  {
+    id: "fullstack",
+    icon: Cpu,
+    title: "MERN Stack Development",
+    domain: "Full Stack",
+    depth: "Production",
+    since: "2022",
+    proficiency: 88,
+    summary: "End-to-end web engineering — from database schema design to deployed React frontends. Built and shipped complete products across client and server.",
+    stack: ["React.js", "Node.js", "Express", "MongoDB", "REST API", "Tailwind CSS", "JWT Auth"],
+    projects: [
+      { name: "AI-Powered Task Manager", desc: "Full-stack SaaS with real-time updates, role-based auth and MongoDB Atlas", link: "#" },
+      { name: "E-Commerce Platform", desc: "Production MERN app with payment integration, inventory and admin dashboard", link: "#" },
+      { name: "Social Dev Network", desc: "Developer community platform with profiles, posts, and GitHub integration", link: "#" },
+      { name: "Real-Time Chat App", desc: "WebSocket-powered messaging system with rooms and message history", link: "#" },
+      { name: "Portfolio CMS", desc: "Headless content management system with custom API layer", link: "#" },
+    ],
+    evidence: "5 production deployments · Vercel, Railway & AWS",
+    github: "https://github.com/bhagavan444",
+  },
+  {
+    id: "aiml",
+    icon: Brain,
+    title: "Machine Learning & AI",
+    domain: "AI / ML",
+    depth: "Applied",
+    since: "2023",
+    proficiency: 82,
+    summary: "Applied ML across classification, regression, NLP and recommendation systems. Focus on model reliability and deployment pipelines, not just notebook accuracy.",
+    stack: ["Python", "Scikit-learn", "TensorFlow", "Pandas", "NumPy", "FastAPI", "Streamlit"],
+    projects: [
+      { name: "Sentiment Analysis API", desc: "NLP pipeline for product review classification — deployed as a REST service", link: "#" },
+      { name: "Price Prediction Engine", desc: "Gradient boosted model for real estate with feature engineering and explainability", link: "#" },
+      { name: "Churn Detection System", desc: "Logistic regression + SHAP explanations for a subscription analytics demo", link: "#" },
+      { name: "Movie Recommendation Engine", desc: "Collaborative filtering using cosine similarity on the MovieLens dataset", link: "#" },
+      { name: "Crop Yield Forecaster", desc: "Time-series ML model with agricultural datasets and seasonal features", link: "#" },
+      { name: "Spam Filter Model", desc: "Naive Bayes + TF-IDF pipeline with 97% precision on email classification", link: "#" },
+    ],
+    evidence: "6 models trained on real datasets · FastAPI deployments",
+    github: "https://github.com/bhagavan444",
+  },
+  {
+    id: "vision",
+    icon: Microscope,
+    title: "Deep Learning & Computer Vision",
+    domain: "Deep Learning",
+    depth: "Research-grade",
+    since: "2023",
+    proficiency: 78,
+    summary: "CNN architectures, transfer learning and object detection pipelines. Applied to real image datasets — not toy demos.",
+    stack: ["PyTorch", "TensorFlow", "Keras", "OpenCV", "YOLO", "ResNet", "Albumentations"],
+    projects: [
+      { name: "Face Mask Detector", desc: "Real-time detection using MobileNetV2 with OpenCV webcam stream", link: "#" },
+      { name: "Plant Disease Classifier", desc: "CNN trained on 50k+ leaf images for agricultural disease identification", link: "#" },
+      { name: "Object Counter System", desc: "YOLOv5-based pipeline to count inventory items from warehouse footage", link: "#" },
+      { name: "Signature Verifier", desc: "Siamese network for verifying handwritten signatures on documents", link: "#" },
+    ],
+    evidence: "4 CV models · YOLO, ResNet, MobileNet architectures",
+    github: "https://github.com/bhagavan444",
+  },
+  {
+    id: "cloud",
+    icon: Cloud,
+    title: "Cloud Architecture & DevOps",
+    domain: "Cloud / DevOps",
+    depth: "Practitioner",
+    since: "2023",
+    proficiency: 75,
+    summary: "Infrastructure-as-code, containerised deployments and CI/CD pipelines. Focus on reproducibility and cost-efficient architectures.",
+    stack: ["AWS", "Docker", "GitHub Actions", "Nginx", "EC2", "S3", "Terraform"],
+    projects: [
+      { name: "CI/CD Pipeline Template", desc: "GitHub Actions workflow for Docker build, test, and EC2 deploy", link: "#" },
+      { name: "Containerised ML API", desc: "FastAPI model server Dockerised and deployed with Nginx reverse proxy", link: "#" },
+      { name: "S3-Backed File Storage", desc: "Presigned URL upload system with lifecycle policies and CDN integration", link: "#" },
+      { name: "Terraform AWS Infra", desc: "Modular IaC setup for VPC, security groups, EC2 and RDS provisioning", link: "#" },
+      { name: "Zero-Downtime Deploy", desc: "Blue-green deployment strategy on EC2 using ALB and target groups", link: "#" },
+      { name: "Log Aggregation Stack", desc: "CloudWatch + Lambda-based alerting pipeline for production error monitoring", link: "#" },
+      { name: "Cost Optimisation Audit", desc: "Reserved instance analysis and right-sizing report for dev environments", link: "#" },
+    ],
+    evidence: "7 cloud deployments · AWS Certified Cloud Practitioner",
+    github: "https://github.com/bhagavan444",
+  },
+  {
+    id: "blockchain",
+    icon: Network,
+    title: "Blockchain & Web3",
+    domain: "Web3",
+    depth: "Builder",
+    since: "2023",
+    proficiency: 70,
+    summary: "Smart contract development and decentralised app frontends. Focused on understanding protocol mechanics and building functional DApp prototypes.",
+    stack: ["Solidity", "Hardhat", "Ethers.js", "Web3.js", "IPFS", "MetaMask", "OpenZeppelin"],
+    projects: [
+      { name: "ERC-20 Token Contract", desc: "Custom token with mint/burn, allowance logic and Hardhat test suite", link: "#" },
+      { name: "NFT Minting DApp", desc: "ERC-721 contract + React frontend with MetaMask wallet connection", link: "#" },
+      { name: "Decentralised Voting", desc: "On-chain governance contract with delegate, proposal, and vote logic", link: "#" },
+      { name: "DeFi Yield Simulator", desc: "Staking contract simulation with reward rate calculation on testnet", link: "#" },
+      { name: "IPFS File Storage DApp", desc: "Decentralised file uploader storing hashes on-chain via Filecoin gateway", link: "#" },
+    ],
+    evidence: "5 contracts deployed on Sepolia testnet",
+    github: "https://github.com/bhagavan444",
+  },
+  {
+    id: "security",
+    icon: Shield,
+    title: "Cybersecurity & Ethical Hacking",
+    domain: "Security",
+    depth: "Practitioner",
+    since: "2023",
+    proficiency: 73,
+    summary: "Offensive security fundamentals, network analysis and secure software practices. Applied in CTF environments and integrated into application design.",
+    stack: ["Kali Linux", "Metasploit", "Burp Suite", "Wireshark", "Nmap", "OWASP", "Cryptography"],
+    projects: [
+      { name: "CTF Write-Ups (15+)", desc: "Documented challenge solutions across web exploitation, crypto, and forensics", link: "#" },
+      { name: "Vulnerability Scanner CLI", desc: "Python tool using Nmap bindings for automated port and service analysis", link: "#" },
+      { name: "Secure Auth Implementation", desc: "JWT + refresh token system with rate limiting and brute-force protection", link: "#" },
+      { name: "SQL Injection Demo Lab", desc: "Intentionally vulnerable Flask app and corresponding secure refactor", link: "#" },
+      { name: "Network Packet Analyser", desc: "Wireshark-based lab capturing and decoding HTTP and DNS traffic patterns", link: "#" },
+      { name: "OWASP Top 10 Audit", desc: "Manual security review checklist applied to a portfolio web application", link: "#" },
+    ],
+    evidence: "6 security projects · 15+ CTF challenges solved",
+    github: "https://github.com/bhagavan444",
+  },
 ];
 
-const categories = ["All", "Full Stack", "AI/ML", "Deep Learning", "Cloud & DevOps", "Web3", "Security"];
+const DOMAINS = ["All", "Full Stack", "AI / ML", "Deep Learning", "Cloud / DevOps", "Web3", "Security"];
 
-export default function Workshops() {
-  const [selected, setSelected] = useState(null);
-  const [hovered, setHovered] = useState(null);
-  const [category, setCategory] = useState("All");
-  const [search, setSearch] = useState("");
-  const [sort, setSort] = useState("popular");
-  const [saved, setSaved] = useState(new Set());
-  const canvasRef = useRef(null);
-  const [mounted, setMounted] = useState(false);
-  const [mouse, setMouse] = useState({ x: 0, y: 0 });
+// ─────────────────────────────────────────────────────────────────────────────
+// DEPTH BADGE COLOURS
+// ─────────────────────────────────────────────────────────────────────────────
+const depthColor = (d) => ({
+  "Production":      { bg: "rgba(52,211,153,0.10)", border: "rgba(52,211,153,0.25)", text: "#34d399" },
+  "Applied":         { bg: "rgba(96,165,250,0.10)",  border: "rgba(96,165,250,0.25)",  text: "#60a5fa" },
+  "Research-grade":  { bg: "rgba(167,139,250,0.10)", border: "rgba(167,139,250,0.25)", text: "#a78bfa" },
+  "Practitioner":    { bg: "rgba(251,146,60,0.10)",  border: "rgba(251,146,60,0.25)",  text: "#fb923c" },
+  "Builder":         { bg: "rgba(248,113,113,0.10)", border: "rgba(248,113,113,0.25)", text: "#f87171" },
+}[d] || { bg: "rgba(255,255,255,0.06)", border: T.borderMd, text: T.inkSub });
 
+// ─────────────────────────────────────────────────────────────────────────────
+// HOOKS
+// ─────────────────────────────────────────────────────────────────────────────
+function useInView(threshold = 0.08) {
+  const ref = useRef(null);
+  const [vis, setVis] = useState(false);
   useEffect(() => {
-    setMounted(true);
-    const handleMouse = (e) => setMouse({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handleMouse);
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-
-    class Particle {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2 + 1;
-        this.speedX = Math.random() * 0.5 - 0.25;
-        this.speedY = Math.random() * 0.5 - 0.25;
-        this.opacity = Math.random() * 0.5 + 0.2;
-      }
-      update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.x < 0) this.x = canvas.width;
-        if (this.y > canvas.height) this.y = 0;
-        if (this.y < 0) this.y = canvas.height;
-      }
-      draw() {
-        ctx.fillStyle = `rgba(0, 240, 255, ${this.opacity})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    const particles = Array.from({ length: 50 }, () => new Particle());
-    function animate() {
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => { p.update(); p.draw(); });
-      requestAnimationFrame(animate);
-    }
-    animate();
-
-    const handleResize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
-    window.addEventListener('resize', handleResize);
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('mousemove', handleMouse);
-    };
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVis(true); }, { threshold });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
   }, []);
+  return [ref, vis];
+}
 
-  const filtered = workshops
-    .filter(w => category === "All" || w.category === category)
-    .filter(w => w.title.toLowerCase().includes(search.toLowerCase()) || 
-                 w.tags.some(t => t.toLowerCase().includes(search.toLowerCase())))
-    .sort((a, b) => {
-      if (sort === "popular") return b.students - a.students;
-      if (sort === "rating") return b.rating - a.rating;
-      if (sort === "difficulty") return b.difficulty - a.difficulty;
-      return 0;
-    });
+// ─────────────────────────────────────────────────────────────────────────────
+// PROFICIENCY BAR
+// ─────────────────────────────────────────────────────────────────────────────
+function ProfBar({ pct, color }) {
+  const [ref, vis] = useInView(0.2);
+  return (
+    <div ref={ref} style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+      <div style={{ flex: 1, height: "3px", background: T.border, borderRadius: "2px", overflow: "hidden" }}>
+        <div style={{
+          height: "100%", borderRadius: "2px",
+          background: `linear-gradient(90deg, ${color}, ${color}99)`,
+          width: vis ? `${pct}%` : "0%",
+          transition: "width 900ms cubic-bezier(0.22,1,0.36,1) 150ms",
+        }} />
+      </div>
+      <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkMute, flexShrink: 0, width: "32px", textAlign: "right" }}>
+        {vis ? `${pct}%` : "—"}
+      </span>
+    </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// SKILL CARD
+// ─────────────────────────────────────────────────────────────────────────────
+function SkillCard({ skill, idx, onOpen }) {
+  const [ref, vis] = useInView();
+  const [hov, setHov] = useState(false);
+  const acc = T.accents[skill.id];
+  const dc = depthColor(skill.depth);
+  const Icon = skill.icon;
 
   return (
-    <div style={{ minHeight: '100vh', background: '#000', color: '#fff', position: 'relative', overflow: 'hidden', fontFamily: "'Inter', sans-serif" }}>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.7; } }
-        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        ::-webkit-scrollbar { width: 10px; }
-        ::-webkit-scrollbar-track { background: #000; }
-        ::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #00f0ff, #a78bfa); border-radius: 5px; }
-        input::placeholder { color: rgba(255, 255, 255, 0.3); }
-      `}</style>
+    <div
+      ref={ref}
+      onMouseEnter={() => setHov(true)}
+      onMouseLeave={() => setHov(false)}
+      onClick={() => onOpen(skill)}
+      style={{
+        position: "relative",
+        background: T.surface,
+        border: `1px solid ${hov ? `rgba(${acc.rgb},0.30)` : T.border}`,
+        borderRadius: "14px",
+        overflow: "hidden",
+        cursor: "pointer",
+        transition: "all 280ms cubic-bezier(0.22,1,0.36,1)",
+        transform: vis ? `translateY(${hov ? "-4px" : "0"})` : "translateY(24px)",
+        opacity: vis ? 1 : 0,
+        transitionDelay: `${idx * 70}ms`,
+        boxShadow: hov ? `0 16px 48px rgba(0,0,0,0.35), 0 0 0 1px rgba(${acc.rgb},0.12)` : "none",
+      }}
+    >
+      {/* Top accent line */}
+      <div style={{
+        position: "absolute", top: 0, left: 0, right: 0, height: "2px",
+        background: `linear-gradient(90deg, ${acc.hex}, transparent 70%)`,
+        opacity: hov ? 1 : 0.4, transition: "opacity 280ms",
+      }} />
 
-      <canvas ref={canvasRef} style={{ position: 'fixed', inset: 0, pointerEvents: 'none', opacity: 0.4, zIndex: 1 }} />
-      <div style={{ position: 'fixed', inset: 0, background: `radial-gradient(600px circle at ${mouse.x}px ${mouse.y}px, rgba(0, 240, 255, 0.08), transparent 40%)`, pointerEvents: 'none', zIndex: 2 }} />
-
-      <div style={{ position: 'relative', zIndex: 10, maxWidth: '1400px', margin: '0 auto', padding: '3rem 1rem', opacity: mounted ? 1 : 0, transition: 'all 0.6s' }}>
-        
-        {/* Header */}
-        <header style={{ textAlign: 'center', marginBottom: '4rem', animation: 'fadeIn 0.8s' }}>
-          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '0.5rem', padding: '0.5rem 1.5rem', background: 'rgba(15, 15, 35, 0.8)', backdropFilter: 'blur(10px)', border: '1px solid rgba(0, 240, 255, 0.3)', borderRadius: '9999px', marginBottom: '1.5rem', animation: 'pulse 2s infinite' }}>
-            <Zap size={18} color="#ffd700" />
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', background: 'linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>ELITE TRAINING PROGRAMS</span>
-            <Zap size={18} color="#ffd700" />
-          </div>
-          
-          <h1 style={{ fontSize: 'clamp(3rem, 8vw, 6rem)', fontWeight: 900, lineHeight: 1.1, marginBottom: '1.5rem', background: 'linear-gradient(135deg, #00f0ff 0%, #a78bfa 50%, #ff61d2 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', letterSpacing: '-0.02em' }}>
-            PROFESSIONAL<br />WORKSHOPS
-          </h1>
-          
-          <p style={{ fontSize: 'clamp(1rem, 2vw, 1.25rem)', color: 'rgba(255, 255, 255, 0.6)', maxWidth: '800px', margin: '0 auto 3rem', lineHeight: 1.7 }}>
-            Transform your career with industry-leading programs. Master cutting-edge technologies and join thousands of successful developers worldwide.
-          </p>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', maxWidth: '1000px', margin: '0 auto' }}>
-            {[
-              { icon: Users, label: "Students", value: "5000+", color: "#00f0ff" },
-              { icon: Trophy, label: "Success Rate", value: "94%", color: "#ffd700" },
-              { icon: Award, label: "Certifications", value: "12+", color: "#a855f7" },
-              { icon: TrendingUp, label: "Growth", value: "3x", color: "#10b981" }
-            ].map((s, i) => (
-              <div key={i} style={{ background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.7), rgba(25, 20, 50, 0.5))', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '1rem', padding: '1.5rem', textAlign: 'center', transition: 'all 0.4s', cursor: 'default' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-8px)'; e.currentTarget.style.borderColor = s.color; e.currentTarget.style.boxShadow = `0 20px 40px ${s.color}30`; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                <s.icon size={32} color={s.color} style={{ margin: '0 auto 1rem', display: 'block' }} />
-                <div style={{ fontSize: '2rem', fontWeight: 900, color: s.color, marginBottom: '0.5rem' }}>{s.value}</div>
-                <div style={{ fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.5)', textTransform: 'uppercase' }}>{s.label}</div>
-              </div>
-            ))}
-          </div>
-        </header>
-
-        {/* Filters */}
-        <div style={{ marginBottom: '3rem', display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-          <div style={{ position: 'relative', maxWidth: '600px', margin: '0 auto', width: '100%' }}>
-            <Search size={20} style={{ position: 'absolute', left: '1.25rem', top: '50%', transform: 'translateY(-50%)', color: '#00f0ff', pointerEvents: 'none' }} />
-            <input type="text" placeholder="Search workshops, technologies..." value={search} onChange={e => setSearch(e.target.value)} style={{ width: '100%', padding: '1rem 1.5rem 1rem 3.5rem', background: 'rgba(15, 15, 35, 0.8)', backdropFilter: 'blur(10px)', border: '2px solid rgba(0, 240, 255, 0.2)', borderRadius: '9999px', color: '#fff', fontSize: '1rem', outline: 'none', transition: 'all 0.3s' }} onFocus={e => { e.target.style.borderColor = 'rgba(0, 240, 255, 0.6)'; e.target.style.boxShadow = '0 0 30px rgba(0, 240, 255, 0.2)'; }} onBlur={e => { e.target.style.borderColor = 'rgba(0, 240, 255, 0.2)'; e.target.style.boxShadow = 'none'; }} />
+      {/* Card header */}
+      <div style={{
+        padding: "22px 22px 16px",
+        background: hov ? `linear-gradient(135deg, rgba(${acc.rgb},0.05) 0%, transparent 60%)` : "transparent",
+        transition: "background 280ms",
+      }}>
+        <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between", marginBottom: "14px" }}>
+          {/* Icon */}
+          <div style={{
+            width: "44px", height: "44px", borderRadius: "10px",
+            background: T.raised,
+            border: `1px solid ${hov ? `rgba(${acc.rgb},0.3)` : T.border}`,
+            display: "flex", alignItems: "center", justifyContent: "center",
+            flexShrink: 0, transition: "all 280ms",
+            boxShadow: hov ? `0 0 20px rgba(${acc.rgb},0.2)` : "none",
+          }}>
+            <Icon size={22} color={acc.hex} />
           </div>
 
-          <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '0.75rem' }}>
-            {categories.map(c => (
-              <button key={c} onClick={() => setCategory(c)} style={{ padding: '0.75rem 1.5rem', background: category === c ? 'linear-gradient(135deg, #00f0ff, #3b82f6)' : 'rgba(15, 15, 35, 0.6)', backdropFilter: 'blur(10px)', border: category === c ? 'none' : '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '9999px', color: category === c ? '#000' : 'rgba(255, 255, 255, 0.6)', fontSize: '0.875rem', fontWeight: 600, cursor: 'pointer', transition: 'all 0.3s', outline: 'none', transform: category === c ? 'translateY(-2px)' : 'translateY(0)', boxShadow: category === c ? '0 8px 20px rgba(0, 240, 255, 0.4)' : 'none' }} onMouseEnter={e => { if (category !== c) { e.target.style.borderColor = 'rgba(0, 240, 255, 0.3)'; e.target.style.color = 'rgba(255, 255, 255, 0.9)'; }}} onMouseLeave={e => { if (category !== c) { e.target.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.target.style.color = 'rgba(255, 255, 255, 0.6)'; }}}>
-                {c}
-              </button>
-            ))}
-          </div>
-
-          <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '1rem', flexWrap: 'wrap', fontSize: '0.875rem' }}>
-            <span style={{ color: 'rgba(255, 255, 255, 0.5)', display: 'flex', alignItems: 'center', gap: '0.5rem' }}><Filter size={16} />Sort:</span>
-            {['popular', 'rating', 'difficulty'].map(s => (
-              <button key={s} onClick={() => setSort(s)} style={{ padding: '0.5rem 1rem', background: sort === s ? 'rgba(0, 240, 255, 0.15)' : 'transparent', border: sort === s ? '1px solid #00f0ff' : '1px solid transparent', borderRadius: '9999px', color: sort === s ? '#00f0ff' : 'rgba(255, 255, 255, 0.5)', cursor: 'pointer', transition: 'all 0.3s', textTransform: 'capitalize', outline: 'none' }} onMouseEnter={e => { if (sort !== s) e.target.style.color = 'rgba(255, 255, 255, 0.8)'; }} onMouseLeave={e => { if (sort !== s) e.target.style.color = 'rgba(255, 255, 255, 0.5)'; }}>
-                {s}
-              </button>
-            ))}
+          {/* Depth + domain badges */}
+          <div style={{ display: "flex", gap: "6px", flexWrap: "wrap", justifyContent: "flex-end" }}>
+            <span style={{
+              padding: "3px 9px", borderRadius: "4px",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "10px", letterSpacing: "0.5px",
+              background: dc.bg, border: `1px solid ${dc.border}`, color: dc.text,
+            }}>{skill.depth}</span>
           </div>
         </div>
 
-        {/* Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))', gap: '2rem', marginBottom: '4rem' }}>
-          {filtered.map((w, i) => (
-            <div key={w.id} style={{ background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(25, 15, 45, 0.9))', backdropFilter: 'blur(20px)', border: '2px solid rgba(255, 255, 255, 0.08)', borderRadius: '1.5rem', overflow: 'hidden', cursor: 'pointer', transition: 'all 0.5s', transform: hovered === w.id ? 'translateY(-10px) scale(1.02)' : 'translateY(0)', boxShadow: hovered === w.id ? '0 25px 50px rgba(0, 0, 0, 0.5)' : 'none', borderColor: hovered === w.id ? 'rgba(0, 240, 255, 0.4)' : 'rgba(255, 255, 255, 0.08)', animation: `fadeIn ${0.4 + i * 0.1}s` }} onMouseEnter={() => setHovered(w.id)} onMouseLeave={() => setHovered(null)} onClick={() => setSelected(w)}>
-              
-              <div style={{ height: '200px', background: w.gradient, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ position: 'absolute', inset: 0, background: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(2px)' }} />
-                <div style={{ width: '100px', height: '100px', borderRadius: '1.5rem', background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2, transition: 'transform 0.5s', transform: hovered === w.id ? 'translateY(-10px) rotate(5deg) scale(1.1)' : 'translateY(0)' }}>
-                  <w.icon size={48} color={w.color} />
-                </div>
-                
-                <div style={{ position: 'absolute', top: '1rem', left: '1rem', display: 'flex', gap: '0.5rem', zIndex: 3 }}>
-                  {w.featured && <span style={{ padding: '0.375rem 0.75rem', background: 'rgba(255, 215, 0, 0.9)', color: '#000', fontSize: '0.7rem', fontWeight: 800, borderRadius: '9999px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>FEATURED</span>}
-                  {w.popular && <span style={{ padding: '0.375rem 0.75rem', background: 'rgba(239, 68, 68, 0.9)', color: '#fff', fontSize: '0.7rem', fontWeight: 800, borderRadius: '9999px', letterSpacing: '0.05em', textTransform: 'uppercase', animation: 'pulse 2s infinite' }}>POPULAR</span>}
-                </div>
+        {/* Title */}
+        <h3 style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "18px", fontWeight: 800,
+          color: T.ink, letterSpacing: "-0.3px",
+          lineHeight: 1.2, margin: "0 0 6px",
+        }}>
+          {skill.title}
+        </h3>
 
-                <div style={{ position: 'absolute', top: '1rem', right: '1rem', display: 'flex', gap: '0.5rem', zIndex: 3 }}>
-                  <button onClick={e => { e.stopPropagation(); setSaved(p => { const n = new Set(p); n.has(w.id) ? n.delete(w.id) : n.add(w.id); return n; }); }} style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s', outline: 'none' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.background = 'rgba(0, 240, 255, 0.2)'; e.currentTarget.style.borderColor = '#00f0ff'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(0, 0, 0, 0.5)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}>
-                    <Heart size={18} color={saved.has(w.id) ? '#ef4444' : '#fff'} fill={saved.has(w.id) ? '#ef4444' : 'none'} />
-                  </button>
-                  <button onClick={e => e.stopPropagation()} style={{ width: '2.5rem', height: '2.5rem', borderRadius: '9999px', background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s', outline: 'none' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.15)'; e.currentTarget.style.background = 'rgba(0, 240, 255, 0.2)'; e.currentTarget.style.borderColor = '#00f0ff'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.background = 'rgba(0, 0, 0, 0.5)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.2)'; }}>
-                    <Share2 size={18} color="#fff" />
-                  </button>
-                </div>
-              </div>
+        {/* Domain + since */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+          <span style={{
+            fontFamily: "'JetBrains Mono', monospace",
+            fontSize: "11px", color: acc.hex, letterSpacing: "0.5px",
+          }}>{skill.domain}</span>
+          <span style={{ color: T.inkFaint, fontSize: "12px" }}>·</span>
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkMute }}>
+            since {skill.since}
+          </span>
+        </div>
 
-              <div style={{ padding: '1.5rem' }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-                  <span style={{ fontSize: '0.75rem', fontWeight: 700, letterSpacing: '0.1em', textTransform: 'uppercase', color: w.color }}>{w.category}</span>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontSize: '0.875rem' }}>
-                    <Star size={16} color="#ffd700" fill="#ffd700" />
-                    <span style={{ fontWeight: 700 }}>{w.rating}</span>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.5)', fontSize: '0.75rem' }}>({w.reviews})</span>
-                  </div>
-                </div>
+        {/* Proficiency */}
+        <div style={{ marginBottom: "14px" }}>
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "6px" }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "2px", color: T.inkMute, textTransform: "uppercase" }}>
+              Proficiency
+            </span>
+          </div>
+          <ProfBar pct={skill.proficiency} color={acc.hex} />
+        </div>
 
-                <h3 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.75rem', lineHeight: 1.3 }}>{w.title}</h3>
-                <p style={{ fontSize: '0.9rem', color: 'rgba(255, 255, 255, 0.6)', lineHeight: 1.6, marginBottom: '1.25rem', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>{w.description}</p>
+        {/* Summary */}
+        <p style={{
+          fontFamily: "'DM Sans', sans-serif",
+          fontSize: "13px", lineHeight: 1.7,
+          color: T.inkSub, margin: "0 0 16px",
+          display: "-webkit-box", WebkitLineClamp: 3,
+          WebkitBoxOrient: "vertical", overflow: "hidden",
+        }}>
+          {skill.summary}
+        </p>
 
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                  {[
-                    { icon: Clock, text: w.duration },
-                    { icon: Users, text: `${w.students} students` },
-                    { icon: Target, text: `${w.difficulty}% Difficulty` },
-                    { icon: Layers, text: `${w.projects} Projects` }
-                  ].map((s, idx) => (
-                    <div key={idx} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '0.8rem', color: 'rgba(255, 255, 255, 0.7)' }}>
-                      <s.icon size={16} color="rgba(255, 255, 255, 0.5)" />
-                      <span>{s.text}</span>
-                    </div>
-                  ))}
-                </div>
+        {/* Evidence tag */}
+        <div style={{
+          display: "flex", alignItems: "center", gap: "7px",
+          padding: "8px 12px", borderRadius: "7px",
+          background: T.raised, border: `1px solid ${T.border}`,
+          marginBottom: "16px",
+        }}>
+          <FolderOpen size={13} color={acc.hex} style={{ flexShrink: 0 }} />
+          <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: T.inkSub, letterSpacing: "0.3px" }}>
+            {skill.evidence}
+          </span>
+        </div>
 
-                <div style={{ marginBottom: '1.25rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.8rem', marginBottom: '0.5rem' }}>
-                    <span style={{ color: 'rgba(255, 255, 255, 0.5)' }}>Progress</span>
-                    <span style={{ fontWeight: 700, color: w.color }}>{w.progress}%</span>
-                  </div>
-                  <div style={{ height: '6px', background: 'rgba(255, 255, 255, 0.1)', borderRadius: '9999px', overflow: 'hidden' }}>
-                    <div style={{ height: '100%', width: hovered === w.id ? `${w.progress}%` : '0%', background: `linear-gradient(90deg, ${w.color}, ${w.color}aa)`, borderRadius: '9999px', transition: 'width 1s', position: 'relative' }}>
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent)', animation: 'shimmer 2s infinite' }} />
-                    </div>
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.25rem' }}>
-                  {w.tags.slice(0, 3).map(t => (
-                    <span key={t} style={{ padding: '0.375rem 0.75rem', fontSize: '0.75rem', borderRadius: '9999px', border: `1px solid ${w.color}50`, color: w.color, fontFamily: "'JetBrains Mono', monospace", fontWeight: 500 }}>{t}</span>
-                  ))}
-                  {w.tags.length > 3 && <span style={{ padding: '0.375rem 0.75rem', fontSize: '0.75rem', borderRadius: '9999px', border: '1px solid rgba(255, 255, 255, 0.2)', color: 'rgba(255, 255, 255, 0.5)' }}>+{w.tags.length - 3}</span>}
-                </div>
-
-                <button style={{ width: '100%', padding: '0.875rem', borderRadius: '9999px', border: 'none', background: `linear-gradient(90deg, ${w.color}, ${w.color}cc)`, color: '#000', fontWeight: 800, fontSize: '0.9rem', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem', transition: 'all 0.3s', textTransform: 'uppercase', letterSpacing: '0.05em', outline: 'none' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = `0 10px 30px ${w.color}60`; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                  View Details
-                  <ChevronRight size={20} />
-                </button>
-              </div>
-            </div>
+        {/* Stack chips */}
+        <div style={{ display: "flex", flexWrap: "wrap", gap: "5px", marginBottom: "16px" }}>
+          {skill.stack.slice(0, 5).map(s => (
+            <span key={s} style={{
+              padding: "3px 9px", borderRadius: "4px",
+              fontFamily: "'JetBrains Mono', monospace",
+              fontSize: "11px",
+              color: T.inkSub, background: T.raised,
+              border: `1px solid ${T.border}`,
+            }}>{s}</span>
           ))}
-        </div>
-
-        {filtered.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '5rem 2rem', color: 'rgba(255, 255, 255, 0.5)' }}>
-            <Search size={64} color="rgba(255, 255, 255, 0.3)" style={{ margin: '0 auto 1.5rem', display: 'block' }} />
-            <h3 style={{ fontSize: '2rem', fontWeight: 800, marginBottom: '0.5rem', color: '#fff' }}>No workshops found</h3>
-            <p style={{ fontSize: '1.125rem' }}>Try adjusting your filters or search</p>
-          </div>
-        )}
-
-        {/* CTA */}
-        <div style={{ background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.95), rgba(25, 15, 45, 0.9))', backdropFilter: 'blur(20px)', border: '2px solid rgba(0, 240, 255, 0.3)', borderRadius: '2rem', padding: '3rem 2rem', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
-          <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(0, 240, 255, 0.05), rgba(167, 139, 250, 0.05))', opacity: 0.5, pointerEvents: 'none' }} />
-          <div style={{ position: 'relative', zIndex: 1 }}>
-            <Rocket size={64} color="#00f0ff" style={{ margin: '0 auto 2rem', display: 'block', animation: 'pulse 2s infinite' }} />
-            <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3.5rem)', fontWeight: 900, background: 'linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '1rem' }}>
-              Ready to Transform Your Career?
-            </h2>
-            <p style={{ fontSize: '1.125rem', color: 'rgba(255, 255, 255, 0.6)', maxWidth: '700px', margin: '0 auto 2.5rem', lineHeight: 1.7 }}>
-              Join thousands of developers who have accelerated their careers. Start your journey today.
-            </p>
-            <div style={{ display: 'flex', flexWrap: 'wrap', justifyContent: 'center', gap: '1rem' }}>
-              <a href="https://github.com/bhagavan444" target="_blank" rel="noopener noreferrer" style={{ padding: '1rem 2.5rem', background: 'rgba(15, 15, 35, 0.8)', backdropFilter: 'blur(10px)', border: '2px solid #00f0ff', borderRadius: '9999px', color: '#00f0ff', fontWeight: 800, fontSize: '1rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.625rem', transition: 'all 0.3s', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 15px 35px rgba(0, 240, 255, 0.3)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                <Github size={20} />Portfolio
-              </a>
-              <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{ padding: '1rem 2.5rem', background: 'linear-gradient(135deg, #00f0ff, #3b82f6)', borderRadius: '9999px', color: '#000', fontWeight: 800, fontSize: '1rem', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: '0.625rem', boxShadow: '0 10px 30px rgba(0, 240, 255, 0.4)', transition: 'all 0.3s', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.05em' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-4px)'; e.currentTarget.style.boxShadow = '0 20px 40px rgba(0, 240, 255, 0.6)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 10px 30px rgba(0, 240, 255, 0.4)'; }}>
-                <Rocket size={20} />Get Started
-              </a>
-            </div>
-          </div>
+          {skill.stack.length > 5 && (
+            <span style={{ padding: "3px 9px", borderRadius: "4px", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkMute, background: T.raised, border: `1px solid ${T.border}` }}>
+              +{skill.stack.length - 5}
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Modal */}
-      {selected && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0, 0, 0, 0.95)', backdropFilter: 'blur(20px)', zIndex: 9999, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '1.5rem', overflowY: 'auto' }} onClick={() => setSelected(null)}>
-          <div style={{ background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.98), rgba(25, 15, 45, 0.95))', backdropFilter: 'blur(20px)', border: '2px solid rgba(0, 240, 255, 0.3)', borderRadius: '2rem', maxWidth: '1200px', width: '100%', maxHeight: '90vh', overflowY: 'auto', position: 'relative' }} onClick={e => e.stopPropagation()}>
-            
-            <button onClick={() => setSelected(null)} style={{ position: 'absolute', top: '1.5rem', right: '1.5rem', width: '3rem', height: '3rem', borderRadius: '9999px', background: 'rgba(239, 68, 68, 0.2)', border: '2px solid #ef4444', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', transition: 'all 0.3s', zIndex: 10, outline: 'none' }} onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.1) rotate(90deg)'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.4)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1) rotate(0deg)'; e.currentTarget.style.background = 'rgba(239, 68, 68, 0.2)'; }}>
-              <X size={24} color="#ef4444" />
-            </button>
+      {/* Card footer */}
+      <div style={{
+        padding: "14px 22px",
+        borderTop: `1px solid ${T.border}`,
+        display: "flex", justifyContent: "space-between", alignItems: "center",
+      }}>
+        <span style={{
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "11px", color: T.inkMute,
+        }}>
+          {skill.projects.length} projects
+        </span>
+        <div style={{
+          display: "flex", alignItems: "center", gap: "5px",
+          fontFamily: "'JetBrains Mono', monospace",
+          fontSize: "11px", letterSpacing: "1.5px", textTransform: "uppercase",
+          color: hov ? acc.hex : T.inkMute,
+          transition: "color 200ms",
+        }}>
+          VIEW PROJECTS
+          <ChevronRight size={13} />
+        </div>
+      </div>
+    </div>
+  );
+}
 
-            <div style={{ height: '280px', background: selected.gradient, position: 'relative', overflow: 'hidden', display: 'flex', alignItems: 'center', justifyContent: 'center', borderBottom: '2px solid rgba(0, 240, 255, 0.2)' }}>
-              <div style={{ position: 'absolute', inset: 0, background: 'rgba(0, 0, 0, 0.3)', backdropFilter: 'blur(2px)' }} />
-              <div style={{ width: '140px', height: '140px', borderRadius: '1.5rem', background: 'rgba(0, 0, 0, 0.5)', backdropFilter: 'blur(10px)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 2, animation: 'pulse 2s infinite' }}>
-                <selected.icon size={70} color={selected.color} />
-              </div>
+// ─────────────────────────────────────────────────────────────────────────────
+// DETAIL DRAWER
+// ─────────────────────────────────────────────────────────────────────────────
+function Drawer({ skill, onClose }) {
+  const [open, setOpen] = useState(false);
+  const acc = T.accents[skill.id];
+  const dc = depthColor(skill.depth);
+  const Icon = skill.icon;
+
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setOpen(true));
+    const esc = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", esc);
+    document.body.style.overflow = "hidden";
+    return () => {
+      cancelAnimationFrame(raf);
+      document.removeEventListener("keydown", esc);
+      document.body.style.overflow = "";
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      onClick={onClose}
+      style={{
+        position: "fixed", inset: 0, zIndex: 9000,
+        background: "rgba(5,6,10,0.82)",
+        backdropFilter: "blur(12px) saturate(0.7)",
+        opacity: open ? 1 : 0, transition: "opacity 300ms ease",
+      }}
+    >
+      <div
+        onClick={e => e.stopPropagation()}
+        style={{
+          position: "fixed", top: 0, right: 0, bottom: 0,
+          width: "min(580px, 100vw)",
+          background: T.surface,
+          borderLeft: `1px solid ${T.borderMd}`,
+          display: "flex", flexDirection: "column",
+          transform: open ? "translateX(0)" : "translateX(40px)",
+          opacity: open ? 1 : 0,
+          transition: "transform 360ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease",
+          overflowY: "auto",
+        }}
+      >
+        {/* Accent top line */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${acc.hex}, transparent 60%)` }} />
+
+        {/* Header */}
+        <div style={{
+          position: "sticky", top: 0, zIndex: 10,
+          background: T.surface, borderBottom: `1px solid ${T.border}`,
+          padding: "20px 28px",
+          display: "flex", alignItems: "center", justifyContent: "space-between",
+        }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <div style={{ width: "40px", height: "40px", borderRadius: "9px", background: T.raised, border: `1px solid rgba(${acc.rgb},0.28)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, boxShadow: `0 0 16px rgba(${acc.rgb},0.18)` }}>
+              <Icon size={20} color={acc.hex} />
             </div>
-
-            <div style={{ padding: '2.5rem' }}>
-              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.5rem', flexWrap: 'wrap', gap: '1rem' }}>
-                <div style={{ flex: 1 }}>
-                  <h2 style={{ fontSize: 'clamp(2rem, 5vw, 3rem)', fontWeight: 900, marginBottom: '1rem', lineHeight: 1.2 }}>{selected.title}</h2>
-                  <p style={{ fontSize: '1.125rem', color: 'rgba(255, 255, 255, 0.7)', marginBottom: '0', lineHeight: 1.7 }}>{selected.description}</p>
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem' }}>
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star key={i} size={20} color="#ffd700" fill={i < Math.floor(selected.rating) ? '#ffd700' : 'none'} />
-                  ))}
-                  <span style={{ marginLeft: '0.5rem', fontSize: '1.125rem', fontWeight: 700, color: '#ffd700' }}>{selected.rating}</span>
-                </div>
+            <div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase", marginBottom: "3px" }}>
+                {skill.domain}
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1.5rem', marginBottom: '2.5rem' }}>
-                {[
-                  { icon: Calendar, label: "Duration", value: selected.duration },
-                  { icon: Users, label: "Students", value: selected.students },
-                  { icon: Trophy, label: "Completion", value: `${selected.progress}%` }
-                ].map((s, i) => (
-                  <div key={i} style={{ background: 'linear-gradient(135deg, rgba(15, 15, 35, 0.7), rgba(25, 20, 50, 0.5))', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '1rem', padding: '1.5rem', textAlign: 'center' }}>
-                    <s.icon size={32} color={selected.color} style={{ margin: '0 auto 0.75rem', display: 'block' }} />
-                    <div style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '0.5rem' }}>{s.value}</div>
-                    <div style={{ fontSize: '0.875rem', color: 'rgba(255, 255, 255, 0.5)' }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
-
-              <div style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  <CheckCircle2 size={28} color={selected.color} />
-                  What You'll Learn
-                </h3>
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '1rem' }}>
-                  {selected.highlights.map((h, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: '0.75rem', padding: '1rem', background: 'rgba(15, 15, 35, 0.5)', backdropFilter: 'blur(10px)', border: '1px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.75rem', transition: 'all 0.3s' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.borderColor = selected.color; e.currentTarget.style.background = `${selected.color}10`; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.background = 'rgba(15, 15, 35, 0.5)'; }}>
-                      <CheckCircle2 size={20} color={selected.color} style={{ flexShrink: 0, marginTop: '0.125rem' }} />
-                      <span style={{ fontSize: '0.9375rem', lineHeight: 1.6 }}>{h}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  <Trophy size={28} color={selected.color} />
-                  Career Outcomes
-                </h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {selected.outcomes.map((o, i) => (
-                    <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '1rem', padding: '1.25rem', background: 'rgba(15, 15, 35, 0.6)', backdropFilter: 'blur(10px)', border: '2px solid rgba(255, 255, 255, 0.1)', borderRadius: '0.75rem', fontSize: '1.0625rem', transition: 'all 0.3s' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateX(8px)'; e.currentTarget.style.borderColor = selected.color; e.currentTarget.style.background = `${selected.color}10`; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateX(0)'; e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)'; e.currentTarget.style.background = 'rgba(15, 15, 35, 0.6)'; }}>
-                      <Star size={20} color={selected.color} fill={selected.color} />
-                      <span style={{ fontWeight: 600 }}>{o}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ marginBottom: '2.5rem' }}>
-                <h3 style={{ fontSize: '1.75rem', fontWeight: 900, marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.75rem', background: 'linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
-                  <Terminal size={28} color={selected.color} />
-                  Technologies
-                </h3>
-                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem' }}>
-                  {selected.tags.map(t => (
-                    <span key={t} style={{ padding: '0.625rem 1.25rem', borderRadius: '9999px', border: `2px solid ${selected.color}`, color: selected.color, fontFamily: "'JetBrains Mono', monospace", fontSize: '0.875rem', fontWeight: 600 }}>
-                      {t}
-                    </span>
-                  ))}
-                </div>
-              </div>
-
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <button style={{ flex: 1, minWidth: '200px', padding: '1.25rem', borderRadius: '9999px', border: 'none', background: `linear-gradient(90deg, ${selected.color}, ${selected.color}cc)`, color: '#000', fontWeight: 900, fontSize: '1.125rem', cursor: 'pointer', transition: 'all 0.3s', textTransform: 'uppercase', letterSpacing: '0.05em', outline: 'none' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.boxShadow = `0 15px 40px ${selected.color}70`; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                  Enroll Now
-                </button>
-                <button onClick={() => setSelected(null)} style={{ padding: '1.25rem 2.5rem', background: 'rgba(15, 15, 35, 0.8)', backdropFilter: 'blur(10px)', border: '2px solid rgba(0, 240, 255, 0.5)', borderRadius: '9999px', color: '#fff', fontWeight: 900, fontSize: '1.125rem', cursor: 'pointer', transition: 'all 0.3s', textTransform: 'uppercase', letterSpacing: '0.05em', outline: 'none' }} onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-3px)'; e.currentTarget.style.background = 'rgba(0, 240, 255, 0.1)'; e.currentTarget.style.boxShadow = '0 15px 35px rgba(0, 240, 255, 0.3)'; }} onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.background = 'rgba(15, 15, 35, 0.8)'; e.currentTarget.style.boxShadow = 'none'; }}>
-                  Close
-                </button>
+              <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "17px", fontWeight: 800, color: T.ink, letterSpacing: "-0.3px" }}>
+                {skill.title}
               </div>
             </div>
           </div>
+          <button
+            onClick={onClose}
+            style={{ width: "34px", height: "34px", borderRadius: "8px", border: `1px solid ${T.border}`, background: "transparent", color: T.inkMute, cursor: "pointer", fontSize: "18px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 180ms" }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.color = T.ink; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.inkMute; }}
+          >
+            <X size={16} />
+          </button>
         </div>
-      )}
+
+        {/* Body */}
+        <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: "28px" }}>
+
+          {/* Meta row */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "1px", background: T.border, borderRadius: "10px", overflow: "hidden" }}>
+            {[
+              ["Depth", skill.depth, dc.text],
+              ["Since", skill.since, acc.hex],
+              ["Proficiency", `${skill.proficiency}%`, T.ink],
+            ].map(([k, v, col]) => (
+              <div key={k} style={{ background: T.raised, padding: "14px 16px" }}>
+                <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "2.5px", color: T.inkMute, textTransform: "uppercase", marginBottom: "5px" }}>{k}</div>
+                <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", fontWeight: 700, color: col }}>{v}</div>
+              </div>
+            ))}
+          </div>
+
+          {/* Proficiency bar */}
+          <div>
+            <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase", marginBottom: "10px" }}>Skill Depth</div>
+            <ProfBar pct={skill.proficiency} color={acc.hex} />
+          </div>
+
+          {/* Summary */}
+          <div style={{ borderLeft: `2px solid rgba(${acc.rgb},0.3)`, paddingLeft: "16px" }}>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", color: T.inkSub, lineHeight: 1.8, margin: 0 }}>
+              {skill.summary}
+            </p>
+          </div>
+
+          {/* Technologies */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
+              <Terminal size={13} color={acc.hex} />
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase" }}>Technologies Used</span>
+            </div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {skill.stack.map(s => (
+                <span key={s} style={{ padding: "5px 12px", borderRadius: "5px", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: acc.hex, background: `rgba(${acc.rgb},0.08)`, border: `1px solid rgba(${acc.rgb},0.22)` }}>
+                  {s}
+                </span>
+              ))}
+            </div>
+          </div>
+
+          {/* Projects */}
+          <div>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "14px" }}>
+              <Boxes size={13} color={acc.hex} />
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "9px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase" }}>
+                Projects Built · {skill.projects.length}
+              </span>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "7px" }}>
+              {skill.projects.map((p, i) => (
+                <div
+                  key={i}
+                  style={{
+                    display: "flex", alignItems: "flex-start", justifyContent: "space-between",
+                    padding: "13px 15px",
+                    background: T.raised, border: `1px solid ${T.border}`,
+                    borderRadius: "8px", gap: "12px",
+                    transition: "all 180ms", cursor: "default",
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.borderColor = `rgba(${acc.rgb},0.28)`; e.currentTarget.style.background = T.overlay; }}
+                  onMouseLeave={e => { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = T.raised; }}
+                >
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "13px", fontWeight: 600, color: T.ink, marginBottom: "4px" }}>
+                      {p.name}
+                    </div>
+                    <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "12px", color: T.inkSub, lineHeight: 1.55 }}>
+                      {p.desc}
+                    </div>
+                  </div>
+                  <a
+                    href={p.link} target="_blank" rel="noopener noreferrer"
+                    onClick={e => e.stopPropagation()}
+                    style={{ color: T.inkMute, flexShrink: 0, marginTop: "2px", transition: "color 150ms" }}
+                    onMouseEnter={e => { e.currentTarget.style.color = acc.hex; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = T.inkMute; }}
+                  >
+                    <ArrowUpRight size={14} />
+                  </a>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* GitHub CTA */}
+          <a
+            href={skill.github} target="_blank" rel="noopener noreferrer"
+            style={{
+              display: "flex", alignItems: "center", justifyContent: "center", gap: "9px",
+              padding: "14px", borderRadius: "8px",
+              background: T.raised, border: `1px solid ${T.borderMd}`,
+              color: T.inkSub, textDecoration: "none",
+              fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "2px",
+              transition: "all 200ms",
+            }}
+            onMouseEnter={e => { e.currentTarget.style.background = `rgba(${acc.rgb},0.10)`; e.currentTarget.style.borderColor = `rgba(${acc.rgb},0.30)`; e.currentTarget.style.color = acc.hex; }}
+            onMouseLeave={e => { e.currentTarget.style.background = T.raised; e.currentTarget.style.borderColor = T.borderMd; e.currentTarget.style.color = T.inkSub; }}
+          >
+            <Github size={15} />
+            EXPLORE ON GITHUB
+            <ExternalLink size={12} />
+          </a>
+        </div>
+      </div>
     </div>
+  );
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// MAIN
+// ─────────────────────────────────────────────────────────────────────────────
+export default function Workshops() {
+  const [active, setActive]   = useState(null);
+  const [domain, setDomain]   = useState("All");
+  const [search, setSearch]   = useState("");
+  const [heroIn, setHeroIn]   = useState(false);
+
+  useEffect(() => { const r = requestAnimationFrame(() => setHeroIn(true)); return () => cancelAnimationFrame(r); }, []);
+
+  const filtered = SKILLS
+    .filter(s => domain === "All" || s.domain === domain)
+    .filter(s =>
+      s.title.toLowerCase().includes(search.toLowerCase()) ||
+      s.stack.some(t => t.toLowerCase().includes(search.toLowerCase())) ||
+      s.domain.toLowerCase().includes(search.toLowerCase())
+    );
+
+  return (
+    <>
+      <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+        .ws-root *, .ws-root *::before, .ws-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        .ws-root {
+          background: #0a0c12;
+          min-height: 100vh;
+          font-family: 'DM Sans', system-ui, sans-serif;
+          -webkit-font-smoothing: antialiased;
+          color: #e4e7f0;
+        }
+        .ws-root ::-webkit-scrollbar { width: 3px; }
+        .ws-root ::-webkit-scrollbar-track { background: transparent; }
+        .ws-root ::-webkit-scrollbar-thumb { background: #252838; border-radius: 2px; }
+        .ws-root input::placeholder { color: #424760; }
+
+        @keyframes wsSlideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        @media (max-width: 900px) {
+          .ws-grid { grid-template-columns: 1fr 1fr !important; }
+        }
+        @media (max-width: 620px) {
+          .ws-inner { padding: 56px 18px 80px !important; }
+          .ws-grid { grid-template-columns: 1fr !important; }
+          .ws-hero-title { font-size: 38px !important; }
+          .ws-hero-ghost { font-size: 38px !important; }
+          .ws-summary-strip { flex-direction: column !important; gap: 14px !important; }
+          .ws-summary-item { border-right: none !important; padding-right: 0 !important; margin-right: 0 !important; }
+          .ws-filter-bar { justify-content: flex-start !important; overflow-x: auto; padding-bottom: 4px; flex-wrap: nowrap !important; }
+        }
+        @media (max-width: 420px) {
+          .ws-inner { padding: 44px 14px 64px !important; }
+          .ws-hero-title { font-size: 30px !important; }
+          .ws-hero-ghost { font-size: 30px !important; }
+        }
+      `}</style>
+
+      <div className="ws-root">
+        <main className="ws-inner" style={{ maxWidth: "1180px", margin: "0 auto", padding: "108px 40px 112px" }}>
+
+          {/* ── HERO ── */}
+          <header style={{
+            marginBottom: "72px",
+            opacity: heroIn ? 1 : 0,
+            transform: heroIn ? "none" : "translateY(18px)",
+            transition: "opacity 600ms ease, transform 600ms ease",
+          }}>
+            {/* Eyebrow */}
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "24px" }}>
+              <div style={{ display: "flex", gap: "4px" }}>
+                <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#38bdf8" }} />
+                <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#a78bfa" }} />
+                <div style={{ width: "4px", height: "4px", borderRadius: "50%", background: "#34d399" }} />
+              </div>
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "4px", color: T.inkMute, textTransform: "uppercase" }}>
+                Portfolio · Technical Depth
+              </span>
+            </div>
+
+            {/* Title stack */}
+            <div style={{ marginBottom: "22px" }}>
+              <div className="ws-hero-title" style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "clamp(40px, 7vw, 78px)",
+                fontWeight: 800, color: T.ink,
+                letterSpacing: "-2.5px", lineHeight: 0.93, display: "block",
+              }}>
+                Technical
+              </div>
+              <div className="ws-hero-ghost" style={{
+                fontFamily: "'DM Sans', sans-serif",
+                fontSize: "clamp(40px, 7vw, 78px)",
+                fontWeight: 800, color: "transparent",
+                letterSpacing: "-2.5px", lineHeight: 0.93,
+                WebkitTextStroke: "1.5px #252838", display: "block",
+              }}>
+                Specializations
+              </div>
+            </div>
+
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "15px", lineHeight: 1.8, color: T.inkSub, fontWeight: 400, maxWidth: "560px", margin: "0 0 36px" }}>
+              Technologies I've mastered through hands-on projects — each domain backed by shipped code, not just coursework.
+            </p>
+
+            {/* Summary strip */}
+            <div className="ws-summary-strip" style={{ display: "flex", borderTop: `1px solid ${T.border}`, paddingTop: "28px", flexWrap: "wrap" }}>
+              {[
+                ["6", "Skill Domains"],
+                ["30+", "Projects Built"],
+                ["Production", "Deployment Target"],
+              ].map(([v, l], i) => (
+                <div key={l} className="ws-summary-item" style={{ paddingRight: "32px", marginRight: "32px", borderRight: i < 2 ? `1px solid ${T.border}` : "none" }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", fontWeight: 700, color: T.ink, marginBottom: "3px", letterSpacing: "-0.2px" }}>{v}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "2px", color: T.inkMute, textTransform: "uppercase" }}>{l}</div>
+                </div>
+              ))}
+            </div>
+          </header>
+
+          {/* ── SEARCH + FILTERS ── */}
+          <div style={{
+            marginBottom: "40px",
+            opacity: heroIn ? 1 : 0,
+            transition: "opacity 600ms ease 250ms",
+          }}>
+            {/* Search */}
+            <div style={{ position: "relative", maxWidth: "460px", marginBottom: "20px" }}>
+              <Search size={15} style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", color: T.inkMute, pointerEvents: "none" }} />
+              <input
+                type="text"
+                placeholder="Search skill or technology..."
+                value={search}
+                onChange={e => setSearch(e.target.value)}
+                style={{
+                  width: "100%", padding: "10px 14px 10px 38px",
+                  background: T.surface,
+                  border: `1px solid ${T.border}`,
+                  borderRadius: "8px",
+                  color: T.ink, fontFamily: "'DM Sans', sans-serif", fontSize: "13px",
+                  outline: "none", transition: "border-color 200ms",
+                }}
+                onFocus={e => { e.target.style.borderColor = T.borderMd; }}
+                onBlur={e => { e.target.style.borderColor = T.border; }}
+              />
+            </div>
+
+            {/* Domain filters */}
+            <div className="ws-filter-bar" style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {DOMAINS.map(d => {
+                const isActive = domain === d;
+                return (
+                  <button
+                    key={d}
+                    onClick={() => setDomain(d)}
+                    style={{
+                      padding: "6px 14px", borderRadius: "6px",
+                      border: `1px solid ${isActive ? T.borderHi : T.border}`,
+                      background: isActive ? T.raised : "transparent",
+                      color: isActive ? T.ink : T.inkMute,
+                      fontFamily: "'JetBrains Mono', monospace",
+                      fontSize: "11px", letterSpacing: "1px",
+                      cursor: "pointer", transition: "all 180ms", outline: "none",
+                      flexShrink: 0,
+                    }}
+                    onMouseEnter={e => { if (!isActive) { e.currentTarget.style.borderColor = T.borderMd; e.currentTarget.style.color = T.inkSub; } }}
+                    onMouseLeave={e => { if (!isActive) { e.currentTarget.style.borderColor = T.border; e.currentTarget.style.color = T.inkMute; } }}
+                  >
+                    {d}
+                  </button>
+                );
+              })}
+              {/* Result count */}
+              <span style={{ marginLeft: "auto", fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", color: T.inkFaint, alignSelf: "center", paddingRight: "2px" }}>
+                {filtered.length}/{SKILLS.length}
+              </span>
+            </div>
+          </div>
+
+          {/* ── GRID ── */}
+          {filtered.length > 0 ? (
+            <div
+              className="ws-grid"
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(3, 1fr)",
+                gap: "16px",
+                marginBottom: "64px",
+              }}
+            >
+              {filtered.map((s, i) => (
+                <SkillCard key={s.id} skill={s} idx={i} onOpen={setActive} />
+              ))}
+            </div>
+          ) : (
+            <div style={{ textAlign: "center", padding: "80px 20px", color: T.inkMute }}>
+              <Code2 size={48} color={T.inkFaint} style={{ margin: "0 auto 16px", display: "block" }} />
+              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "20px", fontWeight: 700, color: T.ink, marginBottom: "8px" }}>No results</h3>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "14px", color: T.inkMute }}>Try a different search or filter</p>
+            </div>
+          )}
+
+          {/* ── FOOTER CTA ── */}
+          <div style={{
+            padding: "36px 40px",
+            background: T.surface,
+            border: `1px solid ${T.border}`,
+            borderRadius: "14px",
+            display: "flex", alignItems: "center", justifyContent: "space-between",
+            flexWrap: "wrap", gap: "24px",
+            animation: "wsSlideUp 0.6s ease 0.8s both",
+          }}>
+            <div>
+              <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "3px", color: T.inkMute, textTransform: "uppercase", marginBottom: "6px" }}>
+                Open Source
+              </div>
+              <h3 style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "20px", fontWeight: 800, color: T.ink, letterSpacing: "-0.3px", marginBottom: "6px" }}>
+                All implementations on GitHub
+              </h3>
+              <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "13px", color: T.inkSub, lineHeight: 1.6 }}>
+                Source code, notebooks and deployment configs — not just descriptions.
+              </p>
+            </div>
+            <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
+              <a
+                href="https://github.com/bhagavan444"
+                target="_blank" rel="noopener noreferrer"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "8px",
+                  padding: "11px 22px", borderRadius: "8px",
+                  background: T.raised, border: `1px solid ${T.borderMd}`,
+                  color: T.ink, textDecoration: "none",
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "1.5px",
+                  transition: "all 200ms",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.borderColor = T.borderHi; e.currentTarget.style.background = T.overlay; }}
+                onMouseLeave={e => { e.currentTarget.style.borderColor = T.borderMd; e.currentTarget.style.background = T.raised; }}
+              >
+                <Github size={15} />
+                VIEW GITHUB
+              </a>
+              <a
+                href="mailto:g.sivasatyasaibhagavan@gmail.com"
+                style={{
+                  display: "inline-flex", alignItems: "center", gap: "8px",
+                  padding: "11px 22px", borderRadius: "8px",
+                  background: "rgba(56,189,248,0.10)", border: "1px solid rgba(56,189,248,0.28)",
+                  color: "#38bdf8", textDecoration: "none",
+                  fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "1.5px",
+                  transition: "all 200ms",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = "rgba(56,189,248,0.18)"; }}
+                onMouseLeave={e => { e.currentTarget.style.background = "rgba(56,189,248,0.10)"; }}
+              >
+                <ArrowUpRight size={14} />
+                GET IN TOUCH
+              </a>
+            </div>
+          </div>
+
+        </main>
+      </div>
+
+      {/* ── DRAWER ── */}
+      {active && <Drawer skill={active} onClose={() => setActive(null)} />}
+    </>
   );
 }

@@ -1,1440 +1,483 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DESIGN TOKENS
-// ─────────────────────────────────────────────────────────────────────────────
-const TOKENS = {
-  bg:       "#04040c",
-  surface:  "#0a091a",
-  panel:    "#0e0d1f",
-  border:   "rgba(255,255,255,0.07)",
-  text:     "#e8eaf2",
-  muted:    "#5c6080",
-  // Accent palette — one per card, no sharing
-  a1: { hex: "#00e5ff", rgb: "0,229,255",    name: "CYAN"   },  // B.Tech
-  a2: { hex: "#c084fc", rgb: "192,132,252",  name: "VIOLET" },  // Intermediate
-  a3: { hex: "#fb923c", rgb: "251,146,60",   name: "AMBER"  },  // SSC
+const C = {
+  bg:         "#0b0d13",
+  surface:    "#111420",
+  raised:     "#171a28",
+  overlay:    "#1c2033",
+  drawer:     "#0f1119",
+  ink:        "#e8eaf4",
+  inkSub:     "#7e85a3",
+  inkMute:    "#454a63",
+  inkFaint:   "#252840",
+  line:       "rgba(255,255,255,0.06)",
+  lineMd:     "rgba(255,255,255,0.10)",
+  lineHi:     "rgba(255,255,255,0.18)",
+  accent:     "#7c6af7",
+  accentSoft: "rgba(124,106,247,0.12)",
+  accentLine: "rgba(124,106,247,0.28)",
+  green:      "#2dd4bf",
+  greenDim:   "rgba(45,212,191,0.10)",
+  greenLine:  "rgba(45,212,191,0.22)",
+  tint:       ["#7c6af7", "#a78bfa", "#818cf8"],
 };
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DATA
-// ─────────────────────────────────────────────────────────────────────────────
-const EDUCATION = [
+const F = {
+  display: "'DM Sans', system-ui, sans-serif",
+  body:    "'DM Sans', system-ui, sans-serif",
+  mono:    "'JetBrains Mono', 'Fira Code', monospace",
+};
+
+const EDU = [
   {
-    id: 1,
-    index: "01",
-    degree: "B.Tech",
-    stream: "AI & Data Science",
-    institution: "Ramachandra College of Engineering",
-    university: "JNTUK",
-    duration: "2022 – 2026",
-    score: "7.9 CGPA",
-    location: "Eluru, Andhra Pradesh",
-    status: "ACTIVE",
-    badge: "CURRENT",
-    rarity: "LEGENDARY",
-    progress: 85,
-    certId: "1wxnzvsS3MA7xWSxuXKeIkS8GaQoG4Y1a",
-    accent: TOKENS.a1,
-    description:
-      "Specialized in building intelligent systems using Machine Learning, Deep Learning, and Full-Stack Development. Focused on shipping production-ready AI applications.",
-    skills: ["Machine Learning","Deep Learning","MERN Stack","Computer Vision","MLOps","Neural Networks","Python","React.js"],
-    achievements: [
-      "AI/ML Internship at Leading Tech Firms",
-      "Top 10% Academic Performer",
-      "10+ Full-Stack AI Projects Deployed",
-      "24-Hour Hackathon Winner",
-      "20+ Professional Certifications",
+    id: 1, idx: "01", level: "Undergraduate",
+    degree: "B.Tech", stream: "Artificial Intelligence & Data Science",
+    institution: "Ramachandra College of Engineering", affiliation: "JNTUK",
+    duration: "2022 – 2026", score: "7.9 CGPA", location: "Eluru, Andhra Pradesh",
+    status: "current", certId: "1wxnzvsS3MA7xWSxuXKeIkS8GaQoG4Y1a",
+    primary: true, tint: "#7c6af7",
+    synopsis: "Specialising at the intersection of machine intelligence and scalable software — building systems that move from notebook to production.",
+    outcomes: [
+      { icon: "↗", label: "10+ AI products deployed", detail: "NLP, computer vision & recommendation systems in production" },
+      { icon: "◈", label: "AI/ML internships at tech firms", detail: "Industry pipelines, real data, real-world stakes" },
+      { icon: "⬡", label: "20+ professional certifications", detail: "AWS, TensorFlow, cloud & React — applied, not collected" },
+      { icon: "⌘", label: "Hackathon finalist recognition", detail: "Placed in 24-hour multi-institution competitive builds" },
     ],
-    metrics: [
-      { label: "Projects", value: "10+" },
-      { label: "CGPA",     value: "7.9" },
-      { label: "Certs",    value: "20+" },
-    ],
+    skills: ["Machine Learning", "Deep Learning", "Computer Vision", "MERN Stack", "Python", "MLOps", "React.js", "Neural Networks"],
+    stats: [{ v: "7.9", l: "CGPA" }, { v: "10+", l: "Projects" }, { v: "20+", l: "Certs" }],
   },
   {
-    id: 2,
-    index: "02",
-    degree: "Intermediate",
-    stream: "MPC",
-    institution: "Srividhya Junior College",
-    university: "Board of Intermediate",
-    duration: "2020 – 2022",
-    score: "7.8 CGPA",
-    location: "Gudivada, Andhra Pradesh",
-    status: "COMPLETED",
-    badge: "FOUNDATION",
-    rarity: "EPIC",
-    progress: 78,
-    certId: "1N1K1j6QGrgNPNL2D9UmfJAL2PVSulhPJ",
-    accent: TOKENS.a2,
-    description:
-      "Pre-engineering curriculum with emphasis on Mathematics, Physics, and Chemistry. Built the analytical and problem-solving foundation that drives every technical decision.",
-    skills: ["Mathematical Reasoning","Physics Principles","Problem Solving","Analytical Thinking","Scientific Method"],
-    achievements: [
-      "Top Performer in Mathematics",
-      "Strong Academic Foundation",
-      "Science Exhibition Participant",
+    id: 2, idx: "02", level: "Pre-University",
+    degree: "Intermediate", stream: "Mathematics, Physics & Chemistry",
+    institution: "Srividhya Junior College", affiliation: "Board of Intermediate",
+    duration: "2020 – 2022", score: "7.8 CGPA", location: "Gudivada, Andhra Pradesh",
+    status: "completed", certId: "1N1K1j6QGrgNPNL2D9UmfJAL2PVSulhPJ",
+    primary: false, tint: "#a78bfa",
+    synopsis: "Pre-engineering foundation built on applied mathematics and physical reasoning — the problem-solving instincts that drive every technical decision today.",
+    outcomes: [
+      { icon: "∫", label: "Top performer in Mathematics", detail: "Calculus & algebra — core to ML and optimization" },
+      { icon: "⚛", label: "Strong Physics foundation", detail: "First-principles thinking applied to systems design" },
     ],
-    metrics: [
-      { label: "CGPA",  value: "7.8"    },
-      { label: "Maths", value: "Top"    },
-      { label: "Sci",   value: "Strong" },
-    ],
+    skills: ["Mathematical Reasoning", "Analytical Thinking", "Physics", "Problem Solving"],
+    stats: [{ v: "7.8", l: "CGPA" }],
   },
   {
-    id: 3,
-    index: "03",
-    degree: "Secondary",
-    stream: "SSC Board",
-    institution: "Montessori English Medium High School",
-    university: "SSC Board",
-    duration: "2019 – 2020",
-    score: "9.5 GPA",
-    location: "Gudivada, Andhra Pradesh",
-    status: "COMPLETED",
-    badge: "EXCELLENCE",
-    rarity: "LEGENDARY",
-    progress: 95,
-    certId: "1p1RXnVn9jySamu8OiIWF0WFhe7G6QxiL",
-    accent: TOKENS.a3,
-    description:
-      "Achieved academic excellence with exceptional performance across all subjects. Recognised as school topper with perfect marks in Mathematics.",
-    skills: ["Academic Excellence","Leadership","Critical Thinking","Discipline"],
-    achievements: [
-      "School Topper — 9.5 GPA",
-      "Perfect Score in Mathematics",
-      "Excellence Award Winner",
+    id: 3, idx: "03", level: "Secondary Education",
+    degree: "Secondary", stream: "SSC Board Examination",
+    institution: "Montessori English Medium High School", affiliation: "SSC Board",
+    duration: "2019 – 2020", score: "9.5 GPA", location: "Gudivada, Andhra Pradesh",
+    status: "completed", certId: "1p1RXnVn9jySamu8OiIWF0WFhe7G6QxiL",
+    primary: false, tint: "#818cf8",
+    synopsis: "Graduated as school topper with distinction. A perfect Mathematics score was the first signal of an aptitude that would define the career trajectory ahead.",
+    outcomes: [
+      { icon: "◉", label: "School topper — 9.5 GPA", detail: "Ranked first in graduating class across all subjects" },
+      { icon: "✦", label: "100% score in Mathematics", detail: "The subject that anchors every technical decision since" },
     ],
-    metrics: [
-      { label: "GPA",  value: "9.5" },
-      { label: "Math", value: "100%" },
-      { label: "Rank", value: "#1"  },
-    ],
+    skills: ["Academic Excellence", "Leadership", "Critical Thinking"],
+    stats: [{ v: "9.5", l: "GPA" }, { v: "#1", l: "Class Rank" }],
   },
 ];
 
-// ─────────────────────────────────────────────────────────────────────────────
-// HELPERS
-// ─────────────────────────────────────────────────────────────────────────────
-const thumb = (id) => `https://lh3.googleusercontent.com/d/${id}`;
+const thumbUrl = (id) => `https://lh3.googleusercontent.com/d/${id}`;
 const driveUrl = (id) => `https://drive.google.com/file/d/${id}/view`;
 
-// ─────────────────────────────────────────────────────────────────────────────
-// SUB-COMPONENTS
-// ─────────────────────────────────────────────────────────────────────────────
-
-// ── ANIMATED COUNTER
-const Counter = ({ value, suffix = "" }) => {
-  const [display, setDisplay] = useState(0);
-  const numVal = parseFloat(value);
+function useInView(threshold = 0.1) {
+  const ref = useRef(null);
+  const [visible, setVisible] = useState(false);
   useEffect(() => {
-    if (isNaN(numVal)) { setDisplay(value); return; }
-    let start = 0;
-    const end = numVal;
-    const step = end / 40;
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= end) { setDisplay(end); clearInterval(timer); }
-      else setDisplay(parseFloat(start.toFixed(1)));
-    }, 25);
-    return () => clearInterval(timer);
-  }, [numVal]);
-  return <span>{isNaN(numVal) ? value : display}{suffix}</span>;
-};
+    const obs = new IntersectionObserver(([e]) => { if (e.isIntersecting) setVisible(true); }, { threshold });
+    if (ref.current) obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+  return [ref, visible];
+}
 
-// ── PROGRESS ARC (SVG)
-const ProgressArc = ({ pct, color, size = 88 }) => {
-  const r = (size - 10) / 2;
-  const circ = 2 * Math.PI * r;
-  const dash = (pct / 100) * circ;
-  return (
-    <svg width={size} height={size} style={{ transform: "rotate(-90deg)" }}>
-      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth={5}/>
-      <circle
-        cx={size/2} cy={size/2} r={r}
-        fill="none"
-        stroke={color}
-        strokeWidth={5}
-        strokeLinecap="round"
-        strokeDasharray={`${dash} ${circ}`}
-        style={{
-          filter: `drop-shadow(0 0 6px ${color})`,
-          transition: "stroke-dasharray 1.2s cubic-bezier(.22,1,.36,1)",
-        }}
-      />
-    </svg>
-  );
-};
-
-// ── DOSSIER CARD (main card for grid + timeline)
-const DossierCard = ({ edu, isActive, onSelect }) => {
-  const { accent } = edu;
-  const [hovered, setHovered] = useState(false);
-  const hot = hovered || isActive;
-
-  return (
-    <article
-      className={`dossier-card${hot ? " hot" : ""}`}
-      style={{ "--ac": accent.hex, "--ar": accent.rgb }}
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      onClick={() => onSelect(edu)}
-    >
-      {/* Rarity stripe */}
-      <div className="rarity-stripe" />
-
-      {/* Certificate thumb */}
-      <div className="card-thumb">
-        <img src={thumb(edu.certId)} alt={edu.institution} className="thumb-img" />
-        <div className="thumb-veil" />
-        {/* Index watermark */}
-        <span className="index-mark">{edu.index}</span>
-        {/* Status pill */}
-        <span className={`status-pill status-${edu.status}`}>
-          {edu.status === "ACTIVE" && <span className="blink-dot" />}
-          {edu.status}
-        </span>
-      </div>
-
-      {/* Body */}
-      <div className="card-body">
-        {/* Top meta row */}
-        <div className="meta-row">
-          <span className="badge-pill">{edu.badge}</span>
-          <span className="rarity-label">{edu.rarity}</span>
-        </div>
-
-        {/* Degree headline */}
-        <div className="degree-block">
-          <h2 className="degree-title">{edu.degree}</h2>
-          <span className="stream-label">{edu.stream}</span>
-        </div>
-
-        <div className="institution-name">{edu.institution}</div>
-        <div className="uni-row">
-          <span>{edu.university}</span>
-          <span className="dot-sep">·</span>
-          <span>{edu.location}</span>
-        </div>
-
-        {/* Score + Progress */}
-        <div className="score-arc-row">
-          <div>
-            <div className="score-value" style={{ color: accent.hex }}>
-              {edu.score}
-            </div>
-            <div className="score-sub">{edu.duration}</div>
-          </div>
-          <div className="arc-wrap">
-            <ProgressArc pct={edu.progress} color={accent.hex} size={76} />
-            <span className="arc-label">{edu.progress}%</span>
-          </div>
-        </div>
-
-        {/* Metrics row */}
-        <div className="metrics-row">
-          {edu.metrics.map((m) => (
-            <div key={m.label} className="metric-chip" style={{ "--ac": accent.hex }}>
-              <span className="metric-val">{m.value}</span>
-              <span className="metric-lbl">{m.label}</span>
-            </div>
-          ))}
-        </div>
-
-        {/* Skills */}
-        <div className="skills-strip">
-          {edu.skills.slice(0, 4).map((s) => (
-            <span key={s} className="skill-tag" style={{ "--ac": accent.hex }}>{s}</span>
-          ))}
-          {edu.skills.length > 4 && (
-            <span className="skill-tag skill-more" style={{ "--ac": accent.hex }}>
-              +{edu.skills.length - 4}
-            </span>
-          )}
-        </div>
-
-        {/* CTA */}
-        <button className="card-cta" style={{ "--ac": accent.hex, "--ar": accent.rgb }}>
-          <span>OPEN DOSSIER</span>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </article>
-  );
-};
-
-// ── MODAL
-const Modal = ({ edu, onClose }) => {
-  const { accent } = edu;
-
+function AnimStat({ v, l, tint }) {
+  const [ref, inView] = useInView(0.3);
+  const [disp, setDisp] = useState("0");
+  const num = parseFloat(v);
+  const isNum = !isNaN(num);
   useEffect(() => {
-    const handler = (e) => { if (e.key === "Escape") onClose(); };
-    document.addEventListener("keydown", handler);
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.removeEventListener("keydown", handler);
-      document.body.style.overflow = "";
+    if (!inView || !isNum) { if (!isNum) setDisp(v); return; }
+    let frame = 0;
+    const tick = () => {
+      frame++;
+      const eased = 1 - Math.pow(1 - frame / 40, 3);
+      setDisp(parseFloat((eased * num).toFixed(1)).toString());
+      if (frame < 40) requestAnimationFrame(tick); else setDisp(v);
     };
-  }, [onClose]);
-
+    requestAnimationFrame(tick);
+  }, [inView]);
   return (
-    <div className="modal-backdrop" onClick={onClose}>
-      <div
-        className="modal-panel"
-        style={{ "--ac": accent.hex, "--ar": accent.rgb }}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close */}
-        <button className="modal-close" onClick={onClose}>✕</button>
+    <div ref={ref} style={{ textAlign: "center", minWidth: "52px" }}>
+      <div style={{ fontFamily: F.display, fontSize: "22px", fontWeight: 800, color: tint || C.ink, lineHeight: 1, letterSpacing: "-0.5px" }}>
+        {isNum ? disp : v}
+      </div>
+      <div style={{ fontFamily: F.mono, fontSize: "9px", letterSpacing: "2.5px", color: C.inkMute, textTransform: "uppercase", marginTop: "4px" }}>
+        {l}
+      </div>
+    </div>
+  );
+}
 
-        {/* Left column */}
-        <div className="modal-left">
-          <div className="modal-img-wrap">
-            <img src={thumb(edu.certId)} alt={edu.institution} className="modal-img" />
-            <div className="modal-img-veil" />
+function CertThumb({ edu, height = "220px", onClick }) {
+  const [loaded, setLoaded] = useState(false);
+  const [err, setErr] = useState(false);
+  return (
+    <div
+      onClick={onClick}
+      style={{
+        position: "relative", height, borderRadius: "10px", overflow: "hidden",
+        background: C.raised, border: `1px solid ${C.line}`,
+        cursor: onClick ? "pointer" : "default", flexShrink: 0,
+      }}
+    >
+      {!err ? (
+        <img
+          src={thumbUrl(edu.certId)}
+          alt={`${edu.degree} certificate`}
+          onLoad={() => setLoaded(true)}
+          onError={() => setErr(true)}
+          style={{
+            width: "100%", height: "100%", objectFit: "cover", display: "block",
+            opacity: loaded ? 1 : 0,
+            transition: "opacity 400ms ease, transform 500ms ease",
+          }}
+          onMouseEnter={e => onClick && (e.currentTarget.style.transform = "scale(1.05)")}
+          onMouseLeave={e => onClick && (e.currentTarget.style.transform = "scale(1)")}
+        />
+      ) : (
+        <div style={{ width: "100%", height: "100%", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "8px" }}>
+          <div style={{ fontFamily: F.mono, fontSize: "32px", color: C.inkFaint }}>◱</div>
+          <div style={{ fontFamily: F.mono, fontSize: "10px", letterSpacing: "2px", color: C.inkMute, textTransform: "uppercase" }}>Certificate</div>
+        </div>
+      )}
+      {/* Gradient */}
+      <div style={{ position: "absolute", inset: 0, background: "linear-gradient(to top, rgba(11,13,19,0.92) 0%, rgba(11,13,19,0.25) 55%, transparent 100%)", pointerEvents: "none" }} />
+      {/* Top tint stripe */}
+      <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${edu.tint}, transparent 70%)` }} />
+      {/* Big index watermark */}
+      <div style={{ position: "absolute", bottom: "8px", left: "12px", fontFamily: F.display, fontSize: "56px", fontWeight: 900, color: "rgba(255,255,255,0.05)", lineHeight: 1, userSelect: "none", pointerEvents: "none" }}>
+        {edu.idx}
+      </div>
+      {/* Status pill */}
+      {edu.status === "current" ? (
+        <div style={{ position: "absolute", top: "12px", right: "12px", display: "flex", alignItems: "center", gap: "6px", padding: "5px 12px", borderRadius: "999px", background: C.greenDim, border: `1px solid ${C.greenLine}`, backdropFilter: "blur(8px)" }}>
+          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: C.green, animation: "eduPulse 2.4s ease-in-out infinite" }} />
+          <span style={{ fontFamily: F.mono, fontSize: "9px", letterSpacing: "2px", color: C.green, textTransform: "uppercase" }}>Active</span>
+        </div>
+      ) : (
+        <div style={{ position: "absolute", top: "12px", right: "12px", padding: "5px 12px", borderRadius: "999px", background: "rgba(255,255,255,0.05)", border: `1px solid ${C.line}`, backdropFilter: "blur(8px)" }}>
+          <span style={{ fontFamily: F.mono, fontSize: "9px", letterSpacing: "2px", color: C.inkMute, textTransform: "uppercase" }}>Completed</span>
+        </div>
+      )}
+      {/* View credential CTA */}
+      {onClick && (
+        <div style={{ position: "absolute", bottom: "12px", right: "12px" }}>
+          <a
+            href={driveUrl(edu.certId)} target="_blank" rel="noopener noreferrer"
+            onClick={e => e.stopPropagation()}
+            style={{ display: "inline-flex", alignItems: "center", gap: "5px", padding: "6px 12px", borderRadius: "6px", background: "rgba(11,13,19,0.88)", border: `1px solid ${C.lineMd}`, color: C.inkSub, fontFamily: F.mono, fontSize: "10px", letterSpacing: "1.5px", textDecoration: "none", backdropFilter: "blur(8px)", transition: "all 200ms" }}
+            onMouseEnter={e => { e.currentTarget.style.background = C.accentSoft; e.currentTarget.style.borderColor = C.accentLine; e.currentTarget.style.color = C.accent; }}
+            onMouseLeave={e => { e.currentTarget.style.background = "rgba(11,13,19,0.88)"; e.currentTarget.style.borderColor = C.lineMd; e.currentTarget.style.color = C.inkSub; }}
+          >
+            VIEW CREDENTIAL ↗
+          </a>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function Drawer({ edu, onClose }) {
+  const [open, setOpen] = useState(false);
+  useEffect(() => {
+    const raf = requestAnimationFrame(() => setOpen(true));
+    const onKey = (e) => e.key === "Escape" && onClose();
+    document.addEventListener("keydown", onKey);
+    document.body.style.overflow = "hidden";
+    return () => { cancelAnimationFrame(raf); document.removeEventListener("keydown", onKey); document.body.style.overflow = ""; };
+  }, [onClose]);
+  return (
+    <div onClick={onClose} style={{ position: "fixed", inset: 0, zIndex: 9000, background: "rgba(6,7,12,0.80)", backdropFilter: "blur(10px) saturate(0.7)", opacity: open ? 1 : 0, transition: "opacity 280ms ease" }}>
+      <div onClick={e => e.stopPropagation()} style={{ position: "fixed", top: 0, right: 0, bottom: 0, width: "min(540px, 100vw)", background: C.drawer, borderLeft: `1px solid ${C.lineMd}`, display: "flex", flexDirection: "column", transform: open ? "translateX(0)" : "translateX(36px)", opacity: open ? 1 : 0, transition: "transform 360ms cubic-bezier(0.22,1,0.36,1), opacity 300ms ease", overflowY: "auto" }}>
+        {/* Top accent line */}
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: "2px", background: `linear-gradient(90deg, ${edu.tint}, transparent 65%)` }} />
+        {/* Header */}
+        <div style={{ position: "sticky", top: 0, zIndex: 10, background: C.drawer, borderBottom: `1px solid ${C.line}`, padding: "22px 28px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <div style={{ fontFamily: F.mono, fontSize: "10px", letterSpacing: "3px", color: C.inkMute, textTransform: "uppercase", marginBottom: "5px" }}>{edu.level} · {edu.affiliation}</div>
+            <div style={{ fontFamily: F.display, fontSize: "22px", fontWeight: 800, color: C.ink, letterSpacing: "-0.4px" }}>{edu.degree}</div>
           </div>
-
-          {/* Metrics */}
-          <div className="modal-metrics">
-            {edu.metrics.map((m) => (
-              <div key={m.label} className="mod-metric">
-                <span className="mod-metric-val" style={{ color: accent.hex }}>
-                  <Counter value={m.value} />
-                </span>
-                <span className="mod-metric-lbl">{m.label}</span>
+          <button onClick={onClose} style={{ width: "36px", height: "36px", borderRadius: "8px", border: `1px solid ${C.line}`, background: "transparent", color: C.inkMute, cursor: "pointer", fontSize: "18px", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "all 180ms" }}
+            onMouseEnter={e => { e.currentTarget.style.borderColor = C.lineHi; e.currentTarget.style.color = C.ink; }}
+            onMouseLeave={e => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.inkMute; }}>×</button>
+        </div>
+        {/* Body */}
+        <div style={{ padding: "28px", display: "flex", flexDirection: "column", gap: "28px" }}>
+          {/* Full-width cert image in drawer */}
+          <CertThumb edu={edu} height="200px" />
+          {/* Meta grid */}
+          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1px", background: C.line, borderRadius: "10px", overflow: "hidden" }}>
+            {[["Institution", edu.institution], ["Score", edu.score], ["Duration", edu.duration], ["Location", edu.location]].map(([k, val]) => (
+              <div key={k} style={{ background: C.raised, padding: "14px 18px" }}>
+                <div style={{ fontFamily: F.mono, fontSize: "9px", letterSpacing: "2.5px", color: C.inkMute, textTransform: "uppercase", marginBottom: "5px" }}>{k}</div>
+                <div style={{ fontFamily: F.body, fontSize: "13px", fontWeight: 600, color: C.ink, lineHeight: 1.4 }}>{val}</div>
               </div>
             ))}
           </div>
-
-          {/* Progress arc */}
-          <div className="modal-arc-row">
-            <ProgressArc pct={edu.progress} color={accent.hex} size={110} />
-            <div className="modal-arc-text">
-              <span className="modal-arc-pct" style={{ color: accent.hex }}>{edu.progress}%</span>
-              <span className="modal-arc-sub">COMPLETION</span>
+          {/* Synopsis */}
+          <div style={{ borderLeft: `2px solid ${edu.tint}44`, paddingLeft: "16px" }}>
+            <p style={{ fontFamily: F.body, fontSize: "14px", color: C.inkSub, lineHeight: 1.8, margin: 0 }}>{edu.synopsis}</p>
+          </div>
+          {/* Outcomes */}
+          <div>
+            <div style={{ fontFamily: F.mono, fontSize: "9px", letterSpacing: "3px", color: C.inkMute, textTransform: "uppercase", marginBottom: "12px" }}>Key Outcomes</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              {edu.outcomes.map((o, i) => (
+                <div key={i} style={{ display: "flex", gap: "12px", alignItems: "flex-start", padding: "13px 15px", background: C.raised, border: `1px solid ${C.line}`, borderRadius: "8px" }}>
+                  <span style={{ color: edu.tint, fontSize: "13px", fontWeight: 700, flexShrink: 0, marginTop: "2px", width: "18px" }}>{o.icon}</span>
+                  <div>
+                    <div style={{ fontFamily: F.body, fontSize: "13px", fontWeight: 600, color: C.ink, marginBottom: "3px" }}>{o.label}</div>
+                    <div style={{ fontFamily: F.body, fontSize: "12px", color: C.inkSub, lineHeight: 1.6 }}>{o.detail}</div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-
-          <a
-            href={driveUrl(edu.certId)}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="view-cert-btn"
-            style={{ "--ac": accent.hex, "--ar": accent.rgb }}
-          >
-            VIEW CERTIFICATE
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+          {/* Skills */}
+          <div>
+            <div style={{ fontFamily: F.mono, fontSize: "9px", letterSpacing: "3px", color: C.inkMute, textTransform: "uppercase", marginBottom: "12px" }}>Focus Areas</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
+              {edu.skills.map(s => (
+                <span key={s} style={{ padding: "5px 13px", borderRadius: "5px", fontFamily: F.mono, fontSize: "11px", color: C.inkSub, background: C.raised, border: `1px solid ${C.line}` }}>{s}</span>
+              ))}
+            </div>
+          </div>
+          {/* Full cert link */}
+          <a href={driveUrl(edu.certId)} target="_blank" rel="noopener noreferrer"
+            style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: "8px", padding: "14px", borderRadius: "8px", background: C.accentSoft, border: `1px solid ${C.accentLine}`, color: C.accent, textDecoration: "none", fontFamily: F.mono, fontSize: "11px", letterSpacing: "2px", transition: "all 200ms" }}
+            onMouseEnter={e => { e.currentTarget.style.background = "rgba(124,106,247,0.20)"; }}
+            onMouseLeave={e => { e.currentTarget.style.background = C.accentSoft; }}>
+            OPEN FULL CERTIFICATE ↗
           </a>
         </div>
-
-        {/* Right column */}
-        <div className="modal-right">
-          {/* Header */}
-          <div className="modal-badge-row">
-            <span className="modal-badge" style={{ "--ac": accent.hex }}>{edu.badge}</span>
-            <span className="modal-rarity" style={{ color: accent.hex }}>{edu.rarity}</span>
-          </div>
-
-          <h2 className="modal-degree">{edu.degree}</h2>
-          <h3 className="modal-stream" style={{ color: accent.hex }}>{edu.stream}</h3>
-
-          <div className="modal-inst">{edu.institution}</div>
-          <div className="modal-meta">
-            <span>{edu.university}</span>
-            <span className="dot-sep">·</span>
-            <span>{edu.duration}</span>
-            <span className="dot-sep">·</span>
-            <span>{edu.score}</span>
-          </div>
-          <div className="modal-loc">📍 {edu.location}</div>
-
-          <p className="modal-desc">{edu.description}</p>
-
-          {/* Achievements */}
-          <section className="modal-section">
-            <h4 className="modal-section-head" style={{ color: accent.hex }}>
-              KEY ACHIEVEMENTS
-            </h4>
-            <ul className="modal-achievements">
-              {edu.achievements.map((a, i) => (
-                <li key={i} className="modal-achievement-item" style={{ animationDelay: `${i * 0.07}s` }}>
-                  <span className="ach-icon" style={{ color: accent.hex }}>›</span>
-                  {a}
-                </li>
-              ))}
-            </ul>
-          </section>
-
-          {/* Skills */}
-          <section className="modal-section">
-            <h4 className="modal-section-head" style={{ color: accent.hex }}>
-              SKILLS & FOCUS AREAS
-            </h4>
-            <div className="modal-skills">
-              {edu.skills.map((s) => (
-                <span key={s} className="modal-skill-tag" style={{ "--ac": accent.hex }}>
-                  {s}
-                </span>
-              ))}
-            </div>
-          </section>
-        </div>
       </div>
     </div>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// TIMELINE VIEW
-// ─────────────────────────────────────────────────────────────────────────────
-const TimelineView = ({ onSelect }) => (
-  <div className="timeline-wrap">
-    {/* Vertical spine */}
-    <div className="timeline-spine" />
-
-    {EDUCATION.map((edu, i) => {
-      const isRight = i % 2 === 0;
-      return (
-        <div key={edu.id} className={`timeline-row tl-${isRight ? "right" : "left"}`}
-          style={{ animationDelay: `${i * 0.15}s` }}
-        >
-          {/* Connector line */}
-          <div className="tl-connector" style={{ "--ac": edu.accent.hex }} />
-
-          {/* Node */}
-          <div className="tl-node" style={{ "--ac": edu.accent.hex, "--ar": edu.accent.rgb }}>
-            <span className="tl-node-idx">{edu.index}</span>
-          </div>
-
-          {/* Card */}
-          <div
-            className="tl-card"
-            style={{ "--ac": edu.accent.hex, "--ar": edu.accent.rgb }}
-            onClick={() => onSelect(edu)}
-          >
-            <div className="tl-year">{edu.duration}</div>
-            <div className="tl-degree">{edu.degree}</div>
-            <div className="tl-stream" style={{ color: edu.accent.hex }}>{edu.stream}</div>
-            <div className="tl-inst">{edu.institution}</div>
-            <div className="tl-score" style={{ color: edu.accent.hex }}>{edu.score}</div>
-            <div className="tl-progress-bar">
-              <div className="tl-progress-fill"
-                style={{ width: `${edu.progress}%`, background: edu.accent.hex }} />
-            </div>
-            <div className="tl-cta">VIEW DETAILS →</div>
-          </div>
-        </div>
-      );
-    })}
-  </div>
-);
-
-// ─────────────────────────────────────────────────────────────────────────────
-// IMMERSIVE VIEW
-// ─────────────────────────────────────────────────────────────────────────────
-const ImmersiveView = ({ onSelect }) => {
-  const [active, setActive] = useState(0);
-  const edu = EDUCATION[active];
-  const { accent } = edu;
+function EduBlock({ edu, position, onOpen }) {
+  const [ref, inView] = useInView();
+  const [hov, setHov] = useState(false);
+  const isPrimary = edu.primary;
 
   return (
-    <div className="imm-wrap" style={{ "--ac": accent.hex, "--ar": accent.rgb }}>
-      {/* Background overlay */}
-      <div className="imm-bg" />
-
-      {/* Left panel — big number + switcher */}
-      <div className="imm-left">
-        <div className="imm-index" style={{ color: accent.hex }}>{edu.index}</div>
-        <div className="imm-switchers">
-          {EDUCATION.map((e, i) => (
-            <button
-              key={e.id}
-              className={`imm-switch${active === i ? " active" : ""}`}
-              style={{ "--ac": e.accent.hex }}
-              onClick={() => setActive(i)}
-            >
-              <span>{e.index}</span>
-            </button>
-          ))}
-        </div>
+    <div ref={ref} style={{ display: "flex", gap: 0, opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(28px)", transition: `opacity 560ms ease ${position * 120}ms, transform 560ms ease ${position * 120}ms` }}>
+      {/* Timeline rail */}
+      <div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: "44px", flexShrink: 0, paddingTop: "10px", marginRight: "32px" }}>
+        <div style={{ width: isPrimary ? "12px" : "8px", height: isPrimary ? "12px" : "8px", borderRadius: "50%", background: isPrimary ? edu.tint : C.inkFaint, boxShadow: isPrimary ? `0 0 0 4px ${edu.tint}22, 0 0 18px ${edu.tint}35` : "none", flexShrink: 0, marginTop: isPrimary ? 0 : "2px" }} />
+        {position < EDU.length - 1 && (
+          <div style={{ width: "1px", flex: 1, minHeight: "60px", marginTop: "10px", marginBottom: "-24px", background: `linear-gradient(to bottom, ${C.inkFaint} 0%, transparent 100%)` }} />
+        )}
       </div>
 
-      {/* Center — hero content */}
-      <div className="imm-center">
-        <div className="imm-badge" style={{ borderColor: accent.hex, color: accent.hex }}>
-          {edu.badge} · {edu.duration}
+      {/* Content */}
+      <div style={{ flex: 1, paddingBottom: position < EDU.length - 1 ? "64px" : 0 }}>
+        {/* Meta row */}
+        <div style={{ display: "flex", alignItems: "center", flexWrap: "wrap", gap: "10px", marginBottom: "14px" }}>
+          <span style={{ fontFamily: F.mono, fontSize: "10px", letterSpacing: "2.5px", color: C.inkMute, textTransform: "uppercase" }}>{edu.duration}</span>
+          <span style={{ width: "3px", height: "3px", borderRadius: "50%", background: C.inkFaint }} />
+          <span style={{ fontFamily: F.mono, fontSize: "10px", letterSpacing: "2.5px", color: C.inkMute, textTransform: "uppercase" }}>{edu.level}</span>
+          {edu.status === "current" && (
+            <span style={{ padding: "3px 9px", borderRadius: "4px", fontFamily: F.mono, fontSize: "10px", letterSpacing: "1.5px", color: C.green, background: C.greenDim, border: `1px solid ${C.greenLine}` }}>In Progress</span>
+          )}
         </div>
-        <h1 className="imm-degree">{edu.degree}</h1>
-        <h2 className="imm-stream" style={{ color: accent.hex }}>{edu.stream}</h2>
-        <div className="imm-inst">{edu.institution}</div>
 
-        <div className="imm-metrics">
-          {edu.metrics.map((m) => (
-            <div key={m.label} className="imm-metric">
-              <span className="imm-mval" style={{ color: accent.hex }}>{m.value}</span>
-              <span className="imm-mlbl">{m.label}</span>
+        {isPrimary ? (
+          <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}>
+            {/* Degree */}
+            <div style={{ marginBottom: "20px" }}>
+              <h3 style={{ fontFamily: F.display, fontSize: "clamp(28px, 4.5vw, 40px)", fontWeight: 800, color: C.ink, letterSpacing: "-1px", lineHeight: 1.05, margin: "0 0 6px" }}>{edu.degree}</h3>
+              <div style={{ fontFamily: F.body, fontSize: "15px", fontWeight: 600, color: edu.tint }}>{edu.stream}</div>
+              <div style={{ fontFamily: F.body, fontSize: "14px", fontWeight: 500, color: C.inkSub, marginTop: "3px" }}>
+                {edu.institution}<span style={{ color: C.inkMute, margin: "0 7px" }}>·</span><span style={{ color: C.inkMute, fontWeight: 400 }}>{edu.affiliation}</span>
+              </div>
             </div>
-          ))}
-        </div>
-
-        <div className="imm-actions">
-          <button className="imm-prev" onClick={() => setActive((active - 1 + EDUCATION.length) % EDUCATION.length)}>
-            ← PREV
-          </button>
-          <button
-            className="imm-detail"
-            style={{ background: accent.hex, color: "#000" }}
-            onClick={() => onSelect(edu)}
-          >
-            OPEN DOSSIER
-          </button>
-          <button className="imm-next" onClick={() => setActive((active + 1) % EDUCATION.length)}>
-            NEXT →
-          </button>
-        </div>
-      </div>
-
-      {/* Right — arc + skills */}
-      <div className="imm-right">
-        <div className="imm-arc-block">
-          <ProgressArc pct={edu.progress} color={accent.hex} size={140} />
-          <div className="imm-arc-info">
-            <span className="imm-arc-pct" style={{ color: accent.hex }}>{edu.progress}%</span>
-            <span className="imm-arc-sub">PROGRESS</span>
+            {/* 2-col card: image + content */}
+            <div style={{ display: "grid", gridTemplateColumns: "260px 1fr", gap: "0", background: C.raised, border: `1px solid ${hov ? C.lineMd : C.line}`, borderRadius: "14px", overflow: "hidden", transition: "border-color 200ms, box-shadow 200ms", boxShadow: hov ? "0 8px 48px rgba(0,0,0,0.32)" : "none" }}>
+              {/* Left: cert image */}
+              <div style={{ minHeight: "280px" }}>
+                <CertThumb edu={edu} height="100%" onClick={() => onOpen(edu)} />
+              </div>
+              {/* Right: details */}
+              <div style={{ padding: "24px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "16px", borderLeft: `1px solid ${C.line}` }}>
+                {/* Score */}
+                <div>
+                  <div style={{ fontFamily: F.mono, fontSize: "10px", letterSpacing: "2px", color: C.inkMute, textTransform: "uppercase", marginBottom: "4px" }}>Academic Score</div>
+                  <div style={{ fontFamily: F.display, fontSize: "20px", fontWeight: 800, color: C.ink, letterSpacing: "-0.3px" }}>{edu.score}</div>
+                </div>
+                {/* Outcomes */}
+                <div style={{ display: "flex", flexDirection: "column", gap: "6px", flex: 1 }}>
+                  {edu.outcomes.map((o, i) => (
+                    <div key={i} style={{ display: "flex", alignItems: "flex-start", gap: "9px", padding: "9px 12px", background: C.surface, border: `1px solid ${C.line}`, borderRadius: "7px" }}>
+                      <span style={{ color: edu.tint, fontSize: "12px", fontWeight: 700, flexShrink: 0, width: "16px", marginTop: "2px" }}>{o.icon}</span>
+                      <div>
+                        <div style={{ fontFamily: F.body, fontSize: "12px", fontWeight: 600, color: C.ink, marginBottom: "2px" }}>{o.label}</div>
+                        <div style={{ fontFamily: F.body, fontSize: "11px", color: C.inkSub, lineHeight: 1.55 }}>{o.detail}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                {/* Stats + CTA */}
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "12px", paddingTop: "16px", borderTop: `1px solid ${C.line}` }}>
+                  <div style={{ display: "flex", gap: "24px" }}>
+                    {edu.stats.map(s => <AnimStat key={s.l} v={s.v} l={s.l} tint={edu.tint} />)}
+                  </div>
+                  <button onClick={() => onOpen(edu)} style={{ display: "inline-flex", alignItems: "center", gap: "6px", padding: "9px 18px", borderRadius: "7px", border: `1px solid ${C.lineMd}`, background: "transparent", color: C.inkSub, fontFamily: F.mono, fontSize: "10px", letterSpacing: "1.5px", cursor: "pointer", transition: "all 200ms" }}
+                    onMouseEnter={e => { e.currentTarget.style.background = C.accentSoft; e.currentTarget.style.borderColor = C.accentLine; e.currentTarget.style.color = C.accent; }}
+                    onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.borderColor = C.lineMd; e.currentTarget.style.color = C.inkSub; }}>
+                    FULL DETAILS →
+                  </button>
+                </div>
+              </div>
+            </div>
+            {/* Skills */}
+            <div style={{ display: "flex", flexWrap: "wrap", gap: "6px", marginTop: "14px" }}>
+              {edu.skills.map(s => (
+                <span key={s} style={{ padding: "4px 12px", borderRadius: "4px", fontFamily: F.mono, fontSize: "11px", color: C.inkMute, background: C.surface, border: `1px solid ${C.line}` }}>{s}</span>
+              ))}
+            </div>
           </div>
-        </div>
-        <div className="imm-skills">
-          {edu.skills.map((s) => (
-            <span key={s} className="imm-skill" style={{ "--ac": accent.hex }}>{s}</span>
-          ))}
-        </div>
+        ) : (
+          <div>
+            {/* Degree headline */}
+            <div style={{ marginBottom: "14px" }}>
+              <h3 style={{ fontFamily: F.display, fontSize: "22px", fontWeight: 800, color: C.ink, letterSpacing: "-0.4px", margin: "0 0 4px" }}>{edu.degree}</h3>
+              <div style={{ fontFamily: F.body, fontSize: "13px", color: C.inkSub }}>
+                {edu.stream}<span style={{ color: C.inkMute, margin: "0 7px" }}>·</span><span style={{ color: C.inkMute }}>{edu.institution}</span>
+              </div>
+            </div>
+            {/* Horizontal strip: small thumb + content */}
+            <div onMouseEnter={() => setHov(true)} onMouseLeave={() => setHov(false)}
+              style={{ display: "flex", gap: "0", alignItems: "stretch", background: C.raised, border: `1px solid ${hov ? C.lineMd : C.line}`, borderRadius: "10px", overflow: "hidden", transition: "border-color 200ms" }}>
+              {/* Small cert thumbnail */}
+              <div style={{ width: "150px", flexShrink: 0 }}>
+                <CertThumb edu={edu} height="100%" onClick={() => onOpen(edu)} />
+              </div>
+              {/* Content */}
+              <div style={{ flex: 1, padding: "18px 20px", display: "flex", flexDirection: "column", justifyContent: "space-between", gap: "12px", borderLeft: `1px solid ${C.line}` }}>
+                <div>
+                  <span style={{ display: "inline-block", fontFamily: F.mono, fontSize: "11px", letterSpacing: "1.5px", color: C.inkSub, padding: "4px 10px", background: C.surface, border: `1px solid ${C.line}`, borderRadius: "4px", marginBottom: "10px" }}>{edu.score}</span>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "5px" }}>
+                    {edu.outcomes.map((o, i) => (
+                      <div key={i} style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                        <span style={{ color: edu.tint, fontSize: "11px", fontWeight: 700, flexShrink: 0 }}>{o.icon}</span>
+                        <span style={{ fontFamily: F.body, fontSize: "12px", fontWeight: 600, color: C.ink }}>{o.label}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: "10px" }}>
+                  <div style={{ display: "flex", gap: "20px" }}>
+                    {edu.stats.map(s => <AnimStat key={s.l} v={s.v} l={s.l} tint={edu.tint} />)}
+                  </div>
+                  <button onClick={() => onOpen(edu)} style={{ padding: "7px 14px", borderRadius: "6px", border: `1px solid ${C.line}`, background: "transparent", color: C.inkMute, fontFamily: F.mono, fontSize: "10px", letterSpacing: "1.5px", cursor: "pointer", transition: "all 200ms" }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor = C.lineMd; e.currentTarget.style.color = C.inkSub; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor = C.line; e.currentTarget.style.color = C.inkMute; }}>
+                    VIEW →
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
-};
+}
 
-// ─────────────────────────────────────────────────────────────────────────────
-// MAIN COMPONENT
-// ─────────────────────────────────────────────────────────────────────────────
-export default function AdvancedEducation() {
-  const [view, setView] = useState("grid");
-  const [active, setActive] = useState(null);
-  const [filter, setFilter] = useState("ALL");
-  const [scrollPct, setScrollPct] = useState(0);
-
-  useEffect(() => {
-    const onScroll = () => {
-      const maxS = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollPct((window.scrollY / maxS) * 100);
-    };
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const filtered = filter === "ALL" ? EDUCATION : EDUCATION.filter((e) => e.rarity === filter);
-
-  const VIEWS = [
-    { id: "grid",      label: "Grid",      glyph: "⊞" },
-    { id: "timeline",  label: "Timeline",  glyph: "⌬" },
-    { id: "immersive", label: "Immersive", glyph: "⛶" },
-  ];
+export default function Education() {
+  const [drawer, setDrawer] = useState(null);
+  const [heroIn, setHeroIn] = useState(false);
+  useEffect(() => { const r = requestAnimationFrame(() => setHeroIn(true)); return () => cancelAnimationFrame(r); }, []);
 
   return (
     <>
-      {/* ── ALL CSS ─────────────────────────────────────── */}
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=IBM+Plex+Mono:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap');
-
-        /* ── RESET & BASE ── */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-
-        .edu-root {
-          background: ${TOKENS.bg};
-          color: ${TOKENS.text};
-          min-height: 100vh;
-          font-family: 'Manrope', system-ui, sans-serif;
-          -webkit-font-smoothing: antialiased;
-          overflow-x: hidden;
-          position: relative;
-        }
-
-        /* ── SCROLLBAR ── */
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(0,229,255,.3); border-radius: 2px; }
-
-        /* ── PROGRESS BAR ── */
-        .scroll-progress {
-          position: fixed; top: 0; left: 0; right: 0;
-          height: 3px; z-index: 9999;
-          background: rgba(255,255,255,.05);
-        }
-        .scroll-fill {
-          height: 100%;
-          background: linear-gradient(90deg, #00e5ff, #c084fc, #fb923c);
-          transition: width .1s linear;
-          box-shadow: 0 0 12px rgba(0,229,255,.6);
-        }
-
-        /* ── BACKGROUND GEOMETRY ── */
-        .geo-bg {
-          position: fixed; inset: 0;
-          pointer-events: none; z-index: 0; overflow: hidden;
-        }
-        .geo-line {
-          position: absolute; background: rgba(255,255,255,.03);
-          transform-origin: center;
-        }
-        .gl1 { width: 1px; height: 110vh; top: -5vh; left: 22%; transform: rotate(12deg); }
-        .gl2 { width: 1px; height: 110vh; top: -5vh; left: 48%; transform: rotate(-6deg); }
-        .gl3 { width: 1px; height: 110vh; top: -5vh; right: 18%; transform: rotate(9deg); }
-        .geo-orb {
-          position: absolute; border-radius: 50%; filter: blur(120px);
-          animation: orbFloat 28s ease-in-out infinite;
-        }
-        .go1 { width: 700px; height: 700px; background: rgba(0,229,255,.04); top:-200px; left:-180px; }
-        .go2 { width: 600px; height: 600px; background: rgba(192,132,252,.04); bottom:-100px; right:-150px; animation-delay: -12s; }
-        .go3 { width: 400px; height: 400px; background: rgba(251,146,60,.03); top:40%; left:55%; animation-delay:-7s; }
-        @keyframes orbFloat { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-60px)} }
-
-        /* ── PAGE WRAPPER ── */
-        .edu-page {
-          position: relative; z-index: 1;
-          max-width: 1700px; margin: 0 auto;
-          padding: clamp(7rem,12vw,11rem) clamp(1.5rem,5vw,5rem) 8rem;
-        }
-
-        /* ── PAGE HEADER ── */
-        .page-header {
-          margin-bottom: 6rem;
-        }
-        .page-eyebrow {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .72rem; letter-spacing: 4px;
-          color: ${TOKENS.muted};
-          text-transform: uppercase; margin-bottom: 1.4rem;
-          display: flex; align-items: center; gap: 1.2rem;
-        }
-        .page-eyebrow::before {
-          content: ''; flex: 0 0 42px; height: 1px;
-          background: linear-gradient(90deg, transparent, ${TOKENS.muted});
-        }
-        .page-title {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(5rem,14vw,11rem);
-          line-height: .92; letter-spacing: 3px;
-          background: linear-gradient(135deg, #fff 0%, rgba(255,255,255,.45) 100%);
-          -webkit-background-clip: text; background-clip: text; color: transparent;
-          margin-bottom: 1.8rem;
-        }
-        .page-sub {
-          font-size: clamp(1rem,2vw,1.15rem);
-          color: ${TOKENS.muted};
-          max-width: 640px; line-height: 1.85;
-          font-weight: 500;
-        }
-
-        /* ── CONTROLS BAR ── */
-        .controls-bar {
-          display: flex; align-items: center; gap: 2rem;
-          margin-bottom: 5rem; flex-wrap: wrap;
-        }
-        .view-tabs {
-          display: flex; gap: 4px;
-          background: rgba(255,255,255,.04);
-          border: 1px solid ${TOKENS.border};
-          border-radius: 12px; padding: 4px;
-        }
-        .view-tab {
-          display: flex; align-items: center; gap: 8px;
-          padding: 9px 20px; border-radius: 8px;
-          border: none; background: transparent;
-          color: ${TOKENS.muted};
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .74rem; letter-spacing: 1.5px;
-          cursor: pointer; transition: all .3s ease;
-          text-transform: uppercase;
-        }
-        .view-tab:hover { color: ${TOKENS.text}; }
-        .view-tab.vtact {
-          background: rgba(255,255,255,.09);
-          color: ${TOKENS.text};
-          box-shadow: 0 0 0 1px rgba(255,255,255,.12);
-        }
-        .view-tab-glyph { font-size: 1rem; }
-
-        .filter-tabs {
-          display: flex; gap: 6px; margin-left: auto;
-        }
-        .filter-tab {
-          padding: 9px 22px; border-radius: 999px;
-          border: 1px solid rgba(255,255,255,.1);
-          background: transparent;
-          color: ${TOKENS.muted};
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .7rem; letter-spacing: 2px;
-          cursor: pointer; transition: all .3s ease;
-          text-transform: uppercase;
-        }
-        .filter-tab:hover { color: ${TOKENS.text}; border-color: rgba(255,255,255,.22); }
-        .filter-tab.ftact {
-          background: rgba(255,255,255,.08);
-          color: ${TOKENS.text};
-          border-color: rgba(255,255,255,.25);
-        }
-
-        /* ── GRID VIEW ── */
-        .grid-view {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
-          gap: 2px;
-        }
-
-        /* ── DOSSIER CARD ── */
-        .dossier-card {
-          position: relative;
-          background: ${TOKENS.surface};
-          border: 1px solid ${TOKENS.border};
-          cursor: pointer; overflow: hidden;
-          transition: all .45s cubic-bezier(.22,1,.36,1);
-          display: flex; flex-direction: column;
-        }
-        .dossier-card::before {
-          content: ''; position: absolute; inset: 0;
-          background: radial-gradient(ellipse at 30% 0%, rgba(var(--ar,0,229,255),.07) 0%, transparent 60%);
-          opacity: 0; transition: opacity .4s;
-        }
-        .dossier-card.hot {
-          border-color: rgba(var(--ar,0,229,255),.4);
-          transform: translateY(-6px);
-          box-shadow: 0 32px 80px rgba(0,0,0,.55), 0 0 0 1px rgba(var(--ar,0,229,255),.15),
-                      0 0 60px rgba(var(--ar,0,229,255),.08);
-        }
-        .dossier-card.hot::before { opacity: 1; }
-
-        .rarity-stripe {
-          position: absolute; top: 0; left: 0; right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, var(--ac), transparent);
-        }
-
-        .card-thumb {
-          position: relative; height: 220px; overflow: hidden;
-          flex-shrink: 0;
-        }
-        .thumb-img {
-          width: 100%; height: 100%; object-fit: cover;
-          transition: transform .8s ease;
-        }
-        .dossier-card.hot .thumb-img { transform: scale(1.07); }
-        .thumb-veil {
-          position: absolute; inset: 0;
-          background: linear-gradient(to top, ${TOKENS.surface} 0%, rgba(10,9,26,.4) 60%, transparent 100%);
-        }
-        .index-mark {
-          position: absolute; bottom: 1rem; left: 1.4rem;
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 5rem; line-height: 1;
-          color: rgba(255,255,255,.07);
-          pointer-events: none; user-select: none;
-        }
-        .status-pill {
-          position: absolute; top: 1.2rem; right: 1.2rem;
-          display: flex; align-items: center; gap: 6px;
-          padding: 5px 14px; border-radius: 999px;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .64rem; letter-spacing: 2px;
-          font-weight: 600;
-          backdrop-filter: blur(12px);
-        }
-        .status-ACTIVE {
-          background: rgba(16,185,129,.18);
-          border: 1px solid rgba(16,185,129,.45);
-          color: #34d399;
-        }
-        .status-COMPLETED {
-          background: rgba(255,255,255,.07);
-          border: 1px solid rgba(255,255,255,.15);
-          color: ${TOKENS.muted};
-        }
-        .blink-dot {
-          width: 6px; height: 6px; border-radius: 50%;
-          background: #34d399;
-          animation: blink 2s ease-in-out infinite;
-        }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
-
-        .card-body { padding: 1.8rem 2rem 2.2rem; flex: 1; display: flex; flex-direction: column; gap: 1.1rem; }
-
-        .meta-row { display: flex; align-items: center; justify-content: space-between; }
-        .badge-pill {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .62rem; letter-spacing: 3px;
-          padding: 4px 12px; border-radius: 4px;
-          background: rgba(var(--ar,0,229,255),.12);
-          color: var(--ac);
-          border: 1px solid rgba(var(--ar,0,229,255),.28);
-        }
-        .rarity-label {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .58rem; letter-spacing: 2.5px;
-          color: rgba(255,255,255,.28);
-        }
-
-        .degree-block { display: flex; align-items: baseline; gap: .8rem; flex-wrap: wrap; }
-        .degree-title {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 2.4rem; line-height: 1;
-          color: ${TOKENS.text};
-        }
-        .stream-label {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .72rem; color: var(--ac);
-          letter-spacing: 1.5px; font-weight: 600;
-        }
-
-        .institution-name {
-          font-size: .88rem; font-weight: 700; color: ${TOKENS.text};
-          line-height: 1.4;
-        }
-        .uni-row {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .68rem; color: ${TOKENS.muted};
-          display: flex; gap: .5rem; flex-wrap: wrap;
-        }
-        .dot-sep { opacity: .4; }
-
-        .score-arc-row {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 1rem 1.2rem;
-          background: rgba(255,255,255,.03);
-          border: 1px solid ${TOKENS.border};
-          border-radius: 10px;
-        }
-        .score-value {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 2.2rem; line-height: 1;
-        }
-        .score-sub {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .65rem; color: ${TOKENS.muted};
-          letter-spacing: 1.5px; margin-top: 4px;
-        }
-        .arc-wrap {
-          position: relative; display: flex;
-          align-items: center; justify-content: center;
-        }
-        .arc-label {
-          position: absolute;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .72rem; font-weight: 700;
-          color: ${TOKENS.text};
-        }
-
-        .metrics-row { display: flex; gap: .5rem; }
-        .metric-chip {
-          flex: 1; padding: .7rem .5rem;
-          background: rgba(255,255,255,.03);
-          border: 1px solid rgba(var(--ar,0,229,255),.15);
-          border-radius: 8px; text-align: center;
-          transition: border-color .3s;
-        }
-        .dossier-card.hot .metric-chip { border-color: rgba(var(--ar,0,229,255),.32); }
-        .metric-val {
-          display: block;
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 1.35rem; color: var(--ac);
-        }
-        .metric-lbl {
-          display: block;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .56rem; letter-spacing: 2px;
-          color: ${TOKENS.muted}; margin-top: 2px;
-          text-transform: uppercase;
-        }
-
-        .skills-strip { display: flex; flex-wrap: wrap; gap: .4rem; }
-        .skill-tag {
-          padding: 4px 12px; border-radius: 4px;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .62rem; letter-spacing: 1px;
-          color: var(--ac);
-          background: rgba(var(--ar,0,229,255),.07);
-          border: 1px solid rgba(var(--ar,0,229,255),.2);
-          transition: background .25s;
-        }
-        .dossier-card.hot .skill-tag { background: rgba(var(--ar,0,229,255),.14); }
-        .skill-more { opacity: .6; }
-
-        .card-cta {
-          margin-top: auto;
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 1rem 1.4rem; border-radius: 8px;
-          background: rgba(var(--ar,0,229,255),.08);
-          border: 1px solid rgba(var(--ar,0,229,255),.22);
-          color: var(--ac);
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .72rem; letter-spacing: 2px;
-          cursor: pointer; transition: all .3s ease;
-        }
-        .card-cta:hover, .dossier-card.hot .card-cta {
-          background: rgba(var(--ar,0,229,255),.18);
-          border-color: var(--ac);
-        }
-
-        /* ── MODAL ── */
-        .modal-backdrop {
-          position: fixed; inset: 0; z-index: 9999;
-          background: rgba(4,4,12,.95);
-          backdrop-filter: blur(24px);
-          display: flex; align-items: center; justify-content: center;
-          padding: 2rem; overflow-y: auto;
-          animation: fadeIn .3s ease;
-        }
-        @keyframes fadeIn { from{opacity:0} to{opacity:1} }
-
-        .modal-panel {
-          position: relative; display: flex; gap: 0;
-          max-width: 1100px; width: 100%;
-          background: ${TOKENS.panel};
-          border: 1px solid rgba(var(--ar,0,229,255),.3);
-          border-radius: 4px;
-          box-shadow: 0 0 0 1px rgba(var(--ar,0,229,255),.1),
-                      0 60px 120px rgba(0,0,0,.8),
-                      0 0 80px rgba(var(--ar,0,229,255),.1);
-          overflow: hidden;
-          animation: panelIn .4s cubic-bezier(.22,1,.36,1);
-          max-height: 92vh; overflow-y: auto;
-        }
-        @keyframes panelIn { from{transform:scale(.96);opacity:0} to{transform:scale(1);opacity:1} }
-
-        /* modal accent strip */
-        .modal-panel::before {
-          content: ''; position: absolute; top: 0; left: 0; right: 0;
-          height: 2px;
-          background: linear-gradient(90deg, var(--ac), transparent 80%);
-        }
-
-        .modal-close {
-          position: absolute; top: 1.2rem; right: 1.2rem;
-          width: 38px; height: 38px; border-radius: 50%;
-          border: 1px solid rgba(255,255,255,.12);
-          background: rgba(255,255,255,.06);
-          color: ${TOKENS.muted}; font-size: 1rem;
-          cursor: pointer; display: flex; align-items: center; justify-content: center;
-          z-index: 10; transition: all .25s;
-        }
-        .modal-close:hover { color: ${TOKENS.text}; border-color: rgba(255,255,255,.28); }
-
-        .modal-left {
-          flex: 0 0 320px; padding: 2.5rem 2rem;
-          background: rgba(255,255,255,.02);
-          border-right: 1px solid rgba(255,255,255,.06);
-          display: flex; flex-direction: column; gap: 1.8rem;
-        }
-        .modal-img-wrap {
-          position: relative; border-radius: 6px; overflow: hidden;
-          border: 1px solid rgba(255,255,255,.08);
-        }
-        .modal-img { width: 100%; height: auto; display: block; }
-        .modal-img-veil {
-          position: absolute; inset: 0;
-          background: linear-gradient(to top, rgba(14,13,31,.9) 0%, transparent 55%);
-        }
-
-        .modal-metrics {
-          display: flex; gap: .5rem;
-        }
-        .mod-metric {
-          flex: 1; text-align: center; padding: .9rem .5rem;
-          background: rgba(255,255,255,.03); border-radius: 6px;
-          border: 1px solid rgba(255,255,255,.07);
-        }
-        .mod-metric-val {
-          display: block;
-          font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem;
-        }
-        .mod-metric-lbl {
-          display: block;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .55rem; letter-spacing: 2px; color: ${TOKENS.muted};
-          margin-top: 2px; text-transform: uppercase;
-        }
-
-        .modal-arc-row {
-          display: flex; align-items: center; gap: 1.4rem;
-          padding: 1.2rem 1rem;
-          background: rgba(255,255,255,.03); border-radius: 6px;
-          border: 1px solid rgba(255,255,255,.07);
-        }
-        .modal-arc-text { display: flex; flex-direction: column; }
-        .modal-arc-pct {
-          font-family: 'Bebas Neue', sans-serif; font-size: 2.4rem; line-height: 1;
-        }
-        .modal-arc-sub {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .58rem; letter-spacing: 2px; color: ${TOKENS.muted};
-          margin-top: 4px;
-        }
-
-        .view-cert-btn {
-          display: flex; align-items: center; justify-content: center; gap: .6rem;
-          padding: 1rem; border-radius: 6px;
-          background: rgba(var(--ar,0,229,255),.1);
-          border: 1px solid rgba(var(--ar,0,229,255),.3);
-          color: var(--ac);
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .7rem; letter-spacing: 2px;
-          text-decoration: none; transition: all .3s;
-          margin-top: auto;
-        }
-        .view-cert-btn:hover {
-          background: rgba(var(--ar,0,229,255),.2);
-          border-color: var(--ac);
-        }
-
-        .modal-right {
-          flex: 1; padding: 3rem 2.5rem 3rem;
-          overflow-y: auto;
-        }
-        .modal-badge-row {
-          display: flex; align-items: center; gap: 1rem; margin-bottom: 1.4rem;
-        }
-        .modal-badge {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .62rem; letter-spacing: 3px;
-          padding: 4px 14px; border-radius: 3px;
-          border: 1px solid rgba(var(--ar,0,229,255),.3);
-          background: rgba(var(--ar,0,229,255),.1);
-          color: var(--ac);
-        }
-        .modal-rarity {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .58rem; letter-spacing: 3px; opacity: .6;
-        }
-
-        .modal-degree {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(2.5rem,6vw,4rem); line-height: 1;
-          color: ${TOKENS.text}; margin-bottom: .3rem;
-        }
-        .modal-stream {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 1.5rem; margin-bottom: 1.4rem;
-          letter-spacing: 2px;
-        }
-        .modal-inst {
-          font-size: .95rem; font-weight: 700; color: ${TOKENS.text};
-          margin-bottom: .5rem;
-        }
-        .modal-meta {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .7rem; color: ${TOKENS.muted};
-          display: flex; flex-wrap: wrap; gap: .5rem;
-          margin-bottom: .5rem;
-        }
-        .modal-loc {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .7rem; color: ${TOKENS.muted};
-          margin-bottom: 1.8rem;
-        }
-        .modal-desc {
-          font-size: .9rem; color: rgba(232,234,242,.65);
-          line-height: 1.8; margin-bottom: 2.5rem;
-          padding-left: 1.2rem;
-          border-left: 2px solid rgba(var(--ar,0,229,255),.3);
-        }
-
-        .modal-section { margin-bottom: 2.2rem; }
-        .modal-section-head {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .66rem; letter-spacing: 3.5px;
-          text-transform: uppercase; margin-bottom: 1.2rem;
-          display: flex; align-items: center; gap: 1rem;
-        }
-        .modal-section-head::after {
-          content: ''; flex: 1; height: 1px;
-          background: rgba(255,255,255,.06);
-        }
-
-        .modal-achievements { list-style: none; display: flex; flex-direction: column; gap: .6rem; }
-        .modal-achievement-item {
-          display: flex; align-items: flex-start; gap: .8rem;
-          padding: .8rem 1rem; border-radius: 6px;
-          background: rgba(255,255,255,.03);
-          border: 1px solid ${TOKENS.border};
-          font-size: .85rem; line-height: 1.6;
-          animation: slideIn .5s ease both;
-        }
-        @keyframes slideIn { from{opacity:0;transform:translateX(-12px)} to{opacity:1;transform:translateX(0)} }
-        .ach-icon { font-size: 1.1rem; flex-shrink: 0; margin-top: 1px; }
-
-        .modal-skills { display: flex; flex-wrap: wrap; gap: .5rem; }
-        .modal-skill-tag {
-          padding: 5px 14px; border-radius: 3px;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .65rem; letter-spacing: 1px;
-          color: var(--ac);
-          background: rgba(var(--ar,0,229,255),.08);
-          border: 1px solid rgba(var(--ar,0,229,255),.2);
-        }
-
-        /* Responsive modal */
-        @media(max-width:720px) {
-          .modal-panel { flex-direction: column; }
-          .modal-left { flex: 0 0 auto; border-right: none; border-bottom: 1px solid rgba(255,255,255,.06); }
-        }
-
-        /* ── TIMELINE VIEW ── */
-        .timeline-wrap {
-          position: relative; padding: 4rem 0;
-          max-width: 1200px; margin: 0 auto;
-        }
-        .timeline-spine {
-          position: absolute; left: 50%; top: 0; bottom: 0;
-          width: 1px;
-          background: linear-gradient(to bottom, transparent, rgba(0,229,255,.4) 15%, rgba(192,132,252,.4) 50%, rgba(251,146,60,.4) 85%, transparent);
-          transform: translateX(-50%);
-        }
-        .timeline-row {
-          display: flex; position: relative; margin: 4.5rem 0;
-          animation: fadeUp .8s ease both;
-        }
-        @keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
-        .tl-right { justify-content: flex-end; }
-        .tl-left  { justify-content: flex-start; }
-
-        .tl-node {
-          position: absolute; left: 50%; top: 50%;
-          transform: translate(-50%,-50%);
-          width: 56px; height: 56px; border-radius: 50%;
-          background: ${TOKENS.panel};
-          border: 2px solid var(--ac);
-          box-shadow: 0 0 30px rgba(var(--ar,0,229,255),.4);
-          display: flex; align-items: center; justify-content: center;
-          z-index: 5;
-        }
-        .tl-node-idx {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 1.1rem; color: var(--ac);
-        }
-        .tl-connector {
-          position: absolute; top: 50%; height: 1px;
-          background: linear-gradient(90deg, rgba(var(--ar,0,229,255),.3), transparent);
-          width: 5%; left: 45%;
-        }
-        .tl-left .tl-connector {
-          left: auto; right: 45%;
-          background: linear-gradient(270deg, rgba(var(--ar,0,229,255),.3), transparent);
-        }
-
-        .tl-card {
-          width: 46%; padding: 2rem;
-          background: ${TOKENS.surface};
-          border: 1px solid rgba(var(--ar,0,229,255),.2);
-          border-radius: 4px; cursor: pointer;
-          transition: all .4s ease;
-        }
-        .tl-card:hover {
-          border-color: var(--ac);
-          box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 40px rgba(var(--ar,0,229,255),.1);
-          transform: translateY(-4px);
-        }
-        .tl-year {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .64rem; letter-spacing: 3px;
-          color: ${TOKENS.muted}; margin-bottom: .8rem;
-        }
-        .tl-degree {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 2rem; line-height: 1; margin-bottom: .3rem;
-          color: ${TOKENS.text};
-        }
-        .tl-stream {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .72rem; letter-spacing: 2px;
-          margin-bottom: .9rem;
-        }
-        .tl-inst {
-          font-size: .82rem; color: rgba(232,234,242,.7);
-          margin-bottom: .5rem;
-        }
-        .tl-score {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 1.5rem; margin-bottom: 1rem;
-        }
-        .tl-progress-bar {
-          height: 2px; background: rgba(255,255,255,.07);
-          border-radius: 2px; margin-bottom: 1rem; overflow: hidden;
-        }
-        .tl-progress-fill {
-          height: 100%; border-radius: 2px;
-          transition: width 1.2s cubic-bezier(.22,1,.36,1);
-        }
-        .tl-cta {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .62rem; letter-spacing: 2.5px; color: var(--ac);
-        }
-
-        /* ── IMMERSIVE VIEW ── */
-        .imm-wrap {
-          display: flex; align-items: stretch; gap: 0;
-          min-height: 70vh;
-          border: 1px solid rgba(var(--ar,0,229,255),.2);
-          background: ${TOKENS.surface};
-          position: relative; overflow: hidden;
-          transition: border-color .5s;
-        }
-        .imm-wrap::before {
-          content: ''; position: absolute; inset: 0;
-          background: radial-gradient(ellipse at 50% 0%, rgba(var(--ar,0,229,255),.06) 0%, transparent 60%);
-          pointer-events: none;
-        }
-        .imm-bg {
-          position: absolute; inset: 0;
-          background: linear-gradient(135deg, rgba(var(--ar,0,229,255),.03) 0%, transparent 50%);
-          pointer-events: none;
-        }
-
-        .imm-left {
-          flex: 0 0 120px;
-          display: flex; flex-direction: column; align-items: center;
-          justify-content: space-between; padding: 3rem 0;
-          border-right: 1px solid rgba(255,255,255,.06);
-          background: rgba(255,255,255,.02);
-        }
-        .imm-index {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 5rem; line-height: 1; letter-spacing: 2px;
-          writing-mode: vertical-rl; text-orientation: mixed;
-          transform: rotate(180deg);
-          transition: color .5s;
-        }
-        .imm-switchers {
-          display: flex; flex-direction: column; gap: 8px;
-        }
-        .imm-switch {
-          width: 40px; height: 40px; border-radius: 50%;
-          border: 1px solid rgba(255,255,255,.12);
-          background: transparent; color: ${TOKENS.muted};
-          cursor: pointer; transition: all .3s;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .7rem;
-        }
-        .imm-switch:hover { border-color: rgba(255,255,255,.28); color: ${TOKENS.text}; }
-        .imm-switch.active {
-          border-color: var(--ac);
-          background: rgba(var(--ar,0,229,255),.12);
-          color: var(--ac);
-          box-shadow: 0 0 16px rgba(var(--ar,0,229,255),.3);
-        }
-
-        .imm-center {
-          flex: 1; padding: 4rem 3.5rem; display: flex;
-          flex-direction: column; justify-content: center;
-        }
-        .imm-badge {
-          display: inline-block; margin-bottom: 1.4rem;
-          padding: 5px 18px; border-radius: 3px;
-          border: 1px solid; /* uses inline style */
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .66rem; letter-spacing: 3px;
-          transition: all .5s;
-        }
-        .imm-degree {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: clamp(3.5rem,8vw,6rem);
-          line-height: .92; letter-spacing: 3px;
-          color: ${TOKENS.text}; margin-bottom: .4rem;
-        }
-        .imm-stream {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 1.8rem; letter-spacing: 3px;
-          margin-bottom: 1.2rem; transition: color .5s;
-        }
-        .imm-inst {
-          font-size: .9rem; color: rgba(232,234,242,.6);
-          margin-bottom: 2.5rem;
-        }
-        .imm-metrics {
-          display: flex; gap: 2.5rem; margin-bottom: 3rem;
-        }
-        .imm-metric { display: flex; flex-direction: column; gap: 4px; }
-        .imm-mval {
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 2.2rem; line-height: 1;
-          transition: color .5s;
-        }
-        .imm-mlbl {
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .6rem; letter-spacing: 2.5px; color: ${TOKENS.muted};
-          text-transform: uppercase;
-        }
-        .imm-actions { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
-        .imm-prev, .imm-next {
-          padding: 11px 24px; border-radius: 3px;
-          border: 1px solid rgba(255,255,255,.14);
-          background: transparent; color: ${TOKENS.muted};
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .7rem; letter-spacing: 2px;
-          cursor: pointer; transition: all .3s;
-        }
-        .imm-prev:hover, .imm-next:hover {
-          color: ${TOKENS.text}; border-color: rgba(255,255,255,.3);
-        }
-        .imm-detail {
-          padding: 11px 28px; border-radius: 3px;
-          border: none;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .7rem; letter-spacing: 2.5px; font-weight: 700;
-          cursor: pointer; transition: all .4s;
-          box-shadow: 0 8px 30px rgba(var(--ar,0,229,255),.3);
-        }
-
-        .imm-right {
-          flex: 0 0 280px; padding: 3rem 2rem;
-          border-left: 1px solid rgba(255,255,255,.06);
-          background: rgba(255,255,255,.02);
-          display: flex; flex-direction: column; gap: 2rem;
-          align-items: center;
-        }
-        .imm-arc-block {
-          position: relative; display: flex;
-          align-items: center; justify-content: center;
-        }
-        .imm-arc-info {
-          position: absolute; text-align: center;
-        }
-        .imm-arc-pct {
-          display: block;
-          font-family: 'Bebas Neue', sans-serif;
-          font-size: 2rem; line-height: 1; transition: color .5s;
-        }
-        .imm-arc-sub {
-          display: block;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .5rem; letter-spacing: 2px; color: ${TOKENS.muted};
-          margin-top: 4px;
-        }
-        .imm-skills {
-          display: flex; flex-wrap: wrap; gap: .4rem; justify-content: center;
-        }
-        .imm-skill {
-          padding: 4px 10px; border-radius: 3px;
-          font-family: 'IBM Plex Mono', monospace;
-          font-size: .6rem; letter-spacing: 1px;
-          color: var(--ac);
-          background: rgba(var(--ar,0,229,255),.07);
-          border: 1px solid rgba(var(--ar,0,229,255),.18);
-          transition: background .3s;
-        }
-
-        /* ── RESPONSIVE ── */
-        @media(max-width:900px) {
-          .grid-view { grid-template-columns: 1fr; }
-          .timeline-spine { left: 28px; }
-          .timeline-row, .tl-right, .tl-left { justify-content: flex-end; }
-          .tl-node { left: 28px; }
-          .tl-card { width: calc(100% - 80px); }
-          .tl-connector { display: none; }
-          .imm-wrap { flex-direction: column; }
-          .imm-left { flex: 0 0 auto; flex-direction: row; padding: 1.2rem 2rem; }
-          .imm-index { writing-mode: horizontal-tb; transform: none; font-size: 2.5rem; }
-          .imm-right { flex: 0 0 auto; }
-          .filter-tabs { margin-left: 0; }
-          .controls-bar { flex-direction: column; align-items: flex-start; gap: 1rem; }
-        }
-        @media(max-width:600px) {
-          .page-title { letter-spacing: 1px; }
+        @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:wght@400;500&display=swap');
+        .edu-root *, .edu-root *::before, .edu-root *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        .edu-root { background: #0b0d13; min-height: 100vh; font-family: 'DM Sans', system-ui, sans-serif; -webkit-font-smoothing: antialiased; color: #e8eaf4; }
+        .edu-root ::-webkit-scrollbar { width: 3px; }
+        .edu-root ::-webkit-scrollbar-track { background: transparent; }
+        .edu-root ::-webkit-scrollbar-thumb { background: #252840; border-radius: 2px; }
+        @keyframes eduPulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.35;transform:scale(0.8)} }
+        @media(max-width:700px){
+          .edu-inner{padding:60px 20px 80px !important;}
+          .edu-hero-title{font-size:42px !important;}
+          .edu-hero-ghost{font-size:42px !important;}
+          .edu-primary-grid{grid-template-columns:1fr !important;}
+          .edu-summary-strip{flex-direction:column !important;gap:16px !important;}
+          .edu-summary-item{border-right:none !important;padding-right:0 !important;margin-right:0 !important;padding-bottom:16px !important;border-bottom:1px solid rgba(255,255,255,0.06) !important;}
+        }
+        @media(max-width:460px){
+          .edu-inner{padding:44px 16px 60px !important;}
+          .edu-hero-title{font-size:34px !important;}
+          .edu-hero-ghost{font-size:34px !important;}
         }
       `}</style>
 
-      {/* ── SCROLL PROGRESS ── */}
-      <div className="scroll-progress">
-        <div className="scroll-fill" style={{ width: `${scrollPct}%` }} />
-      </div>
-
-      {/* ── BACKGROUND ── */}
-      <div className="geo-bg">
-        <div className="geo-line gl1" />
-        <div className="geo-line gl2" />
-        <div className="geo-line gl3" />
-        <div className="geo-orb go1" />
-        <div className="geo-orb go2" />
-        <div className="geo-orb go3" />
-      </div>
-
-      {/* ── PAGE CONTENT ── */}
       <div className="edu-root">
-        <main className="edu-page">
+        <main className="edu-inner" style={{ maxWidth: "920px", margin: "0 auto", padding: "120px 48px 120px" }}>
 
-          {/* HEADER */}
-          <header className="page-header">
-            <div className="page-eyebrow">PORTFOLIO · ACADEMIC RECORD</div>
-            <h1 className="page-title">
-              EDU<br />CATION
-            </h1>
-            <p className="page-sub">
-              From foundational excellence to advanced AI specialisation —
-              every credential is a building block toward engineering systems that matter.
+          {/* HERO */}
+          <header style={{ marginBottom: "88px", opacity: heroIn ? 1 : 0, transform: heroIn ? "none" : "translateY(20px)", transition: "opacity 650ms ease, transform 650ms ease" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "14px", marginBottom: "26px" }}>
+              <div style={{ width: "28px", height: "1px", background: "linear-gradient(90deg, transparent, #454a63)" }} />
+              <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "4px", color: "#454a63", textTransform: "uppercase" }}>Portfolio · Academic Record</span>
+            </div>
+            <div style={{ marginBottom: "24px" }}>
+              <div className="edu-hero-title" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(50px, 8.5vw, 90px)", fontWeight: 800, color: "#e8eaf4", letterSpacing: "-3px", lineHeight: 0.92, display: "block" }}>Academic</div>
+              <div className="edu-hero-ghost" style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "clamp(50px, 8.5vw, 90px)", fontWeight: 800, color: "transparent", letterSpacing: "-3px", lineHeight: 0.92, WebkitTextStroke: "1.5px #252840", display: "block" }}>Foundation</div>
+            </div>
+            <p style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", lineHeight: 1.8, color: "#7e85a3", fontWeight: 400, maxWidth: "520px", margin: "0 0 40px" }}>
+              A decade of compounding — from school topper to AI engineer. Each stage built the analytical and technical infrastructure for the one that followed.
             </p>
+            <div className="edu-summary-strip" style={{ display: "flex", gap: 0, borderTop: "1px solid rgba(255,255,255,0.06)", paddingTop: "32px" }}>
+              {[["B.Tech, AI & DS", "Current Specialisation"], ["2022 – 2026", "Program Duration"], ["Top 10%", "Academic Standing"]].map(([v, l], i) => (
+                <div key={l} className="edu-summary-item" style={{ paddingRight: "36px", marginRight: "36px", borderRight: i < 2 ? "1px solid rgba(255,255,255,0.06)" : "none" }}>
+                  <div style={{ fontFamily: "'DM Sans', sans-serif", fontSize: "16px", fontWeight: 700, color: "#e8eaf4", marginBottom: "4px", letterSpacing: "-0.2px" }}>{v}</div>
+                  <div style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "2px", color: "#454a63", textTransform: "uppercase" }}>{l}</div>
+                </div>
+              ))}
+            </div>
           </header>
 
-          {/* CONTROLS */}
-          <div className="controls-bar">
-            <div className="view-tabs">
-              {VIEWS.map((v) => (
-                <button
-                  key={v.id}
-                  className={`view-tab${view === v.id ? " vtact" : ""}`}
-                  onClick={() => setView(v.id)}
-                >
-                  <span className="view-tab-glyph">{v.glyph}</span>
-                  {v.label}
-                </button>
-              ))}
-            </div>
-            <div className="filter-tabs">
-              {["ALL", "LEGENDARY", "EPIC"].map((f) => (
-                <button
-                  key={f}
-                  className={`filter-tab${filter === f ? " ftact" : ""}`}
-                  onClick={() => setFilter(f)}
-                >
-                  {f}
-                </button>
-              ))}
-            </div>
+          {/* Divider */}
+          <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "52px", opacity: heroIn ? 1 : 0, transition: "opacity 600ms ease 350ms" }}>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "4px", color: "#454a63", textTransform: "uppercase", flexShrink: 0 }}>Chronological · Latest First</span>
+            <div style={{ flex: 1, height: "1px", background: "rgba(255,255,255,0.06)" }} />
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", color: "#252840" }}>{EDU.length} entries</span>
           </div>
 
-          {/* VIEWS */}
-          {view === "grid" && (
-            <div className="grid-view">
-              {filtered.map((edu) => (
-                <DossierCard key={edu.id} edu={edu} isActive={false} onSelect={setActive} />
-              ))}
-            </div>
-          )}
+          {/* Timeline */}
+          <div>
+            {EDU.map((edu, i) => <EduBlock key={edu.id} edu={edu} position={i} onOpen={setDrawer} />)}
+          </div>
 
-          {view === "timeline" && (
-            <TimelineView onSelect={setActive} />
-          )}
-
-          {view === "immersive" && (
-            <ImmersiveView onSelect={setActive} />
-          )}
-
+          {/* Footer */}
+          <div style={{ marginTop: "80px", paddingTop: "32px", borderTop: "1px solid rgba(255,255,255,0.06)", display: "flex", justifyContent: "space-between", alignItems: "flex-end", flexWrap: "wrap", gap: "12px" }}>
+            <p style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "11px", letterSpacing: "0.8px", color: "#454a63", lineHeight: 1.8, margin: 0 }}>
+              All credentials verifiable via linked certificates.<br />Currently in final year of B.Tech — graduating June 2026.
+            </p>
+            <span style={{ fontFamily: "'JetBrains Mono', monospace", fontSize: "10px", letterSpacing: "2px", color: "#252840" }}>EDU · 2019–2026</span>
+          </div>
         </main>
-
-        {/* MODAL */}
-        {active && (
-          <Modal edu={active} onClose={() => setActive(null)} />
-        )}
       </div>
+
+      {drawer && <Drawer edu={drawer} onClose={() => setDrawer(null)} />}
     </>
   );
 }

@@ -1,1162 +1,782 @@
-import { useState, useEffect, useRef } from "react";
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValue } from "framer-motion";
-import {
-  Mail, Phone, Send, CheckCircle2, Linkedin, Github, Twitter,
-  MapPin, Calendar, ExternalLink, Sparkles, Rocket, Zap,
-  User, MessageCircle, ArrowRight, Star, TrendingUp,
-  Award, Target, Shield, Activity, Clock, Globe, Terminal
-} from "lucide-react";
+"use client";
 
-export default function PremiumContactPage() {
-  const [formData, setFormData] = useState({ name: "", email: "", message: "" });
-  const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [submitSuccess, setSubmitSuccess] = useState(false);
-  const [hoveredCard, setHoveredCard] = useState(null);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  
-  const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 });
+import React, { useState, useRef } from "react";
+import { Mail, Phone, Github, Linkedin, Send, CheckCircle, ExternalLink, ArrowUpRight } from "lucide-react";
 
-  const heroTexts = [
-    "Let's Build Something Amazing",
-    "Transform Ideas Into Reality",
-    "Your Vision, My Expertise",
-    "Premium Solutions Delivered"
-  ];
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS
+═══════════════════════════════════════════════════════════════ */
+const C = {
+  bg:       "#0f1117",
+  surface:  "#141720",
+  surface2: "#191c26",
+  surface3: "#1e2130",
+  border:   "rgba(255,255,255,0.06)",
+  border2:  "rgba(255,255,255,0.10)",
+  border3:  "rgba(255,255,255,0.16)",
+  text:     "#e8e9ef",
+  muted:    "#6b7280",
+  muted2:   "#9ca3af",
+  accent:   "#4f7fff",
+  accentDim:"rgba(79,127,255,0.08)",
+  green:    "#22c55e",
+  greenDim: "rgba(34,197,94,0.08)",
+  red:      "#f87171",
+  redDim:   "rgba(248,113,113,0.08)",
+};
 
-  // Text rotation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentTextIndex((prev) => (prev + 1) % heroTexts.length);
-    }, 3000);
-    return () => clearInterval(interval);
+/* ═══════════════════════════════════════════════════════════════
+   HOOK: INTERSECTION OBSERVER
+═══════════════════════════════════════════════════════════════ */
+function useInView(threshold = 0.12) {
+  const ref = useRef(null);
+  const [inView, setInView] = React.useState(false);
+  React.useEffect(() => {
+    const ob = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) setInView(true); },
+      { threshold }
+    );
+    if (ref.current) ob.observe(ref.current);
+    return () => ob.disconnect();
   }, []);
+  return [ref, inView];
+}
 
-  // Mouse tracking
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (containerRef.current) {
-        const rect = containerRef.current.getBoundingClientRect();
-        setMousePos({
-          x: e.clientX - rect.left,
-          y: e.clientY - rect.top
-        });
-      }
+/* ═══════════════════════════════════════════════════════════════
+   SUBCOMPONENTS
+═══════════════════════════════════════════════════════════════ */
+
+function FormField({ label, error, children }) {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", gap: "0.4rem" }}>
+      <label style={{
+        fontSize: "0.75rem", fontWeight: 600,
+        color: C.muted2, letterSpacing: "0.08em",
+        textTransform: "uppercase", fontFamily: "'DM Mono',monospace",
+      }}>
+        {label}
+      </label>
+      {children}
+      {error && (
+        <span style={{
+          fontSize: "0.72rem", color: C.red,
+          fontFamily: "'DM Mono',monospace", letterSpacing: "0.02em",
+          display: "flex", alignItems: "center", gap: "0.3rem",
+          animation: "fadeUp 0.2s ease both",
+        }}>
+          ↳ {error}
+        </span>
+      )}
+    </div>
+  );
+}
+
+const INPUT_BASE = {
+  width: "100%",
+  padding: "0.75rem 1rem",
+  background: C.surface2,
+  border: `1px solid ${C.border2}`,
+  borderRadius: "10px",
+  color: C.text,
+  fontSize: "0.9rem",
+  fontFamily: "'Geist',sans-serif",
+  outline: "none",
+  transition: "border-color 0.2s ease, box-shadow 0.2s ease",
+  appearance: "none",
+  WebkitAppearance: "none",
+};
+
+function Input({ error, ...props }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <input
+      {...props}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      style={{
+        ...INPUT_BASE,
+        borderColor: error ? C.red : focused ? C.accent : C.border2,
+        boxShadow: error
+          ? `0 0 0 3px ${C.redDim}`
+          : focused
+          ? `0 0 0 3px ${C.accentDim}`
+          : "none",
+      }}
+    />
+  );
+}
+
+function Textarea({ error, ...props }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <textarea
+      {...props}
+      onFocus={() => setFocused(true)}
+      onBlur={() => setFocused(false)}
+      style={{
+        ...INPUT_BASE,
+        resize: "vertical",
+        minHeight: "130px",
+        lineHeight: 1.65,
+        borderColor: error ? C.red : focused ? C.accent : C.border2,
+        boxShadow: error
+          ? `0 0 0 3px ${C.redDim}`
+          : focused
+          ? `0 0 0 3px ${C.accentDim}`
+          : "none",
+      }}
+    />
+  );
+}
+
+function Select({ error, children, ...props }) {
+  const [focused, setFocused] = useState(false);
+  return (
+    <div style={{ position: "relative" }}>
+      <select
+        {...props}
+        onFocus={() => setFocused(true)}
+        onBlur={() => setFocused(false)}
+        style={{
+          ...INPUT_BASE,
+          cursor: "pointer",
+          paddingRight: "2.5rem",
+          borderColor: error ? C.red : focused ? C.accent : C.border2,
+          boxShadow: error
+            ? `0 0 0 3px ${C.redDim}`
+            : focused
+            ? `0 0 0 3px ${C.accentDim}`
+            : "none",
+          backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E")`,
+          backgroundRepeat: "no-repeat",
+          backgroundPosition: "right 1rem center",
+        }}
+      >
+        {children}
+      </select>
+    </div>
+  );
+}
+
+/* ─── Social / contact link row ─── */
+function ContactLink({ icon: Icon, label, value, href, sub, accentColor = C.accent }) {
+  const [hovered, setHovered] = useState(false);
+  const dim = accentColor === C.accent
+    ? C.accentDim
+    : accentColor === C.green
+    ? C.greenDim
+    : "rgba(255,255,255,0.04)";
+
+  return (
+    <a
+      href={href}
+      target={href.startsWith("http") ? "_blank" : undefined}
+      rel={href.startsWith("http") ? "noopener noreferrer" : undefined}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        display: "flex", alignItems: "center", gap: "1rem",
+        padding: "1rem 1.1rem",
+        background: hovered ? dim : C.surface2,
+        border: `1px solid ${hovered ? accentColor + "35" : C.border}`,
+        borderRadius: "12px",
+        textDecoration: "none", color: C.text,
+        transition: "all 0.25s ease",
+        transform: hovered ? "translateX(4px)" : "translateX(0)",
+      }}
+    >
+      {/* Icon box */}
+      <div style={{
+        width: "38px", height: "38px", borderRadius: "9px", flexShrink: 0,
+        background: hovered ? dim : C.surface3,
+        border: `1px solid ${hovered ? accentColor + "40" : C.border2}`,
+        display: "flex", alignItems: "center", justifyContent: "center",
+        transition: "all 0.25s ease",
+      }}>
+        <Icon size={16} style={{ color: hovered ? accentColor : C.muted2 }} />
+      </div>
+
+      {/* Text */}
+      <div style={{ flex: 1, minWidth: 0 }}>
+        <div style={{ fontSize: "0.7rem", color: C.muted, fontFamily: "'DM Mono',monospace", letterSpacing: "0.06em", marginBottom: "0.15rem" }}>
+          {label}
+        </div>
+        <div style={{ fontSize: "0.85rem", fontWeight: 600, color: hovered ? C.text : C.muted2, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", transition: "color 0.2s" }}>
+          {value}
+        </div>
+        {sub && (
+          <div style={{ fontSize: "0.7rem", color: C.muted, marginTop: "0.1rem" }}>{sub}</div>
+        )}
+      </div>
+
+      <ArrowUpRight size={13} style={{ color: hovered ? accentColor : C.muted, flexShrink: 0, transition: "color 0.2s" }} />
+    </a>
+  );
+}
+
+/* ─── Interest chip ─── */
+function Chip({ children, color = C.accent }) {
+  const dim = color === C.accent ? C.accentDim : color === C.green ? C.greenDim : "rgba(245,158,11,0.08)";
+  return (
+    <span style={{
+      display: "inline-flex", alignItems: "center", gap: "0.35rem",
+      padding: "0.3rem 0.75rem", borderRadius: "6px",
+      background: dim, border: `1px solid ${color}30`,
+      fontSize: "0.75rem", fontWeight: 600, color: color,
+      fontFamily: "'DM Mono',monospace", letterSpacing: "0.04em",
+      whiteSpace: "nowrap",
+    }}>
+      <span style={{ width: "5px", height: "5px", borderRadius: "50%", background: color, display: "inline-block" }} />
+      {children}
+    </span>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN PAGE
+═══════════════════════════════════════════════════════════════ */
+export default function Contact() {
+  /* Form state */
+  const [form, setForm] = useState({ name: "", email: "", subject: "", message: "" });
+  const [errors, setErrors]     = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess]   = useState(false);
+
+  /* Scroll progress */
+  const [scrollPct, setScrollPct] = useState(0);
+  React.useEffect(() => {
+    const fn = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct(max > 0 ? (window.scrollY / max) * 100 : 0);
     };
-    window.addEventListener("mousemove", handleMouseMove);
-    return () => window.removeEventListener("mousemove", handleMouseMove);
+    window.addEventListener("scroll", fn, { passive: true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
+
+  /* InView refs */
+  const [headerRef, headerIn] = useInView(0.2);
+  const [formRef,   formIn]   = useInView(0.1);
+  const [sideRef,   sideIn]   = useInView(0.1);
+  const [ctaRef,    ctaIn]    = useInView(0.2);
+
+  /* Validate */
+  const validate = () => {
+    const e = {};
+    if (!form.name.trim())                              e.name    = "Name is required";
+    else if (form.name.trim().length < 2)               e.name    = "Name too short";
+    if (!form.email.trim())                             e.email   = "Email is required";
+    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = "Invalid email";
+    if (!form.subject)                                  e.subject = "Please select a subject";
+    if (!form.message.trim())                           e.message = "Message is required";
+    else if (form.message.trim().length < 10)           e.message = "Too short (min 10 chars)";
+    setErrors(e);
+    return Object.keys(e).length === 0;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-    if (errors[name]) {
-      setErrors(prev => ({ ...prev, [name]: "" }));
-    }
-  };
-
-  const validateForm = () => {
-    const newErrors = {};
-    if (!formData.name.trim()) newErrors.name = "Name is required";
-    else if (formData.name.trim().length < 2) newErrors.name = "Name too short";
-    
-    if (!formData.email.trim()) newErrors.email = "Email is required";
-    else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format";
-    }
-    
-    if (!formData.message.trim()) newErrors.message = "Message is required";
-    else if (formData.message.trim().length < 10) {
-      newErrors.message = "Message too short (min 10 characters)";
-    }
-    
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setForm(p => ({ ...p, [name]: value }));
+    if (errors[name]) setErrors(p => ({ ...p, [name]: "" }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!validateForm()) return;
-    
-    setIsSubmitting(true);
-    
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    
-    setSubmitSuccess(true);
-    setFormData({ name: "", email: "", message: "" });
-    setIsSubmitting(false);
-    
-    setTimeout(() => {
-      setSubmitSuccess(false);
-    }, 5000);
+    if (!validate()) return;
+    setSubmitting(true);
+    await new Promise(r => setTimeout(r, 1600));
+    setSuccess(true);
+    setForm({ name: "", email: "", subject: "", message: "" });
+    setSubmitting(false);
+    setTimeout(() => setSuccess(false), 6000);
   };
 
-  const stats = [
-    { icon: Award, value: "50+", label: "Projects Delivered", color: "#06b6d4" },
-    { icon: Star, value: "98%", label: "Success Rate", color: "#a855f7" },
-    { icon: Target, value: "45+", label: "Happy Clients", color: "#f59e0b" },
-    { icon: Clock, value: "<24h", label: "Response Time", color: "#10b981" }
-  ];
-
-  const contactMethods = [
-    {
-      icon: Mail,
-      title: "Email",
-      value: "g.sivasatyasaibhagavan@gmail.com",
-      href: "mailto:g.sivasatyasaibhagavan@gmail.com",
-      color: "#06b6d4",
-      description: "Primary contact"
-    },
-    {
-      icon: Phone,
-      title: "Phone",
-      value: "+91 75692 05626",
-      href: "tel:+917569205626",
-      color: "#a855f7",
-      description: "Available 9 AM - 9 PM IST"
-    },
-    {
-      icon: Phone,
-      title: "Alternative",
-      value: "+91 90322 30626",
-      href: "tel:+919032230626",
-      color: "#f59e0b",
-      description: "Secondary contact"
-    }
-  ];
-
-  const socialLinks = [
-    {
-      icon: Github,
-      label: "GitHub",
-      username: "@bhagavan444",
-      href: "https://github.com/bhagavan444",
-      color: "#ffffff",
-      stats: "15+ repositories"
-    },
-    {
-      icon: Linkedin,
-      label: "LinkedIn",
-      username: "Bhagavan G",
-      href: "https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/",
-      color: "#0077b5",
-      stats: "500+ connections"
-    },
-    {
-      icon: Twitter,
-      label: "Twitter",
-      username: "@bhagavan444",
-      href: "https://twitter.com/bhagavan444",
-      color: "#1da1f2",
-      stats: "Tech insights"
-    }
-  ];
-
-  const features = [
-    { icon: Shield, title: "Secure Communication", desc: "End-to-end encrypted" },
-    { icon: Activity, title: "Real-time Updates", desc: "Instant notifications" },
-    { icon: TrendingUp, title: "Professional Service", desc: "Enterprise-grade quality" },
-    { icon: Zap, title: "Fast Response", desc: "24-hour guarantee" }
-  ];
-
+  /* ─── Render ─── */
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700&display=swap');
 
-        * {
-          margin: 0;
-          padding: 0;
-          box-sizing: border-box;
-        }
-
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
         body {
-          font-family: 'Inter', sans-serif;
-          overflow-x: hidden;
+          font-family:'Geist',system-ui,sans-serif;
+          background:${C.bg};
+          color:${C.text};
+          -webkit-font-smoothing:antialiased;
+          overflow-x:hidden;
         }
+        ::selection { background:rgba(79,127,255,0.25); }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:${C.bg}; }
+        ::-webkit-scrollbar-thumb { background:rgba(79,127,255,0.3); border-radius:3px; }
 
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) rotate(0deg); }
-          50% { transform: translateY(-20px) rotate(5deg); }
+        @keyframes fadeUp {
+          from { opacity:0; transform:translateY(20px); }
+          to   { opacity:1; transform:translateY(0); }
         }
-
-        @keyframes glow {
-          0%, 100% { box-shadow: 0 0 20px currentColor; }
-          50% { box-shadow: 0 0 40px currentColor, 0 0 60px currentColor; }
+        @keyframes fadeSlide {
+          from { opacity:0; transform:translateX(-14px); }
+          to   { opacity:1; transform:translateX(0); }
         }
-
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
+        @keyframes fadeIn {
+          from { opacity:0; }
+          to   { opacity:1; }
         }
-
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.8; transform: scale(1.05); }
+        @keyframes scaleIn {
+          from { opacity:0; transform:scale(0.94); }
+          to   { opacity:1; transform:scale(1); }
         }
-
         @keyframes spin {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
+          from { transform:rotate(0deg); }
+          to   { transform:rotate(360deg); }
         }
 
-        .glass-card {
-          background: rgba(15, 23, 42, 0.6);
-          backdrop-filter: blur(30px);
-          border: 2px solid rgba(255, 255, 255, 0.1);
-          transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-        }
+        select option { background:${C.surface2}; color:${C.text}; }
 
-        .glass-card:hover {
-          transform: translateY(-8px);
-          border-color: rgba(6, 182, 212, 0.5);
-          box-shadow: 0 20px 60px rgba(6, 182, 212, 0.2);
+        @media (max-width:900px) {
+          .contact-grid { grid-template-columns:1fr !important; }
         }
-
-        .input-field {
-          width: 100%;
-          padding: 1rem 1.5rem;
-          background: rgba(255, 255, 255, 0.05);
-          border: 2px solid rgba(255, 255, 255, 0.1);
-          border-radius: 12px;
-          color: #fff;
-          font-size: 1rem;
-          font-family: 'Inter', sans-serif;
-          transition: all 0.3s;
-          outline: none;
-        }
-
-        .input-field:focus {
-          border-color: #06b6d4;
-          box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
-          background: rgba(255, 255, 255, 0.08);
-        }
-
-        .input-field.error {
-          border-color: #ef4444;
-          box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
-        }
-
-        ::-webkit-scrollbar {
-          width: 10px;
-        }
-
-        ::-webkit-scrollbar-track {
-          background: rgba(0, 0, 0, 0.5);
-        }
-
-        ::-webkit-scrollbar-thumb {
-          background: linear-gradient(135deg, #06b6d4, #a855f7);
-          border-radius: 5px;
+        @media (max-width:600px) {
+          .chip-row { flex-wrap:wrap !important; }
         }
       `}</style>
 
-      <div
-        ref={containerRef}
-        style={{
-          minHeight: '100vh',
-          background: '#000',
-          color: '#fff',
-          position: 'relative',
-          overflow: 'hidden'
-        }}
-      >
-        {/* Progress bar */}
-        <motion.div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: '3px',
-            background: 'linear-gradient(90deg, #06b6d4, #a855f7, #f59e0b)',
-            transformOrigin: '0%',
-            scaleX,
-            zIndex: 10000
-          }}
-        />
+      {/* Scroll progress */}
+      <div style={{ position:"fixed", top:0, left:0, right:0, height:"2px", background:C.surface, zIndex:9999 }}>
+        <div style={{ width:`${scrollPct}%`, height:"100%", background:`linear-gradient(90deg,${C.accent},#a78bfa)`, transition:"width 0.1s linear" }} />
+      </div>
 
-        {/* Animated background */}
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          background: `
-            radial-gradient(circle at 20% 50%, rgba(6, 182, 212, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 80% 50%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
-            radial-gradient(circle at 50% 80%, rgba(245, 158, 11, 0.1) 0%, transparent 50%)
-          `,
-          pointerEvents: 'none'
-        }} />
+      {/* Faint radial mesh */}
+      <div style={{
+        position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
+        background:`radial-gradient(ellipse 70% 50% at 50% -5%, rgba(79,127,255,0.05) 0%, transparent 60%)`,
+      }} />
 
-        {/* Grid pattern */}
-        <div style={{
-          position: 'fixed',
-          inset: 0,
-          backgroundImage: `
-            linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px)
-          `,
-          backgroundSize: '50px 50px',
-          pointerEvents: 'none',
-          opacity: 0.5
-        }} />
+      {/* ═══════ WRAPPER ═══════ */}
+      <div style={{ maxWidth:"1100px", margin:"0 auto", padding:"0 1.5rem", position:"relative", zIndex:1 }}>
 
-        {/* Cursor gradient effect */}
-        <motion.div
-          animate={{
-            x: mousePos.x - 200,
-            y: mousePos.y - 200
-          }}
-          transition={{ type: "spring", damping: 30, stiffness: 200 }}
-          style={{
-            position: 'fixed',
-            width: '400px',
-            height: '400px',
-            background: 'radial-gradient(circle, rgba(6, 182, 212, 0.15) 0%, transparent 70%)',
-            borderRadius: '50%',
-            pointerEvents: 'none',
-            zIndex: 1
-          }}
-        />
+        {/* ══════════ HEADER ══════════ */}
+        <header ref={headerRef} style={{ padding:"5rem 0 3.5rem", borderBottom:`1px solid ${C.border}` }}>
 
-        {/* Main content */}
-        <div style={{
-          position: 'relative',
-          zIndex: 10,
-          maxWidth: '1600px',
-          margin: '0 auto',
-          padding: 'clamp(2rem, 5vw, 4rem) clamp(1rem, 3vw, 2rem)'
-        }}>
-          {/* Status bar */}
-          <motion.div
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              padding: '1rem 1.5rem',
-              marginBottom: '3rem',
-              background: 'rgba(15, 23, 42, 0.6)',
-              backdropFilter: 'blur(20px)',
-              border: '2px solid rgba(6, 182, 212, 0.3)',
-              borderRadius: '20px',
-              flexWrap: 'wrap',
-              gap: '1rem'
-            }}
-          >
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <motion.div
-                animate={{ scale: [1, 1.2, 1] }}
-                transition={{ duration: 2, repeat: Infinity }}
-                style={{
-                  width: '10px',
-                  height: '10px',
-                  borderRadius: '50%',
-                  background: '#10b981',
-                  boxShadow: '0 0 15px #10b981'
-                }}
-              />
-              <span style={{
-                fontFamily: "'JetBrains Mono', monospace",
-                fontSize: '0.95rem',
-                color: '#10b981',
-                fontWeight: 700
-              }}>
-                AVAILABLE FOR PROJECTS
+          {/* Label */}
+          <div style={{
+            display:"flex", alignItems:"center", gap:"0.65rem", marginBottom:"1.5rem",
+            opacity: headerIn ? 1 : 0,
+            animation: headerIn ? "fadeSlide 0.5s cubic-bezier(0.22,1,0.36,1) both" : "none",
+          }}>
+            <div style={{ width:"22px", height:"1px", background:C.accent }} />
+            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.72rem", fontWeight:600, letterSpacing:"0.18em", textTransform:"uppercase", color:C.accent }}>
+              Contact
+            </span>
+          </div>
+
+          {/* Headline */}
+          <h1 style={{
+            fontFamily:"'Instrument Serif',serif",
+            fontSize:"clamp(2.4rem,5vw,3.8rem)",
+            fontWeight:400, color:C.text,
+            letterSpacing:"-0.025em", lineHeight:1.1, marginBottom:"1rem",
+            opacity: headerIn ? 1 : 0,
+            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.07s both" : "none",
+          }}>
+            Let's Connect
+          </h1>
+
+          <p style={{
+            fontSize:"1rem", color:C.muted2, lineHeight:1.8, maxWidth:"520px",
+            opacity: headerIn ? 1 : 0,
+            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.14s both" : "none",
+          }}>
+            Open to software engineering roles, internships, and technical collaborations.
+            I respond to all messages within 24 hours.
+          </p>
+
+          {/* Availability + interest chips */}
+          <div style={{
+            display:"flex", alignItems:"center", gap:"0.75rem", marginTop:"1.75rem",
+            flexWrap:"wrap",
+            opacity: headerIn ? 1 : 0,
+            animation: headerIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.2s both" : "none",
+          }}>
+            {/* Availability dot */}
+            <div style={{
+              display:"flex", alignItems:"center", gap:"0.5rem",
+              padding:"0.3rem 0.75rem", borderRadius:"6px",
+              background:C.greenDim, border:`1px solid rgba(34,197,94,0.25)`,
+            }}>
+              <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:C.green }} />
+              <span style={{ fontSize:"0.72rem", fontWeight:600, color:C.green, fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em" }}>
+                Available · Immediate
               </span>
             </div>
-            
-            <div style={{
-              display: 'flex',
-              gap: '2rem',
-              fontSize: '0.9rem',
-              fontFamily: "'JetBrains Mono', monospace"
-            }}>
-              <div>Response: <span style={{ color: '#06b6d4', fontWeight: 700 }}>{'<24h'}</span></div>
-              <div>Status: <span style={{ color: '#10b981' }}>Active</span></div>
+
+            <div className="chip-row" style={{ display:"flex", gap:"0.5rem", flexWrap:"wrap" }}>
+              <Chip color={C.accent}>Full-Time Roles</Chip>
+              <Chip color="#a78bfa">AI / ML Engineering</Chip>
+              <Chip color="#f59e0b">Open Source Collab</Chip>
             </div>
-          </motion.div>
+          </div>
+        </header>
 
-          {/* Hero section */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
+        {/* ══════════ MAIN GRID ══════════ */}
+        <div
+          className="contact-grid"
+          style={{
+            display:"grid", gridTemplateColumns:"1.15fr 1fr",
+            gap:"1.5rem", padding:"3rem 0",
+          }}
+        >
+
+          {/* ─────── LEFT: FORM ─────── */}
+          <div
+            ref={formRef}
             style={{
-              textAlign: 'center',
-              marginBottom: 'clamp(4rem, 8vw, 6rem)'
+              opacity: formIn ? 1 : 0,
+              animation: formIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both" : "none",
             }}
           >
-            <motion.div
-              animate={{ rotate: [0, 360] }}
-              transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-              style={{
-                display: 'inline-block',
-                marginBottom: '2rem'
-              }}
-            >
-              <Terminal size={50} color="#06b6d4" strokeWidth={2} />
-            </motion.div>
-
-            <h1 style={{
-              fontSize: 'clamp(3rem, 8vw, 6rem)',
-              fontWeight: 900,
-              fontFamily: "'Space Grotesk', sans-serif",
-              marginBottom: '1.5rem',
-              lineHeight: 1,
-              letterSpacing: '-0.02em'
+            <div style={{
+              background:C.surface, border:`1px solid ${C.border}`,
+              borderRadius:"18px", overflow:"hidden",
             }}>
-              <motion.span
-                style={{
-                  background: 'linear-gradient(135deg, #06b6d4, #a855f7, #f59e0b)',
-                  WebkitBackgroundClip: 'text',
-                  backgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent'
-                }}
-              >
-                Get In Touch
-              </motion.span>
-            </h1>
-
-            <AnimatePresence mode="wait">
-              <motion.p
-                key={currentTextIndex}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -20 }}
-                transition={{ duration: 0.5 }}
-                style={{
-                  fontSize: 'clamp(1.2rem, 3vw, 2rem)',
-                  fontWeight: 600,
-                  color: '#94a3b8',
-                  marginBottom: '2rem',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}
-              >
-                {heroTexts[currentTextIndex]}
-              </motion.p>
-            </AnimatePresence>
-
-            <p style={{
-              fontSize: 'clamp(1rem, 2vw, 1.2rem)',
-              color: '#64748b',
-              maxWidth: '700px',
-              margin: '0 auto',
-              lineHeight: 1.8
-            }}>
-              Ready to bring your vision to life with cutting-edge technology and professional expertise
-            </p>
-
-            {/* Stats */}
-            <motion.div
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
-              style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '1.5rem',
-                marginTop: '3rem',
-                maxWidth: '1000px',
-                margin: '3rem auto 0'
-              }}
-            >
-              {stats.map((stat, index) => {
-                const Icon = stat.icon;
-                return (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ delay: 0.5 + index * 0.1 }}
-                    whileHover={{ y: -5, scale: 1.05 }}
-                    className="glass-card"
-                    style={{
-                      padding: '1.5rem',
-                      borderRadius: '20px',
-                      textAlign: 'center'
-                    }}
-                  >
-                    <Icon size={32} color={stat.color} style={{ marginBottom: '0.75rem' }} />
-                    <div style={{
-                      fontSize: '2rem',
-                      fontWeight: 900,
-                      color: stat.color,
-                      marginBottom: '0.5rem',
-                      fontFamily: "'Space Grotesk', sans-serif"
-                    }}>
-                      {stat.value}
-                    </div>
-                    <div style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-                      {stat.label}
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </motion.div>
-          </motion.div>
-
-          {/* Features */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-              gap: '1.5rem',
-              marginBottom: '4rem'
-            }}
-          >
-            {features.map((feature, index) => {
-              const Icon = feature.icon;
-              return (
-                <motion.div
-                  key={index}
-                  whileHover={{ y: -5 }}
-                  className="glass-card"
-                  style={{
-                    padding: '1.5rem',
-                    borderRadius: '20px'
-                  }}
-                >
-                  <Icon size={28} color="#06b6d4" style={{ marginBottom: '1rem' }} />
-                  <h3 style={{
-                    fontSize: '1.1rem',
-                    fontWeight: 700,
-                    marginBottom: '0.5rem',
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}>
-                    {feature.title}
-                  </h3>
-                  <p style={{ fontSize: '0.9rem', color: '#94a3b8' }}>
-                    {feature.desc}
-                  </p>
-                </motion.div>
-              );
-            })}
-          </motion.div>
-
-          {/* Main contact section */}
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: window.innerWidth > 1024 ? '1.2fr 1fr' : '1fr',
-            gap: '2rem',
-            marginBottom: '4rem'
-          }}>
-            {/* Contact form */}
-            <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="glass-card"
-              style={{
-                padding: 'clamp(2rem, 4vw, 3rem)',
-                borderRadius: '24px'
-              }}
-            >
-              {submitSuccess ? (
-                <motion.div
-                  initial={{ scale: 0.9, opacity: 0 }}
-                  animate={{ scale: 1, opacity: 1 }}
-                  style={{ textAlign: 'center', padding: '3rem 1rem' }}
-                >
-                  <motion.div
-                    animate={{ rotate: [0, 10, -10, 0] }}
-                    transition={{ duration: 0.5 }}
-                    style={{
-                      width: '100px',
-                      height: '100px',
-                      margin: '0 auto 2rem',
-                      background: 'linear-gradient(135deg, #06b6d4, #10b981)',
-                      borderRadius: '50%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
-                      boxShadow: '0 0 40px rgba(6, 182, 212, 0.5)'
-                    }}
-                  >
-                    <CheckCircle2 size={50} color="#000" strokeWidth={3} />
-                  </motion.div>
-                  
-                  <h3 style={{
-                    fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
-                    fontWeight: 900,
-                    marginBottom: '1rem',
-                    background: 'linear-gradient(135deg, #06b6d4, #10b981)',
-                    WebkitBackgroundClip: 'text',
-                    backgroundClip: 'text',
-                    WebkitTextFillColor: 'transparent',
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}>
-                    Message Sent Successfully!
-                  </h3>
-                  
-                  <p style={{ fontSize: '1.1rem', color: '#94a3b8', marginBottom: '0.5rem' }}>
-                    Thank you for reaching out!
-                  </p>
-                  <p style={{ fontSize: '1rem', color: '#64748b' }}>
-                    I'll get back to you within 24 hours.
-                  </p>
-                </motion.div>
-              ) : (
-                <form onSubmit={handleSubmit}>
-                  <h2 style={{
-                    fontSize: 'clamp(1.8rem, 4vw, 2.5rem)',
-                    fontWeight: 900,
-                    marginBottom: '2rem',
-                    fontFamily: "'Space Grotesk', sans-serif"
-                  }}>
-                    Send a Message
-                  </h2>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div>
-                      <label style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        marginBottom: '0.5rem',
-                        fontSize: '0.95rem',
-                        fontWeight: 600,
-                        color: '#cbd5e1'
-                      }}>
-                        <User size={18} />
-                        Full Name
-                      </label>
-                      <input
-                        type="text"
-                        name="name"
-                        value={formData.name}
-                        onChange={handleChange}
-                        placeholder="John Doe"
-                        className={`input-field ${errors.name ? 'error' : ''}`}
-                      />
-                      {errors.name && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          style={{
-                            color: '#ef4444',
-                            fontSize: '0.85rem',
-                            marginTop: '0.5rem',
-                            fontFamily: "'JetBrains Mono', monospace"
-                          }}
-                        >
-                          {errors.name}
-                        </motion.div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        marginBottom: '0.5rem',
-                        fontSize: '0.95rem',
-                        fontWeight: 600,
-                        color: '#cbd5e1'
-                      }}>
-                        <Mail size={18} />
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        placeholder="john@example.com"
-                        className={`input-field ${errors.email ? 'error' : ''}`}
-                      />
-                      {errors.email && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          style={{
-                            color: '#ef4444',
-                            fontSize: '0.85rem',
-                            marginTop: '0.5rem',
-                            fontFamily: "'JetBrains Mono', monospace"
-                          }}
-                        >
-                          {errors.email}
-                        </motion.div>
-                      )}
-                    </div>
-
-                    <div>
-                      <label style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.5rem',
-                        marginBottom: '0.5rem',
-                        fontSize: '0.95rem',
-                        fontWeight: 600,
-                        color: '#cbd5e1'
-                      }}>
-                        <MessageCircle size={18} />
-                        Your Message
-                      </label>
-                      <textarea
-                        name="message"
-                        value={formData.message}
-                        onChange={handleChange}
-                        rows={6}
-                        placeholder="Tell me about your project..."
-                        className={`input-field ${errors.message ? 'error' : ''}`}
-                        style={{ resize: 'vertical', minHeight: '150px' }}
-                      />
-                      {errors.message && (
-                        <motion.div
-                          initial={{ opacity: 0, y: -10 }}
-                          animate={{ opacity: 1, y: 0 }}
-                          style={{
-                            color: '#ef4444',
-                            fontSize: '0.85rem',
-                            marginTop: '0.5rem',
-                            fontFamily: "'JetBrains Mono', monospace"
-                          }}
-                        >
-                          {errors.message}
-                        </motion.div>
-                      )}
-                    </div>
-
-                    <motion.button
-                      type="submit"
-                      disabled={isSubmitting}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                      style={{
-                        width: '100%',
-                        padding: '1.2rem',
-                        background: isSubmitting 
-                          ? 'rgba(6, 182, 212, 0.5)'
-                          : 'linear-gradient(135deg, #06b6d4, #a855f7)',
-                        border: 'none',
-                        borderRadius: '12px',
-                        color: '#000',
-                        fontSize: '1.1rem',
-                        fontWeight: 800,
-                        fontFamily: "'Space Grotesk', sans-serif",
-                        cursor: isSubmitting ? 'not-allowed' : 'pointer',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        gap: '0.75rem',
-                        boxShadow: '0 10px 40px rgba(6, 182, 212, 0.4)',
-                        transition: 'all 0.3s'
-                      }}
-                    >
-                      {isSubmitting ? (
-                        <>
-                          <motion.div
-                            animate={{ rotate: 360 }}
-                            transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                            style={{
-                              width: '20px',
-                              height: '20px',
-                              border: '3px solid #000',
-                              borderTopColor: 'transparent',
-                              borderRadius: '50%'
-                            }}
-                          />
-                          Sending...
-                        </>
-                      ) : (
-                        <>
-                          <Send size={20} />
-                          Send Message
-                          <Rocket size={20} />
-                        </>
-                      )}
-                    </motion.button>
+              {/* Card header */}
+              <div style={{ padding:"1.5rem 2rem", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+                <div>
+                  <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"0.35rem" }}>
+                    Direct Message
                   </div>
-                </form>
-              )}
-            </motion.div>
-
-            {/* Contact info sidebar */}
-            <motion.div
-              initial={{ opacity: 0, x: 50 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              style={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '1.5rem'
-              }}
-            >
-              {/* Contact methods */}
-              <div className="glass-card" style={{ padding: '2rem', borderRadius: '20px' }}>
-                <h3 style={{
-                  fontSize: '1.4rem',
-                  fontWeight: 800,
-                  marginBottom: '1.5rem',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}>
-                  Contact Information
-                </h3>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {contactMethods.map((method, index) => {
-                    const Icon = method.icon;
-                    return (
-                      <motion.a
-                        key={index}
-                        href={method.href}
-                        whileHover={{ x: 5 }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1rem',
-                          padding: '1rem',
-                          background: 'rgba(255, 255, 255, 0.05)',
-                          border: `2px solid rgba(${method.color === '#06b6d4' ? '6, 182, 212' : method.color === '#a855f7' ? '168, 85, 247' : '245, 158, 11'}, 0.3)`,
-                          borderRadius: '12px',
-                          textDecoration: 'none',
-                          color: '#fff',
-                          transition: 'all 0.3s'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = `rgba(${method.color === '#06b6d4' ? '6, 182, 212' : method.color === '#a855f7' ? '168, 85, 247' : '245, 158, 11'}, 0.1)`;
-                          e.currentTarget.style.borderColor = method.color;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                          e.currentTarget.style.borderColor = `rgba(${method.color === '#06b6d4' ? '6, 182, 212' : method.color === '#a855f7' ? '168, 85, 247' : '245, 158, 11'}, 0.3)`;
-                        }}
-                      >
-                        <div style={{
-                          width: '45px',
-                          height: '45px',
-                          borderRadius: '10px',
-                          background: `rgba(${method.color === '#06b6d4' ? '6, 182, 212' : method.color === '#a855f7' ? '168, 85, 247' : '245, 158, 11'}, 0.2)`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0
-                        }}>
-                          <Icon size={22} color={method.color} />
-                        </div>
-                        <div style={{ flex: 1, minWidth: 0 }}>
-                          <div style={{
-                            fontSize: '0.8rem',
-                            color: '#94a3b8',
-                            marginBottom: '0.25rem'
-                          }}>
-                            {method.title}
-                          </div>
-                          <div style={{
-                            fontSize: '0.9rem',
-                            fontWeight: 700,
-                            wordBreak: 'break-all'
-                          }}>
-                            {method.value}
-                          </div>
-                          <div style={{
-                            fontSize: '0.75rem',
-                            color: '#64748b',
-                            marginTop: '0.25rem'
-                          }}>
-                            {method.description}
-                          </div>
-                        </div>
-                        <ArrowRight size={18} color={method.color} />
-                      </motion.a>
-                    );
-                  })}
+                  <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.25rem", color:C.text }}>
+                    Send a Message
+                  </div>
                 </div>
-              </div>
-
-              {/* Social links */}
-              <div className="glass-card" style={{ padding: '2rem', borderRadius: '20px' }}>
-                <h3 style={{
-                  fontSize: '1.4rem',
-                  fontWeight: 800,
-                  marginBottom: '1.5rem',
-                  fontFamily: "'Space Grotesk', sans-serif"
-                }}>
-                  Social Networks
-                </h3>
-
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                  {socialLinks.map((social, index) => {
-                    const Icon = social.icon;
-                    return (
-                      <motion.a
-                        key={index}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        whileHover={{ x: 5 }}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '1rem',
-                          padding: '1rem',
-                          background: 'rgba(255, 255, 255, 0.05)',
-                          border: `2px solid ${social.color}40`,
-                          borderRadius: '12px',
-                          textDecoration: 'none',
-                          color: '#fff',
-                          transition: 'all 0.3s'
-                        }}
-                        onMouseEnter={(e) => {
-                          e.currentTarget.style.background = `${social.color}20`;
-                          e.currentTarget.style.borderColor = social.color;
-                        }}
-                        onMouseLeave={(e) => {
-                          e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
-                          e.currentTarget.style.borderColor = `${social.color}40`;
-                        }}
-                      >
-                        <div style={{
-                          width: '40px',
-                          height: '40px',
-                          borderRadius: '10px',
-                          background: social.color === '#ffffff' ? '#1e293b' : `${social.color}30`,
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          flexShrink: 0
-                        }}>
-                          <Icon size={20} color={social.color} />
-                        </div>
-                        <div style={{ flex: 1 }}>
-                          <div style={{
-                            fontSize: '0.95rem',
-                            fontWeight: 700,
-                            marginBottom: '0.25rem'
-                          }}>
-                            {social.label}
-                          </div>
-                          <div style={{
-                            fontSize: '0.8rem',
-                            color: '#94a3b8'
-                          }}>
-                            {social.username}
-                          </div>
-                          <div style={{
-                            fontSize: '0.75rem',
-                            color: '#64748b',
-                            marginTop: '0.25rem'
-                          }}>
-                            {social.stats}
-                          </div>
-                        </div>
-                        <ExternalLink size={18} color={social.color} />
-                      </motion.a>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Availability badge */}
-              <motion.div
-                animate={{
-                  boxShadow: [
-                    '0 0 20px rgba(16, 185, 129, 0.3)',
-                    '0 0 40px rgba(16, 185, 129, 0.6)',
-                    '0 0 20px rgba(16, 185, 129, 0.3)'
-                  ]
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
-                style={{
-                  padding: '1.5rem',
-                  background: 'rgba(16, 185, 129, 0.1)',
-                  border: '2px solid rgba(16, 185, 129, 0.4)',
-                  borderRadius: '16px',
-                  textAlign: 'center'
-                }}
-              >
+                {/* Status pill */}
                 <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  gap: '0.75rem',
-                  marginBottom: '0.75rem'
+                  display:"flex", alignItems:"center", gap:"0.4rem",
+                  padding:"0.3rem 0.7rem", borderRadius:"6px",
+                  background:C.greenDim, border:`1px solid rgba(34,197,94,0.2)`,
                 }}>
-                  <motion.div
-                    animate={{ scale: [1, 1.2, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    style={{
-                      width: '10px',
-                      height: '10px',
-                      borderRadius: '50%',
-                      background: '#10b981',
-                      boxShadow: '0 0 15px #10b981'
-                    }}
-                  />
-                  <span style={{
-                    fontSize: '1.1rem',
-                    fontWeight: 800,
-                    color: '#10b981',
-                    fontFamily: "'Space Grotesk', sans-serif"
+                  <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:C.green }} />
+                  <span style={{ fontSize:"0.68rem", fontWeight:600, color:C.green, fontFamily:"'DM Mono',monospace" }}>Online</span>
+                </div>
+              </div>
+
+              {/* Form body */}
+              <div style={{ padding:"1.75rem 2rem 2rem" }}>
+                {success ? (
+                  /* ── Success state ── */
+                  <div style={{
+                    textAlign:"center", padding:"3rem 1.5rem",
+                    animation:"scaleIn 0.4s cubic-bezier(0.34,1.56,0.64,1) both",
                   }}>
-                    ACCEPTING NEW PROJECTS
-                  </span>
-                </div>
-                <div style={{ fontSize: '0.85rem', color: '#94a3b8' }}>
-                  Limited slots available for Q1 2025
-                </div>
-              </motion.div>
-            </motion.div>
+                    <div style={{
+                      width:"56px", height:"56px", borderRadius:"50%",
+                      background:C.greenDim, border:`2px solid rgba(34,197,94,0.3)`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      margin:"0 auto 1.5rem",
+                    }}>
+                      <CheckCircle size={24} style={{ color:C.green }} />
+                    </div>
+                    <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem", color:C.text, marginBottom:"0.6rem" }}>
+                      Message received
+                    </div>
+                    <p style={{ fontSize:"0.875rem", color:C.muted2, lineHeight:1.75 }}>
+                      Thanks for reaching out. I'll get back to you at your email
+                      within 24 hours.
+                    </p>
+                  </div>
+                ) : (
+                  /* ── Form ── */
+                  <form onSubmit={handleSubmit} noValidate>
+                    <div style={{ display:"flex", flexDirection:"column", gap:"1.25rem" }}>
+
+                      {/* Name + Email row */}
+                      <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:"1rem" }}>
+                        <FormField label="Full Name" error={errors.name}>
+                          <Input
+                            type="text" name="name"
+                            value={form.name} onChange={handleChange}
+                            placeholder="Jane Smith"
+                            error={errors.name}
+                            autoComplete="name"
+                          />
+                        </FormField>
+                        <FormField label="Email Address" error={errors.email}>
+                          <Input
+                            type="email" name="email"
+                            value={form.email} onChange={handleChange}
+                            placeholder="jane@company.com"
+                            error={errors.email}
+                            autoComplete="email"
+                          />
+                        </FormField>
+                      </div>
+
+                      {/* Subject */}
+                      <FormField label="Subject" error={errors.subject}>
+                        <Select
+                          name="subject"
+                          value={form.subject}
+                          onChange={handleChange}
+                          error={errors.subject}
+                        >
+                          <option value="" disabled>Select a topic…</option>
+                          <option value="job">Job Opportunity</option>
+                          <option value="internship">Internship</option>
+                          <option value="collaboration">Technical Collaboration</option>
+                          <option value="inquiry">General Inquiry</option>
+                        </Select>
+                      </FormField>
+
+                      {/* Message */}
+                      <FormField label="Message" error={errors.message}>
+                        <Textarea
+                          name="message"
+                          value={form.message}
+                          onChange={handleChange}
+                          placeholder="Tell me about the role, project, or collaboration you have in mind…"
+                          error={errors.message}
+                        />
+                      </FormField>
+
+                      {/* Submit */}
+                      <SubmitButton submitting={submitting} />
+                    </div>
+                  </form>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Final CTA */}
-          <motion.div
-            initial={{ opacity: 0, y: 50 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="glass-card"
+          {/* ─────── RIGHT: SIDEBAR ─────── */}
+          <div
+            ref={sideRef}
             style={{
-              padding: 'clamp(3rem, 6vw, 5rem) clamp(2rem, 4vw, 3rem)',
-              borderRadius: '32px',
-              textAlign: 'center',
-              background: 'rgba(6, 182, 212, 0.05)',
-              border: '2px solid rgba(6, 182, 212, 0.3)'
+              display:"flex", flexDirection:"column", gap:"1.25rem",
+              opacity: sideIn ? 1 : 0,
+              animation: sideIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.1s both" : "none",
             }}
           >
-            <motion.div
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ duration: 3, repeat: Infinity }}
-              style={{ marginBottom: '2rem' }}
-            >
-              <Sparkles size={50} color="#06b6d4" />
-            </motion.div>
 
-            <h2 style={{
-              fontSize: 'clamp(2rem, 5vw, 3.5rem)',
-              fontWeight: 900,
-              marginBottom: '1.5rem',
-              fontFamily: "'Space Grotesk', sans-serif",
-              background: 'linear-gradient(135deg, #06b6d4, #a855f7)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              WebkitTextFillColor: 'transparent'
-            }}>
-              Ready to Start Your Project?
-            </h2>
-
-            <p style={{
-              fontSize: 'clamp(1rem, 2vw, 1.3rem)',
-              color: '#94a3b8',
-              maxWidth: '700px',
-              margin: '0 auto 2.5rem',
-              lineHeight: 1.8
-            }}>
-              Let's collaborate to build something extraordinary together
-            </p>
-
-            <div style={{
-              display: 'flex',
-              gap: '1.5rem',
-              justifyContent: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <motion.a
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.95 }}
-                href="https://github.com/bhagavan444"
-                target="_blank"
-                rel="noopener noreferrer"
-                style={{
-                  padding: '1.2rem 2.5rem',
-                  background: 'rgba(6, 182, 212, 0.2)',
-                  border: '2px solid #06b6d4',
-                  borderRadius: '100px',
-                  color: '#06b6d4',
-                  fontSize: '1.05rem',
-                  fontWeight: 800,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  transition: 'all 0.3s'
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.background = '#06b6d4';
-                  e.currentTarget.style.color = '#000';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.background = 'rgba(6, 182, 212, 0.2)';
-                  e.currentTarget.style.color = '#06b6d4';
-                }}
-              >
-                <Globe size={20} />
-                View Portfolio
-              </motion.a>
-
-              <motion.a
-                whileHover={{ scale: 1.05, y: -3 }}
-                whileTap={{ scale: 0.95 }}
-                href="mailto:g.sivasatyasaibhagavan@gmail.com"
-                style={{
-                  padding: '1.2rem 2.5rem',
-                  background: 'linear-gradient(135deg, #06b6d4, #a855f7)',
-                  border: 'none',
-                  borderRadius: '100px',
-                  color: '#000',
-                  fontSize: '1.05rem',
-                  fontWeight: 800,
-                  fontFamily: "'Space Grotesk', sans-serif",
-                  textDecoration: 'none',
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  boxShadow: '0 10px 40px rgba(6, 182, 212, 0.4)'
-                }}
-              >
-                <Rocket size={20} />
-                Start Project Now
-              </motion.a>
+            {/* ── Contact info ── */}
+            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"18px", overflow:"hidden" }}>
+              <div style={{ padding:"1.25rem 1.5rem", borderBottom:`1px solid ${C.border}` }}>
+                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"0.3rem" }}>
+                  Direct Contact
+                </div>
+                <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.1rem", color:C.text }}>
+                  Reach Me Directly
+                </div>
+              </div>
+              <div style={{ padding:"1.25rem 1.5rem", display:"flex", flexDirection:"column", gap:"0.6rem" }}>
+                <ContactLink
+                  icon={Mail}
+                  label="Primary email"
+                  value="g.sivasatyasaibhagavan@gmail.com"
+                  href="mailto:g.sivasatyasaibhagavan@gmail.com"
+                  sub="Preferred channel · responds within 24h"
+                  accentColor={C.accent}
+                />
+                <ContactLink
+                  icon={Phone}
+                  label="Mobile"
+                  value="+91 75692 05626"
+                  href="tel:+917569205626"
+                  sub="Available 9 AM – 9 PM IST"
+                  accentColor={C.green}
+                />
+              </div>
             </div>
 
-            <div style={{
-              marginTop: '3rem',
-              fontSize: '1.5rem',
-              letterSpacing: '0.3rem'
-            }}>
-              ⭐⭐⭐⭐⭐
+            {/* ── Social / professional links ── */}
+            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"18px", overflow:"hidden" }}>
+              <div style={{ padding:"1.25rem 1.5rem", borderBottom:`1px solid ${C.border}` }}>
+                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"0.3rem" }}>
+                  Professional
+                </div>
+                <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.1rem", color:C.text }}>
+                  Online Presence
+                </div>
+              </div>
+              <div style={{ padding:"1.25rem 1.5rem", display:"flex", flexDirection:"column", gap:"0.6rem" }}>
+                <ContactLink
+                  icon={Linkedin}
+                  label="LinkedIn"
+                  value="Siva Satya Sai Bhagavan"
+                  href="https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/"
+                  sub="Work history, recommendations"
+                  accentColor="#0a91fb"
+                />
+                <ContactLink
+                  icon={Github}
+                  label="GitHub"
+                  value="@bhagavan444"
+                  href="https://github.com/bhagavan444"
+                  sub="15+ repositories · active contributions"
+                  accentColor={C.muted2}
+                />
+              </div>
             </div>
-            <div style={{
-              fontSize: '0.9rem',
-              color: '#64748b',
-              marginTop: '0.5rem'
-            }}>
-              Trusted by clients worldwide
-            </div>
-          </motion.div>
 
-          {/* Footer */}
-          <div style={{
-            marginTop: '4rem',
-            padding: '2rem',
-            textAlign: 'center',
-            borderTop: '2px solid rgba(6, 182, 212, 0.2)'
-          }}>
-            <p style={{
-              fontSize: '0.9rem',
-              color: '#64748b',
-              fontFamily: "'JetBrains Mono', monospace"
-            }}>
-              © 2025 Bhagavan G • Crafted with precision and passion
-            </p>
+            {/* ── What I'm looking for ── */}
+            <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"18px", overflow:"hidden" }}>
+              <div style={{ padding:"1.25rem 1.5rem", borderBottom:`1px solid ${C.border}` }}>
+                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"0.3rem" }}>
+                  Background
+                </div>
+                <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.1rem", color:C.text }}>
+                  What I Bring
+                </div>
+              </div>
+              <div style={{ padding:"1.25rem 1.5rem" }}>
+                <div style={{ display:"flex", flexDirection:"column", gap:"0.65rem" }}>
+                  {[
+                    { label:"Full-stack engineer",   detail:"MERN · REST APIs · Auth systems" },
+                    { label:"AI / ML practitioner",  detail:"TensorFlow · Scikit-learn · NLP" },
+                    { label:"Cloud & DevOps",         detail:"AWS · Docker · GitHub Actions" },
+                    { label:"3 industry internships", detail:"StudyOwl · SmartBridge · Blackbucks" },
+                  ].map((item, i) => (
+                    <div key={i} style={{ display:"flex", gap:"0.75rem", alignItems:"flex-start" }}>
+                      <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:C.accent, flexShrink:0, marginTop:"0.45rem" }} />
+                      <div>
+                        <div style={{ fontSize:"0.825rem", fontWeight:600, color:C.text }}>{item.label}</div>
+                        <div style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace", marginTop:"0.1rem" }}>{item.detail}</div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
+
+        {/* ══════════ CTA STRIP ══════════ */}
+        <section ref={ctaRef} style={{ borderTop:`1px solid ${C.border}`, paddingTop:"3rem", paddingBottom:"5rem" }}>
+          <div style={{
+            background:`linear-gradient(135deg, rgba(79,127,255,0.05) 0%, rgba(167,139,250,0.03) 100%)`,
+            border:`1px solid ${C.border2}`,
+            borderRadius:"18px",
+            padding:"2.5rem 2.75rem",
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            gap:"2rem", flexWrap:"wrap",
+            opacity: ctaIn ? 1 : 0,
+            animation: ctaIn ? "fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both" : "none",
+          }}>
+            <div style={{ maxWidth:"520px" }}>
+              <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"0.6rem" }}>
+                2026 Graduate · Immediate Availability
+              </div>
+              <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem", color:C.text, letterSpacing:"-0.02em", marginBottom:"0.6rem" }}>
+                Let's collaborate on meaningful engineering work
+              </div>
+              <p style={{ fontSize:"0.85rem", color:C.muted2, lineHeight:1.7 }}>
+                Full-stack engineer specialising in MERN and AI/ML systems. Actively seeking
+                full-time roles where I can build scalable, production-grade software.
+              </p>
+            </div>
+
+            <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem", flexShrink:0 }}>
+              <a
+                href="mailto:g.sivasatyasaibhagavan@gmail.com"
+                style={{
+                  display:"inline-flex", alignItems:"center", gap:"0.5rem",
+                  padding:"0.75rem 1.5rem",
+                  background:C.accent, borderRadius:"10px",
+                  color:"#fff", fontWeight:600, fontSize:"0.875rem",
+                  textDecoration:"none",
+                  boxShadow:"0 4px 20px rgba(79,127,255,0.25)",
+                  transition:"all 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+                  border:"none", cursor:"pointer",
+                  fontFamily:"'Geist',sans-serif",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-2px)"; e.currentTarget.style.boxShadow = "0 8px 28px rgba(79,127,255,0.4)"; }}
+                onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0)"; e.currentTarget.style.boxShadow = "0 4px 20px rgba(79,127,255,0.25)"; }}
+              >
+                <Send size={14} /> Schedule a Call
+              </a>
+              <a
+                href="https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/"
+                target="_blank" rel="noopener noreferrer"
+                style={{
+                  display:"inline-flex", alignItems:"center", gap:"0.5rem",
+                  padding:"0.75rem 1.5rem",
+                  background:"transparent",
+                  border:`1px solid ${C.border3}`,
+                  borderRadius:"10px",
+                  color:C.muted2, fontWeight:500, fontSize:"0.875rem",
+                  textDecoration:"none",
+                  transition:"all 0.25s ease",
+                  fontFamily:"'Geist',sans-serif",
+                  justifyContent:"center",
+                }}
+                onMouseEnter={e => { e.currentTarget.style.color = C.text; e.currentTarget.style.borderColor = "rgba(255,255,255,0.25)"; }}
+                onMouseLeave={e => { e.currentTarget.style.color = C.muted2; e.currentTarget.style.borderColor = C.border3; }}
+              >
+                <ExternalLink size={13} /> View LinkedIn
+              </a>
+            </div>
+          </div>
+        </section>
+
+        {/* ══════════ FOOTER ══════════ */}
+        <footer style={{ borderTop:`1px solid ${C.border}`, padding:"1.75rem 0", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+            <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:C.green }} />
+            <span style={{ fontSize:"0.75rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>
+              Hyderabad, India · UTC +5:30
+            </span>
+          </div>
+          <span style={{ fontSize:"0.75rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>
+            © 2026 Siva Satya Sai Bhagavan
+          </span>
+        </footer>
+
       </div>
     </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SUBMIT BUTTON
+═══════════════════════════════════════════════════════════════ */
+function SubmitButton({ submitting }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <button
+      type="submit"
+      disabled={submitting}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        width:"100%", padding:"0.85rem 1.5rem",
+        background: submitting ? "rgba(79,127,255,0.5)" : hovered ? "#6b93ff" : C.accent,
+        border:"none", borderRadius:"10px",
+        color:"#fff", fontSize:"0.9rem", fontWeight:600,
+        fontFamily:"'Geist',sans-serif",
+        cursor: submitting ? "not-allowed" : "pointer",
+        display:"flex", alignItems:"center", justifyContent:"center", gap:"0.5rem",
+        transition:"all 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+        transform: !submitting && hovered ? "translateY(-2px)" : "translateY(0)",
+        boxShadow: !submitting && hovered ? "0 8px 24px rgba(79,127,255,0.35)" : "0 4px 16px rgba(79,127,255,0.2)",
+        letterSpacing:"0.01em",
+      }}
+    >
+      {submitting ? (
+        <>
+          <div style={{
+            width:"15px", height:"15px",
+            border:`2px solid rgba(255,255,255,0.3)`,
+            borderTopColor:"#fff", borderRadius:"50%",
+            animation:"spin 0.75s linear infinite",
+            flexShrink:0,
+          }} />
+          Sending…
+        </>
+      ) : (
+        <>
+          <Send size={15} /> Send Message
+        </>
+      )}
+    </button>
   );
 }

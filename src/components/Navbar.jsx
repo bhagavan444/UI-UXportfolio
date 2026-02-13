@@ -1,923 +1,716 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
-  Gauge, Cpu, CircuitBoard, GraduationCap, Radio,
-  Briefcase, Trophy, Shield, Brain, Heart, FileText,
-  Star, Layers, Terminal, Zap, Clock, ChevronDown,
-  Menu, X, Activity, Code2, Award
+  User, Briefcase, Code2, FolderGit2, Mail,
+  ChevronDown, Menu, X, FileText, Award,
+  GraduationCap, Trophy, Shield
 } from "lucide-react";
 
 // ─────────────────────────────────────────────────────────────
-// DESIGN TOKENS
+// DESIGN SYSTEM
 // ─────────────────────────────────────────────────────────────
-const T = {
-  cyan:    "#00e5ff",
-  violet:  "#8b5cf6",
-  emerald: "#10d88b",
-  gold:    "#f5c542",
-  crimson: "#ff4d6d",
-  navy:    "#080714",
-  surface: "rgba(10, 9, 28, 0.92)",
-  glass:   "rgba(255,255,255,0.04)",
-  border:  "rgba(0,229,255,0.12)",
-};
+const BRAND = "#3b82f6"; // Refined blue accent
+const EASE = "cubic-bezier(.16,1,.3,1)";
 
 // ─────────────────────────────────────────────────────────────
-// NAV DATA
+// NAVIGATION DATA
 // ─────────────────────────────────────────────────────────────
-const PRIMARY = [
-  { label: "Dashboard", short: "DASHBOARD",     path: "/home",     Icon: Gauge,        color: T.cyan    },
-  { label: "Tech Stack",short: "SKILLS",    path: "/myskills", Icon: Cpu,          color: T.emerald },
-  { label: "Projects",  short: "PROJECTS",     path: "/projects", Icon: CircuitBoard, color: T.violet  },
-  { label: "Education", short: "EDUCATION",    path: "/education",Icon: GraduationCap,color: T.gold    },
-  { label: "Connect",   short: "CONTACT",   path: "/contact",  Icon: Radio,        color: T.crimson },
+const PRIMARY_NAV = [
+  { label: "About", path: "/home", Icon: User },
+  { label: "Projects", path: "/projects", Icon: FolderGit2 },
+  { label: "Skills", path: "/myskills", Icon: Code2 },
+  { label: "Experience", path: "/internships", Icon: Briefcase },
+  { label: "Contact", path: "/contact", Icon: Mail },
 ];
 
-const EXTENDED = [
-  { label: "Experience",      path: "/internships",  Icon: Briefcase,   color: T.cyan,    badge: "3+",    desc: "Professional Timeline"      },
-  { label: "Competitions",    path: "/hackathons",   Icon: Trophy,      color: T.gold,    badge: "15+",   desc: "Hackathon History"          },
-  { label: "Credentials",     path: "/certifications",Icon: Shield,     color: T.violet,  badge: "20+",   desc: "Verified Certificates"      },
-  { label: "Workshops",       path: "/workshops",    Icon: Brain,       color: T.emerald,               desc: "Knowledge Transfer"         },
-  { label: "Milestones",      path: "/achivements",  Icon: Star,        color: T.crimson,               desc: "Recognition & Awards"       },
-  { label: "Beyond Code",     path: "/beyondcoding", Icon: Heart,       color: "#fb7185",               desc: "Life & Interests"           },
-  { label: "Curriculum Vitae",path: "/resume",       Icon: FileText,    color: "#60a5fa", badge: "2025",  desc: "Download PDF"               },
+const SECONDARY_NAV = [
+  { label: "Education", path: "/education", Icon: GraduationCap },
+  { label: "Certifications", path: "/certifications", Icon: Shield },
+  { label: "Competitions", path: "/hackathons", Icon: Trophy },
+  { label: "Achievements", path: "/achivements", Icon: Award },
+   { label: "Workshops", path: "/workshops", Icon: FileText },
+  { label: "Resume", path: "/resume", Icon: FileText },
 ];
 
 // ─────────────────────────────────────────────────────────────
-// UTILITY: hex → r,g,b string
+// LOGO COMPONENT
 // ─────────────────────────────────────────────────────────────
-function hexRGB(hex) {
-  const h = hex.replace("#","");
-  const r = parseInt(h.slice(0,2),16);
-  const g = parseInt(h.slice(2,4),16);
-  const b = parseInt(h.slice(4,6),16);
-  return `${r},${g},${b}`;
-}
-
-// ─────────────────────────────────────────────────────────────
-// NOISE SVG FILTER (grain overlay)
-// ─────────────────────────────────────────────────────────────
-const NoiseSVG = () => (
-  <svg style={{ position:"absolute", width:0, height:0 }}>
-    <filter id="grain">
-      <feTurbulence type="fractalNoise" baseFrequency="0.68" numOctaves="4" stitchTiles="stitch"/>
-      <feColorMatrix type="saturate" values="0"/>
-      <feBlend in="SourceGraphic" mode="overlay" result="blend"/>
-      <feComposite in="blend" in2="SourceGraphic"/>
-    </filter>
-  </svg>
-);
-
-// ─────────────────────────────────────────────────────────────
-// LIVE CLOCK WIDGET
-// ─────────────────────────────────────────────────────────────
-const LiveClock = () => {
-  const [t, setT] = useState(new Date());
-  useEffect(() => {
-    const id = setInterval(() => setT(new Date()), 1000);
-    return () => clearInterval(id);
-  }, []);
-
-  const hh = String(t.getHours()).padStart(2,"0");
-  const mm = String(t.getMinutes()).padStart(2,"0");
-  const ss = String(t.getSeconds()).padStart(2,"0");
-
-  return (
-    <div className="clock-widget">
-      <Activity size={13} strokeWidth={2.5}/>
-      <span className="clock-digits">{hh}</span>
-      <span className="clock-sep">:</span>
-      <span className="clock-digits">{mm}</span>
-      <span className="clock-sep">:</span>
-      <span className="clock-digits pulse-sec">{ss}</span>
+const Logo = ({ onClick }) => (
+  <button
+    onClick={onClick}
+    style={{
+      display: "flex",
+      alignItems: "center",
+      gap: "12px",
+      background: "none",
+      border: "none",
+      cursor: "pointer",
+      padding: 0,
+    }}
+  >
+    <div
+      style={{
+        width: "36px",
+        height: "36px",
+        borderRadius: "8px",
+        background: "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "center",
+        boxShadow: "0 2px 8px rgba(59, 130, 246, 0.15)",
+      }}
+    >
+      <Code2 size={18} color="#ffffff" strokeWidth={2.5} />
     </div>
-  );
-};
-
-// ─────────────────────────────────────────────────────────────
-// SIGNATURE LOGO
-// ─────────────────────────────────────────────────────────────
-const LogoMark = ({ compact, onClick }) => (
-  <button className="logo-btn" onClick={onClick}>
-    <div className={`logo-ring ${compact ? "compact" : ""}`}>
-      <div className="logo-aura"/>
-      <div className="logo-face">
-        <Code2 size={compact ? 20 : 24} color={T.cyan} strokeWidth={2.4}/>
-      </div>
-      <svg className="logo-svg" viewBox="0 0 60 60">
-        <circle cx="30" cy="30" r="27" fill="none"
-          stroke={T.cyan} strokeWidth="0.8" strokeDasharray="3 5"
-          style={{ animation: "spinCW 22s linear infinite" }}/>
-        <circle cx="30" cy="30" r="22" fill="none"
-          stroke={T.violet} strokeWidth="0.6" strokeDasharray="2 8"
-          style={{ animation: "spinCCW 18s linear infinite" }}/>
-      </svg>
-    </div>
-    <div className="logo-text-wrap">
-      <span className="logo-name">BHAGAVAN</span>
-      <span className="logo-sub">FULL-STACK ENGINEER</span>
-    </div>
+    <span
+      style={{
+        fontFamily: "'Space Grotesk', sans-serif",
+        fontSize: "17px",
+        fontWeight: 600,
+        color: "#f1f5f9",
+        letterSpacing: "-0.02em",
+      }}
+    >
+      Bhagavan
+    </span>
   </button>
 );
 
 // ─────────────────────────────────────────────────────────────
-// PRIMARY NAV ITEM
+// NAV LINK COMPONENT
 // ─────────────────────────────────────────────────────────────
-const NavItem = ({ item, active, onClick }) => {
-  const { Icon, short, color } = item;
-  const rgb = hexRGB(color);
+const NavLink = ({ item, active, onClick }) => {
+  const [isHover, setIsHover] = useState(false);
+
   return (
     <button
-      className={`nav-pill ${active ? "nav-active" : ""}`}
       onClick={onClick}
-      style={{ "--ac": color, "--ar": rgb }}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      style={{
+        position: "relative",
+        padding: "8px 16px",
+        background: "none",
+        border: "none",
+        color: active ? "#f1f5f9" : "#94a3b8",
+        fontSize: "14.5px",
+        fontWeight: active ? 500 : 400,
+        fontFamily: "'Inter', sans-serif",
+        cursor: "pointer",
+        transition: `color 240ms ${EASE}`,
+        whiteSpace: "nowrap",
+      }}
     >
-      <span className="pill-icon">
-        <Icon size={15} strokeWidth={active ? 2.8 : 2.2}/>
-      </span>
-      <span className="pill-label">{short}</span>
-      {active && <span className="active-dot"/>}
-      <span className="pill-glow"/>
+      {item.label}
+      
+      {/* Active indicator */}
+      <div
+        style={{
+          position: "absolute",
+          bottom: "-1px",
+          left: "16px",
+          right: "16px",
+          height: "2px",
+          background: BRAND,
+          borderRadius: "2px 2px 0 0",
+          opacity: active ? 1 : 0,
+          transform: active ? "scaleX(1)" : "scaleX(0.7)",
+          transition: `all 280ms ${EASE}`,
+        }}
+      />
+      
+      {/* Hover background */}
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: "rgba(148, 163, 184, 0.06)",
+          borderRadius: "6px",
+          opacity: isHover && !active ? 1 : 0,
+          transition: `opacity 200ms ${EASE}`,
+          pointerEvents: "none",
+        }}
+      />
     </button>
   );
 };
 
 // ─────────────────────────────────────────────────────────────
-// MORE DROPDOWN
+// DROPDOWN MENU
 // ─────────────────────────────────────────────────────────────
-const MoreDropdown = ({ currentRoute, onNavigate }) => (
-  <div className="mega-drop">
-    <div className="mega-header">
-      <span>EXTENDED PROFILE</span>
-      <span className="mega-count">{EXTENDED.length} MODULES</span>
-    </div>
-    <div className="mega-grid">
-      {EXTENDED.map((item) => {
+const Dropdown = ({ isOpen, currentRoute, onNavigate }) => {
+  if (!isOpen) return null;
+
+  return (
+    <div
+      style={{
+        position: "absolute",
+        top: "calc(100% + 8px)",
+        right: 0,
+        width: "220px",
+        background: "#1a1d29",
+        border: "1px solid rgba(148, 163, 184, 0.12)",
+        borderRadius: "12px",
+        boxShadow: "0 12px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2)",
+        overflow: "hidden",
+        animation: "dropdownIn 280ms cubic-bezier(.16,1,.3,1)",
+        zIndex: 100,
+      }}
+    >
+      <style>
+        {`
+          @keyframes dropdownIn {
+            from {
+              opacity: 0;
+              transform: translateY(-8px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
+          }
+        `}
+      </style>
+      
+      <div
+        style={{
+          padding: "8px 12px",
+          fontSize: "11px",
+          fontWeight: 600,
+          letterSpacing: "0.06em",
+          color: "#64748b",
+          textTransform: "uppercase",
+          borderBottom: "1px solid rgba(148, 163, 184, 0.08)",
+        }}
+      >
+        More
+      </div>
+
+      {SECONDARY_NAV.map((item) => {
         const active = currentRoute === item.path;
-        const { Icon, color, badge } = item;
+        const { Icon } = item;
+        
         return (
-          <button
+          <DropdownItem
             key={item.path}
-            className={`mega-item ${active ? "mega-active" : ""}`}
-            style={{ "--mc": color, "--mr": hexRGB(color) }}
+            item={item}
+            active={active}
+            Icon={Icon}
             onClick={() => onNavigate(item.path)}
-          >
-            <span className="mega-icon">
-              <Icon size={17} color="#0a0918" strokeWidth={2.6}/>
-            </span>
-            <div className="mega-body">
-              <span className="mega-label">{item.label}</span>
-              <span className="mega-desc">{item.desc}</span>
-            </div>
-            {badge && <span className="mega-badge">{badge}</span>}
-          </button>
+          />
         );
       })}
     </div>
-  </div>
-);
+  );
+};
+
+const DropdownItem = ({ item, active, Icon, onClick }) => {
+  const [isHover, setIsHover] = useState(false);
+
+  return (
+    <button
+      onClick={onClick}
+      onMouseEnter={() => setIsHover(true)}
+      onMouseLeave={() => setIsHover(false)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        width: "100%",
+        padding: "10px 16px",
+        background: active ? "rgba(59, 130, 246, 0.08)" : isHover ? "rgba(148, 163, 184, 0.06)" : "transparent",
+        border: "none",
+        color: active ? BRAND : "#cbd5e1",
+        fontSize: "14px",
+        fontWeight: active ? 500 : 400,
+        textAlign: "left",
+        cursor: "pointer",
+        transition: `all 180ms ${EASE}`,
+      }}
+    >
+      <Icon size={16} strokeWidth={2} style={{ flexShrink: 0 }} />
+      <span>{item.label}</span>
+    </button>
+  );
+};
 
 // ─────────────────────────────────────────────────────────────
-// MAIN COMPONENT
+// MOBILE MENU
 // ─────────────────────────────────────────────────────────────
-const ModernCyberNav = () => {
-  const location  = useLocation();
-  const navigate  = useNavigate();
+const MobileMenu = ({ isOpen, currentRoute, onNavigate, onClose }) => {
+  if (!isOpen) return null;
 
-  const [menuOpen, setMenuOpen]   = useState(false);
-  const [moreOpen, setMoreOpen]   = useState(false);
-  const [scrolled, setScrolled]   = useState(false);
-  const [isMobile, setIsMobile]   = useState(false);
-  const [lx, setLx]               = useState(0); // spotlight X %
-  const [ly, setLy]               = useState(0); // spotlight Y %
-
-  const navRef      = useRef(null);
-  const moreRef     = useRef(null);
-
-  const currentRoute = location.pathname === "/" ? "/home" : location.pathname;
-
-  // ── Scroll & resize
-  useEffect(() => {
-    const sync = () => {
-      setScrolled(window.scrollY > 36);
-      setIsMobile(window.innerWidth < 1024);
-    };
-    sync();
-    window.addEventListener("scroll", sync, { passive: true });
-    window.addEventListener("resize", sync);
-    return () => { window.removeEventListener("scroll", sync); window.removeEventListener("resize", sync); };
-  }, []);
-
-  // ── Close menu on route change
-  useEffect(() => { setMenuOpen(false); setMoreOpen(false); }, [location.pathname]);
-
-  // ── Click outside → close more
-  useEffect(() => {
-    if (!moreOpen) return;
-    const handle = (e) => { if (moreRef.current && !moreRef.current.contains(e.target)) setMoreOpen(false); };
-    document.addEventListener("mousedown", handle);
-    return () => document.removeEventListener("mousedown", handle);
-  }, [moreOpen]);
-
-  // ── Mouse spotlight
-  const handleMouseMove = useCallback((e) => {
-    if (!navRef.current) return;
-    const r = navRef.current.getBoundingClientRect();
-    setLx(((e.clientX - r.left) / r.width)  * 100);
-    setLy(((e.clientY - r.top)  / r.height) * 100);
-  }, []);
-
-  const go = useCallback((path) => {
-    if (path !== currentRoute) navigate(path);
-    window.scrollTo({ top: 0, behavior: "smooth" });
-    setMenuOpen(false);
-    setMoreOpen(false);
-  }, [currentRoute, navigate]);
-
-  // ─────────────────────────────────────────────────────────
   return (
     <>
-      {/* ── GLOBAL STYLES ────────────────────────────────── */}
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Syne+Mono&family=Syne:wght@600;700;800&display=swap');
+      {/* Backdrop */}
+      <div
+        onClick={onClose}
+        style={{
+          position: "fixed",
+          inset: 0,
+          background: "rgba(0, 0, 0, 0.4)",
+          backdropFilter: "blur(4px)",
+          zIndex: 9998,
+          animation: "fadeIn 200ms ease-out",
+        }}
+      />
+      
+      <style>
+        {`
+          @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+          }
+          @keyframes slideIn {
+            from { transform: translateX(100%); }
+            to { transform: translateX(0); }
+          }
+        `}
+      </style>
 
-        /* ---------- RESET & BASE ---------- */
-        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html { scroll-behavior: smooth; }
-        body {
-          background: #07060f;
-          color: #dde3f0;
-          font-family: 'Space Grotesk', system-ui, sans-serif;
-          -webkit-font-smoothing: antialiased;
-        }
-
-        /* ---------- NAVBAR SHELL ---------- */
-        .gnav {
-          position: fixed;
-          inset: 0 0 auto 0;
-          z-index: 9000;
-          height: 76px;
-          transition: height .5s cubic-bezier(.22,1,.36,1),
-                      background .5s, border-color .5s, box-shadow .5s;
-        }
-
-        /* blur + noise bg */
-        .gnav::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: rgba(8, 7, 20, 0.82);
-          backdrop-filter: blur(40px) saturate(200%);
-          -webkit-backdrop-filter: blur(40px) saturate(200%);
-          border-bottom: 1px solid rgba(0,229,255,0.10);
-          transition: inherit;
-          z-index: 0;
-        }
-        /* spotlight overlay */
-        .gnav::after {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: radial-gradient(
-            circle 420px at var(--lx,50%) var(--ly,50%),
-            rgba(0,229,255,0.06) 0%,
-            transparent 70%
-          );
-          pointer-events: none;
-          transition: background .12s linear;
-          z-index: 1;
-        }
-
-        .gnav.scrolled { height: 64px; }
-        .gnav.scrolled::before {
-          background: rgba(6, 5, 16, 0.96);
-          border-bottom-color: rgba(0,229,255,0.22);
-          box-shadow: 0 12px 60px rgba(0,0,0,.7), 0 0 60px rgba(0,229,255,0.08);
-        }
-
-        /* top accent line */
-        .gnav-topline {
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg,
-            transparent 0%,
-            rgba(0,229,255,0.7) 35%,
-            rgba(139,92,246,0.7) 65%,
-            transparent 100%
-          );
-          z-index: 2;
-        }
-        /* bottom scanline */
-        .gnav-scan {
-          position: absolute;
-          bottom: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg,
-            transparent, rgba(0,229,255,0.18), transparent
-          );
-          z-index: 2;
-          animation: scanSlide 8s linear infinite;
-        }
-        @keyframes scanSlide {
-          0%   { background-position: -100% 0; }
-          100% { background-position: 200% 0; }
-        }
-
-        /* row */
-        .gnav-inner {
-          position: relative;
-          z-index: 3;
-          max-width: 1680px;
-          margin: 0 auto;
-          padding: 0 3.5rem;
-          height: 100%;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 1.5rem;
-        }
-        @media(max-width:1023px) {
-          .gnav-inner { padding: 0 1.4rem; }
-        }
-
-        /* ---- LOGO ---- */
-        .logo-btn {
-          display: flex;
-          align-items: center;
-          gap: 1rem;
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 0;
-          flex-shrink: 0;
-        }
-        .logo-ring {
-          position: relative;
-          width: 52px; height: 52px;
-          flex-shrink: 0;
-          transition: width .5s, height .5s;
-        }
-        .logo-ring.compact { width: 44px; height: 44px; }
-        .logo-aura {
-          position: absolute; inset: -5px;
-          border-radius: 50%;
-          background: radial-gradient(circle, rgba(0,229,255,.35), transparent 70%);
-          animation: breatheAura 7s ease-in-out infinite;
-        }
-        @keyframes breatheAura {
-          0%,100% { opacity:.7; transform:scale(1); }
-          50%      { opacity:1; transform:scale(1.12); }
-        }
-        .logo-face {
-          position: relative;
-          width: 100%; height: 100%;
-          border-radius: 14px;
-          background: linear-gradient(145deg, #12112a, #0c0b1e);
-          border: 1.5px solid rgba(0,229,255,0.55);
-          box-shadow: inset 0 0 18px rgba(0,229,255,.2),
-                      0 0 28px rgba(0,229,255,.18);
-          display: flex; align-items: center; justify-content: center;
-          z-index: 1;
-        }
-        .logo-svg {
-          position: absolute; inset: -8px;
-          width: calc(100% + 16px);
-          height: calc(100% + 16px);
-          pointer-events: none;
-        }
-        @keyframes spinCW  { to { transform: rotate(360deg);  }}
-        @keyframes spinCCW { to { transform: rotate(-360deg); }}
-
-        .logo-text-wrap {
-          display: flex; flex-direction: column; gap: 3px;
-        }
-        .logo-name {
-          font-family: 'Syne', sans-serif;
-          font-weight: 800;
-          font-size: 1.45rem;
-          letter-spacing: 4px;
-          background: linear-gradient(90deg, #00e5ff 0%, #8b5cf6 55%, #f5c542 100%);
-          background-size: 250% 100%;
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
-          animation: gradFlow 10s linear infinite;
-        }
-        @keyframes gradFlow {
-          0%   { background-position: 0% 50%; }
-          100% { background-position: 250% 50%; }
-        }
-        .logo-sub {
-          font-family: 'Syne Mono', monospace;
-          font-size: 0.62rem;
-          letter-spacing: 3.5px;
-          color: rgba(165,180,252,0.75);
-          text-transform: uppercase;
-        }
-
-        /* ---- DESKTOP PILLS ---- */
-        .nav-pills {
-          display: flex; align-items: center; gap: 4px;
-        }
-        .nav-pill {
-          position: relative;
-          display: flex; align-items: center; gap: 7px;
-          padding: 8px 18px;
-          border-radius: 10px;
-          border: 1px solid transparent;
-          background: transparent;
-          color: rgba(221,227,240,0.7);
-          font-family: 'Syne Mono', monospace;
-          font-size: 0.76rem;
-          letter-spacing: 1.6px;
-          cursor: pointer;
-          transition: all .3s cubic-bezier(.16,1,.3,1);
-          overflow: hidden;
-          white-space: nowrap;
-        }
-        .nav-pill:hover {
-          color: #fff;
-          background: rgba(255,255,255,0.05);
-          border-color: rgba(var(--ar,0,229,255),.3);
-          transform: translateY(-1px);
-        }
-        .nav-pill:hover .pill-glow {
-          opacity: 1;
-        }
-        .nav-active {
-          background: rgba(var(--ar,0,229,255),0.12) !important;
-          border-color: var(--ac, #00e5ff) !important;
-          color: var(--ac, #00e5ff) !important;
-          box-shadow: 0 0 24px rgba(var(--ar,0,229,255),0.22),
-                      inset 0 0 10px rgba(var(--ar,0,229,255),0.1);
-          font-weight: 600;
-        }
-        .pill-icon {
-          display: flex; align-items: center;
-          opacity: .85;
-        }
-        .nav-active .pill-icon { opacity: 1; }
-        .pill-label { position: relative; z-index: 1; }
-        .active-dot {
-          width: 6px; height: 6px;
-          border-radius: 50%;
-          background: var(--ac,#00e5ff);
-          box-shadow: 0 0 8px var(--ac,#00e5ff);
-          animation: dotBlink 2.5s ease-in-out infinite;
-          flex-shrink: 0;
-        }
-        @keyframes dotBlink {
-          0%,100% { opacity:1; transform:scale(1); }
-          50%      { opacity:.3; transform:scale(.7); }
-        }
-        .pill-glow {
-          position: absolute; inset: 0;
-          background: radial-gradient(ellipse at 50% 120%,
-            rgba(var(--ar,0,229,255),.15) 0%, transparent 70%
-          );
-          opacity: 0;
-          transition: opacity .3s;
-          pointer-events: none;
-        }
-
-        /* ---- MORE BUTTON ---- */
-        .more-wrap { position: relative; }
-        .more-btn {
-          display: flex; align-items: center; gap: 8px;
-          padding: 8px 18px;
-          border-radius: 10px;
-          border: 1px solid rgba(139,92,246,.35);
-          background: rgba(139,92,246,0.08);
-          color: rgba(196,181,253,.85);
-          font-family: 'Syne Mono', monospace;
-          font-size: .76rem;
-          letter-spacing: 1.6px;
-          cursor: pointer;
-          transition: all .3s ease;
-          white-space: nowrap;
-        }
-        .more-btn:hover, .more-open {
-          background: rgba(139,92,246,.18) !important;
-          border-color: #8b5cf6 !important;
-          color: #c4b5fd !important;
-          box-shadow: 0 0 22px rgba(139,92,246,.25);
-        }
-        .more-chevron {
-          transition: transform .4s cubic-bezier(.22,1,.36,1);
-        }
-        .more-chevron.open { transform: rotate(180deg); }
-
-        /* ---- MEGA DROPDOWN ---- */
-        .mega-drop {
-          position: absolute;
-          top: calc(100% + 12px);
-          right: 0;
-          width: 480px;
-          background: rgba(10,9,24,0.97);
-          backdrop-filter: blur(48px);
-          border: 1px solid rgba(0,229,255,0.2);
-          border-radius: 20px;
-          box-shadow:
-            0 32px 100px rgba(0,0,0,.85),
-            0 0 0 1px rgba(139,92,246,.12),
-            0 0 80px rgba(0,229,255,.08);
-          overflow: hidden;
-          animation: dropIn .38s cubic-bezier(.16,1,.3,1);
-          z-index: 9999;
-        }
-        @keyframes dropIn {
-          from { opacity:0; transform:translateY(-14px) scale(.97); }
-          to   { opacity:1; transform:translateY(0)    scale(1);    }
-        }
-        .mega-header {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 1rem 1.4rem .9rem;
-          border-bottom: 1px solid rgba(0,229,255,.1);
-        }
-        .mega-header > span:first-child {
-          font-family: 'Syne Mono', monospace;
-          font-size: .65rem;
-          letter-spacing: 3px;
-          color: rgba(0,229,255,.6);
-        }
-        .mega-count {
-          font-family: 'Syne Mono', monospace;
-          font-size: .62rem;
-          letter-spacing: 2px;
-          color: rgba(139,92,246,.7);
-          background: rgba(139,92,246,.12);
-          padding: 3px 10px;
-          border-radius: 20px;
-          border: 1px solid rgba(139,92,246,.25);
-        }
-        .mega-grid {
-          padding: .7rem;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 4px;
-        }
-        .mega-item {
-          display: flex; align-items: center; gap: .9rem;
-          padding: .9rem 1rem;
-          border-radius: 12px;
-          border: 1px solid transparent;
-          background: transparent;
-          color: #dde3f0;
-          cursor: pointer;
-          transition: all .28s cubic-bezier(.16,1,.3,1);
-          text-align: left;
-        }
-        .mega-item:hover {
-          background: rgba(var(--mr,0,229,255),.09);
-          border-color: rgba(var(--mr,0,229,255),.3);
-          transform: translateY(-1px);
-          box-shadow: 0 8px 26px rgba(var(--mr,0,229,255),.14);
-        }
-        .mega-active {
-          background: rgba(var(--mr,0,229,255),.12) !important;
-          border-color: var(--mc,#00e5ff) !important;
-        }
-        .mega-icon {
-          width: 40px; height: 40px;
-          border-radius: 10px;
-          background: linear-gradient(135deg, var(--mc,#00e5ff), rgba(var(--mr,0,229,255),.6));
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-          box-shadow: 0 6px 16px rgba(var(--mr,0,229,255),.25);
-        }
-        .mega-body {
-          display: flex; flex-direction: column; gap: 3px;
-          flex: 1;
-          min-width: 0;
-        }
-        .mega-label {
-          font-family: 'Syne', sans-serif;
-          font-weight: 700;
-          font-size: .87rem;
-          letter-spacing: .4px;
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .mega-desc {
-          font-size: .72rem;
-          color: rgba(148,163,184,.7);
-          white-space: nowrap;
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-        .mega-badge {
-          font-family: 'Syne Mono', monospace;
-          font-size: .64rem;
-          padding: 4px 9px;
-          background: rgba(255,255,255,.06);
-          border: 1px solid rgba(0,229,255,.22);
-          border-radius: 20px;
-          color: rgba(196,181,253,.9);
-          flex-shrink: 0;
-        }
-
-        /* ---- CLOCK ---- */
-        .clock-widget {
-          display: flex; align-items: center; gap: 7px;
-          padding: 7px 14px;
-          border-radius: 10px;
-          border: 1px solid rgba(0,229,255,.25);
-          background: rgba(0,229,255,.06);
-          font-family: 'Syne Mono', monospace;
-          font-size: .82rem;
-          color: #00e5ff;
-          letter-spacing: 1px;
-          box-shadow: 0 0 22px rgba(0,229,255,.1);
-          white-space: nowrap;
-          flex-shrink: 0;
-        }
-        .clock-digits { opacity: .9; }
-        .clock-sep {
-          opacity: .45;
-          animation: sepBlink 1s ease-in-out infinite;
-        }
-        @keyframes sepBlink { 0%,100%{opacity:.45} 50%{opacity:.15} }
-        .pulse-sec { color: rgba(0,229,255,.65); }
-
-        /* ---- MOBILE TOGGLE ---- */
-        .mob-toggle {
-          display: flex; align-items: center; justify-content: center;
-          width: 46px; height: 46px;
-          border-radius: 12px;
-          border: 1px solid rgba(0,229,255,.3);
-          background: rgba(0,229,255,.07);
-          color: #00e5ff;
-          cursor: pointer;
-          transition: all .3s ease;
-        }
-        .mob-toggle.open {
-          background: rgba(0,229,255,.14);
-          border-color: #00e5ff;
-          box-shadow: 0 0 28px rgba(0,229,255,.3);
-        }
-
-        /* ---- MOBILE MENU ---- */
-        .mob-menu {
-          position: fixed;
-          top: 76px;
-          inset-inline: 0;
-          bottom: 0;
-          background: rgba(6,5,16,.98);
-          backdrop-filter: blur(44px);
-          z-index: 8999;
-          overflow-y: auto;
-          padding: 2rem 1.4rem 4rem;
-          animation: mobSlide .42s cubic-bezier(.22,1,.36,1);
-        }
-        @keyframes mobSlide {
-          from { opacity:0; transform:translateY(-28px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        .mob-inner { max-width: 600px; margin: 0 auto; }
-
-        .mob-clock {
-          display: flex; align-items: center; justify-content: center; gap: 10px;
-          padding: 1.2rem;
-          border-radius: 16px;
-          border: 1px solid rgba(0,229,255,.2);
-          background: rgba(0,229,255,.05);
-          font-family: 'Syne Mono', monospace;
-          font-size: 1.05rem;
-          color: #00e5ff;
-          margin-bottom: 2rem;
-        }
-
-        .mob-section-label {
-          font-family: 'Syne Mono', monospace;
-          font-size: .62rem;
-          letter-spacing: 3px;
-          color: rgba(0,229,255,.45);
-          padding: .4rem .4rem .8rem;
-        }
-
-        .mob-item {
-          display: flex; align-items: center; gap: 1.2rem;
-          width: 100%;
-          padding: 1.1rem 1.3rem;
-          margin-bottom: .6rem;
-          border-radius: 16px;
-          border: 1px solid rgba(0,229,255,.1);
-          background: rgba(255,255,255,.03);
-          color: #dde3f0;
-          cursor: pointer;
-          transition: all .32s ease;
-          text-align: left;
-          animation: mobItemIn .6s cubic-bezier(.22,1,.36,1) both;
-        }
-        .mob-item:hover {
-          background: rgba(var(--mr,0,229,255),.07);
-          border-color: rgba(var(--mr,0,229,255),.3);
-          transform: translateX(5px);
-        }
-        .mob-item.mob-active {
-          background: rgba(var(--mr,0,229,255),.12);
-          border-color: var(--mc,#00e5ff);
-          color: var(--mc,#00e5ff);
-          box-shadow: 0 8px 30px rgba(var(--mr,0,229,255),.18);
-        }
-        @keyframes mobItemIn {
-          from { opacity:0; transform:translateY(20px); }
-          to   { opacity:1; transform:translateY(0); }
-        }
-        .mob-icon {
-          width: 52px; height: 52px;
-          border-radius: 13px;
-          background: linear-gradient(135deg, var(--mc,#00e5ff), rgba(var(--mr,0,229,255),.6));
-          display: flex; align-items: center; justify-content: center;
-          flex-shrink: 0;
-          box-shadow: 0 8px 22px rgba(var(--mr,0,229,255),.25);
-        }
-        .mob-text { flex: 1; }
-        .mob-label {
-          font-family: 'Syne', sans-serif;
-          font-weight: 700;
-          font-size: 1rem;
-          display: block;
-        }
-        .mob-desc {
-          font-size: .8rem;
-          color: rgba(148,163,184,.65);
-          display: block;
-          margin-top: 3px;
-        }
-        .mob-badge {
-          font-family: 'Syne Mono', monospace;
-          font-size: .68rem;
-          padding: 5px 11px;
-          border-radius: 20px;
-          border: 1px solid rgba(0,229,255,.28);
-          background: rgba(0,229,255,.09);
-          color: rgba(196,181,253,.9);
-        }
-
-        .mob-divider {
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(0,229,255,.35), transparent);
-          margin: 1.6rem 0;
-          box-shadow: 0 0 12px rgba(0,229,255,.25);
-        }
-
-        /* ── scrollbar ── */
-        ::-webkit-scrollbar { width: 5px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb {
-          background: rgba(0,229,255,.25);
-          border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(0,229,255,.5); }
-      `}</style>
-
-      <NoiseSVG/>
-
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* NAVBAR                                                  */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      <nav
-        ref={navRef}
-        className={`gnav ${scrolled ? "scrolled" : ""}`}
-        style={{ "--lx": `${lx}%`, "--ly": `${ly}%` }}
-        onMouseMove={handleMouseMove}
+      {/* Panel */}
+      <div
+        style={{
+          position: "fixed",
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: "min(340px, 85vw)",
+          background: "#12141d",
+          borderLeft: "1px solid rgba(148, 163, 184, 0.12)",
+          boxShadow: "-8px 0 32px rgba(0, 0, 0, 0.6)",
+          zIndex: 9999,
+          overflowY: "auto",
+          animation: "slideIn 320ms cubic-bezier(.16,1,.3,1)",
+        }}
       >
-        <div className="gnav-topline"/>
-        <div className="gnav-scan"/>
+        {/* Header */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "20px 24px",
+            borderBottom: "1px solid rgba(148, 163, 184, 0.12)",
+          }}
+        >
+          <span
+            style={{
+              fontSize: "15px",
+              fontWeight: 600,
+              color: "#f1f5f9",
+              fontFamily: "'Space Grotesk', sans-serif",
+            }}
+          >
+            Navigation
+          </span>
+          <button
+            onClick={onClose}
+            style={{
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "32px",
+              height: "32px",
+              background: "rgba(148, 163, 184, 0.08)",
+              border: "none",
+              borderRadius: "6px",
+              color: "#cbd5e1",
+              cursor: "pointer",
+              transition: `all 180ms ${EASE}`,
+            }}
+          >
+            <X size={18} strokeWidth={2} />
+          </button>
+        </div>
 
-        <div className="gnav-inner">
+        {/* Content */}
+        <div style={{ padding: "24px" }}>
+          {/* Primary Nav */}
+          <div style={{ marginBottom: "32px" }}>
+            <div
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                color: "#64748b",
+                textTransform: "uppercase",
+                marginBottom: "12px",
+              }}
+            >
+              Main
+            </div>
+            {PRIMARY_NAV.map((item) => (
+              <MobileMenuItem
+                key={item.path}
+                item={item}
+                active={currentRoute === item.path}
+                onClick={() => {
+                  onNavigate(item.path);
+                  onClose();
+                }}
+              />
+            ))}
+          </div>
 
-          {/* LOGO */}
-          <LogoMark compact={scrolled} onClick={() => go("/home")}/>
+          {/* Secondary Nav */}
+          <div>
+            <div
+              style={{
+                fontSize: "11px",
+                fontWeight: 600,
+                letterSpacing: "0.06em",
+                color: "#64748b",
+                textTransform: "uppercase",
+                marginBottom: "12px",
+              }}
+            >
+              More
+            </div>
+            {SECONDARY_NAV.map((item) => (
+              <MobileMenuItem
+                key={item.path}
+                item={item}
+                active={currentRoute === item.path}
+                onClick={() => {
+                  onNavigate(item.path);
+                  onClose();
+                }}
+              />
+            ))}
+          </div>
 
-          {/* DESKTOP LINKS */}
+          {/* Resume CTA */}
+          <div style={{ marginTop: "32px", paddingTop: "24px", borderTop: "1px solid rgba(148, 163, 184, 0.12)" }}>
+            <button
+              onClick={() => {
+                onNavigate("/resume");
+                onClose();
+              }}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                width: "100%",
+                padding: "12px",
+                background: BRAND,
+                border: "none",
+                borderRadius: "8px",
+                color: "#ffffff",
+                fontSize: "14px",
+                fontWeight: 500,
+                cursor: "pointer",
+                boxShadow: "0 2px 8px rgba(59, 130, 246, 0.25)",
+                transition: `all 200ms ${EASE}`,
+              }}
+            >
+              <FileText size={16} strokeWidth={2} />
+              View Resume
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+};
+
+const MobileMenuItem = ({ item, active, onClick }) => {
+  const { Icon } = item;
+  
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        gap: "12px",
+        width: "100%",
+        padding: "12px 16px",
+        marginBottom: "6px",
+        background: active ? "rgba(59, 130, 246, 0.08)" : "transparent",
+        border: active ? "1px solid rgba(59, 130, 246, 0.2)" : "1px solid transparent",
+        borderRadius: "8px",
+        color: active ? BRAND : "#cbd5e1",
+        fontSize: "14.5px",
+        fontWeight: active ? 500 : 400,
+        textAlign: "left",
+        cursor: "pointer",
+        transition: `all 200ms ${EASE}`,
+      }}
+    >
+      <Icon size={18} strokeWidth={2} style={{ flexShrink: 0 }} />
+      <span>{item.label}</span>
+    </button>
+  );
+};
+
+// ─────────────────────────────────────────────────────────────
+// MAIN NAVBAR
+// ─────────────────────────────────────────────────────────────
+const ExecutiveNavbar = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  const [scrolled, setScrolled] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  
+  const moreRef = useRef(null);
+  
+  const currentRoute = location.pathname === "/" ? "/home" : location.pathname;
+
+  // Detect scroll
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleResize = () => setIsMobile(window.innerWidth < 1024);
+    
+    handleScroll();
+    handleResize();
+    
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleResize);
+    
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  // Close more dropdown on outside click
+  useEffect(() => {
+    if (!moreOpen) return;
+    
+    const handleClick = (e) => {
+      if (moreRef.current && !moreRef.current.contains(e.target)) {
+        setMoreOpen(false);
+      }
+    };
+    
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [moreOpen]);
+
+  // Close menus on route change
+  useEffect(() => {
+    setMoreOpen(false);
+    setMobileOpen(false);
+  }, [location.pathname]);
+
+  const handleNavigate = (path) => {
+    if (path !== currentRoute) {
+      navigate(path);
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  };
+
+  return (
+    <>
+      {/* Global Styles */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap');
+          
+          * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+          }
+          
+          body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #0f1117;
+            color: #e2e8f0;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+          }
+
+          ::-webkit-scrollbar {
+            width: 6px;
+          }
+
+          ::-webkit-scrollbar-track {
+            background: transparent;
+          }
+
+          ::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.3);
+            border-radius: 3px;
+          }
+
+          ::-webkit-scrollbar-thumb:hover {
+            background: rgba(148, 163, 184, 0.5);
+          }
+        `}
+      </style>
+
+      {/* Navbar */}
+      <nav
+        style={{
+          position: "fixed",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: scrolled ? "64px" : "72px",
+          background: scrolled ? "rgba(15, 17, 23, 0.85)" : "rgba(15, 17, 23, 0.7)",
+          backdropFilter: scrolled ? "blur(24px) saturate(180%)" : "blur(20px) saturate(160%)",
+          borderBottom: `1px solid ${scrolled ? "rgba(148, 163, 184, 0.12)" : "rgba(148, 163, 184, 0.08)"}`,
+          boxShadow: scrolled ? "0 4px 24px rgba(0, 0, 0, 0.12)" : "none",
+          transition: `all 320ms ${EASE}`,
+          zIndex: 9000,
+        }}
+      >
+        <div
+          style={{
+            maxWidth: "1400px",
+            height: "100%",
+            margin: "0 auto",
+            padding: "0 32px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            gap: "48px",
+          }}
+        >
+          {/* Logo */}
+          <Logo onClick={() => handleNavigate("/home")} />
+
+          {/* Desktop Navigation */}
           {!isMobile && (
             <>
-              <div className="nav-pills">
-                {PRIMARY.map((item) => (
-                  <NavItem
+              <div
+                style={{
+                  flex: 1,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "4px",
+                }}
+              >
+                {PRIMARY_NAV.map((item) => (
+                  <NavLink
                     key={item.path}
                     item={item}
                     active={currentRoute === item.path}
-                    onClick={() => go(item.path)}
+                    onClick={() => handleNavigate(item.path)}
                   />
                 ))}
               </div>
 
-              {/* MORE */}
-              <div className="more-wrap" ref={moreRef}>
-                <button
-                  className={`more-btn ${moreOpen ? "more-open" : ""}`}
-                  onClick={() => setMoreOpen(!moreOpen)}
-                >
-                  <Layers size={15} strokeWidth={2.2}/>
-                  <span>MORE</span>
-                  <ChevronDown
-                    size={14}
-                    strokeWidth={2.5}
-                    className={`more-chevron ${moreOpen ? "open" : ""}`}
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                {/* More Dropdown */}
+                <div style={{ position: "relative" }} ref={moreRef}>
+                  <button
+                    onClick={() => setMoreOpen(!moreOpen)}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      padding: "8px 14px",
+                      background: moreOpen ? "rgba(148, 163, 184, 0.08)" : "transparent",
+                      border: "none",
+                      borderRadius: "6px",
+                      color: "#94a3b8",
+                      fontSize: "14px",
+                      fontWeight: 400,
+                      cursor: "pointer",
+                      transition: `all 200ms ${EASE}`,
+                    }}
+                  >
+                    More
+                    <ChevronDown
+                      size={14}
+                      strokeWidth={2}
+                      style={{
+                        transform: moreOpen ? "rotate(180deg)" : "rotate(0deg)",
+                        transition: `transform 280ms ${EASE}`,
+                      }}
+                    />
+                  </button>
+                  
+                  <Dropdown
+                    isOpen={moreOpen}
+                    currentRoute={currentRoute}
+                    onNavigate={handleNavigate}
                   />
-                </button>
-                {moreOpen && (
-                  <MoreDropdown currentRoute={currentRoute} onNavigate={go}/>
-                )}
-              </div>
+                </div>
 
-              {/* CLOCK */}
-              <LiveClock/>
+                {/* Resume CTA */}
+                <button
+                  onClick={() => handleNavigate("/resume")}
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    padding: "9px 18px",
+                    background: currentRoute === "/resume" ? "#2563eb" : BRAND,
+                    border: "none",
+                    borderRadius: "7px",
+                    color: "#ffffff",
+                    fontSize: "14px",
+                    fontWeight: 500,
+                    cursor: "pointer",
+                    boxShadow: "0 2px 8px rgba(59, 130, 246, 0.2)",
+                    transition: `all 220ms ${EASE}`,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = "#2563eb";
+                    e.currentTarget.style.transform = "translateY(-1px)";
+                    e.currentTarget.style.boxShadow = "0 4px 12px rgba(59, 130, 246, 0.3)";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (currentRoute !== "/resume") {
+                      e.currentTarget.style.background = BRAND;
+                    }
+                    e.currentTarget.style.transform = "translateY(0)";
+                    e.currentTarget.style.boxShadow = "0 2px 8px rgba(59, 130, 246, 0.2)";
+                  }}
+                >
+                  <FileText size={15} strokeWidth={2} />
+                  Resume
+                </button>
+              </div>
             </>
           )}
 
-          {/* MOBILE TOGGLE */}
+          {/* Mobile Menu Button */}
           {isMobile && (
             <button
-              className={`mob-toggle ${menuOpen ? "open" : ""}`}
-              onClick={() => setMenuOpen(!menuOpen)}
+              onClick={() => setMobileOpen(true)}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                width: "40px",
+                height: "40px",
+                background: "rgba(148, 163, 184, 0.08)",
+                border: "none",
+                borderRadius: "8px",
+                color: "#cbd5e1",
+                cursor: "pointer",
+                transition: `all 180ms ${EASE}`,
+              }}
             >
-              {menuOpen ? <X size={22} strokeWidth={2.5}/> : <Menu size={22} strokeWidth={2.5}/>}
+              <Menu size={20} strokeWidth={2} />
             </button>
           )}
         </div>
       </nav>
 
-      {/* ═══════════════════════════════════════════════════════ */}
-      {/* MOBILE MENU                                             */}
-      {/* ═══════════════════════════════════════════════════════ */}
-      {isMobile && menuOpen && (
-        <div className="mob-menu">
-          <div className="mob-inner">
-            <div className="mob-clock">
-              <Activity size={15}/>
-              <LiveClock/>
-            </div>
-
-            <div className="mob-section-label">// MAIN NAVIGATION</div>
-
-            {PRIMARY.map((item, i) => {
-              const act = currentRoute === item.path;
-              const { Icon, color, label, desc } = item;
-              const rgb = hexRGB(color);
-              return (
-                <button
-                  key={item.path}
-                  className={`mob-item ${act ? "mob-active" : ""}`}
-                  style={{
-                    "--mc": color, "--mr": rgb,
-                    animationDelay: `${i * 0.06}s`,
-                  }}
-                  onClick={() => go(item.path)}
-                >
-                  <span className="mob-icon">
-                    <Icon size={24} color="#090818" strokeWidth={2.6}/>
-                  </span>
-                  <span className="mob-text">
-                    <span className="mob-label">{label}</span>
-                    <span className="mob-desc">{item.desc || ""}</span>
-                  </span>
-                </button>
-              );
-            })}
-
-            <div className="mob-divider"/>
-            <div className="mob-section-label">// EXTENDED PROFILE</div>
-
-            {EXTENDED.map((item, i) => {
-              const act = currentRoute === item.path;
-              const { Icon, color, label, desc, badge } = item;
-              const rgb = hexRGB(color);
-              return (
-                <button
-                  key={item.path}
-                  className={`mob-item ${act ? "mob-active" : ""}`}
-                  style={{
-                    "--mc": color, "--mr": rgb,
-                    animationDelay: `${(PRIMARY.length + i) * 0.055}s`,
-                  }}
-                  onClick={() => go(item.path)}
-                >
-                  <span className="mob-icon">
-                    <Icon size={24} color="#090818" strokeWidth={2.6}/>
-                  </span>
-                  <span className="mob-text">
-                    <span className="mob-label">{label}</span>
-                    <span className="mob-desc">{desc}</span>
-                  </span>
-                  {badge && <span className="mob-badge">{badge}</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
+      {/* Mobile Menu */}
+      {isMobile && (
+        <MobileMenu
+          isOpen={mobileOpen}
+          currentRoute={currentRoute}
+          onNavigate={handleNavigate}
+          onClose={() => setMobileOpen(false)}
+        />
       )}
     </>
   );
 };
 
-export default ModernCyberNav;
+export default ExecutiveNavbar;

@@ -1,1361 +1,878 @@
-import { useState, useEffect, useRef } from "react";
-import { 
-  Download, Eye, FileText, Award, Code, Rocket, Star, Sparkles, 
-  X, CheckCircle2, TrendingUp, Zap, Target, Brain, Trophy,
-  GraduationCap, Calendar, MapPin, Linkedin, Github, Mail,
-  Briefcase, Terminal, Database, Server, Code2, GitBranch,
-  ExternalLink, Users, Cpu, Cloud, Shield, Flame, BarChart3,
-  BookOpen, Layers, Globe, Lock, Workflow, Binary, Network,
-  Search, Filter, ChevronRight, Play, Pause, Volume2, VolumeX
-} from 'lucide-react';
-// Resume preview (for iframe / embed)
-const RESUME_URL =
-  "https://drive.google.com/file/d/1-Ph6umgQ6P0YfBgQGLj-9UPMX2UDoKu3/preview";
+"use client";
 
-// Resume direct download
-const RESUME_DOWNLOAD =
-  "https://drive.google.com/uc?export=download&id=1-Ph6umgQ6P0YfBgQGLj-9UPMX2UDoKu3";
-;
+import React, { useState, useRef } from "react";
+import {
+  Download, Eye, X, ExternalLink, MapPin, Mail,
+  Github, Linkedin, CheckCircle, ChevronRight,
+  Code2, Brain, Cloud, Terminal, BookOpen, Award,
+  Briefcase, GraduationCap, ArrowUpRight, Calendar,
+} from "lucide-react";
 
-export default function EliteResume() {
-  const [showModal, setShowModal] = useState(false);
-  const [hoveredStat, setHoveredStat] = useState(null);
-  const [activeTab, setActiveTab] = useState('overview');
-  const [selectedSkillCategory, setSelectedSkillCategory] = useState('All');
-  const canvasRef = useRef(null);
+/* ═══════════════════════════════════════════════════════════════
+   CONFIG
+═══════════════════════════════════════════════════════════════ */
+const RESUME_PREVIEW  = "https://drive.google.com/file/d/1-Ph6umgQ6P0YfBgQGLj-9UPMX2UDoKu3/preview";
+const RESUME_DOWNLOAD = "https://drive.google.com/uc?export=download&id=1-Ph6umgQ6P0YfBgQGLj-9UPMX2UDoKu3";
 
-  // ─── ELEGANT DEVELOPER BACKGROUND ────────────────────────────────────────
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let animationId;
-    let time = 0;
+/* ═══════════════════════════════════════════════════════════════
+   DESIGN TOKENS  (matches portfolio system)
+═══════════════════════════════════════════════════════════════ */
+const C = {
+  bg:        "#0f1117",
+  surface:   "#141720",
+  surface2:  "#191c26",
+  surface3:  "#1e2130",
+  border:    "rgba(255,255,255,0.06)",
+  border2:   "rgba(255,255,255,0.10)",
+  border3:   "rgba(255,255,255,0.16)",
+  text:      "#e8e9ef",
+  muted:     "#6b7280",
+  muted2:    "#9ca3af",
+  accent:    "#4f7fff",
+  accentDim: "rgba(79,127,255,0.08)",
+  green:     "#22c55e",
+  greenDim:  "rgba(34,197,94,0.08)",
+  amber:     "#f59e0b",
+  amberDim:  "rgba(245,158,11,0.08)",
+  purple:    "#a78bfa",
+  purpleDim: "rgba(167,139,250,0.08)",
+};
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = document.documentElement.scrollHeight;
-    };
-    resize();
+/* ═══════════════════════════════════════════════════════════════
+   DATA
+═══════════════════════════════════════════════════════════════ */
+const snapStats = [
+  { value: "6+",  label: "Deployed Projects",       sub: "Live, production-facing" },
+  { value: "3",   label: "Industry Internships",     sub: "2024 – 2025" },
+  { value: "500+",label: "DSA Problems Solved",      sub: "LeetCode · Top 5%" },
+  { value: "20+", label: "Certifications",           sub: "AWS, Azure, GCP & more" },
+];
 
-    // Neural network nodes
-    const nodes = Array.from({ length: 50 }, () => ({
-      x: Math.random() * canvas.width,
-      y: Math.random() * canvas.height,
-      vx: (Math.random() - 0.5) * 0.4,
-      vy: (Math.random() - 0.5) * 0.4,
-      radius: Math.random() * 2 + 1,
-      color: ['#00f0ff', '#a78bfa', '#ff61d2', '#00ff88'][Math.floor(Math.random() * 4)],
-      pulse: Math.random() * Math.PI * 2
-    }));
+const skillGroups = [
+  {
+    icon: Code2, label: "Full-Stack",
+    color: C.accent, dim: C.accentDim,
+    items: [
+      { tech:"React",      note:"Auth systems, Redux, protected routes, memo optimisation" },
+      { tech:"Node.js",    note:"REST APIs, JWT middleware, rate limiting, Express" },
+      { tech:"MongoDB",    note:"Schema design, Atlas, aggregation pipelines" },
+      { tech:"TypeScript", note:"Strict typing, generics, utility types" },
+    ],
+  },
+  {
+    icon: Brain, label: "AI / ML",
+    color: C.purple, dim: C.purpleDim,
+    items: [
+      { tech:"TensorFlow / Keras", note:"CNN training, model evaluation, inference optimisation" },
+      { tech:"Scikit-learn",       note:"Classification, feature engineering, cross-validation" },
+      { tech:"NLP Pipelines",      note:"TF-IDF, tokenisation, Logistic Regression classifiers" },
+      { tech:"OpenCV",             note:"Real-time object detection, frame processing" },
+    ],
+  },
+  {
+    icon: Cloud, label: "Cloud & DevOps",
+    color: C.green, dim: C.greenDim,
+    items: [
+      { tech:"AWS EC2 / S3",      note:"Deployed Node.js services, Nginx reverse proxy" },
+      { tech:"Docker",            note:"Containerised microservices, Docker Compose stacks" },
+      { tech:"GitHub Actions",    note:"Automated build-test-deploy CI/CD pipelines" },
+      { tech:"Linux / CLI",       note:"Server management, bash scripting, cron jobs" },
+    ],
+  },
+  {
+    icon: Terminal, label: "Foundations",
+    color: C.amber, dim: C.amberDim,
+    items: [
+      { tech:"Python",      note:"Primary ML language, scripting, data pipelines" },
+      { tech:"Java",        note:"OOP, Collections, academic projects" },
+      { tech:"C++",         note:"DSA, algorithm competitions" },
+      { tech:"Git / GitHub",note:"Branching strategy, PRs, code review" },
+    ],
+  },
+];
 
-    const animate = () => {
-      time += 0.01;
-      
-      // Clear with fade
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.05)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
+const experiences = [
+  {
+    role:     "MERN Stack Intern",
+    company:  "StudyOwl Education Pvt Ltd",
+    period:   "May – Jul 2025 · 3 months",
+    location: "Hybrid",
+    color:    C.accent,
+    dim:      C.accentDim,
+    bullets: [
+      "Built 3 full-stack web applications with React, Node.js, Express, and MongoDB — all deployed to production",
+      "Rebuilt authentication layer using OAuth 2.0 and JWT with role-based access control, replacing insecure session approach",
+      "Reduced REST API response times by 40% through query indexing, Redis caching, and payload restructuring",
+      "Delivered ATS résumé builder with PDF/DOCX export — serving 1,000+ active users post-launch",
+    ],
+    tech: ["React", "Node.js", "MongoDB", "JWT", "Redis", "AWS"],
+  },
+  {
+    role:     "AI / ML Intern",
+    company:  "SmartBridge",
+    period:   "May – Jun 2025 · 2 months",
+    location: "Remote",
+    color:    C.purple,
+    dim:      C.purpleDim,
+    bullets: [
+      "Trained and evaluated 5+ ML / DL models across image classification and object detection tasks",
+      "Built CNN classifier achieving 85% accuracy on a 3,000-sample custom dataset",
+      "Reduced model inference time by 35% through architecture pruning and optimised batch processing",
+      "Deployed real-time object detection API with Flask and OpenCV",
+    ],
+    tech: ["Python", "TensorFlow", "Keras", "OpenCV", "Flask"],
+  },
+  {
+    role:     "ML & Data Science Intern",
+    company:  "Blackbucks",
+    period:   "May – Jun 2024 · 2 months",
+    location: "Remote",
+    color:    C.green,
+    dim:      C.greenDim,
+    bullets: [
+      "Processed and cleaned 100,000+ record datasets using Pandas / NumPy, resolving nulls, duplicates, and schema issues",
+      "Built Fake News Detection classifier (TF-IDF + Logistic Regression) achieving 89% accuracy on 50K+ articles",
+      "Trained 6 supervised models (SVM, RF, XGBoost); best cross-validated accuracy 92%",
+      "Engineered 15+ features using PCA and correlation filtering, improving F1-score by 12%",
+    ],
+    tech: ["Python", "Scikit-learn", "XGBoost", "Pandas", "NumPy"],
+  },
+];
 
-      // Draw DNA helix in background
-      const helixCenterX = canvas.width / 2;
-      const helixAmplitude = 150;
-      const helixFrequency = 0.02;
-      
-      for (let y = 0; y < canvas.height; y += 10) {
-        const x1 = helixCenterX + Math.sin(y * helixFrequency + time) * helixAmplitude;
-        const x2 = helixCenterX - Math.sin(y * helixFrequency + time) * helixAmplitude;
-        
-        const alpha = Math.abs(Math.sin(y * 0.01 + time)) * 0.08;
-        ctx.fillStyle = `rgba(0, 240, 255, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(x1, y, 2, 0, Math.PI * 2);
-        ctx.fill();
-        
-        ctx.fillStyle = `rgba(167, 139, 250, ${alpha})`;
-        ctx.beginPath();
-        ctx.arc(x2, y, 2, 0, Math.PI * 2);
-        ctx.fill();
-        
-        // Connect strands
-        if (y % 50 === 0) {
-          ctx.strokeStyle = `rgba(255, 97, 210, ${alpha * 0.5})`;
-          ctx.lineWidth = 1;
-          ctx.beginPath();
-          ctx.moveTo(x1, y);
-          ctx.lineTo(x2, y);
-          ctx.stroke();
-        }
-      }
+const projects = [
+  {
+    name:     "ATS Résumé Builder",
+    status:   "Live",
+    role:     "Full-stack engineer",
+    desc:     "Web app that generates ATS-optimised résumés with PDF and DOCX export. OAuth authentication, live preview, cloud-stored templates.",
+    outcomes: ["1,000+ active users post-launch", "PDF/DOCX export with real-time preview", "OAuth 2.0 + JWT auth, role-based access"],
+    tech:     ["React", "Node.js", "MongoDB", "JWT", "AWS"],
+    github:   "https://github.com/bhagavan444",
+  },
+  {
+    name:     "Fake News Detection System",
+    status:   "GitHub",
+    role:     "ML engineer",
+    desc:     "NLP pipeline classifying real vs fake news using TF-IDF vectorisation and Logistic Regression on 50K+ labelled articles.",
+    outcomes: ["89% accuracy on held-out test set", "TF-IDF + Logistic Regression pipeline", "50,000+ training records processed"],
+    tech:     ["Python", "Scikit-learn", "Pandas", "TF-IDF"],
+    github:   "https://github.com/bhagavan444",
+  },
+  {
+    name:     "Real-Time Object Detection API",
+    status:   "Deployed",
+    role:     "AI engineer",
+    desc:     "CNN-based image classifier deployed as a Flask REST API with OpenCV frame processing. Achieved 35% inference latency reduction post-optimisation.",
+    outcomes: ["85% classification accuracy", "35% inference time reduction", "Flask + Docker deployment"],
+    tech:     ["TensorFlow", "OpenCV", "Flask", "Docker"],
+    github:   "https://github.com/bhagavan444",
+  },
+];
 
-      // Update and draw nodes
-      nodes.forEach((node, i) => {
-        node.x += node.vx;
-        node.y += node.vy;
-        node.pulse += 0.03;
+const certifications = [
+  { name:"AWS Solutions Architect – Professional", issuer:"Amazon Web Services", year:"2025", color:C.amber },
+  { name:"Azure AI Engineer Associate",            issuer:"Microsoft Azure",     year:"2025", color:C.accent },
+  { name:"Google Cloud Professional",              issuer:"Google Cloud",        year:"2024", color:C.green },
+  { name:"Deep Learning Specialisation",           issuer:"DeepLearning.AI",     year:"2024", color:C.purple },
+  { name:"Full-Stack Open",                        issuer:"University of Helsinki", year:"2024", color:C.muted2 },
+];
 
-        // Boundary bounce
-        if (node.x < 0 || node.x > canvas.width) node.vx *= -1;
-        if (node.y < 0 || node.y > canvas.height) node.vy *= -1;
+const education = {
+  degree:   "B.Tech – Computer Science & Engineering",
+  school:   "KKR & KSR Institute of Technology and Sciences",
+  period:   "2022 – 2026",
+  cgpa:     "7.9 CGPA",
+  location: "Gudivada, Andhra Pradesh",
+};
 
-        // Draw connections
-        nodes.slice(i + 1).forEach(other => {
-          const dx = other.x - node.x;
-          const dy = other.y - node.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-
-          if (dist < 150) {
-            const alpha = (1 - dist / 150) * 0.15;
-            ctx.strokeStyle = `${node.color}${Math.floor(alpha * 255).toString(16).padStart(2, '0')}`;
-            ctx.lineWidth = 1;
-            ctx.beginPath();
-            ctx.moveTo(node.x, node.y);
-            ctx.lineTo(other.x, other.y);
-            ctx.stroke();
-          }
-        });
-
-        // Draw node
-        const pulseSize = node.radius * (1 + Math.sin(node.pulse) * 0.5);
-        const gradient = ctx.createRadialGradient(node.x, node.y, 0, node.x, node.y, pulseSize * 6);
-        gradient.addColorStop(0, `${node.color}80`);
-        gradient.addColorStop(0.5, `${node.color}40`);
-        gradient.addColorStop(1, 'transparent');
-        
-        ctx.fillStyle = gradient;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, pulseSize * 6, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = node.color;
-        ctx.beginPath();
-        ctx.arc(node.x, node.y, pulseSize, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // Draw flowing waves at edges
-      ctx.strokeStyle = 'rgba(0, 240, 255, 0.08)';
-      ctx.lineWidth = 2;
-      ctx.beginPath();
-      for (let x = 0; x < canvas.width; x += 5) {
-        const y = Math.sin(x * 0.01 + time * 2) * 30 + 50;
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      ctx.strokeStyle = 'rgba(167, 139, 250, 0.08)';
-      ctx.beginPath();
-      for (let x = 0; x < canvas.width; x += 5) {
-        const y = canvas.height - (Math.sin(x * 0.01 - time * 2) * 30 + 50);
-        if (x === 0) ctx.moveTo(x, y);
-        else ctx.lineTo(x, y);
-      }
-      ctx.stroke();
-
-      animationId = requestAnimationFrame(animate);
-    };
-
-    animate();
-    window.addEventListener('resize', resize);
-
-    return () => {
-      cancelAnimationFrame(animationId);
-      window.removeEventListener('resize', resize);
-    };
+/* ═══════════════════════════════════════════════════════════════
+   HOOK
+═══════════════════════════════════════════════════════════════ */
+function useInView(threshold = 0.1) {
+  const ref = useRef(null);
+  const [inView, setInView] = React.useState(false);
+  React.useEffect(() => {
+    const ob = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
+    if (ref.current) ob.observe(ref.current);
+    return () => ob.disconnect();
   }, []);
+  return [ref, inView];
+}
 
-  const stats = [
-    { icon: GraduationCap, value: '7.9+', label: 'CGPA', color: '#00f0ff', detail: 'Top 5% of Class' },
-    { icon: Code, value: '30+', label: 'Technologies', color: '#a78bfa', detail: 'Full-Stack Expert' },
-    { icon: Rocket, value: '6+', label: 'Live Projects', color: '#ff61d2', detail: 'Production Grade' },
-    { icon: Award, value: '15+', label: 'Certifications', color: '#ffd700', detail: 'Industry Recognized' },
-    { icon: Trophy, value: '5+', label: 'Hackathons&Workshops', color: '#00ff88', detail: '3x Winner' },
-    { icon: Users, value: '50K+', label: 'Users Impacted', color: '#ff6b6b', detail: 'Global Reach' }
-  ];
+/* ═══════════════════════════════════════════════════════════════
+   SUB-COMPONENTS
+═══════════════════════════════════════════════════════════════ */
 
-  const skillCategories = {
-    'All': [],
-    'Frontend': ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Redux', 'Vue.js'],
-    'Backend': ['Node.js', 'Express', 'Django', 'FastAPI', 'GraphQL', 'REST APIs'],
-    'Database': ['MongoDB', 'PostgreSQL', 'MySQL', 'Redis', 'Firebase', 'Supabase'],
-    'AI/ML': ['TensorFlow', 'PyTorch', 'Scikit-learn', 'OpenCV', 'LangChain', 'Hugging Face'],
-    'DevOps': ['Docker', 'Kubernetes', 'AWS', 'GCP', 'CI/CD', 'Terraform'],
-    'Mobile': ['React Native', 'Flutter', 'Android', 'iOS', 'Firebase', 'App Store']
+function SectionHeader({ num, title, sub }) {
+  return (
+    <div style={{ marginBottom:"2rem" }}>
+      <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.18em", textTransform:"uppercase", color:C.muted, marginBottom:"0.5rem" }}>
+        {num}
+      </div>
+      <h2 style={{ fontFamily:"'Instrument Serif',serif", fontSize:"clamp(1.5rem,3vw,2rem)", fontWeight:400, color:C.text, letterSpacing:"-0.025em", lineHeight:1.2, marginBottom: sub ? "0.5rem" : 0 }}>
+        {title}
+      </h2>
+      {sub && <p style={{ fontSize:"0.875rem", color:C.muted2, lineHeight:1.7 }}>{sub}</p>}
+    </div>
+  );
+}
+
+function DeployBadge({ status }) {
+  const map = {
+    Live:     { color:C.green,  bg:C.greenDim,  border:"rgba(34,197,94,0.2)" },
+    Deployed: { color:C.green,  bg:C.greenDim,  border:"rgba(34,197,94,0.2)" },
+    GitHub:   { color:C.muted2, bg:C.surface3,  border:C.border2 },
   };
+  const s = map[status] || map.GitHub;
+  return (
+    <span style={{
+      padding:"0.2rem 0.6rem", borderRadius:"4px",
+      background:s.bg, border:`1px solid ${s.border}`,
+      fontSize:"0.65rem", fontWeight:700,
+      color:s.color, fontFamily:"'DM Mono',monospace", letterSpacing:"0.07em",
+    }}>
+      {status}
+    </span>
+  );
+}
 
-  const allSkills = Object.entries(skillCategories).reduce((acc, [category, skills]) => {
-    if (category !== 'All') {
-      skills.forEach(skill => {
-        acc.push({ name: skill, category, proficiency: Math.floor(Math.random() * 20) + 80 });
-      });
-    }
-    return acc;
+/* ═══════════════════════════════════════════════════════════════
+   MAIN PAGE
+═══════════════════════════════════════════════════════════════ */
+export default function Resume() {
+  const [showModal, setShowModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [scrollPct, setScrollPct] = useState(0);
+
+  React.useEffect(() => {
+    const fn = () => {
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct(max > 0 ? (window.scrollY / max) * 100 : 0);
+    };
+    window.addEventListener("scroll", fn, { passive:true });
+    return () => window.removeEventListener("scroll", fn);
   }, []);
 
-  const filteredSkills = selectedSkillCategory === 'All' 
-    ? allSkills 
-    : allSkills.filter(s => s.category === selectedSkillCategory);
+  /* InView refs */
+  const [headerRef, headerIn]   = useInView(0.2);
+  const [statsRef,  statsIn]    = useInView(0.15);
+  const [skillsRef, skillsIn]   = useInView(0.1);
+  const [expRef,    expIn]      = useInView(0.1);
+  const [projRef,   projIn]     = useInView(0.1);
+  const [certRef,   certIn]     = useInView(0.15);
+  const [ctaRef,    ctaIn]      = useInView(0.2);
 
-  const experiences = [
-    {
-      title: 'AI/ML Engineer Intern',
-      company: 'Tech Innovators Inc.',
-      duration: 'Jun 2024 - Present',
-      location: 'Remote',
-      type: 'Internship',
-      highlights: [
-        'Built ML models achieving 95% accuracy',
-        'Deployed real-time inference APIs',
-        'Reduced model latency by 60%'
-      ],
-      tech: ['Python', 'TensorFlow', 'FastAPI', 'Docker']
-    },
-    {
-      title: 'Full-Stack Developer',
-      company: 'StartUp Ventures',
-      duration: 'Jan 2024 - May 2024',
-      location: 'Hybrid',
-      type: 'Contract',
-      highlights: [
-        'Developed scalable web applications',
-        'Implemented real-time features',
-        'Optimized database queries by 40%'
-      ],
-      tech: ['React', 'Node.js', 'MongoDB', 'AWS']
-    }
-  ];
-
-  const projects = [
-    {
-      name: 'AI Code Assistant',
-      desc: 'LLM-powered code generation platform with 10K+ users',
-      tech: ['GPT-4', 'React', 'FastAPI'],
-      impact: '10K+ Users',
-      status: 'Live'
-    },
-    {
-      name: 'Real-time Analytics Dashboard',
-      desc: 'High-performance data visualization with WebSocket streaming',
-      tech: ['Next.js', 'D3.js', 'Socket.io'],
-      impact: '1M+ Events/day',
-      status: 'Live'
-    },
-    {
-      name: 'Blockchain DApp',
-      desc: 'Decentralized marketplace with smart contracts',
-      tech: ['Solidity', 'React', 'Web3.js'],
-      impact: '$100K+ Volume',
-      status: 'Beta'
-    }
-  ];
-
-  const certifications = [
-    { name: 'AWS Certified Solutions Architect', issuer: 'Amazon Web Services', year: '2024' },
-    { name: 'Google Cloud Professional', issuer: 'Google Cloud', year: '2024' },
-    { name: 'Meta Frontend Developer', issuer: 'Meta', year: '2023' },
-    { name: 'Deep Learning Specialization', issuer: 'DeepLearning.AI', year: '2023' },
-    { name: 'Full-Stack Open', issuer: 'University of Helsinki', year: '2023' }
+  const tabs = [
+    { id:"overview",       label:"Overview" },
+    { id:"skills",         label:"Skills" },
+    { id:"experience",     label:"Experience" },
+    { id:"projects",       label:"Projects" },
+    { id:"certifications", label:"Certifications" },
   ];
 
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Rajdhani:wght@300;400;500;600;700&family=Fira+Code:wght@400;500;600&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500;600&family=Geist:wght@300;400;500;600;700&display=swap');
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        html { scroll-behavior:smooth; }
+        body { font-family:'Geist',system-ui,sans-serif; background:${C.bg}; color:${C.text}; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+        ::selection { background:rgba(79,127,255,0.25); }
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:${C.bg}; }
+        ::-webkit-scrollbar-thumb { background:rgba(79,127,255,0.3); border-radius:3px; }
 
-        :root {
-          --neon-cyan: #00f0ff;
-          --neon-purple: #a78bfa;
-          --neon-pink: #ff61d2;
-          --neon-gold: #ffd700;
-          --neon-green: #00ff88;
-          --neon-gradient: linear-gradient(135deg, #00f0ff, #a78bfa, #ff61d2);
+        @keyframes fadeUp {
+          from { opacity:0; transform:translateY(22px); }
+          to   { opacity:1; transform:translateY(0); }
         }
-
-        @keyframes slideUp { from { opacity:0; transform:translateY(40px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes glow { 0%,100% { opacity:1; } 50% { opacity:0.7; } }
-        @keyframes float { 0%,100% { transform:translateY(0); } 50% { transform:translateY(-12px); } }
-        @keyframes shimmer { 0% { background-position: -200%; } 100% { background-position: 200%; } }
-        @keyframes scan { 0% { transform:translateY(-100%); } 100% { transform:translateY(100%); } }
-
-        .stat-card {
-          position: relative;
-          background: linear-gradient(135deg, rgba(10,10,30,0.95), rgba(20,10,40,0.9));
-          border: 2px solid rgba(0,240,255,0.3);
-          border-radius: 20px;
-          transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-          cursor: pointer;
-          overflow: hidden;
+        @keyframes fadeSlide {
+          from { opacity:0; transform:translateX(-14px); }
+          to   { opacity:1; transform:translateX(0); }
         }
-
-        .stat-card::before {
-          content: '';
-          position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, transparent 30%, rgba(0,240,255,0.1) 50%, transparent 70%);
-          background-size: 200% 200%;
-          animation: shimmer 3s infinite;
-          pointer-events: none;
+        @keyframes fadeIn {
+          from { opacity:0; } to { opacity:1; }
         }
-
-        .stat-card:hover {
-          transform: translateY(-12px) scale(1.05);
-          border-color: var(--neon-cyan);
-          box-shadow: 0 20px 60px rgba(0,240,255,0.5);
+        @keyframes scaleIn {
+          from { opacity:0; transform:scale(0.95); }
+          to   { opacity:1; transform:scale(1); }
         }
 
         .tab-btn {
-          padding: 1rem 2rem;
-          background: rgba(0,0,0,0.7);
-          border: 2px solid rgba(0,240,255,0.3);
-          border-radius: 16px;
-          color: #fff;
-          cursor: pointer;
-          transition: all 0.4s;
-          font-family: 'Rajdhani', sans-serif;
-          font-weight: 700;
-          font-size: 1.05rem;
-          letter-spacing: 1px;
+          padding: 0.55rem 1.1rem;
+          background: transparent;
+          border: 1px solid ${C.border2};
+          border-radius: 8px;
+          color: ${C.muted2};
+          font-family: 'DM Mono', monospace;
+          font-size: 0.75rem;
+          font-weight: 600;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.22s ease;
+          white-space: nowrap;
         }
+        .tab-btn:hover { color: ${C.text}; border-color: ${C.border3}; background: ${C.surface2}; }
+        .tab-btn.active { color: ${C.accent}; border-color: rgba(79,127,255,0.35); background: ${C.accentDim}; }
 
-        .tab-btn:hover, .tab-btn.active {
-          background: linear-gradient(135deg, rgba(0,240,255,0.2), rgba(167,139,250,0.2));
-          border-color: var(--neon-cyan);
-          transform: scale(1.05) translateY(-2px);
-          box-shadow: 0 10px 30px rgba(0,240,255,0.3);
+        .skill-item { transition: background 0.2s ease, border-color 0.2s ease; }
+        .skill-item:hover { background: ${C.surface3} !important; border-color: ${C.border3} !important; }
+
+        .exp-card { transition: border-color 0.25s ease, box-shadow 0.25s ease; }
+        .exp-card:hover { box-shadow: 0 8px 40px rgba(0,0,0,0.35); }
+
+        .proj-card { transition: border-color 0.25s ease, transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.25s ease; }
+        .proj-card:hover { transform: translateY(-4px); box-shadow: 0 16px 48px rgba(0,0,0,0.4); }
+
+        .cert-row { transition: background 0.2s ease, border-color 0.2s ease; }
+        .cert-row:hover { background: ${C.surface2} !important; border-color: ${C.border3} !important; }
+
+        @media (max-width: 900px) {
+          .overview-grid { grid-template-columns: 1fr !important; }
         }
-
-        .skill-badge {
-          padding: 0.8rem 1.5rem;
-          background: rgba(0,0,0,0.6);
-          border: 2px solid rgba(0,240,255,0.3);
-          border-radius: 999px;
-          font-family: 'Fira Code', monospace;
-          font-size: 0.9rem;
-          transition: all 0.3s;
-          position: relative;
-          overflow: hidden;
-        }
-
-        .skill-badge:hover {
-          transform: scale(1.08);
-          border-color: var(--neon-cyan);
-          box-shadow: 0 0 20px rgba(0,240,255,0.5);
-        }
-
-        .progress-bar {
-          height: 10px;
-          background: rgba(0,0,0,0.6);
-          border-radius: 999px;
-          overflow: hidden;
-          position: relative;
-          border: 1px solid rgba(0,240,255,0.2);
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: var(--neon-gradient);
-          border-radius: 999px;
-          transition: width 1.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-          box-shadow: 0 0 15px rgba(0,240,255,0.6);
-        }
-
-        .glass-card {
-          background: linear-gradient(135deg, rgba(10,10,30,0.95), rgba(20,10,40,0.9));
-          backdrop-filter: blur(15px);
-          border: 2px solid rgba(0,240,255,0.3);
-          border-radius: 24px;
-        }
-
-        @media (max-width: 1024px) {
-          .main-grid { grid-template-columns: 1fr !important; }
-        }
-
-        @media (max-width: 768px) {
-          .stat-grid { grid-template-columns: repeat(2, 1fr) !important; }
-          .tab-container { flex-wrap: wrap !important; }
-        }
-
-        @media (max-width: 480px) {
-          .stat-grid { grid-template-columns: 1fr !important; }
-        }
-
-        ::-webkit-scrollbar { width: 12px; }
-        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.5); }
-        ::-webkit-scrollbar-thumb { 
-          background: linear-gradient(var(--neon-cyan), var(--neon-purple)); 
-          border-radius: 10px;
-          box-shadow: 0 0 10px var(--neon-cyan);
+        @media (max-width: 640px) {
+          .stats-grid { grid-template-columns: 1fr 1fr !important; }
+          .tabs-row { flex-wrap: wrap !important; }
         }
       `}</style>
 
-      <div style={{
-        minHeight: '100vh',
-        background: 'linear-gradient(to bottom, #000000, #0a0a15, #000000)',
-        color: '#e0e0ff',
-        position: 'relative',
-        overflow: 'hidden',
-        padding: 'clamp(5rem, 12vw, 8rem) clamp(1.5rem, 4vw, 2rem) 6rem',
-        fontFamily: "'Rajdhani', sans-serif",
-        width: '100%'
-      }}>
-        {/* Clean Gradient Background */}
-        <div style={{
-          position: 'absolute',
-          inset: 0,
-          background: 
-            'radial-gradient(ellipse at top, rgba(0,240,255,0.06) 0%, transparent 50%), ' +
-            'radial-gradient(ellipse at bottom left, rgba(167,139,250,0.06) 0%, transparent 50%), ' +
-            'radial-gradient(ellipse at bottom right, rgba(255,97,210,0.06) 0%, transparent 50%)',
-          pointerEvents: 'none'
-        }} />
+      {/* Scroll progress */}
+      <div style={{ position:"fixed", top:0, left:0, right:0, height:"2px", background:C.surface, zIndex:9999 }}>
+        <div style={{ width:`${scrollPct}%`, height:"100%", background:`linear-gradient(90deg,${C.accent},${C.purple})`, transition:"width 0.1s linear" }} />
+      </div>
 
-        <canvas ref={canvasRef} style={{
-          position: 'absolute',
-          inset: 0,
-          pointerEvents: 'none',
-          zIndex: 1
-        }} />
+      {/* Faint mesh */}
+      <div style={{ position:"fixed", inset:0, zIndex:0, pointerEvents:"none", background:`radial-gradient(ellipse 70% 45% at 50% -5%, rgba(79,127,255,0.05) 0%, transparent 60%)` }} />
 
-        <div style={{
-          position: 'relative',
-          zIndex: 10,
-          maxWidth: '1700px',
-          margin: '0 auto',
-          width: '100%'
-        }}>
-          {/* Header */}
-          <div style={{ textAlign: 'center', marginBottom: '5rem' }}>
-            <div style={{
-              display: 'inline-flex',
-              alignItems: 'center',
-              gap: '1rem',
-              padding: '0.8rem 2rem',
-              background: 'rgba(0,240,255,0.12)',
-              border: '2px solid rgba(0,240,255,0.5)',
-              borderRadius: '999px',
-              marginBottom: '2rem',
-              animation: 'glow 3s infinite',
-              backdropFilter: 'blur(10px)'
-            }}>
-              <Flame size={24} color="#ffd700" />
-              <span style={{ fontFamily: "'Orbitron', sans-serif", fontSize: '1rem', fontWeight: 700, letterSpacing: '2px' }}>
-                ELITE DEVELOPER PROFILE
-              </span>
-              <Flame size={24} color="#ffd700" />
-            </div>
+      <div style={{ maxWidth:"1100px", margin:"0 auto", padding:"0 1.5rem", position:"relative", zIndex:1 }}>
 
-            <h1 style={{
-              fontSize: 'clamp(3.5rem, 10vw, 6rem)',
-              fontWeight: 900,
-              fontFamily: "'Orbitron', sans-serif",
-              background: 'var(--neon-gradient)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              letterSpacing: '4px',
-              marginBottom: '1.5rem',
-              textTransform: 'uppercase',
-              textShadow: '0 0 60px rgba(0,240,255,0.5)'
-            }}>
-              PROFESSIONAL RESUME
-            </h1>
+        {/* ══════ HEADER ══════ */}
+        <header ref={headerRef} style={{ padding:"5rem 0 3.5rem", borderBottom:`1px solid ${C.border}` }}>
 
-            <p style={{
-              fontSize: 'clamp(1.3rem, 3vw, 1.6rem)',
-              color: '#b0b0d8',
-              maxWidth: '900px',
-              margin: '0 auto 2rem',
-              lineHeight: 1.8,
-              fontWeight: 500
-            }}>
-              AI & Data Science Engineer | Full-Stack Developer
-            </p>
-
-            <div style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '1.5rem',
-              marginBottom: '4rem',
-              flexWrap: 'wrap'
-            }}>
-              <a href="https://linkedin.com/in/your-profile" target="_blank" rel="noopener noreferrer" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.6rem',
-                padding: '0.8rem 1.6rem',
-                background: 'rgba(0,119,181,0.2)',
-                border: '2px solid #0077b5',
-                borderRadius: '999px',
-                color: '#0077b5',
-                textDecoration: 'none',
-                fontSize: '1rem',
-                fontWeight: 700,
-                transition: 'all 0.3s'
-              }}>
-                <Linkedin size={20} />
-                LinkedIn
-              </a>
-
-              <a href="https://github.com/bhagavan444" target="_blank" rel="noopener noreferrer" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.6rem',
-                padding: '0.8rem 1.6rem',
-                background: 'rgba(255,255,255,0.1)',
-                border: '2px solid #fff',
-                borderRadius: '999px',
-                color: '#fff',
-                textDecoration: 'none',
-                fontSize: '1rem',
-                fontWeight: 700,
-                transition: 'all 0.3s'
-              }}>
-                <Github size={20} />
-                GitHub
-              </a>
-
-              <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.6rem',
-                padding: '0.8rem 1.6rem',
-                background: 'rgba(0,240,255,0.15)',
-                border: '2px solid var(--neon-cyan)',
-                borderRadius: '999px',
-                color: 'var(--neon-cyan)',
-                textDecoration: 'none',
-                fontSize: '1rem',
-                fontWeight: 700,
-                transition: 'all 0.3s'
-              }}>
-                <Mail size={20} />
-                Email
-              </a>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="stat-grid" style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fit, minmax(min(200px, 100%), 1fr))',
-              gap: '2rem',
-              marginBottom: '4rem'
-            }}>
-              {stats.map((stat, i) => (
-                <div
-                  key={i}
-                  className="stat-card"
-                  onMouseEnter={() => setHoveredStat(i)}
-                  onMouseLeave={() => setHoveredStat(null)}
-                  style={{
-                    padding: '2rem 1.5rem',
-                    textAlign: 'center',
-                    animation: `slideUp ${0.3 + i * 0.1}s ease-out`
-                  }}
-                >
-                  <div style={{
-                    width: '70px',
-                    height: '70px',
-                    margin: '0 auto 1.2rem',
-                    background: `linear-gradient(135deg, ${stat.color}30, transparent)`,
-                    border: `3px solid ${stat.color}`,
-                    borderRadius: '50%',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    transition: 'all 0.4s'
-                  }}>
-                    <stat.icon size={32} style={{ color: stat.color }} strokeWidth={2.5} />
-                  </div>
-                  <div style={{
-                    fontSize: '2.5rem',
-                    fontWeight: 900,
-                    fontFamily: "'Orbitron', sans-serif",
-                    color: stat.color,
-                    marginBottom: '0.5rem',
-                    textShadow: `0 0 20px ${stat.color}60`
-                  }}>
-                    {stat.value}
-                  </div>
-                  <div style={{ 
-                    color: '#c0c0e0', 
-                    fontSize: '1.05rem', 
-                    marginBottom: '0.5rem',
-                    fontWeight: 600,
-                    letterSpacing: '0.5px'
-                  }}>
-                    {stat.label}
-                  </div>
-                  {hoveredStat === i && (
-                    <div style={{
-                      fontSize: '0.9rem',
-                      color: '#888',
-                      fontFamily: "'Fira Code', monospace",
-                      marginTop: '0.5rem'
-                    }}>
-                      {stat.detail}
-                    </div>
-                  )}
-                </div>
-              ))}
-            </div>
+          <div style={{
+            display:"flex", alignItems:"center", gap:"0.65rem", marginBottom:"1.5rem",
+            opacity:headerIn?1:0, animation:headerIn?"fadeSlide 0.5s cubic-bezier(0.22,1,0.36,1) both":"none",
+          }}>
+            <div style={{ width:"22px", height:"1px", background:C.accent }} />
+            <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.72rem", fontWeight:600, letterSpacing:"0.18em", textTransform:"uppercase", color:C.accent }}>
+              Résumé · 2026 Graduate
+            </span>
           </div>
 
-          {/* Tabs */}
-          <div className="tab-container" style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1.2rem',
-            marginBottom: '4rem',
-            flexWrap: 'wrap'
+          <h1 style={{
+            fontFamily:"'Instrument Serif',serif",
+            fontSize:"clamp(2.4rem,5vw,3.8rem)", fontWeight:400, color:C.text,
+            letterSpacing:"-0.025em", lineHeight:1.1, marginBottom:"0.5rem",
+            opacity:headerIn?1:0, animation:headerIn?"fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.07s both":"none",
           }}>
-            {['overview', 'skills', 'experience', 'projects', 'certifications'].map(tab => (
-              <button
-                key={tab}
-                className={`tab-btn ${activeTab === tab ? 'active' : ''}`}
-                onClick={() => setActiveTab(tab)}
-              >
-                {tab.charAt(0).toUpperCase() + tab.slice(1)}
+            Siva Satya Sai Bhagavan
+          </h1>
+
+          <p style={{
+            fontSize:"1.05rem", color:C.muted2, fontWeight:500, marginBottom:"1.75rem",
+            opacity:headerIn?1:0, animation:headerIn?"fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.13s both":"none",
+          }}>
+            Full-Stack &amp; AI Engineer · Open to SDE Roles
+          </p>
+
+          {/* Meta row */}
+          <div style={{
+            display:"flex", flexWrap:"wrap", gap:"1.25rem", alignItems:"center",
+            marginBottom:"2rem",
+            opacity:headerIn?1:0, animation:headerIn?"fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.19s both":"none",
+          }}>
+            {[
+              { icon:MapPin,   text:"Gudivada, Andhra Pradesh",            href:null },
+              { icon:Mail,     text:"g.sivasatyasaibhagavan@gmail.com",     href:"mailto:g.sivasatyasaibhagavan@gmail.com" },
+              { icon:Github,   text:"github.com/bhagavan444",               href:"https://github.com/bhagavan444" },
+              { icon:Linkedin, text:"LinkedIn Profile",                     href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/" },
+            ].map((m, i) => {
+              const Tag = m.href ? "a" : "span";
+              return (
+                <Tag key={i} href={m.href||undefined} target={m.href?.startsWith("http")?"_blank":undefined} rel="noopener noreferrer"
+                  style={{
+                    display:"inline-flex", alignItems:"center", gap:"0.4rem",
+                    fontSize:"0.8rem", color:C.muted2, fontFamily:"'DM Mono',monospace",
+                    textDecoration:"none", transition:"color 0.2s ease",
+                  }}
+                  onMouseEnter={m.href ? e=>e.currentTarget.style.color=C.text : undefined}
+                  onMouseLeave={m.href ? e=>e.currentTarget.style.color=C.muted2 : undefined}
+                >
+                  <m.icon size={12} /> {m.text}
+                </Tag>
+              );
+            })}
+          </div>
+
+          {/* CTA buttons */}
+          <div style={{
+            display:"flex", gap:"0.75rem", flexWrap:"wrap",
+            opacity:headerIn?1:0, animation:headerIn?"fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) 0.25s both":"none",
+          }}>
+            <a href={RESUME_DOWNLOAD}
+              style={{
+                display:"inline-flex", alignItems:"center", gap:"0.5rem",
+                padding:"0.7rem 1.4rem", borderRadius:"10px",
+                background:C.accent, color:"#fff",
+                fontSize:"0.875rem", fontWeight:600, textDecoration:"none",
+                fontFamily:"'Geist',sans-serif",
+                boxShadow:"0 4px 20px rgba(79,127,255,0.25)",
+                transition:"all 0.25s cubic-bezier(0.34,1.56,0.64,1)",
+              }}
+              onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(79,127,255,0.4)"; }}
+              onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(79,127,255,0.25)"; }}
+            >
+              <Download size={14} /> Download PDF
+            </a>
+            <button
+              onClick={() => setShowModal(true)}
+              style={{
+                display:"inline-flex", alignItems:"center", gap:"0.5rem",
+                padding:"0.7rem 1.4rem", borderRadius:"10px",
+                background:"transparent", color:C.muted2,
+                border:`1px solid ${C.border3}`,
+                fontSize:"0.875rem", fontWeight:500, cursor:"pointer",
+                fontFamily:"'Geist',sans-serif",
+                transition:"all 0.22s ease",
+              }}
+              onMouseEnter={e=>{ e.currentTarget.style.color=C.text; e.currentTarget.style.borderColor="rgba(255,255,255,0.25)"; }}
+              onMouseLeave={e=>{ e.currentTarget.style.color=C.muted2; e.currentTarget.style.borderColor=C.border3; }}
+            >
+              <Eye size={14} /> Preview Fullscreen
+            </button>
+          </div>
+        </header>
+
+        {/* ══════ SNAP STATS ══════ */}
+        <section ref={statsRef} style={{ padding:"2.5rem 0", borderBottom:`1px solid ${C.border}` }}>
+          <div className="stats-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1px", background:C.border }}>
+            {snapStats.map((s, i) => (
+              <div key={i} style={{
+                padding:"1.5rem 1.75rem", background:C.bg,
+                opacity:statsIn?1:0,
+                animation:statsIn?`fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) ${i*0.07}s both`:"none",
+              }}>
+                <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"2rem", color:C.text, letterSpacing:"-0.03em", marginBottom:"0.25rem" }}>{s.value}</div>
+                <div style={{ fontSize:"0.825rem", fontWeight:600, color:C.muted2, marginBottom:"0.15rem" }}>{s.label}</div>
+                <div style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>{s.sub}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* ══════ TABS ══════ */}
+        <div style={{ padding:"2rem 0 0", position:"sticky", top:0, background:C.bg, zIndex:50, borderBottom:`1px solid ${C.border}`, marginBottom:"2.5rem" }}>
+          <div className="tabs-row" style={{ display:"flex", gap:"0.5rem", overflowX:"auto", paddingBottom:"1.25rem" }}>
+            {tabs.map(t => (
+              <button key={t.id} className={`tab-btn${activeTab===t.id?" active":""}`} onClick={()=>setActiveTab(t.id)}>
+                {t.label}
               </button>
             ))}
           </div>
+        </div>
 
-          {/* Content Sections */}
-          {activeTab === 'overview' && (
-            <div className="main-grid" style={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 2fr',
-              gap: '3rem',
-              marginBottom: '4rem'
-            }}>
-              {/* Action Buttons */}
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
-                <a
-                  href={RESUME_DOWNLOAD}
-                  style={{
-                    padding: '1.6rem',
-                    background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink))',
-                    borderRadius: '999px',
-                    color: '#000',
-                    fontWeight: 900,
-                    fontSize: '1.3rem',
-                    fontFamily: "'Orbitron', sans-serif",
-                    textDecoration: 'none',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '1rem',
-                    boxShadow: '0 0 60px rgba(0,240,255,0.7)',
-                    transition: 'all 0.4s',
-                    letterSpacing: '1px'
-                  }}
-                >
-                  <Download size={30} />
-                  Download PDF
-                </a>
+        {/* ══════ OVERVIEW ══════ */}
+        {activeTab === "overview" && (
+          <div className="overview-grid" style={{ display:"grid", gridTemplateColumns:"1fr 1.4fr", gap:"1.5rem", paddingBottom:"4rem", animation:"fadeIn 0.4s ease both" }}>
 
-                <button
-                  onClick={() => setShowModal(true)}
-                  style={{
-                    padding: '1.6rem',
-                    background: 'rgba(0,240,255,0.12)',
-                    border: '3px solid var(--neon-cyan)',
-                    borderRadius: '999px',
-                    color: 'var(--neon-cyan)',
-                    fontWeight: 900,
-                    fontSize: '1.3rem',
-                    fontFamily: "'Orbitron', sans-serif",
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center',
-                    gap: '1rem',
-                    cursor: 'pointer',
-                    transition: 'all 0.4s',
-                    letterSpacing: '1px',
-                    backdropFilter: 'blur(10px)'
-                  }}
-                >
-                  <Eye size={30} />
-                  View Fullscreen
-                </button>
+            {/* Left: quick info + education */}
+            <div style={{ display:"flex", flexDirection:"column", gap:"1.25rem" }}>
 
-                {/* Quick Info */}
-                <div className="glass-card" style={{
-                  padding: '2.5rem 2rem'
-                }}>
-                  <h3 style={{
-                    fontSize: '1.8rem',
-                    fontWeight: 800,
-                    fontFamily: "'Orbitron', sans-serif",
-                    color: 'var(--neon-cyan)',
-                    marginBottom: '2rem',
-                    letterSpacing: '1px'
-                  }}>
-                    Quick Info
-                  </h3>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '1.05rem' }}>
-                      <MapPin size={22} color="#a78bfa" />
-                      <span>Gudivada, India</span>
+              {/* Availability card */}
+              <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", padding:"1.5rem" }}>
+                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"1rem" }}>
+                  Availability
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem" }}>
+                  {[
+                    { dot:C.green,  text:"Open to full-time SDE roles" },
+                    { dot:C.accent, text:"Interested in AI / ML engineering" },
+                    { dot:C.amber,  text:"Available for technical collaboration" },
+                    { dot:C.green,  text:"Immediate joiner · 2026 graduate" },
+                  ].map((r, i) => (
+                    <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.65rem" }}>
+                      <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:r.dot, flexShrink:0 }} />
+                      <span style={{ fontSize:"0.85rem", color:C.muted2, fontWeight:500 }}>{r.text}</span>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '1.05rem' }}>
-                      <Briefcase size={22} color="#ff61d2" />
-                      <span>Open to Opportunities</span>
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '1.2rem', fontSize: '1.05rem' }}>
-                      <CheckCircle2 size={22} color="#00ff88" />
-                      <span>Available Immediately</span>
-                    </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 
-              {/* Resume Preview */}
-              <div style={{
-                borderRadius: '28px',
-                overflow: 'hidden',
-                border: '4px solid rgba(0,240,255,0.5)',
-                background: '#000',
-                boxShadow: '0 0 100px rgba(0,240,255,0.4)',
-                position: 'relative',
-                height: 'clamp(600px, 80vh, 1000px)'
-              }}>
-                <div style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  padding: '1.2rem 2rem',
-                  background: 'rgba(0,0,0,0.95)',
-                  backdropFilter: 'blur(15px)',
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                  zIndex: 20,
-                  borderBottom: '2px solid rgba(0,240,255,0.4)'
-                }}>
-                  <div style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    fontSize: '1.05rem',
-                    fontFamily: "'Fira Code', monospace",
-                    fontWeight: 600
-                  }}>
-                    <CheckCircle2 size={20} color="var(--neon-cyan)" />
-                    <span>ATS Score: 92%</span>
-                  </div>
-
-                  <div style={{
-                    padding: '0.5rem 1.3rem',
-                    background: 'rgba(0,255,136,0.25)',
-                    border: '2px solid #00ff88',
-                    borderRadius: '999px',
-                    fontSize: '0.9rem',
-                    fontWeight: 800,
-                    fontFamily: "'Orbitron', sans-serif",
-                    color: '#00ff88',
-                    letterSpacing: '1px'
-                  }}>
-                    VERIFIED
-                  </div>
+              {/* Education */}
+              <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", padding:"1.5rem" }}>
+                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"1rem" }}>
+                  Education
                 </div>
-
-                <iframe
-                  src={RESUME_URL}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    border: 'none',
-                    background: '#fff'
-                  }}
-                  title="Professional Resume"
-                  allowFullScreen
-                />
-
-                <div style={{
-                  position: 'absolute',
-                  inset: 0,
-                  pointerEvents: 'none',
-                  background: 'linear-gradient(to bottom, transparent, rgba(0,240,255,0.05), transparent)',
-                  height: '120px',
-                  animation: 'scan 8s linear infinite'
-                }} />
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'skills' && (
-            <div style={{ marginBottom: '4rem' }}>
-              <div style={{
-                display: 'flex',
-                justifyContent: 'center',
-                gap: '1.2rem',
-                marginBottom: '3rem',
-                flexWrap: 'wrap'
-              }}>
-                {Object.keys(skillCategories).map(cat => (
-                  <button
-                    key={cat}
-                    onClick={() => setSelectedSkillCategory(cat)}
-                    style={{
-                      padding: '0.9rem 2rem',
-                      background: selectedSkillCategory === cat ? 'linear-gradient(135deg, rgba(0,240,255,0.25), rgba(167,139,250,0.25))' : 'rgba(0,0,0,0.7)',
-                      border: `2px solid ${selectedSkillCategory === cat ? 'var(--neon-cyan)' : 'rgba(0,240,255,0.3)'}`,
-                      borderRadius: '999px',
-                      color: '#fff',
-                      cursor: 'pointer',
-                      fontSize: '1rem',
-                      fontWeight: 700,
-                      fontFamily: "'Rajdhani', sans-serif",
-                      transition: 'all 0.4s',
-                      letterSpacing: '0.5px'
-                    }}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
-
-              <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fill, minmax(min(320px, 100%), 1fr))',
-                gap: '2rem'
-              }}>
-                {filteredSkills.map((skill, i) => (
-                  <div
-                    key={i}
-                    className="glass-card"
-                    style={{
-                      padding: '2rem',
-                      animation: `slideUp ${0.2 + i * 0.05}s ease-out`
-                    }}
-                  >
-                    <div style={{
-                      display: 'flex',
-                      justifyContent: 'space-between',
-                      marginBottom: '1.2rem'
-                    }}>
-                      <span style={{ fontWeight: 800, fontSize: '1.2rem', fontFamily: "'Rajdhani', sans-serif" }}>{skill.name}</span>
-                      <span style={{ 
-                        color: 'var(--neon-cyan)', 
-                        fontWeight: 900,
-                        fontSize: '1.2rem',
-                        fontFamily: "'Orbitron', sans-serif"
-                      }}>
-                        {skill.proficiency}%
-                      </span>
-                    </div>
-
-                    <div className="progress-bar">
-                      <div
-                        className="progress-fill"
-                        style={{ width: `${skill.proficiency}%` }}
-                      />
-                    </div>
-
-                    <div style={{
-                      marginTop: '1rem',
-                      fontSize: '0.85rem',
-                      color: '#888',
-                      fontFamily: "'Fira Code', monospace",
-                      letterSpacing: '0.5px'
-                    }}>
-                      {skill.category}
-                    </div>
+                <div style={{ display:"flex", gap:"0.75rem", alignItems:"flex-start" }}>
+                  <div style={{ width:"36px", height:"36px", borderRadius:"8px", background:C.accentDim, border:`1px solid rgba(79,127,255,0.2)`, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
+                    <GraduationCap size={16} style={{ color:C.accent }} />
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'experience' && (
-            <div style={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '2.5rem',
-              marginBottom: '4rem'
-            }}>
-              {experiences.map((exp, i) => (
-                <div
-                  key={i}
-                  className="glass-card"
-                  style={{
-                    padding: '3rem',
-                    animation: `slideUp ${0.3 + i * 0.15}s ease-out`,
-                    position: 'relative'
-                  }}
-                >
-                  <div style={{
-                    position: 'absolute',
-                    top: '2rem',
-                    right: '2rem',
-                    padding: '0.6rem 1.3rem',
-                    background: exp.type === 'Internship' ? 'rgba(0,240,255,0.25)' : 'rgba(255,97,210,0.25)',
-                    border: `2px solid ${exp.type === 'Internship' ? 'var(--neon-cyan)' : '#ff61d2'}`,
-                    borderRadius: '999px',
-                    fontSize: '0.85rem',
-                    fontWeight: 800,
-                    fontFamily: "'Orbitron', sans-serif",
-                    color: exp.type === 'Internship' ? 'var(--neon-cyan)' : '#ff61d2',
-                    letterSpacing: '1px'
-                  }}>
-                    {exp.type}
-                  </div>
-
-                  <h3 style={{
-                    fontSize: '2rem',
-                    fontWeight: 900,
-                    fontFamily: "'Orbitron', sans-serif",
-                    color: '#fff',
-                    marginBottom: '0.8rem'
-                  }}>
-                    {exp.title}
-                  </h3>
-
-                  <div style={{
-                    fontSize: '1.4rem',
-                    color: 'var(--neon-cyan)',
-                    marginBottom: '1.5rem',
-                    fontWeight: 700,
-                    fontFamily: "'Rajdhani', sans-serif"
-                  }}>
-                    {exp.company}
-                  </div>
-
-                  <div style={{
-                    display: 'flex',
-                    gap: '2.5rem',
-                    marginBottom: '2rem',
-                    flexWrap: 'wrap',
-                    fontSize: '1rem',
-                    color: '#999',
-                    fontWeight: 600
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                      <Calendar size={18} />
-                      {exp.duration}
-                    </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
-                      <MapPin size={18} />
-                      {exp.location}
-                    </div>
-                  </div>
-
-                  <div style={{ marginBottom: '2rem' }}>
-                    {exp.highlights.map((highlight, idx) => (
-                      <div
-                        key={idx}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'flex-start',
-                          gap: '1.2rem',
-                          marginBottom: '1rem',
-                          padding: '1rem',
-                          background: 'rgba(0,0,0,0.4)',
-                          borderRadius: '12px',
-                          border: '1px solid rgba(0,240,255,0.2)'
-                        }}
-                      >
-                        <CheckCircle2 size={20} color="var(--neon-cyan)" style={{ flexShrink: 0, marginTop: '0.2rem' }} strokeWidth={2.5} />
-                        <span style={{ lineHeight: 1.7, fontSize: '1.05rem' }}>{highlight}</span>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '1rem'
-                  }}>
-                    {exp.tech.map((t, idx) => (
-                      <span
-                        key={idx}
-                        style={{
-                          padding: '0.6rem 1.3rem',
-                          background: 'rgba(0,240,255,0.12)',
-                          border: '2px solid rgba(0,240,255,0.4)',
-                          borderRadius: '999px',
-                          fontSize: '0.9rem',
-                          fontFamily: "'Fira Code', monospace",
-                          fontWeight: 600
-                        }}
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'projects' && (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(min(380px, 100%), 1fr))',
-              gap: '2.5rem',
-              marginBottom: '4rem'
-            }}>
-              {projects.map((project, i) => (
-                <div
-                  key={i}
-                  className="glass-card"
-                  style={{
-                    padding: '2.5rem',
-                    animation: `slideUp ${0.3 + i * 0.1}s ease-out`,
-                    position: 'relative',
-                    cursor: 'pointer',
-                    transition: 'all 0.4s'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-10px)';
-                    e.currentTarget.style.boxShadow = '0 25px 70px rgba(0,240,255,0.5)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <div style={{
-                    position: 'absolute',
-                    top: '1.5rem',
-                    right: '1.5rem',
-                    padding: '0.5rem 1.2rem',
-                    background: project.status === 'Live' ? 'rgba(0,255,136,0.25)' : 'rgba(255,215,0,0.25)',
-                    border: `2px solid ${project.status === 'Live' ? '#00ff88' : '#ffd700'}`,
-                    borderRadius: '999px',
-                    fontSize: '0.8rem',
-                    fontWeight: 800,
-                    fontFamily: "'Orbitron', sans-serif",
-                    color: project.status === 'Live' ? '#00ff88' : '#ffd700',
-                    animation: 'glow 2s infinite',
-                    letterSpacing: '1px'
-                  }}>
-                    {project.status}
-                  </div>
-
-                  <h3 style={{
-                    fontSize: '1.8rem',
-                    fontWeight: 900,
-                    fontFamily: "'Orbitron', sans-serif",
-                    color: '#fff',
-                    marginBottom: '1.2rem',
-                    paddingRight: '6rem'
-                  }}>
-                    {project.name}
-                  </h3>
-
-                  <p style={{
-                    fontSize: '1.05rem',
-                    color: '#b0b0d0',
-                    lineHeight: 1.7,
-                    marginBottom: '2rem'
-                  }}>
-                    {project.desc}
-                  </p>
-
-                  <div style={{
-                    padding: '1.3rem',
-                    background: 'rgba(0,0,0,0.5)',
-                    borderRadius: '16px',
-                    marginBottom: '2rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1.2rem',
-                    border: '2px solid rgba(0,240,255,0.3)'
-                  }}>
-                    <TrendingUp size={28} color="var(--neon-cyan)" strokeWidth={2.5} />
-                    <div>
-                      <div style={{ fontSize: '0.85rem', color: '#888', marginBottom: '0.3rem' }}>Impact</div>
-                      <div style={{ 
-                        fontSize: '1.4rem', 
-                        fontWeight: 900, 
-                        fontFamily: "'Orbitron', sans-serif",
-                        color: 'var(--neon-cyan)',
-                        textShadow: '0 0 20px rgba(0,240,255,0.6)'
-                      }}>
-                        {project.impact}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div style={{
-                    display: 'flex',
-                    flexWrap: 'wrap',
-                    gap: '0.8rem'
-                  }}>
-                    {project.tech.map((t, idx) => (
-                      <span
-                        key={idx}
-                        style={{
-                          padding: '0.5rem 1.1rem',
-                          background: 'rgba(167,139,250,0.15)',
-                          border: '2px solid rgba(167,139,250,0.5)',
-                          borderRadius: '999px',
-                          fontSize: '0.85rem',
-                          fontFamily: "'Fira Code', monospace",
-                          color: '#a78bfa',
-                          fontWeight: 600
-                        }}
-                      >
-                        {t}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'certifications' && (
-            <div style={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(auto-fill, minmax(min(420px, 100%), 1fr))',
-              gap: '2rem',
-              marginBottom: '4rem'
-            }}>
-              {certifications.map((cert, i) => (
-                <div
-                  key={i}
-                  className="glass-card"
-                  style={{
-                    padding: '2.5rem',
-                    animation: `slideUp ${0.2 + i * 0.08}s ease-out`,
-                    display: 'flex',
-                    alignItems: 'flex-start',
-                    gap: '2rem',
-                    transition: 'all 0.4s',
-                    cursor: 'pointer'
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.transform = 'translateY(-8px)';
-                    e.currentTarget.style.borderColor = '#ffd700';
-                    e.currentTarget.style.boxShadow = '0 15px 50px rgba(255,215,0,0.4)';
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'translateY(0)';
-                    e.currentTarget.style.borderColor = 'rgba(0,240,255,0.3)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
-                >
-                  <Award size={36} color="#ffd700" style={{ flexShrink: 0 }} strokeWidth={2.5} />
                   <div>
-                    <h3 style={{
-                      fontSize: '1.3rem',
-                      fontWeight: 800,
-                      fontFamily: "'Rajdhani', sans-serif",
-                      color: '#fff',
-                      marginBottom: '0.7rem'
-                    }}>
-                      {cert.name}
-                    </h3>
-                    <div style={{ 
-                      fontSize: '1.05rem', 
-                      color: '#b0b0d0', 
-                      marginBottom: '0.5rem',
-                      fontWeight: 600
-                    }}>
-                      {cert.issuer}
+                    <div style={{ fontSize:"0.875rem", fontWeight:600, color:C.text, marginBottom:"0.2rem" }}>{education.degree}</div>
+                    <div style={{ fontSize:"0.8rem", color:C.muted2, marginBottom:"0.2rem" }}>{education.school}</div>
+                    <div style={{ display:"flex", gap:"1rem", flexWrap:"wrap" }}>
+                      <span style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>{education.period}</span>
+                      <span style={{ fontSize:"0.72rem", color:C.accent, fontFamily:"'DM Mono',monospace", fontWeight:600 }}>{education.cgpa}</span>
                     </div>
-                    <div style={{
-                      fontSize: '0.9rem',
-                      color: '#777',
-                      fontFamily: "'Fira Code', monospace"
-                    }}>
-                      Issued {cert.year}
+                  </div>
+                </div>
+              </div>
+
+              {/* Tech focus */}
+              <div style={{ background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", padding:"1.5rem" }}>
+                <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"1rem" }}>
+                  Core Focus
+                </div>
+                <div style={{ display:"flex", flexDirection:"column", gap:"0.5rem" }}>
+                  {[
+                    { label:"MERN Stack Engineering",        note:"React · Node · MongoDB · Express" },
+                    { label:"AI/ML Systems",                 note:"TensorFlow · Scikit-learn · NLP" },
+                    { label:"Cloud & Infrastructure",        note:"AWS · Docker · GitHub Actions" },
+                    { label:"Algorithms & Data Structures",  note:"LeetCode Top 5% · 500+ solved" },
+                  ].map((f, i) => (
+                    <div key={i} style={{ padding:"0.6rem 0.8rem", background:C.surface2, borderRadius:"8px", border:`1px solid ${C.border}` }}>
+                      <div style={{ fontSize:"0.8rem", fontWeight:600, color:C.text, marginBottom:"0.1rem" }}>{f.label}</div>
+                      <div style={{ fontSize:"0.7rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>{f.note}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {/* Right: resume iframe */}
+            <div>
+              <div style={{
+                borderRadius:"16px", overflow:"hidden",
+                border:`1px solid ${C.border2}`,
+                background:C.surface,
+                height:"clamp(560px,75vh,860px)",
+                position:"relative",
+              }}>
+                {/* Iframe header */}
+                <div style={{
+                  padding:"0.75rem 1.1rem",
+                  background:C.surface2,
+                  borderBottom:`1px solid ${C.border}`,
+                  display:"flex", alignItems:"center", justifyContent:"space-between",
+                }}>
+                  <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                    <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:C.green }} />
+                    <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.7rem", color:C.muted, letterSpacing:"0.06em" }}>résumé preview</span>
+                  </div>
+                  <div style={{ display:"flex", gap:"0.5rem" }}>
+                    <button onClick={()=>setShowModal(true)}
+                      style={{ display:"flex", alignItems:"center", gap:"0.3rem", padding:"0.25rem 0.6rem", borderRadius:"5px", background:"transparent", border:`1px solid ${C.border2}`, color:C.muted2, fontSize:"0.7rem", cursor:"pointer", fontFamily:"'DM Mono',monospace", transition:"all 0.2s" }}
+                      onMouseEnter={e=>{ e.currentTarget.style.color=C.text; e.currentTarget.style.borderColor=C.border3; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.color=C.muted2; e.currentTarget.style.borderColor=C.border2; }}
+                    >
+                      <Eye size={10} /> Fullscreen
+                    </button>
+                    <a href={RESUME_DOWNLOAD}
+                      style={{ display:"flex", alignItems:"center", gap:"0.3rem", padding:"0.25rem 0.6rem", borderRadius:"5px", background:C.accentDim, border:`1px solid rgba(79,127,255,0.25)`, color:C.accent, fontSize:"0.7rem", textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"all 0.2s" }}
+                      onMouseEnter={e=>{ e.currentTarget.style.background="rgba(79,127,255,0.15)"; }}
+                      onMouseLeave={e=>{ e.currentTarget.style.background=C.accentDim; }}
+                    >
+                      <Download size={10} /> PDF
+                    </a>
+                  </div>
+                </div>
+                <iframe src={RESUME_PREVIEW} style={{ width:"100%", height:"calc(100% - 41px)", border:"none", background:"#fff" }} title="Résumé Preview" allowFullScreen />
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ══════ SKILLS ══════ */}
+        {activeTab === "skills" && (
+          <section ref={skillsRef} style={{ paddingBottom:"4rem", animation:"fadeIn 0.4s ease both" }}>
+            <SectionHeader num="Skills" title="Technical Capabilities" sub="Depth-over-breadth: each skill listed with real-world context from internships or deployed projects." />
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,460px),1fr))", gap:"1.25rem" }}>
+              {skillGroups.map((g, gi) => (
+                <div key={gi} style={{
+                  background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", overflow:"hidden",
+                  opacity:skillsIn?1:0, animation:skillsIn?`fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) ${gi*0.08}s both`:"none",
+                }}>
+                  {/* Group header */}
+                  <div style={{ padding:"1rem 1.5rem", borderBottom:`1px solid ${C.border}`, display:"flex", alignItems:"center", gap:"0.65rem" }}>
+                    <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:g.color, flexShrink:0 }} />
+                    <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                      <g.icon size={14} style={{ color:g.color }} />
+                      <span style={{ fontSize:"0.8rem", fontWeight:700, color:C.text, fontFamily:"'DM Mono',monospace", letterSpacing:"0.06em" }}>{g.label}</span>
+                    </div>
+                  </div>
+                  {/* Skills list */}
+                  <div style={{ padding:"0.5rem 0" }}>
+                    {g.items.map((item, ii) => (
+                      <div key={ii} className="skill-item" style={{
+                        display:"flex", gap:"0.75rem", padding:"0.75rem 1.5rem",
+                        borderBottom: ii < g.items.length-1 ? `1px solid ${C.border}` : "none",
+                        background:"transparent", cursor:"default",
+                      }}>
+                        <ChevronRight size={12} style={{ color:g.color, flexShrink:0, marginTop:"0.3rem" }} />
+                        <div>
+                          <div style={{ fontSize:"0.825rem", fontWeight:600, color:C.text, marginBottom:"0.15rem" }}>{item.tech}</div>
+                          <div style={{ fontSize:"0.75rem", color:C.muted, lineHeight:1.55 }}>{item.note}</div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ══════ EXPERIENCE ══════ */}
+        {activeTab === "experience" && (
+          <section ref={expRef} style={{ paddingBottom:"4rem", animation:"fadeIn 0.4s ease both" }}>
+            <SectionHeader num="Experience" title="Industry Internships" sub="3 positions across full-stack, AI/ML, and data science — 2024 to 2025." />
+            <div style={{ display:"flex", flexDirection:"column", gap:"1.25rem" }}>
+              {experiences.map((e, i) => (
+                <div key={i} className="exp-card" style={{
+                  background:C.surface, border:`1px solid ${e.color}18`,
+                  borderRadius:"16px", overflow:"hidden",
+                  opacity:expIn?1:0, animation:expIn?`fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) ${i*0.1}s both`:"none",
+                }}>
+                  {/* Accent top line */}
+                  <div style={{ height:"2px", background:`linear-gradient(90deg,${e.color},transparent 60%)` }} />
+
+                  <div style={{ padding:"1.75rem 2rem" }}>
+                    {/* Header row */}
+                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", gap:"1rem", marginBottom:"1.25rem", flexWrap:"wrap" }}>
+                      <div>
+                        <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.3rem", color:C.text, letterSpacing:"-0.02em", marginBottom:"0.25rem" }}>{e.role}</div>
+                        <div style={{ fontSize:"0.95rem", fontWeight:600, color:e.color }}>{e.company}</div>
+                      </div>
+                      <div style={{ display:"flex", flexDirection:"column", gap:"0.3rem", alignItems:"flex-end" }}>
+                        <div style={{ display:"flex", alignItems:"center", gap:"0.35rem", fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>
+                          <Calendar size={11}/> {e.period}
+                        </div>
+                        <div style={{ display:"flex", alignItems:"center", gap:"0.35rem", fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>
+                          <MapPin size={11}/> {e.location}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Divider */}
+                    <div style={{ height:"1px", background:C.border, marginBottom:"1.25rem" }} />
+
+                    {/* Bullets */}
+                    <ul style={{ listStyle:"none", display:"flex", flexDirection:"column", gap:"0.65rem", marginBottom:"1.25rem" }}>
+                      {e.bullets.map((b, bi) => (
+                        <li key={bi} style={{ display:"flex", gap:"0.7rem", alignItems:"flex-start" }}>
+                          <div style={{ width:"5px", height:"5px", borderRadius:"50%", background:e.color, flexShrink:0, marginTop:"0.4rem" }} />
+                          <span style={{ fontSize:"0.85rem", color:C.muted2, lineHeight:1.7 }}>{b}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* Tech chips */}
+                    <div style={{ display:"flex", flexWrap:"wrap", gap:"0.4rem" }}>
+                      {e.tech.map((t, ti) => (
+                        <span key={ti} style={{
+                          padding:"0.25rem 0.65rem", borderRadius:"5px",
+                          background:C.surface3, border:`1px solid ${C.border2}`,
+                          fontSize:"0.72rem", fontWeight:500, color:C.muted2,
+                          fontFamily:"'DM Mono',monospace",
+                        }}>{t}</span>
+                      ))}
                     </div>
                   </div>
                 </div>
               ))}
             </div>
-          )}
+          </section>
+        )}
 
-          {/* Bottom CTA */}
-          <div className="glass-card" style={{
-            padding: '4rem 3rem',
-            textAlign: 'center',
-            position: 'relative',
-            overflow: 'hidden'
+        {/* ══════ PROJECTS ══════ */}
+        {activeTab === "projects" && (
+          <section ref={projRef} style={{ paddingBottom:"4rem", animation:"fadeIn 0.4s ease both" }}>
+            <SectionHeader num="Projects" title="Selected Work" sub="Production-deployed and independently validated projects with measurable outcomes." />
+            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(min(100%,480px),1fr))", gap:"1.25rem" }}>
+              {projects.map((p, i) => (
+                <div key={i} className="proj-card" style={{
+                  background:C.surface, border:`1px solid ${C.border}`, borderRadius:"16px", overflow:"hidden",
+                  opacity:projIn?1:0, animation:projIn?`fadeUp 0.55s cubic-bezier(0.22,1,0.36,1) ${i*0.1}s both`:"none",
+                }}>
+                  <div style={{ padding:"1.75rem 2rem" }}>
+                    {/* Title row */}
+                    <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between", gap:"0.75rem", marginBottom:"0.75rem" }}>
+                      <div>
+                        <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.2rem", color:C.text, letterSpacing:"-0.02em", marginBottom:"0.2rem" }}>{p.name}</div>
+                        <div style={{ fontSize:"0.72rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>{p.role}</div>
+                      </div>
+                      <div style={{ display:"flex", gap:"0.4rem", alignItems:"center", flexShrink:0 }}>
+                        <DeployBadge status={p.status} />
+                        <a href={p.github} target="_blank" rel="noopener noreferrer"
+                          style={{ display:"flex", alignItems:"center", gap:"0.25rem", padding:"0.2rem 0.55rem", borderRadius:"4px", background:C.surface3, border:`1px solid ${C.border2}`, fontSize:"0.65rem", fontWeight:600, color:C.muted2, textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"all 0.2s" }}
+                          onMouseEnter={e=>{ e.currentTarget.style.color=C.text; e.currentTarget.style.borderColor=C.border3; }}
+                          onMouseLeave={e=>{ e.currentTarget.style.color=C.muted2; e.currentTarget.style.borderColor=C.border2; }}
+                        >
+                          <Github size={9} /> GitHub
+                        </a>
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize:"0.825rem", color:C.muted2, lineHeight:1.7, marginBottom:"1.1rem" }}>{p.desc}</p>
+
+                    {/* Outcomes */}
+                    <div style={{ display:"flex", flexDirection:"column", gap:"0.4rem", marginBottom:"1.1rem" }}>
+                      {p.outcomes.map((o, oi) => (
+                        <div key={oi} style={{ display:"flex", gap:"0.55rem", alignItems:"flex-start" }}>
+                          <CheckCircle size={11} style={{ color:C.green, flexShrink:0, marginTop:"0.25rem" }} />
+                          <span style={{ fontSize:"0.78rem", color:C.muted2 }}>{o}</span>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tech */}
+                    <div style={{ display:"flex", flexWrap:"wrap", gap:"0.35rem" }}>
+                      {p.tech.map((t, ti) => (
+                        <span key={ti} style={{ padding:"0.2rem 0.55rem", borderRadius:"4px", background:C.surface3, border:`1px solid ${C.border2}`, fontSize:"0.7rem", fontWeight:500, color:C.muted2, fontFamily:"'DM Mono',monospace" }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ══════ CERTIFICATIONS ══════ */}
+        {activeTab === "certifications" && (
+          <section ref={certRef} style={{ paddingBottom:"4rem", animation:"fadeIn 0.4s ease both" }}>
+            <SectionHeader num="Certifications" title="Verified Credentials" sub="Industry-recognised certifications from AWS, Microsoft, Google, and academic institutions." />
+            <div style={{ display:"flex", flexDirection:"column", gap:"0.6rem" }}>
+              {certifications.map((cert, i) => (
+                <div key={i} className="cert-row" style={{
+                  display:"flex", alignItems:"center", gap:"1rem",
+                  padding:"1rem 1.5rem",
+                  background:C.surface, border:`1px solid ${C.border}`,
+                  borderRadius:"12px", cursor:"default",
+                  opacity:certIn?1:0, animation:certIn?`fadeUp 0.5s cubic-bezier(0.22,1,0.36,1) ${i*0.07}s both`:"none",
+                }}>
+                  <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:cert.color, flexShrink:0 }} />
+                  <div style={{ flex:1 }}>
+                    <div style={{ fontSize:"0.875rem", fontWeight:600, color:C.text }}>{cert.name}</div>
+                    <div style={{ fontSize:"0.75rem", color:C.muted }}>{cert.issuer}</div>
+                  </div>
+                  <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.7rem", color:C.muted, flexShrink:0 }}>{cert.year}</div>
+                  <span style={{
+                    padding:"0.2rem 0.55rem", borderRadius:"4px",
+                    background:`rgba(${cert.color===C.green?"34,197,94":cert.color===C.accent?"79,127,255":cert.color===C.amber?"245,158,11":"167,139,250"},0.08)`,
+                    border:`1px solid ${cert.color}30`,
+                    fontSize:"0.65rem", fontWeight:700, color:cert.color,
+                    fontFamily:"'DM Mono',monospace", flexShrink:0,
+                  }}>
+                    Verified
+                  </span>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* ══════ CTA ══════ */}
+        <section ref={ctaRef} style={{ borderTop:`1px solid ${C.border}`, padding:"3rem 0 5rem" }}>
+          <div style={{
+            background:`linear-gradient(135deg, rgba(79,127,255,0.05) 0%, rgba(167,139,250,0.03) 100%)`,
+            border:`1px solid ${C.border2}`, borderRadius:"18px",
+            padding:"2.5rem 2.75rem",
+            display:"flex", alignItems:"center", justifyContent:"space-between",
+            gap:"2rem", flexWrap:"wrap",
+            opacity:ctaIn?1:0, animation:ctaIn?"fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) both":"none",
           }}>
-            <div style={{
-              position: 'absolute',
-              inset: 0,
-              background: 'var(--neon-gradient)',
-              opacity: 0.05,
-              pointerEvents: 'none'
-            }} />
-
-            <Rocket size={60} color="#ffd700" style={{ marginBottom: '2rem' }} strokeWidth={2.5} />
-
-            <h2 style={{
-              fontSize: 'clamp(2.8rem, 7vw, 4.5rem)',
-              fontWeight: 900,
-              fontFamily: "'Orbitron', sans-serif",
-              background: 'var(--neon-gradient)',
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
-              marginBottom: '2rem',
-              letterSpacing: '2px'
-            }}>
-              LET'S BUILD SOMETHING AMAZING
-            </h2>
-
-            <p style={{
-              fontSize: '1.3rem',
-              color: '#b0b0d8',
-              maxWidth: '800px',
-              margin: '0 auto 3rem',
-              lineHeight: 1.9,
-              fontWeight: 500
-            }}>
-              Open to full-time opportunities, internships, and exciting collaborations.
-              Let's connect and create impact together!
-            </p>
-
-            <div style={{
-              display: 'flex',
-              gap: '2.5rem',
-              justifyContent: 'center',
-              flexWrap: 'wrap'
-            }}>
-              <a
-                href={RESUME_DOWNLOAD}
-                style={{
-                  padding: '1.5rem 3.5rem',
-                  background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink))',
-                  borderRadius: '999px',
-                  color: '#000',
-                  fontWeight: 900,
-                  fontSize: '1.2rem',
-                  fontFamily: "'Orbitron', sans-serif",
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  boxShadow: '0 0 50px rgba(0,240,255,0.7)',
-                  transition: 'all 0.4s',
-                  letterSpacing: '1px'
-                }}
+            <div>
+              <div style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.67rem", fontWeight:700, letterSpacing:"0.15em", textTransform:"uppercase", color:C.muted, marginBottom:"0.6rem" }}>
+                2026 Graduate · Immediate Availability
+              </div>
+              <div style={{ fontFamily:"'Instrument Serif',serif", fontSize:"1.5rem", color:C.text, letterSpacing:"-0.02em", marginBottom:"0.5rem" }}>
+                Ready to contribute from day one
+              </div>
+              <p style={{ fontSize:"0.85rem", color:C.muted2, lineHeight:1.7, maxWidth:"480px" }}>
+                Full-stack engineer with MERN stack and AI/ML experience across three industry internships.
+                Actively seeking SDE roles at product-focused engineering teams.
+              </p>
+            </div>
+            <div style={{ display:"flex", flexDirection:"column", gap:"0.75rem", flexShrink:0 }}>
+              <a href={RESUME_DOWNLOAD}
+                style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", padding:"0.75rem 1.5rem", borderRadius:"10px", background:C.accent, color:"#fff", fontWeight:600, fontSize:"0.875rem", textDecoration:"none", fontFamily:"'Geist',sans-serif", boxShadow:"0 4px 20px rgba(79,127,255,0.25)", transition:"all 0.25s cubic-bezier(0.34,1.56,0.64,1)" }}
+                onMouseEnter={e=>{ e.currentTarget.style.transform="translateY(-2px)"; e.currentTarget.style.boxShadow="0 8px 28px rgba(79,127,255,0.4)"; }}
+                onMouseLeave={e=>{ e.currentTarget.style.transform="translateY(0)"; e.currentTarget.style.boxShadow="0 4px 20px rgba(79,127,255,0.25)"; }}
               >
-                <Download size={26} />
-                GET RESUME
+                <Download size={14}/> Download Resume
               </a>
-
-              <a
-                href="mailto:g.sivasatyasaibhagavan@gmail.com"
-                style={{
-                  padding: '1.5rem 3.5rem',
-                  background: 'rgba(0,240,255,0.12)',
-                  border: '3px solid var(--neon-cyan)',
-                  borderRadius: '999px',
-                  color: 'var(--neon-cyan)',
-                  fontWeight: 900,
-                  fontSize: '1.2rem',
-                  fontFamily: "'Orbitron', sans-serif",
-                  textDecoration: 'none',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  transition: 'all 0.4s',
-                  letterSpacing: '1px',
-                  backdropFilter: 'blur(10px)'
-                }}
+              <a href="mailto:g.sivasatyasaibhagavan@gmail.com"
+                style={{ display:"inline-flex", alignItems:"center", gap:"0.5rem", padding:"0.75rem 1.5rem", borderRadius:"10px", background:"transparent", border:`1px solid ${C.border3}`, color:C.muted2, fontWeight:500, fontSize:"0.875rem", textDecoration:"none", fontFamily:"'Geist',sans-serif", transition:"all 0.22s ease", justifyContent:"center" }}
+                onMouseEnter={e=>{ e.currentTarget.style.color=C.text; e.currentTarget.style.borderColor="rgba(255,255,255,0.25)"; }}
+                onMouseLeave={e=>{ e.currentTarget.style.color=C.muted2; e.currentTarget.style.borderColor=C.border3; }}
               >
-                <Mail size={26} />
-                GET IN TOUCH
+                <Mail size={13}/> Get in Touch
               </a>
             </div>
           </div>
-        </div>
+        </section>
+
+        {/* ══════ FOOTER ══════ */}
+        <footer style={{ borderTop:`1px solid ${C.border}`, padding:"1.75rem 0", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
+          <span style={{ fontSize:"0.75rem", color:C.muted, fontFamily:"'DM Mono',monospace" }}>
+            © 2026 Siva Satya Sai Bhagavan
+          </span>
+          <div style={{ display:"flex", gap:"1.5rem" }}>
+            {[
+              { label:"GitHub",   href:"https://github.com/bhagavan444" },
+              { label:"LinkedIn", href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/" },
+              { label:"Email",    href:"mailto:g.sivasatyasaibhagavan@gmail.com" },
+            ].map((l,i) => (
+              <a key={i} href={l.href} target={l.href.startsWith("http")?"_blank":undefined} rel="noopener noreferrer"
+                style={{ fontSize:"0.75rem", color:C.muted, textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"color 0.2s" }}
+                onMouseEnter={e=>e.currentTarget.style.color=C.text}
+                onMouseLeave={e=>e.currentTarget.style.color=C.muted}
+              >
+                {l.label}
+              </a>
+            ))}
+          </div>
+        </footer>
       </div>
 
-      {/* Fullscreen Modal */}
+      {/* ══════ FULLSCREEN MODAL ══════ */}
       {showModal && (
         <div
-          onClick={() => setShowModal(false)}
-          style={{
-            position: 'fixed',
-            inset: 0,
-            background: 'rgba(0,0,0,0.98)',
-            backdropFilter: 'blur(25px)',
-            zIndex: 9999,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
-          }}
+          onClick={()=>setShowModal(false)}
+          style={{ position:"fixed", inset:0, background:"rgba(0,0,0,0.97)", backdropFilter:"blur(16px)", zIndex:9999, display:"flex", alignItems:"center", justifyContent:"center", animation:"fadeIn 0.25s ease both" }}
         >
-          <div
-            onClick={e => e.stopPropagation()}
-            style={{
-              width: '100%',
-              height: '100vh',
-              position: 'relative',
-              background: '#000'
-            }}
-          >
-            <iframe
-              src={RESUME_URL}
-              style={{
-                width: '100%',
-                height: '100%',
-                border: 'none'
-              }}
-              title="Resume - Fullscreen"
-              allowFullScreen
-            />
-
-            <button
-              onClick={() => setShowModal(false)}
-              style={{
-                position: 'absolute',
-                top: '2rem',
-                right: '2rem',
-                width: '70px',
-                height: '70px',
-                background: 'rgba(255,80,80,0.95)',
-                borderRadius: '50%',
-                border: '3px solid #ff5050',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                cursor: 'pointer',
-                boxShadow: '0 0 50px rgba(255,80,80,0.7)',
-                zIndex: 10,
-                transition: 'all 0.3s',
-                backdropFilter: 'blur(10px)'
-              }}
-            >
-              <X size={36} color="#fff" strokeWidth={3} />
-            </button>
-
-            <a
-              href={RESUME_DOWNLOAD}
-              style={{
-                position: 'absolute',
-                bottom: '2rem',
-                right: '2rem',
-                padding: '1.2rem 2.5rem',
-                background: 'linear-gradient(135deg, var(--neon-cyan), var(--neon-purple))',
-                borderRadius: '999px',
-                color: '#000',
-                fontWeight: 900,
-                fontFamily: "'Orbitron', sans-serif",
-                textDecoration: 'none',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem',
-                boxShadow: '0 0 50px rgba(0,240,255,0.7)',
-                zIndex: 10,
-                fontSize: '1.1rem',
-                letterSpacing: '1px'
-              }}
-            >
-              <Download size={26} />
-              Download
-            </a>
+          <div onClick={e=>e.stopPropagation()} style={{ width:"100%", maxWidth:"960px", height:"92vh", margin:"0 auto", padding:"0 1rem", display:"flex", flexDirection:"column", gap:"0.75rem", animation:"scaleIn 0.3s cubic-bezier(0.34,1.56,0.64,1) both" }}>
+            {/* Modal toolbar */}
+            <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", flexShrink:0 }}>
+              <span style={{ fontFamily:"'DM Mono',monospace", fontSize:"0.72rem", color:C.muted, letterSpacing:"0.08em" }}>
+                Résumé · Bhagavan · 2026
+              </span>
+              <div style={{ display:"flex", gap:"0.6rem" }}>
+                <a href={RESUME_DOWNLOAD}
+                  style={{ display:"inline-flex", alignItems:"center", gap:"0.4rem", padding:"0.45rem 0.9rem", borderRadius:"7px", background:C.accentDim, border:`1px solid rgba(79,127,255,0.25)`, color:C.accent, fontSize:"0.75rem", fontWeight:600, textDecoration:"none", fontFamily:"'DM Mono',monospace", transition:"all 0.2s" }}
+                  onMouseEnter={e=>e.currentTarget.style.background="rgba(79,127,255,0.15)"}
+                  onMouseLeave={e=>e.currentTarget.style.background=C.accentDim}
+                >
+                  <Download size={11}/> Download
+                </a>
+                <button onClick={()=>setShowModal(false)}
+                  style={{ display:"flex", alignItems:"center", gap:"0.35rem", padding:"0.45rem 0.9rem", borderRadius:"7px", background:C.surface2, border:`1px solid ${C.border2}`, color:C.muted2, fontSize:"0.75rem", fontFamily:"'DM Mono',monospace", cursor:"pointer", transition:"all 0.2s" }}
+                  onMouseEnter={e=>{ e.currentTarget.style.color=C.text; e.currentTarget.style.borderColor=C.border3; }}
+                  onMouseLeave={e=>{ e.currentTarget.style.color=C.muted2; e.currentTarget.style.borderColor=C.border2; }}
+                >
+                  <X size={11}/> Close
+                </button>
+              </div>
+            </div>
+            {/* iframe */}
+            <div style={{ flex:1, borderRadius:"14px", overflow:"hidden", border:`1px solid ${C.border2}` }}>
+              <iframe src={RESUME_PREVIEW} style={{ width:"100%", height:"100%", border:"none", background:"#fff" }} title="Résumé Fullscreen" allowFullScreen />
+            </div>
           </div>
         </div>
       )}

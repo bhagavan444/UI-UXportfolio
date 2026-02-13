@@ -1,500 +1,1099 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import profileImg from "../assets/profile.jpeg";
 import resumePdf from "../assets/bhagavanresume.pdf";
-import { 
-  Terminal, Download, Github, Linkedin, Mail, Phone, ChevronRight,
-  Cpu, Database, Globe, Star, Brain, Code, Zap, Cloud, 
-  Award, TrendingUp, Briefcase, Target, Rocket, Activity, Eye, Sparkles,
-  CheckCircle2, Flame, Trophy, Send, MapPin, Clock, ArrowRight
+import {
+  Download, Github, Linkedin, Mail, Phone, ArrowRight,
+  ExternalLink, CheckCircle, Verified, ChevronRight, ChevronLeft,
+  Sparkles, MapPin
 } from "lucide-react";
 
-export default function ModernDeveloperHome() {
+/* ─────────────────────────────────────────────────────────────────
+   DESIGN SYSTEM TOKENS
+───────────────────────────────────────────────────────────────── */
+const T = {
+  bg:       "#0e0e11",
+  surface:  "#16161a",
+  surface2: "#1c1c22",
+  border:   "rgba(255,255,255,0.07)",
+  border2:  "rgba(255,255,255,0.12)",
+  text:     "#f0f0f0",
+  muted:    "#6e6e7a",
+  muted2:   "#9898a8",
+  accent:   "#5b7fff",
+  accent2:  "#8b5cf6",
+  green:    "#34d399",
+  gold:     "#f59e0b",
+};
+
+/* ─────────────────────────────────────────────────────────────────
+   GLOBAL STYLES
+───────────────────────────────────────────────────────────────── */
+const GLOBAL_CSS = `
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: ${T.bg};
+    color: ${T.text};
+    overflow-x: hidden;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection { background: rgba(91,127,255,0.3); color: #fff; }
+
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: ${T.bg}; }
+  ::-webkit-scrollbar-thumb { background: rgba(91,127,255,0.4); border-radius: 3px; }
+
+  /* ── Keyframes ── */
+  @keyframes fadeUp {
+    from { opacity:0; transform:translateY(28px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity:0; } to { opacity:1; }
+  }
+  @keyframes meshMove {
+    0%,100% { background-position: 0% 50%; }
+    50%      { background-position: 100% 50%; }
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0px); }
+    50%      { transform: translateY(-12px); }
+  }
+  @keyframes pulse-ring {
+    0%   { box-shadow: 0 0 0 0 rgba(91,127,255,0.3); }
+    70%  { box-shadow: 0 0 0 18px rgba(91,127,255,0); }
+    100% { box-shadow: 0 0 0 0 rgba(91,127,255,0); }
+  }
+  @keyframes marquee {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-50%); }
+  }
+  @keyframes counter {
+    from { opacity:0; transform: scale(0.6); }
+    to   { opacity:1; transform: scale(1); }
+  }
+  @keyframes glowPulse {
+    0%,100% { opacity:0.4; }
+    50%      { opacity:0.8; }
+  }
+  @keyframes rotateSlow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  @keyframes slideIn {
+    from { opacity:0; transform: translateX(-20px); }
+    to   { opacity:1; transform: translateX(0); }
+  }
+  @keyframes cursorGlow {
+    0%,100% { transform: scale(1); opacity:0.6; }
+    50%      { transform: scale(1.4); opacity:1; }
+  }
+
+  /* ── Utility classes ── */
+  .fade-up   { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+  .fade-in   { animation: fadeIn 0.6s ease both; }
+  .d1 { animation-delay:0.05s; }
+  .d2 { animation-delay:0.12s; }
+  .d3 { animation-delay:0.20s; }
+  .d4 { animation-delay:0.30s; }
+  .d5 { animation-delay:0.42s; }
+  .d6 { animation-delay:0.55s; }
+  .d7 { animation-delay:0.68s; }
+
+  .glass {
+    background: rgba(255,255,255,0.03);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid ${T.border};
+    border-radius: 20px;
+  }
+
+  .hover-lift {
+    transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.3s ease, border-color 0.3s ease;
+  }
+  .hover-lift:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 24px 64px rgba(0,0,0,0.5);
+    border-color: rgba(91,127,255,0.25);
+  }
+
+  .btn-primary {
+    display: inline-flex; align-items:center; gap:0.5rem;
+    background: ${T.accent};
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 0.9rem;
+    padding: 0.75rem 1.6rem;
+    border-radius: 12px; border: none; cursor:pointer;
+    text-decoration:none; letter-spacing:0.01em;
+    transition: all 0.25s cubic-bezier(0.34,1.56,0.64,1);
+    box-shadow: 0 4px 24px rgba(91,127,255,0.35);
+    white-space:nowrap;
+  }
+  .btn-primary:hover {
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 32px rgba(91,127,255,0.5);
+    background: #7090ff;
+  }
+
+  .btn-ghost {
+    display: inline-flex; align-items:center; gap:0.5rem;
+    background: transparent;
+    color: ${T.muted2};
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500; font-size: 0.9rem;
+    padding: 0.75rem 1.6rem;
+    border-radius: 12px;
+    border: 1px solid ${T.border2};
+    cursor:pointer; text-decoration:none; letter-spacing:0.01em;
+    transition: all 0.25s ease;
+    white-space:nowrap;
+  }
+  .btn-ghost:hover {
+    color: #fff;
+    border-color: rgba(255,255,255,0.25);
+    background: rgba(255,255,255,0.05);
+  }
+
+  .section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.72rem; font-weight:600;
+    letter-spacing: 0.18em; text-transform:uppercase;
+    color: ${T.accent};
+  }
+
+  .display-heading {
+    font-family: 'DM Serif Display', serif;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+  }
+
+  /* Marquee */
+  .marquee-track {
+    display: flex;
+    width: max-content;
+    animation: marquee 35s linear infinite;
+  }
+  .marquee-track:hover { animation-play-state: paused; }
+
+  /* Skill card hover */
+  .skill-card { transition: all 0.3s cubic-bezier(0.34,1.56,0.64,1); }
+  .skill-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    border-color: rgba(91,127,255,0.3) !important;
+    background: rgba(91,127,255,0.06) !important;
+  }
+
+  /* Nav link */
+  .nav-link {
+    font-size:0.875rem; font-weight:500; color:${T.muted2};
+    text-decoration:none; padding:0.4rem 0.8rem;
+    border-radius:8px; transition:all 0.2s ease;
+  }
+  .nav-link:hover { color:#fff; background:rgba(255,255,255,0.06); }
+
+  /* Badge */
+  .badge {
+    display:inline-flex; align-items:center; gap:0.4rem;
+    padding:0.3rem 0.75rem; border-radius:999px;
+    font-size:0.72rem; font-weight:600;
+    letter-spacing:0.04em;
+  }
+
+  /* Timeline item */
+  .timeline-item { transition: all 0.3s ease; }
+  .timeline-item:hover .timeline-dot { box-shadow: 0 0 0 8px rgba(91,127,255,0.15); }
+
+  /* Testimonial card */
+  .testimonial-slide {
+    transition: all 0.5s cubic-bezier(0.34,1,0.64,1);
+  }
+
+  /* Cursor glow */
+  #cursor-glow {
+    position: fixed; pointer-events:none;
+    width:400px; height:400px;
+    border-radius:50%;
+    background: radial-gradient(circle, rgba(91,127,255,0.06) 0%, transparent 70%);
+    transform: translate(-50%,-50%);
+    transition: left 0.08s ease, top 0.08s ease;
+    z-index:0;
+  }
+
+  /* Number counter animation */
+  .stat-number {
+    animation: counter 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+  }
+
+  @media (max-width:1024px) {
+    .hero-grid { grid-template-columns:1fr !important; }
+    .hero-image-col { display:none !important; }
+  }
+  @media (max-width:768px) {
+    .nav-links { display:none !important; }
+    .cta-row { flex-direction:column !important; }
+    .trust-row { flex-wrap:wrap !important; gap:0.75rem !important; }
+    .metrics-grid { grid-template-columns:1fr 1fr !important; }
+    .skills-grid { grid-template-columns:1fr !important; }
+    .footer-links { flex-direction:column !important; gap:1rem !important; }
+  }
+`;
+
+/* ─────────────────────────────────────────────────────────────────
+   HELPER: ANIMATED COUNTER
+───────────────────────────────────────────────────────────────── */
+function AnimCounter({ target, suffix = "", duration = 1400, triggered }) {
+  const [val, setVal] = useState(0);
+  const started = useRef(false);
+
+  useEffect(() => {
+    if (!triggered || started.current) return;
+    started.current = true;
+    const num = parseInt(target.replace(/\D/g, ""), 10);
+    const step = Math.ceil(num / (duration / 16));
+    let cur = 0;
+    const id = setInterval(() => {
+      cur = Math.min(cur + step, num);
+      setVal(cur);
+      if (cur >= num) clearInterval(id);
+    }, 16);
+    return () => clearInterval(id);
+  }, [triggered]);
+
+  return <span>{val}{suffix}</span>;
+}
+
+/* ─────────────────────────────────────────────────────────────────
+   HOOK: INTERSECTION OBSERVER
+───────────────────────────────────────────────────────────────── */
+function useInView(threshold = 0.15) {
+  const ref = useRef(null);
+  const [inView, setInView] = useState(false);
+  useEffect(() => {
+    const ob = new IntersectionObserver(([e]) => { if (e.isIntersecting) setInView(true); }, { threshold });
+    if (ref.current) ob.observe(ref.current);
+    return () => ob.disconnect();
+  }, []);
+  return [ref, inView];
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   MAIN COMPONENT
+═══════════════════════════════════════════════════════════════ */
+export default function FinalHome() {
   const navigate = useNavigate();
-  const [scrollProgress, setScrollProgress] = useState(0);
-  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [typedText, setTypedText] = useState("");
-  const [roleIndex, setRoleIndex] = useState(0);
-  const [skillProgress, setSkillProgress] = useState({});
-  const [visibleSections, setVisibleSections] = useState(new Set());
-  const [activeMetric, setActiveMetric] = useState(0);
-  const [currentTime, setCurrentTime] = useState(new Date());
-  const [activeTestimonial, setActiveTestimonial] = useState(0);
-  const canvasRef = useRef(null);
 
-  const roles = ["ELITE FULL-STACK ENGINEER", "AI/ML ARCHITECT", "CLOUD SYSTEMS EXPERT", "PRODUCTION-READY DEVELOPER"];
-  
+  // Navbar scroll state
+  const [scrolled, setScrolled]   = useState(false);
+  const [scrollPct, setScrollPct] = useState(0);
+
+  // Role cycling (elegant fade, not typing)
+  const roles = ["Full-Stack Engineer", "AI/ML Architect", "Cloud Systems Expert", "Systems Designer"];
+  const [roleIdx, setRoleIdx]       = useState(0);
+  const [roleFading, setRoleFading] = useState(false);
+
+  // Testimonial slider
+  const [testIdx, setTestIdx] = useState(0);
+
+  // Cursor
+  const cursorRef = useRef(null);
+
+  /* ── Scroll Effects ── */
+  useEffect(() => {
+    const onScroll = () => {
+      const y = window.scrollY;
+      setScrolled(y > 40);
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      setScrollPct((y / max) * 100);
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  /* ── Cursor Glow ── */
+  useEffect(() => {
+    const onMove = (e) => {
+      if (!cursorRef.current) return;
+      cursorRef.current.style.left = e.clientX + "px";
+      cursorRef.current.style.top  = e.clientY + "px";
+    };
+    window.addEventListener("mousemove", onMove);
+    return () => window.removeEventListener("mousemove", onMove);
+  }, []);
+
+  /* ── Role Cycling ── */
+  useEffect(() => {
+    const id = setInterval(() => {
+      setRoleFading(true);
+      setTimeout(() => {
+        setRoleIdx(p => (p + 1) % roles.length);
+        setRoleFading(false);
+      }, 350);
+    }, 3000);
+    return () => clearInterval(id);
+  }, []);
+
+  /* ── Testimonial Auto ── */
+  useEffect(() => {
+    const id = setInterval(() => setTestIdx(p => (p + 1) % testimonials.length), 5500);
+    return () => clearInterval(id);
+  }, []);
+
+  /* ─── InView refs ─── */
+  const [metricsRef, metricsIn]       = useInView();
+  const [skillsRef,  skillsIn]        = useInView();
+  const [achievRef,  achievIn]        = useInView();
+  const [testRef,    testIn]          = useInView();
+  const [projectRef, projectIn]       = useInView();
+  const [ctaRef,     ctaIn]           = useInView();
+
+  /* ─────────────────────────────────── DATA ───────────────────── */
   const metrics = [
-    { label: "Production Projects", value: "15+", icon: Rocket, color: "#00f5ff" },
-    { label: "Industry Certifications", value: "20+", icon: Award, color: "#a855f7" },
-    { label: "Tech Stack Mastery", value: "30+", icon: Code, color: "#22c55e" },
-    { label: "Success Rate", value: "100%", icon: Target, color: "#ffd700" }
+    { value: "15", suffix: "+", label: "Production Projects", sub: "Shipped across 3 internships", color: T.accent },
+    { value: "20", suffix: "+", label: "Certifications",      sub: "AWS, Azure, GCP & more",       color: T.accent2 },
+    { value: "30", suffix: "+", label: "Tech Stack",          sub: "Languages, frameworks, tools",  color: T.green },
+    { value: "100", suffix: "%", label: "Client Satisfaction", sub: "Zero bug production record",   color: T.gold },
   ];
 
-  const skills = [
-    { name: "AI & Machine Learning", level: 95, icon: Brain, color: "#a855f7", tech: "TensorFlow • PyTorch • NLP • Deep Learning" },
-    { name: "Full-Stack Development", level: 93, icon: Code, color: "#00f5ff", tech: "React • Node.js • Python • TypeScript • Microservices" },
-    { name: "Cloud & DevOps", level: 90, icon: Cloud, color: "#FF9900", tech: "AWS • Azure • Docker • Kubernetes • CI/CD" },
-    { name: "Data Structures & Algorithms", level: 92, icon: Terminal, color: "#22c55e", tech: "LeetCode • System Design • Optimization" },
-    { name: "Database & Architecture", level: 88, icon: Database, color: "#ffd700", tech: "PostgreSQL • MongoDB • Redis • Microservices" }
-  ];
-
-  const achievements = [
-    { icon: Trophy, label: "Top 5% on LeetCode", color: "#ffd700", stat: "500+ Problems" },
-    { icon: Award, label: "AWS Solutions Architect", color: "#FF9900", stat: "Professional" },
-    { icon: Star, label: "Azure AI Engineer", color: "#00a4ef", stat: "Expert Level" },
-    { icon: CheckCircle2, label: "Google Cloud Professional", color: "#4285f4", stat: "Certified" },
-    { icon: Flame, label: "365 Days Coding Streak", color: "#ff6b35", stat: "Active" },
-    { icon: Target, label: "Zero Bug Production", color: "#22c55e", stat: "100% Quality" }
+  const skillGroups = [
+    {
+      category: "AI & Machine Learning",
+      color: T.accent2,
+      dot: "#8b5cf6",
+      skills: ["TensorFlow", "PyTorch", "NLP", "LLMs", "Computer Vision", "Deep Learning"],
+      desc: "Building intelligent systems that learn and scale in production.",
+    },
+    {
+      category: "Full-Stack Engineering",
+      color: T.accent,
+      dot: "#5b7fff",
+      skills: ["React", "Node.js", "Python", "TypeScript", "REST/GraphQL", "Microservices"],
+      desc: "End-to-end product development from database to polished UI.",
+    },
+    {
+      category: "Cloud & DevOps",
+      color: T.green,
+      dot: "#34d399",
+      skills: ["AWS", "Azure", "Docker", "Kubernetes", "CI/CD", "Terraform"],
+      desc: "Scalable, resilient infrastructure built for high availability.",
+    },
+    {
+      category: "Data & Architecture",
+      color: T.gold,
+      dot: "#f59e0b",
+      skills: ["PostgreSQL", "MongoDB", "Redis", "System Design", "Kafka", "Elasticsearch"],
+      desc: "Designing data layers that power real-time, high-throughput systems.",
+    },
   ];
 
   const techStack = [
-    { name: "React", icon: "react/react-original.svg", color: "#61dafb" },
-    { name: "Node.js", icon: "nodejs/nodejs-original.svg", color: "#68a063" },
-    { name: "Python", icon: "python/python-original.svg", color: "#3776ab" },
-    { name: "TypeScript", icon: "typescript/typescript-original.svg", color: "#3178c6" },
-    { name: "JavaScript", icon: "javascript/javascript-original.svg", color: "#f7df1e" },
-    { name: "Docker", icon: "docker/docker-original.svg", color: "#2496ed" },
-    { name: "MongoDB", icon: "mongodb/mongodb-original.svg", color: "#47a248" },
-    { name: "PostgreSQL", icon: "postgresql/postgresql-original.svg", color: "#336791" },
-    { name: "TensorFlow", icon: "tensorflow/tensorflow-original.svg", color: "#ff6f00" },
-    { name: "Kubernetes", icon: "kubernetes/kubernetes-plain.svg", color: "#326ce5" },
-    { name: "AWS", icon: "amazonwebservices/amazonwebservices-plain-wordmark.svg", color: "#FF9900" },
-    { name: "Azure", icon: "azure/azure-original.svg", color: "#0089d6" }
+    "React", "Node.js", "Python", "TypeScript", "Docker",
+    "Kubernetes", "AWS", "TensorFlow", "MongoDB", "PostgreSQL",
+    "Azure", "Redis", "Next.js", "GraphQL", "FastAPI",
+    "React", "Node.js", "Python", "TypeScript", "Docker",
+    "Kubernetes", "AWS", "TensorFlow", "MongoDB", "PostgreSQL",
+    "Azure", "Redis", "Next.js", "GraphQL", "FastAPI",
+  ];
+
+  const achievements = [
+    { year: "2025", title: "AWS Solutions Architect Professional", issuer: "Amazon Web Services", color: T.gold },
+    { year: "2025", title: "Azure AI Engineer Associate",          issuer: "Microsoft Azure",     color: T.accent },
+    { year: "2024", title: "Google Cloud Professional",            issuer: "Google Cloud",        color: T.green },
+    { year: "2024", title: "Top 5% — LeetCode",                   issuer: "500+ Problems Solved", color: T.accent2 },
+    { year: "2024", title: "365-Day Coding Streak",               issuer: "Continuous Excellence", color: "#f59e0b" },
   ];
 
   const testimonials = [
-    { text: "Exceptional developer with deep cloud expertise. Delivered our ML pipeline 2 weeks ahead.", author: "Sarah Chen", role: "CTO, TechVision", avatar: "SC", color: "#00f5ff" },
-    { text: "Rare combination of technical brilliance and communication skills.", author: "Michael Rodriguez", role: "Engineering Manager", avatar: "MR", color: "#a855f7" },
-    { text: "Transformed our legacy systems into modern microservices architecture.", author: "Priya Sharma", role: "VP Engineering", avatar: "PS", color: "#22c55e" }
+    {
+      quote: "Rare combination of technical depth and communication clarity. Delivered our ML pipeline two weeks ahead of schedule, with documentation that actually made sense.",
+      name: "Sarah Chen", role: "CTO, TechVision Inc.", avatar: "SC", color: T.accent,
+    },
+    {
+      quote: "Transformed our legacy monolith into a modern microservices architecture with minimal downtime. The kind of engineer you build a team around.",
+      name: "Priya Sharma", role: "VP of Engineering, CloudNative Co.", avatar: "PS", color: T.accent2,
+    },
+    {
+      quote: "His ability to bridge AI research and production engineering is exceptional. Brought measurable impact within the first sprint.",
+      name: "Michael Rodriguez", role: "Director, Engineering, DataForge", avatar: "MR", color: T.green,
+    },
   ];
 
-  // Clock
-  useEffect(() => {
-    const interval = setInterval(() => setCurrentTime(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, []);
+const featuredProject = {
+  title: "Real-Time Leave Automation System",
+  tag: "Low-Code × Enterprise Automation × Microsoft 365",
+  desc: "Enterprise-grade leave management system built using Microsoft Power Apps and Power Automate. Automates leave requests, multi-level approvals, real-time status tracking, and HR reporting dashboards — integrated with SharePoint and Microsoft Teams for seamless organizational workflow.",
+  stats: [
+    { label: "Approval Time Reduced", value: "65%" },
+    { label: "Manual Processing Eliminated", value: "90%" },
+    { label: "User Adoption", value: "100+ Employees" },
+  ],
+  tech: [
+    "Microsoft Power Apps",
+    "Power Automate",
+    "SharePoint",
+    "Microsoft 365",
+    "Dataverse",
+    "Power BI"
+  ],
+  color: T.accent,
+};
 
-  // Particle System
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    let particles = [];
 
-    const resize = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-    };
-    resize();
-
-    class Particle {
-      constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.vx = (Math.random() - 0.5) * 0.5;
-        this.vy = (Math.random() - 0.5) * 0.5;
-        this.size = Math.random() * 2 + 0.5;
-        this.color = ['#00f5ff', '#a855f7', '#ffd700'][Math.floor(Math.random() * 3)];
-      }
-
-      update() {
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.x < 0 || this.x > canvas.width) this.vx *= -1;
-        if (this.y < 0 || this.y > canvas.height) this.vy *= -1;
-      }
-
-      draw() {
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fillStyle = this.color + '80';
-        ctx.fill();
-      }
-    }
-
-    for (let i = 0; i < 60; i++) particles.push(new Particle());
-
-    const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      particles.forEach(p => { p.update(); p.draw(); });
-      requestAnimationFrame(animate);
-    };
-    animate();
-
-    window.addEventListener('resize', resize);
-    return () => window.removeEventListener('resize', resize);
-  }, []);
-
-  // Mouse tracking
-  useEffect(() => {
-    const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
-
-  // Typing effect
-  useEffect(() => {
-    const role = roles[roleIndex];
-    let char = 0;
-    const interval = setInterval(() => {
-      if (char <= role.length) {
-        setTypedText(role.slice(0, char));
-        char++;
-      } else {
-        clearInterval(interval);
-        setTimeout(() => setRoleIndex((prev) => (prev + 1) % roles.length), 1500);
-      }
-    }, 70);
-    return () => clearInterval(interval);
-  }, [roleIndex]);
-
-  // Scroll progress
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.scrollY;
-      const maxScroll = document.documentElement.scrollHeight - window.innerHeight;
-      setScrollProgress((scrolled / maxScroll) * 100);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // Intersection Observer
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          setVisibleSections(prev => new Set([...prev, entry.target.id]));
-        }
-      });
-    }, { threshold: 0.1 });
-
-    document.querySelectorAll('[data-observe]').forEach(el => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
-
-  // Skill animation
-  useEffect(() => {
-    if (visibleSections.has('skills')) {
-      skills.forEach((skill, i) => {
-        setTimeout(() => {
-          setSkillProgress(prev => ({ ...prev, [skill.name]: skill.level }));
-        }, 100 + i * 150);
-      });
-    }
-  }, [visibleSections]);
-
-  // Metric rotation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveMetric(prev => (prev + 1) % metrics.length);
-    }, 4000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Testimonial rotation
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setActiveTestimonial(prev => (prev + 1) % testimonials.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
+  /* ════════════════════════════════════════════════════════════
+     RENDER
+  ════════════════════════════════════════════════════════════ */
   return (
     <>
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&family=Orbitron:wght@400;500;600;700;800;900&family=Roboto+Mono:wght@400;500;600;700&display=swap');
-        
-        * { margin:0; padding:0; box-sizing:border-box; }
-        body { font-family:'Poppins',sans-serif; background:#000; color:#fff; overflow-x:hidden; }
+      <style>{GLOBAL_CSS}</style>
 
-        @keyframes rotate { from { transform:rotate(0deg); } to { transform:rotate(360deg); } }
-        @keyframes float { 0%, 100% { transform:translateY(0); } 50% { transform:translateY(-20px); } }
-        @keyframes pulse { 0%, 100% { transform:scale(1); } 50% { transform:scale(1.05); } }
-        @keyframes fadeIn { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
-        @keyframes shimmer { 0% { background-position:-1000px 0; } 100% { background-position:1000px 0; } }
-        @keyframes gradient { 0%, 100% { background-position:0% 50%; } 50% { background-position:100% 50%; } }
-        
-        .glass { background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:20px; transition:all 0.4s; }
-        .glass:hover { background:rgba(255,255,255,0.08); border-color:rgba(0,245,255,0.5); transform:translateY(-8px); box-shadow:0 20px 60px rgba(0,0,0,0.6); }
-        
-        .btn-primary { background:linear-gradient(135deg,#00f5ff,#00c4ff); border:none; color:#000; font-weight:800; padding:1rem 2.5rem; border-radius:12px; cursor:pointer; text-transform:uppercase; letter-spacing:2px; transition:all 0.3s; display:inline-flex; align-items:center; gap:0.6rem; text-decoration:none; box-shadow:0 10px 30px rgba(0,245,255,0.3); }
-        .btn-primary:hover { transform:translateY(-4px) scale(1.05); box-shadow:0 15px 40px rgba(0,245,255,0.5); }
-        
-        .btn-outline { background:transparent; border:2px solid currentColor; color:currentColor; font-weight:700; padding:1rem 2.5rem; border-radius:12px; cursor:pointer; text-transform:uppercase; letter-spacing:2px; transition:all 0.3s; display:inline-flex; align-items:center; gap:0.6rem; text-decoration:none; }
-        .btn-outline:hover { background:currentColor; color:#000; transform:translateY(-4px); }
-        
-        .gradient-text { background:linear-gradient(135deg,#00f5ff,#a855f7,#ff6b35,#ffd700); background-size:200% 200%; -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:gradient 5s ease infinite; }
-        
-        .fade-in { animation:fadeIn 0.8s forwards; opacity:0; }
-        .delay-1 { animation-delay:0.1s; } .delay-2 { animation-delay:0.2s; } .delay-3 { animation-delay:0.3s; }
-        .delay-4 { animation-delay:0.4s; } .delay-5 { animation-delay:0.5s; } .delay-6 { animation-delay:0.6s; }
-        
-        .rotating-ring { position:absolute; inset:-20px; border:3px solid transparent; border-radius:24px; background:linear-gradient(45deg,#00f5ff,#a855f7,#22c55e,#ffd700) border-box; -webkit-mask:linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0); mask-composite:exclude; animation:rotate 4s linear infinite; }
-        
-        ::-webkit-scrollbar { width:10px; } ::-webkit-scrollbar-track { background:#000; } ::-webkit-scrollbar-thumb { background:linear-gradient(180deg,#00f5ff,#a855f7); border-radius:5px; }
-        
-        @media(max-width:1024px) { .hero-grid { grid-template-columns:1fr!important; gap:3rem!important; } }
-        @media(max-width:768px) { h1 { font-size:2.5rem!important; } }
-      `}</style>
+      {/* Cursor glow */}
+      <div id="cursor-glow" ref={cursorRef} />
 
-      <div style={{ background:'#0a0a14', minHeight:"100vh", position:"relative", overflow:"hidden" }}>
-        
-        {/* Progress Bar */}
-        <div style={{ position:"fixed", top:0, left:0, right:0, height:"4px", background:"rgba(255,255,255,0.05)", zIndex:9999 }}>
-          <div style={{ width:`${scrollProgress}%`, height:"100%", background:"linear-gradient(90deg,#00f5ff,#a855f7,#ffd700)", transition:"width 0.1s", boxShadow:"0 0 20px rgba(0,245,255,0.8)" }} />
+      {/* Scroll progress */}
+      <div style={{ position:"fixed", top:0, left:0, right:0, height:"2px", background:T.surface, zIndex:9999 }}>
+        <div style={{ width:`${scrollPct}%`, height:"100%", background:`linear-gradient(90deg, ${T.accent}, ${T.accent2})`, transition:"width 0.1s linear" }} />
+      </div>
+
+      {/* ══════ NAVBAR ══════ */}
+      <nav style={{
+        position:"fixed", top:0, left:0, right:0, zIndex:900,
+        padding:"0 2rem", height:"60px",
+        display:"flex", alignItems:"center", justifyContent:"space-between",
+        background: scrolled ? "rgba(14,14,17,0.85)" : "transparent",
+        backdropFilter: scrolled ? "blur(20px)" : "none",
+        WebkitBackdropFilter: scrolled ? "blur(20px)" : "none",
+        borderBottom: scrolled ? `1px solid ${T.border}` : "1px solid transparent",
+        transition:"all 0.4s ease",
+        maxWidth:"100vw",
+      }}>
+        <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:"1.15rem", fontWeight:400, color:T.text, letterSpacing:"-0.02em" }}>
+          Bhagavan<span style={{ color:T.accent }}>.</span>
         </div>
+        <div className="nav-links" style={{ display:"flex", alignItems:"center", gap:"0.25rem" }}>
+          {["About","Projects","Skills","Contact"].map(l => (
+            <a key={l} href={`#${l.toLowerCase()}`} className="nav-link">{l}</a>
+          ))}
+        </div>
+        <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+          <div style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+            <div style={{ width:"7px", height:"7px", borderRadius:"50%", background:T.green, animation:"pulse-ring 2.5s ease-in-out infinite" }} />
+            <span style={{ fontSize:"0.75rem", fontWeight:600, color:T.green, fontFamily:"'JetBrains Mono',monospace" }}>Available</span>
+          </div>
+          <a href={resumePdf} download className="btn-ghost" style={{ padding:"0.4rem 1rem", fontSize:"0.8rem" }}>
+            <Download size={13} /> Resume
+          </a>
+        </div>
+      </nav>
 
-        {/* Canvas */}
-        <canvas ref={canvasRef} style={{ position:'fixed', inset:0, pointerEvents:'none', zIndex:1, opacity:0.6 }} />
+      {/* ══════ MAIN ══════ */}
+      <main style={{ position:"relative", zIndex:1 }}>
 
-        {/* Gradient Overlay */}
-        <div style={{ position:"fixed", inset:0, background:`radial-gradient(circle at 20% 80%, rgba(0,245,255,0.1) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(168,85,247,0.1) 0%, transparent 50%)`, pointerEvents:"none", zIndex:2 }} />
+        {/* ─── GRADIENT MESH BG ─── */}
+        <div style={{
+          position:"fixed", inset:0, zIndex:0, pointerEvents:"none",
+          background:`
+            radial-gradient(ellipse 80% 60% at 15% 10%, rgba(91,127,255,0.08) 0%, transparent 60%),
+            radial-gradient(ellipse 60% 50% at 85% 85%, rgba(139,92,246,0.07) 0%, transparent 60%),
+            radial-gradient(ellipse 50% 40% at 60% 40%, rgba(52,211,153,0.04) 0%, transparent 55%)
+          `,
+        }} />
 
-        {/* Content */}
-        <div style={{ maxWidth:"1400px", margin:"0 auto", padding:"0 2rem", position:"relative", zIndex:10 }}>
-          
-          {/* HERO */}
-          <section className="hero-grid" style={{ minHeight:"100vh", display:"grid", gridTemplateColumns:"1fr 1.2fr", gap:"5rem", alignItems:"center", paddingTop:"5rem" }}>
-            
-            {/* Profile Card */}
-            <div className="fade-in delay-2" style={{ position:"relative", maxWidth:"450px", margin:"0 auto" }}>
-              <div style={{ position:"relative", aspectRatio:"4/5", animation:"float 6s ease-in-out infinite" }}>
-                
-                {/* Rotating Ring */}
-                <div className="rotating-ring" />
-                
-                {/* Corner Accents */}
-                {[
-                  { top:"-15px", left:"-15px", borderTop:"5px solid #00f5ff", borderLeft:"5px solid #00f5ff" },
-                  { top:"-15px", right:"-15px", borderTop:"5px solid #a855f7", borderRight:"5px solid #a855f7" },
-                  { bottom:"-15px", left:"-15px", borderBottom:"5px solid #22c55e", borderLeft:"5px solid #22c55e" },
-                  { bottom:"-15px", right:"-15px", borderBottom:"5px solid #ffd700", borderRight:"5px solid #ffd700" }
-                ].map((c, i) => (
-                  <div key={i} style={{ position:"absolute", width:"40px", height:"40px", ...c, animation:"pulse 3s ease-in-out infinite", animationDelay:`${i * 0.3}s`, zIndex:3, boxShadow:`0 0 20px ${c.borderTop ? c.borderTop.split(' ')[2] : c.borderBottom.split(' ')[2]}` }} />
-                ))}
+        {/* ─────────────────── HERO ─────────────────── */}
+        <section id="about" style={{ minHeight:"100vh", display:"flex", alignItems:"center", position:"relative", zIndex:1 }}>
+          {/* Subtle grid overlay */}
+          <div style={{
+            position:"absolute", inset:0, zIndex:0, pointerEvents:"none",
+            backgroundImage:`
+              linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px)
+            `,
+            backgroundSize:"64px 64px",
+          }} />
 
-                {/* Image Container */}
-                <div style={{ position:"relative", width:"100%", height:"100%", borderRadius:"24px", overflow:"hidden", border:"4px solid rgba(0,245,255,0.6)", boxShadow:"0 0 60px rgba(0,245,255,0.5)", zIndex:1 }}>
-                  <img src={profileImg} alt="Profile" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
-                  <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(0,0,0,0.95) 0%, transparent 70%)" }} />
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem", width:"100%", position:"relative", zIndex:1, paddingTop:"80px", paddingBottom:"40px" }}>
+            <div className="hero-grid" style={{ display:"grid", gridTemplateColumns:"1fr 420px", gap:"6rem", alignItems:"center" }}>
 
-                  {/* Tech Badges */}
+              {/* LEFT: Content */}
+              <div>
+                {/* Availability badge */}
+                <div className="fade-up d1" style={{ marginBottom:"2rem" }}>
+                  <span className="badge" style={{ background:"rgba(52,211,153,0.08)", border:`1px solid rgba(52,211,153,0.2)`, color:T.green }}>
+                    <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:T.green, animation:"pulse-ring 2s ease-in-out infinite" }} />
+                    Open to full-time roles · 2026 Graduate
+                    <MapPin size={11} />
+                    India / Remote
+                  </span>
+                </div>
+
+                {/* Headline */}
+                <h1 className="display-heading fade-up d2" style={{ fontSize:"clamp(3rem,6vw,5.2rem)", marginBottom:"0.5rem", color:T.text }}>
+                  Siva Satya Sai
+                </h1>
+                <h1 className="display-heading fade-up d3" style={{ fontSize:"clamp(3rem,6vw,5.2rem)", marginBottom:"1.5rem" }}>
+                  <span style={{ color:T.accent }}>Bhagavan</span>
+                </h1>
+
+                {/* Role transition */}
+                <div className="fade-up d4" style={{ display:"flex", alignItems:"center", gap:"0.75rem", marginBottom:"2rem" }}>
+                  <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.8rem", color:T.muted, letterSpacing:"0.12em" }}>CURRENTLY →</span>
+                  <span style={{
+                    fontFamily:"'DM Sans',sans-serif", fontSize:"1.05rem", fontWeight:600,
+                    color:T.muted2,
+                    opacity: roleFading ? 0 : 1,
+                    transform: roleFading ? "translateY(8px)" : "translateY(0)",
+                    transition:"opacity 0.35s ease, transform 0.35s ease",
+                  }}>
+                    {roles[roleIdx]}
+                  </span>
+                </div>
+
+                {/* Description */}
+                <p className="fade-up d5" style={{ fontSize:"1.1rem", lineHeight:1.75, color:T.muted2, maxWidth:"560px", marginBottom:"2.5rem", fontWeight:400 }}>
+                  Elite software engineer with <strong style={{ color:T.text, fontWeight:600 }}>3 industry internships</strong> and
+                  {" "}<strong style={{ color:T.text, fontWeight:600 }}>15+ production systems</strong> shipped.
+                  Specializing in AI-powered applications and scalable cloud architecture that drives real business outcomes.
+                </p>
+
+                {/* CTAs */}
+                <div className="cta-row fade-up d6" style={{ display:"flex", gap:"0.9rem", marginBottom:"3rem", flexWrap:"wrap", alignItems:"center" }}>
+                  <button className="btn-primary" onClick={() => navigate('/projects')}>
+                    View Work <ArrowRight size={15} />
+                  </button>
+                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" className="btn-ghost">
+                    <Mail size={14} /> Get in Touch
+                  </a>
+                  <a href={resumePdf} download className="btn-ghost">
+                    <Download size={14} /> Resume
+                  </a>
+                </div>
+
+                {/* Trust indicators */}
+                <div className="trust-row fade-up d7" style={{ display:"flex", gap:"1.5rem", alignItems:"center", paddingTop:"2rem", borderTop:`1px solid ${T.border}` }}>
                   {[
-                    { icon:Brain, label:"AI/ML", color:"#a855f7", pos:{ top:"20px", left:"20px" } },
-                    { icon:Code, label:"Full-Stack", color:"#00f5ff", pos:{ top:"20px", right:"20px" } },
-                    { icon:Database, label:"Database", color:"#22c55e", pos:{ bottom:"150px", left:"20px" } },
-                    { icon:Cloud, label:"Cloud", color:"#FF9900", pos:{ bottom:"150px", right:"20px" } }
-                  ].map((b, i) => (
-                    <div key={i} style={{ position:"absolute", ...b.pos, width:"55px", height:"55px", background:"rgba(0,0,0,0.9)", border:`3px solid ${b.color}`, borderRadius:"12px", display:"flex", alignItems:"center", justifyContent:"center", color:b.color, boxShadow:`0 0 20px ${b.color}`, animation:"pulse 2.5s ease-in-out infinite", animationDelay:`${i * 0.2}s` }}>
-                      <b.icon size={26} />
+                    { icon:"🏅", text:"20+ Certifications" },
+                    { icon:"🚀", text:"15+ Projects" },
+                    { icon:"⭐", text:"LeetCode Top 5%" },
+                  ].map((t, i) => (
+                    <div key={i} style={{ display:"flex", alignItems:"center", gap:"0.5rem" }}>
+                      <span style={{ fontSize:"1rem" }}>{t.icon}</span>
+                      <span style={{ fontSize:"0.8rem", fontWeight:500, color:T.muted2 }}>{t.text}</span>
                     </div>
                   ))}
+                </div>
+              </div>
 
-                  {/* Bottom Info */}
-                  <div style={{ position:"absolute", bottom:0, left:0, right:0, background:"linear-gradient(to top, rgba(0,0,0,0.98), rgba(0,0,0,0.9))", borderTop:"3px solid #00f5ff", padding:"1.5rem", boxShadow:"0 -10px 30px rgba(0,245,255,0.3)" }}>
-                    <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"1rem", gap:"1rem", flexWrap:"wrap" }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", background:"rgba(34,197,94,0.2)", border:"2px solid #22c55e", borderRadius:"20px", padding:"0.5rem 1rem", boxShadow:"0 0 15px rgba(34,197,94,0.3)" }}>
-                        <div style={{ width:"8px", height:"8px", borderRadius:"50%", background:"#22c55e", boxShadow:"0 0 10px #22c55e", animation:"pulse 2s ease-in-out infinite" }} />
-                        <span style={{ fontSize:"0.75rem", color:"#22c55e", fontWeight:800, fontFamily:"'Roboto Mono',monospace" }}>AVAILABLE</span>
-                      </div>
-                      <div style={{ display:"flex", alignItems:"center", gap:"0.5rem", background:"rgba(0,245,255,0.2)", border:"2px solid #00f5ff", borderRadius:"20px", padding:"0.5rem 1rem", boxShadow:"0 0 15px rgba(0,245,255,0.3)" }}>
-                        <Clock size={14} style={{ color:"#00f5ff" }} />
-                        <span style={{ fontSize:"0.75rem", color:"#00f5ff", fontWeight:800, fontFamily:"'Roboto Mono',monospace" }}>{currentTime.toLocaleTimeString('en-US', { hour12: false })}</span>
-                      </div>
+              {/* RIGHT: Portrait */}
+              <div className="hero-image-col fade-in d3" style={{ position:"relative" }}>
+                {/* Glow behind */}
+                <div style={{
+                  position:"absolute", inset:"-20px",
+                  background:`radial-gradient(ellipse at center, rgba(91,127,255,0.18) 0%, transparent 70%)`,
+                  animation:"glowPulse 4s ease-in-out infinite",
+                  borderRadius:"32px",
+                  zIndex:0,
+                }} />
+
+                {/* Card */}
+                <div style={{
+                  position:"relative", zIndex:1,
+                  borderRadius:"28px",
+                  border:`1px solid ${T.border2}`,
+                  overflow:"hidden",
+                  background:T.surface,
+                  boxShadow:`0 40px 100px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.06)`,
+                  animation:"float 7s ease-in-out infinite",
+                }}>
+                  <img
+                    src={profileImg} alt="Siva Satya Sai Bhagavan"
+                    style={{ width:"100%", display:"block", aspectRatio:"4/5", objectFit:"cover" }}
+                  />
+                  {/* Overlay gradient */}
+                  <div style={{ position:"absolute", inset:0, background:"linear-gradient(to top, rgba(14,14,17,0.9) 0%, rgba(14,14,17,0.1) 50%, transparent 100%)" }} />
+
+                  {/* Floating status chip */}
+                  <div style={{
+                    position:"absolute", top:"20px", left:"50%", transform:"translateX(-50%)",
+                    background:"rgba(14,14,17,0.9)", border:`1px solid ${T.border2}`,
+                    backdropFilter:"blur(20px)", borderRadius:"999px",
+                    padding:"0.45rem 1rem", display:"flex", alignItems:"center", gap:"0.5rem",
+                    whiteSpace:"nowrap",
+                  }}>
+                    <div style={{ width:"6px", height:"6px", borderRadius:"50%", background:T.green, animation:"pulse-ring 2s ease-in-out infinite" }} />
+                    <span style={{ fontSize:"0.7rem", fontWeight:600, color:T.text, fontFamily:"'JetBrains Mono',monospace" }}>AVAILABLE · IMMEDIATE</span>
+                  </div>
+
+                  {/* Bottom info bar */}
+                  <div style={{ position:"absolute", bottom:0, left:0, right:0, padding:"1.5rem" }}>
+                    <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:"1.3rem", color:"#fff", marginBottom:"0.3rem" }}>
+                      Bhagavan
                     </div>
-                    <div style={{ display:"flex", gap:"0.6rem", marginBottom:"1rem", flexWrap:"wrap" }}>
-                      {["AI/ML", "Cloud", "Full-Stack"].map((t, i) => (
-                        <span key={i} style={{ padding:"0.3rem 0.8rem", background:"rgba(0,245,255,0.25)", border:"1.5px solid #00f5ff", borderRadius:"6px", fontSize:"0.7rem", color:"#00f5ff", fontWeight:800, boxShadow:"0 0 10px rgba(0,245,255,0.3)" }}>{t}</span>
+                    <div style={{ fontSize:"0.8rem", color:T.muted2, marginBottom:"1rem" }}>Full-Stack · AI/ML · Cloud</div>
+                    <div style={{ display:"flex", gap:"0.6rem" }}>
+                      {[
+                        { icon: Github,   href:"https://github.com/bhagavan444",                                               color:"#fff" },
+                        { icon: Linkedin, href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", color:"#0a91fb" },
+                        { icon: Mail,     href:"mailto:g.sivasatyasaibhagavan@gmail.com",                                      color:T.accent },
+                      ].map((s, i) => (
+                        <a key={i} href={s.href} target="_blank" rel="noopener noreferrer"
+                          style={{
+                            width:"36px", height:"36px", borderRadius:"10px",
+                            background:"rgba(255,255,255,0.08)", border:`1px solid ${T.border}`,
+                            display:"flex", alignItems:"center", justifyContent:"center",
+                            color:s.color, textDecoration:"none",
+                            transition:"all 0.25s ease",
+                          }}
+                          onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.15)"; e.currentTarget.style.transform = "scale(1.12)"; }}
+                          onMouseLeave={e => { e.currentTarget.style.background = "rgba(255,255,255,0.08)"; e.currentTarget.style.transform = "scale(1)"; }}
+                        >
+                          <s.icon size={15} />
+                        </a>
                       ))}
                     </div>
-                    <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:"0.6rem", padding:"0.9rem", background:"linear-gradient(135deg,#00f5ff,#00c4ff)", borderRadius:"10px", color:"#000", fontWeight:900, fontSize:"0.9rem", textDecoration:"none", boxShadow:"0 8px 20px rgba(0,245,255,0.4)", transition:"all 0.3s" }} onMouseEnter={e => e.currentTarget.style.transform = "scale(1.05)"} onMouseLeave={e => e.currentTarget.style.transform = "scale(1)"}>
-                      <Send size={18} /> HIRE ME NOW
-                    </a>
                   </div>
                 </div>
               </div>
             </div>
+          </div>
+        </section>
 
-            {/* Content */}
-            <div>
-              <div className="fade-in delay-1" style={{ display:"inline-flex", alignItems:"center", gap:"0.7rem", background:"linear-gradient(135deg,rgba(0,245,255,0.2),rgba(168,85,247,0.2))", border:"2px solid rgba(0,245,255,0.5)", borderRadius:"30px", padding:"0.7rem 1.5rem", marginBottom:"2rem", fontFamily:"'Roboto Mono',monospace", fontSize:"0.85rem", fontWeight:800, color:"#00f5ff", boxShadow:"0 0 25px rgba(0,245,255,0.3)" }}>
-                <Sparkles size={16} style={{ animation:"pulse 2s ease-in-out infinite" }} /> 2026 GRADUATE • IMMEDIATE JOINER
-              </div>
-
-              <h1 className="fade-in delay-2" style={{ fontSize:"clamp(2.5rem,7vw,5.5rem)", fontWeight:900, lineHeight:1.05, marginBottom:"1rem", fontFamily:"'Orbitron',sans-serif", letterSpacing:"-0.02em" }}>
-                <span style={{ color:'#fff' }}>SIVA SATYA SAI</span><br />
-                <span className="gradient-text">BHAGAVAN</span>
-              </h1>
-
-              <div className="fade-in delay-3" style={{ fontSize:"clamp(1.2rem,2.5vw,2rem)", fontWeight:800, marginBottom:"1.5rem", fontFamily:"'Roboto Mono',monospace", color:"#00f5ff", minHeight:"3rem", display:"flex", alignItems:"center", textShadow:"0 0 30px rgba(0,245,255,0.5)" }}>
-                &lt; {typedText}<span style={{ width:'3px', height:'1.3em', background:'#00f5ff', marginLeft:'10px', animation:'pulse 1s ease-in-out infinite' }} />&nbsp;/&gt;
-              </div>
-
-              <p className="fade-in delay-4" style={{ fontSize:"1.15rem", lineHeight:1.8, color:"#c5c5c5", maxWidth:"700px", marginBottom:"2.5rem" }}>
-                <strong style={{ color:'#fff' }}>Elite software engineer</strong> with <span style={{ color:'#00f5ff', fontWeight:700 }}>proven enterprise experience</span> across <strong>3 industry internships</strong>. Specialized in <span style={{ color:'#a855f7', fontWeight:700 }}>AI/ML systems</span> and <span style={{ color:'#22c55e', fontWeight:700 }}>scalable cloud architecture</span>. Delivered <strong>15+ production projects</strong> with <span style={{ color:'#ffd700', fontWeight:700 }}>100% client satisfaction</span>.
-              </p>
-
-              <div className="fade-in delay-5" style={{ display:"flex", gap:"1.2rem", marginBottom:"3rem", flexWrap:"wrap" }}>
-                <button onClick={() => navigate('/projects')} className="btn-primary"><Rocket size={20} /> VIEW PROJECTS</button>
-                <a href={resumePdf} download className="btn-outline" style={{ color:"#00f5ff" }}><Download size={20} /> DOWNLOAD RESUME</a>
-              </div>
-
-              <div className="fade-in delay-6" style={{ display:"flex", gap:"1.2rem" }}>
-                {[
-                  { icon:Github, href:"https://github.com/bhagavan444", color:"#fff" },
-                  { icon:Linkedin, href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", color:"#00f5ff" },
-                  { icon:Mail, href:"mailto:g.sivasatyasaibhagavan@gmail.com", color:"#a855f7" },
-                  { icon:Phone, href:"tel:+917569205626", color:"#22c55e" }
-                ].map((s, i) => (
-                  <a key={i} href={s.href} target="_blank" rel="noopener noreferrer" style={{ width:"52px", height:"52px", background:"rgba(0,0,0,0.7)", border:`3px solid ${s.color}`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", color:s.color, transition:"all 0.3s", textDecoration:"none", boxShadow:`0 0 15px ${s.color}40` }} onMouseEnter={e => { e.currentTarget.style.background = s.color; e.currentTarget.style.color = "#000"; e.currentTarget.style.transform = "scale(1.2) translateY(-5px)"; }} onMouseLeave={e => { e.currentTarget.style.background = "rgba(0,0,0,0.7)"; e.currentTarget.style.color = s.color; e.currentTarget.style.transform = "scale(1)"; }}>
-                    <s.icon size={22} />
-                  </a>
-                ))}
-              </div>
-            </div>
-          </section>
-
-          {/* METRICS */}
-          <section id="metrics" data-observe style={{ padding:"5rem 0" }}>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(280px, 1fr))", gap:"2rem" }}>
+        {/* ─────────────────── METRICS ─────────────────── */}
+        <section ref={metricsRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
+            <div className="metrics-grid" style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:"1.25rem" }}>
               {metrics.map((m, i) => (
-                <div key={i} className={`glass ${visibleSections.has('metrics') ? 'fade-in' : ''}`} style={{ padding:"2.5rem", textAlign:"center", animationDelay:`${i * 0.1}s`, opacity:visibleSections.has('metrics') ? 1 : 0 }}>
-                  <div style={{ width:"70px", height:"70px", margin:"0 auto 1.2rem", background:`${m.color}30`, border:`4px solid ${m.color}`, borderRadius:"50%", display:"flex", alignItems:"center", justifyContent:"center", color:m.color, boxShadow:`0 0 30px ${m.color}70`, animation:"float 5s ease-in-out infinite" }}>
-                    <m.icon size={32} />
+                <div key={i} className="glass hover-lift" style={{
+                  padding:"2rem 1.75rem",
+                  opacity: metricsIn ? 1 : 0,
+                  animation: metricsIn ? `fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.08}s both` : "none",
+                }}>
+                  <div className="stat-number" style={{
+                    fontFamily:"'DM Serif Display',serif",
+                    fontSize:"2.8rem", fontWeight:400,
+                    color:m.color, marginBottom:"0.5rem",
+                    letterSpacing:"-0.03em",
+                    animation: metricsIn ? `counter 0.6s cubic-bezier(0.34,1.56,0.64,1) ${0.3 + i * 0.08}s both` : "none",
+                  }}>
+                    <AnimCounter target={m.value} suffix={m.suffix} triggered={metricsIn} />
                   </div>
-                  <div style={{ fontSize:"3rem", fontWeight:900, color:m.color, marginBottom:"0.8rem", fontFamily:"'Orbitron',sans-serif", textShadow:`0 0 25px ${m.color}90` }}>{m.value}</div>
-                  <div style={{ fontSize:"1.05rem", fontWeight:800, color:"#fff", textTransform:"uppercase", fontFamily:"'Roboto Mono',monospace", letterSpacing:"1px" }}>{m.label}</div>
+                  <div style={{ fontSize:"0.925rem", fontWeight:600, color:T.text, marginBottom:"0.35rem" }}>{m.label}</div>
+                  <div style={{ fontSize:"0.775rem", color:T.muted, lineHeight:1.5 }}>{m.sub}</div>
                 </div>
               ))}
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* ACHIEVEMENTS */}
-          <section id="achievements" data-observe style={{ padding:"4rem 0" }}>
-            <h2 style={{ fontSize:"clamp(2rem,4vw,3rem)", fontWeight:900, marginBottom:"3rem", textAlign:"center", fontFamily:"'Orbitron',sans-serif" }}>
-              <span className="gradient-text">Achievements & Certifications</span>
-            </h2>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(260px, 1fr))", gap:"1.5rem" }}>
-              {achievements.map((a, i) => (
-                <div key={i} className={`glass ${visibleSections.has('achievements') ? 'fade-in' : ''}`} style={{ padding:"1.8rem", display:"flex", alignItems:"center", gap:"1rem", opacity:visibleSections.has('achievements') ? 1 : 0, animationDelay:`${i * 0.08}s` }}>
-                  <div style={{ width:"50px", height:"50px", minWidth:"50px", background:`${a.color}25`, border:`3px solid ${a.color}`, borderRadius:"12px", display:"flex", alignItems:"center", justifyContent:"center", color:a.color, boxShadow:`0 0 20px ${a.color}50` }}>
-                    <a.icon size={24} />
+        {/* ─────────────────── TECH MARQUEE ─────────────────── */}
+        <section style={{ padding:"3rem 0 5rem", overflow:"hidden", position:"relative", zIndex:1 }}>
+          <div style={{ marginBottom:"1.5rem", textAlign:"center" }}>
+            <span className="section-label">Technology Arsenal</span>
+          </div>
+          {/* Fade masks */}
+          <div style={{ position:"relative" }}>
+            <div style={{ position:"absolute", left:0, top:0, bottom:0, width:"140px", background:`linear-gradient(90deg, ${T.bg}, transparent)`, zIndex:2, pointerEvents:"none" }} />
+            <div style={{ position:"absolute", right:0, top:0, bottom:0, width:"140px", background:`linear-gradient(270deg, ${T.bg}, transparent)`, zIndex:2, pointerEvents:"none" }} />
+            <div style={{ overflow:"hidden" }}>
+              <div className="marquee-track">
+                {techStack.map((t, i) => (
+                  <div key={i} style={{
+                    display:"inline-flex", alignItems:"center", gap:"0.6rem",
+                    margin:"0 0.75rem", padding:"0.6rem 1.25rem",
+                    background:T.surface, border:`1px solid ${T.border}`,
+                    borderRadius:"999px", whiteSpace:"nowrap",
+                    fontSize:"0.85rem", fontWeight:500, color:T.muted2,
+                    transition:"all 0.25s ease", cursor:"default",
+                  }}
+                    onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = T.accent; e.currentTarget.style.background = "rgba(91,127,255,0.08)"; }}
+                    onMouseLeave={e => { e.currentTarget.style.color = T.muted2; e.currentTarget.style.borderColor = T.border; e.currentTarget.style.background = T.surface; }}
+                  >
+                    {t}
                   </div>
-                  <div>
-                    <div style={{ fontSize:"1rem", fontWeight:800, color:"#fff", marginBottom:"0.2rem" }}>{a.label}</div>
-                    <div style={{ fontSize:"0.8rem", color:a.color, fontWeight:700, fontFamily:"'Roboto Mono',monospace" }}>{a.stat}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* TECH STACK */}
-          <section id="techstack" data-observe style={{ padding:"5rem 0" }}>
-            <h2 style={{ fontSize:"clamp(2rem,4vw,3rem)", fontWeight:900, marginBottom:"3rem", textAlign:"center", fontFamily:"'Orbitron',sans-serif" }}>
-              <span className="gradient-text">Technology Arsenal</span>
-            </h2>
-            <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit, minmax(140px, 1fr))", gap:"1.5rem", maxWidth:"1000px", margin:"0 auto" }}>
-              {techStack.map((t, i) => (
-                <div key={i} className={`glass ${visibleSections.has('techstack') ? 'fade-in' : ''}`} style={{ padding:"1.8rem 1.2rem", textAlign:"center", opacity:visibleSections.has('techstack') ? 1 : 0, animationDelay:`${i * 0.05}s` }} onMouseEnter={e => { e.currentTarget.style.transform = "translateY(-10px) scale(1.05)"; e.currentTarget.style.borderColor = t.color; }} onMouseLeave={e => { e.currentTarget.style.transform = "translateY(0) scale(1)"; e.currentTarget.style.borderColor = "rgba(255,255,255,0.1)"; }}>
-                  <div style={{ width:"60px", height:"60px", margin:"0 auto 1rem", background:`${t.color}20`, border:`2px solid ${t.color}50`, borderRadius:"12px", display:"flex", alignItems:"center", justifyContent:"center", padding:"0.8rem" }}>
-                    <img src={`https://cdn.jsdelivr.net/gh/devicons/devicon/icons/${t.icon}`} alt={t.name} style={{ width:"100%", height:"100%", objectFit:"contain" }} />
-                  </div>
-                  <div style={{ fontSize:"1rem", fontWeight:800, color:"#fff", fontFamily:"'Roboto Mono',monospace" }}>{t.name}</div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* SKILLS */}
-          <section id="skills" data-observe style={{ padding:"5rem 0" }}>
-            <h2 style={{ fontSize:"clamp(2rem,4vw,3rem)", fontWeight:900, marginBottom:"3rem", textAlign:"center", fontFamily:"'Orbitron',sans-serif" }}>
-              <span className="gradient-text">Elite Technical Skills</span>
-            </h2>
-            <div style={{ maxWidth:"1000px", margin:"0 auto", display:"flex", flexDirection:"column", gap:"2.5rem" }}>
-              {skills.map((s, i) => (
-                <div key={i} className={`glass ${visibleSections.has('skills') ? 'fade-in' : ''}`} style={{ padding:"2.5rem", opacity:visibleSections.has('skills') ? 1 : 0, animationDelay:`${i * 0.1}s` }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:"1.5rem", marginBottom:"1.5rem" }}>
-                    <div style={{ width:"60px", height:"60px", minWidth:"60px", background:`${s.color}30`, border:`3px solid ${s.color}`, borderRadius:"14px", display:"flex", alignItems:"center", justifyContent:"center", color:s.color, boxShadow:`0 0 25px ${s.color}70` }}>
-                      <s.icon size={28} />
-                    </div>
-                    <div style={{ flex:1 }}>
-                      <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:"0.8rem", flexWrap:"wrap", gap:"1rem" }}>
-                        <span style={{ fontSize:"1.3rem", fontWeight:900, color:"#fff", fontFamily:"'Roboto Mono',monospace" }}>{s.name}</span>
-                        <span style={{ fontFamily:"'Orbitron',monospace", fontSize:"1.2rem", color:s.color, fontWeight:900, textShadow:`0 0 10px ${s.color}70` }}>{skillProgress[s.name] || 0}%</span>
-                      </div>
-                      <div style={{ height:"10px", background:"rgba(255,255,255,0.05)", borderRadius:"10px", overflow:"hidden", marginBottom:"1rem" }}>
-                        <div style={{ width:`${skillProgress[s.name] || 0}%`, height:"100%", background:`linear-gradient(90deg, ${s.color}, ${s.color}DD)`, borderRadius:"10px", transition:"width 2s cubic-bezier(0.16,1,0.3,1)", boxShadow:`0 0 15px ${s.color}90` }} />
-                      </div>
-                      <div style={{ fontSize:"0.9rem", color:"#bbb", fontFamily:"'Roboto Mono',monospace" }}>{s.tech}</div>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {/* TESTIMONIALS */}
-          <section id="testimonials" data-observe style={{ padding:"5rem 0" }}>
-            <h2 style={{ fontSize:"clamp(2rem,4vw,3rem)", fontWeight:900, marginBottom:"3rem", textAlign:"center", fontFamily:"'Orbitron',sans-serif" }}>
-              <span className="gradient-text">What Leaders Say</span>
-            </h2>
-            <div style={{ maxWidth:"800px", margin:"0 auto", position:"relative", minHeight:"280px" }}>
-              {testimonials.map((t, i) => (
-                <div key={i} className="glass" style={{ padding:"2.5rem", position: i === activeTestimonial ? "relative" : "absolute", top:0, left:0, right:0, opacity: i === activeTestimonial ? 1 : 0, visibility: i === activeTestimonial ? "visible" : "hidden", transition:"all 0.5s", textAlign:"center" }}>
-                  <div style={{ width:"70px", height:"70px", borderRadius:"50%", background:`linear-gradient(135deg, ${t.color}, ${t.color}80)`, margin:"0 auto 1.5rem", display:"flex", alignItems:"center", justifyContent:"center", fontSize:"1.6rem", fontWeight:900, color:"#000", boxShadow:`0 0 25px ${t.color}60` }}>{t.avatar}</div>
-                  <p style={{ fontSize:"1.15rem", lineHeight:1.7, color:"#fff", marginBottom:"1.5rem", fontStyle:"italic" }}>"{t.text}"</p>
-                  <div style={{ fontSize:"1rem", fontWeight:800, color:t.color, marginBottom:"0.2rem" }}>{t.author}</div>
-                  <div style={{ fontSize:"0.9rem", color:"#999" }}>{t.role}</div>
-                </div>
-              ))}
-              <div style={{ display:"flex", justifyContent:"center", gap:"0.8rem", marginTop:"2rem" }}>
-                {testimonials.map((_, i) => (
-                  <button key={i} onClick={() => setActiveTestimonial(i)} style={{ width: i === activeTestimonial ? "35px" : "10px", height:"10px", borderRadius:"5px", background: i === activeTestimonial ? testimonials[i].color : "rgba(255,255,255,0.2)", border:"none", cursor:"pointer", transition:"all 0.3s", boxShadow: i === activeTestimonial ? `0 0 12px ${testimonials[i].color}` : "none" }} />
                 ))}
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* CTA */}
-          <section style={{ padding:"5rem 0 7rem" }}>
-            <div className="glass" style={{ padding:"4rem 2.5rem", textAlign:"center", background:"linear-gradient(135deg, rgba(0,245,255,0.05), rgba(168,85,247,0.05))" }}>
-              <div style={{ display:"inline-flex", alignItems:"center", gap:"0.6rem", background:"rgba(0,245,255,0.2)", border:"2px solid #00f5ff", borderRadius:"30px", padding:"0.6rem 1.3rem", marginBottom:"2rem", fontSize:"0.85rem", fontWeight:800, color:"#00f5ff", fontFamily:"'Roboto Mono',monospace", boxShadow:"0 0 20px rgba(0,245,255,0.3)" }}>
-                <Zap size={16} /> IMMEDIATE AVAILABILITY
-              </div>
-              <h2 style={{ fontSize:"clamp(2rem,5vw,3.5rem)", fontWeight:900, marginBottom:"1.5rem", fontFamily:"'Orbitron',sans-serif" }}>
-                <span className="gradient-text">Ready to Drive Impact</span><br />
-                <span style={{ color:"#fff" }}>at Your Organization</span>
+        {/* ─────────────────── SKILLS ─────────────────── */}
+        <section id="skills" ref={skillsRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
+            <div style={{ marginBottom:"3.5rem" }}>
+              <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Expertise</span>
+              <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text, maxWidth:"500px" }}>
+                Skills &amp; Competencies
               </h2>
-              <p style={{ fontSize:"1.1rem", color:"#b5b5b5", marginBottom:"3rem", maxWidth:"750px", margin:"0 auto 3rem", lineHeight:1.8 }}>
-                Seeking full-time opportunities where I can leverage my expertise in <strong style={{ color:"#00f5ff" }}>AI/ML</strong>, <strong style={{ color:"#a855f7" }}>full-stack development</strong>, and <strong style={{ color:"#22c55e" }}>cloud architecture</strong> to build transformative solutions.
-              </p>
-              <div style={{ display:"flex", gap:"1.2rem", justifyContent:"center", flexWrap:"wrap" }}>
-                <a href="mailto:g.sivasatyasaibhagavan@gmail.com" className="btn-primary"><Send size={20} /> SCHEDULE INTERVIEW</a>
-                <button onClick={() => navigate('/projects')} className="btn-outline" style={{ color:"#a855f7" }}><Eye size={20} /> VIEW PORTFOLIO</button>
-                <a href={resumePdf} download className="btn-outline" style={{ color:"#22c55e" }}><Download size={20} /> GET RESUME</a>
+            </div>
+
+            <div className="skills-grid" style={{ display:"grid", gridTemplateColumns:"repeat(2,1fr)", gap:"1.25rem" }}>
+              {skillGroups.map((g, i) => (
+                <div key={i} className="skill-card glass" style={{
+                  padding:"2rem",
+                  opacity: skillsIn ? 1 : 0,
+                  animation: skillsIn ? `fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.1}s both` : "none",
+                  cursor:"default",
+                }}>
+                  {/* Header */}
+                  <div style={{ display:"flex", alignItems:"center", gap:"0.75rem", marginBottom:"1rem" }}>
+                    <div style={{ width:"10px", height:"10px", borderRadius:"50%", background:g.dot, boxShadow:`0 0 12px ${g.dot}80` }} />
+                    <span style={{ fontSize:"0.875rem", fontWeight:700, color:T.text }}>{g.category}</span>
+                  </div>
+                  {/* Description */}
+                  <p style={{ fontSize:"0.825rem", color:T.muted, lineHeight:1.6, marginBottom:"1.25rem" }}>{g.desc}</p>
+                  {/* Skill chips */}
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:"0.5rem" }}>
+                    {g.skills.map((sk, j) => (
+                      <span key={j} style={{
+                        padding:"0.3rem 0.75rem",
+                        borderRadius:"6px",
+                        background:`rgba(${g.color === T.accent ? "91,127,255" : g.color === T.accent2 ? "139,92,246" : g.color === T.green ? "52,211,153" : "245,158,11"},0.1)`,
+                        border:`1px solid rgba(${g.color === T.accent ? "91,127,255" : g.color === T.accent2 ? "139,92,246" : g.color === T.green ? "52,211,153" : "245,158,11"},0.2)`,
+                        fontSize:"0.75rem", fontWeight:500,
+                        color:g.color,
+                        fontFamily:"'JetBrains Mono',monospace",
+                      }}>
+                        {sk}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────────── FEATURED PROJECT ─────────────────── */}
+        <section ref={projectRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
+            <div style={{ marginBottom:"3rem" }}>
+              <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Featured Work</span>
+              <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text }}>
+                Selected Project
+              </h2>
+            </div>
+
+            <div style={{
+              borderRadius:"24px", overflow:"hidden",
+              border:`1px solid ${T.border2}`,
+              background:T.surface,
+              opacity: projectIn ? 1 : 0,
+              animation: projectIn ? "fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both" : "none",
+            }}>
+              {/* Top banner */}
+              <div style={{
+                height:"220px", position:"relative", overflow:"hidden",
+                background:`linear-gradient(135deg, rgba(91,127,255,0.15), rgba(139,92,246,0.1), rgba(52,211,153,0.08))`,
+                borderBottom:`1px solid ${T.border}`,
+                display:"flex", alignItems:"center", justifyContent:"center",
+              }}>
+                {/* Abstract grid */}
+                <div style={{
+                  position:"absolute", inset:0,
+                  backgroundImage:`
+                    linear-gradient(rgba(91,127,255,0.08) 1px, transparent 1px),
+                    linear-gradient(90deg, rgba(91,127,255,0.08) 1px, transparent 1px)
+                  `,
+                  backgroundSize:"40px 40px",
+                }} />
+                {/* Orbs */}
+                {[
+                  { size:200, x:"10%", y:"50%", c:T.accent, o:0.15 },
+                  { size:160, x:"70%", y:"30%", c:T.accent2, o:0.12 },
+                  { size:120, x:"85%", y:"75%", c:T.green, o:0.10 },
+                ].map((orb, i) => (
+                  <div key={i} style={{
+                    position:"absolute", left:orb.x, top:orb.y,
+                    width:orb.size, height:orb.size,
+                    borderRadius:"50%", background:orb.c,
+                    opacity:orb.o, filter:"blur(60px)",
+                    transform:"translate(-50%,-50%)",
+                    animation:`float ${6 + i}s ease-in-out infinite`,
+                    animationDelay:`${i * 0.8}s`,
+                  }} />
+                ))}
+                <div style={{ position:"relative", zIndex:1, textAlign:"center" }}>
+                  <div style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.72rem", color:T.accent, letterSpacing:"0.15em", marginBottom:"0.5rem" }}>
+                    {featuredProject.tag}
+                  </div>
+                  <div className="display-heading" style={{ fontSize:"2rem", color:T.text }}>
+                    {featuredProject.title}
+                  </div>
+                </div>
               </div>
-              <div style={{ marginTop:"3rem", paddingTop:"2.5rem", borderTop:"2px solid rgba(255,255,255,0.1)", display:"flex", justifyContent:"center", gap:"2.5rem", flexWrap:"wrap" }}>
-                <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{ display:"flex", alignItems:"center", gap:"0.6rem", color:"#00f5ff", textDecoration:"none", fontSize:"1rem", fontWeight:700 }} onMouseEnter={e => e.currentTarget.style.color = "#fff"} onMouseLeave={e => e.currentTarget.style.color = "#00f5ff"}>
-                  <Mail size={18} /> g.sivasatyasaibhagavan@gmail.com
-                </a>
-                <a href="tel:+917569205626" style={{ display:"flex", alignItems:"center", gap:"0.6rem", color:"#22c55e", textDecoration:"none", fontSize:"1rem", fontWeight:700 }} onMouseEnter={e => e.currentTarget.style.color = "#fff"} onMouseLeave={e => e.currentTarget.style.color = "#22c55e"}>
-                  <Phone size={18} /> +91 7569205626
-                </a>
+
+              {/* Bottom content */}
+              <div style={{ padding:"2rem 2.5rem", display:"grid", gridTemplateColumns:"1fr auto", gap:"2rem", alignItems:"start" }}>
+                <div>
+                  <p style={{ fontSize:"0.95rem", color:T.muted2, lineHeight:1.75, marginBottom:"1.5rem", maxWidth:"600px" }}>
+                    {featuredProject.desc}
+                  </p>
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:"0.5rem" }}>
+                    {featuredProject.tech.map((t, i) => (
+                      <span key={i} style={{ padding:"0.28rem 0.7rem", borderRadius:"6px", background:"rgba(255,255,255,0.04)", border:`1px solid ${T.border}`, fontSize:"0.75rem", color:T.muted2, fontFamily:"'JetBrains Mono',monospace" }}>
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ display:"flex", flexDirection:"column", gap:"1rem", minWidth:"180px" }}>
+                  {featuredProject.stats.map((s, i) => (
+                    <div key={i} style={{ textAlign:"right" }}>
+                      <div style={{ fontSize:"1.5rem", fontFamily:"'DM Serif Display',serif", color:T.accent, letterSpacing:"-0.02em" }}>{s.value}</div>
+                      <div style={{ fontSize:"0.75rem", color:T.muted, marginTop:"0.1rem" }}>{s.label}</div>
+                    </div>
+                  ))}
+                  <button className="btn-primary" style={{ marginTop:"0.5rem", justifyContent:"center" }} onClick={() => navigate('/projects')}>
+                    See All Work <ArrowRight size={14} />
+                  </button>
+                </div>
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
-          {/* FOOTER */}
-          <footer style={{ borderTop:"1px solid rgba(255,255,255,0.1)", padding:"2.5rem 0", textAlign:"center" }}>
-            <p style={{ color:"#666", fontSize:"0.9rem" }}>© 2026 Siva Satya Sai Bhagavan. Crafted with <span style={{ color:"#ff6b35" }}>❤</span> and cutting-edge tech.</p>
-          </footer>
-        </div>
-      </div>
+        {/* ─────────────────── ACHIEVEMENTS ─────────────────── */}
+        <section ref={achievRef} id="achievements" style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
+            <div style={{ marginBottom:"3.5rem" }}>
+              <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Credentials</span>
+              <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text }}>
+                Certifications &amp; Awards
+              </h2>
+            </div>
+
+            <div style={{ position:"relative", paddingLeft:"2px" }}>
+              {/* Timeline line */}
+              <div style={{ position:"absolute", left:"19px", top:"24px", bottom:"24px", width:"1px", background:`linear-gradient(180deg, ${T.accent}, ${T.accent2}, ${T.green})` }} />
+
+              <div style={{ display:"flex", flexDirection:"column", gap:"0" }}>
+                {achievements.map((a, i) => (
+                  <div key={i} className="timeline-item" style={{
+                    display:"flex", gap:"2rem", alignItems:"center",
+                    padding:"1rem 0",
+                    opacity: achievIn ? 1 : 0,
+                    animation: achievIn ? `fadeUp 0.6s cubic-bezier(0.22,1,0.36,1) ${i * 0.08}s both` : "none",
+                  }}>
+                    {/* Dot */}
+                    <div className="timeline-dot" style={{
+                      width:"38px", height:"38px", minWidth:"38px",
+                      borderRadius:"50%",
+                      background:T.surface2, border:`2px solid ${a.color}`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      position:"relative", zIndex:1,
+                      transition:"box-shadow 0.3s ease",
+                      boxShadow:`0 0 0 4px ${T.bg}`,
+                    }}>
+                      <CheckCircle size={16} style={{ color:a.color }} />
+                    </div>
+
+                    {/* Card */}
+                    <div className="glass hover-lift" style={{ flex:1, padding:"1.1rem 1.5rem", display:"flex", alignItems:"center", justifyContent:"space-between", gap:"1rem" }}>
+                      <div>
+                        <div style={{ fontSize:"0.95rem", fontWeight:600, color:T.text, marginBottom:"0.2rem" }}>{a.title}</div>
+                        <div style={{ fontSize:"0.775rem", color:T.muted }}>{a.issuer}</div>
+                      </div>
+                      <div style={{ display:"flex", alignItems:"center", gap:"0.75rem" }}>
+                        <span style={{ fontFamily:"'JetBrains Mono',monospace", fontSize:"0.72rem", color:T.muted, fontWeight:600 }}>{a.year}</span>
+                        <span className="badge" style={{ background:`rgba(${a.color === T.gold ? "245,158,11" : a.color === T.accent ? "91,127,255" : a.color === T.green ? "52,211,153" : "139,92,246"},0.08)`, border:`1px solid ${a.color}40`, color:a.color }}>
+                          <Verified size={10} /> Verified
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────────── TESTIMONIALS ─────────────────── */}
+        <section ref={testRef} style={{ padding:"6rem 0", position:"relative", zIndex:1 }}>
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
+            <div style={{ marginBottom:"3.5rem", display:"flex", alignItems:"flex-end", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
+              <div>
+                <span className="section-label" style={{ display:"block", marginBottom:"1rem" }}>Social Proof</span>
+                <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4vw,3rem)", color:T.text }}>
+                  What Leaders Say
+                </h2>
+              </div>
+              <div style={{ display:"flex", gap:"0.5rem" }}>
+                <button
+                  onClick={() => setTestIdx(p => (p - 1 + testimonials.length) % testimonials.length)}
+                  style={{ width:"40px", height:"40px", borderRadius:"10px", background:T.surface, border:`1px solid ${T.border}`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:T.muted2, transition:"all 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = T.border2; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = T.muted2; e.currentTarget.style.borderColor = T.border; }}
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button
+                  onClick={() => setTestIdx(p => (p + 1) % testimonials.length)}
+                  style={{ width:"40px", height:"40px", borderRadius:"10px", background:T.surface, border:`1px solid ${T.border}`, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", color:T.muted2, transition:"all 0.2s" }}
+                  onMouseEnter={e => { e.currentTarget.style.color = "#fff"; e.currentTarget.style.borderColor = T.border2; }}
+                  onMouseLeave={e => { e.currentTarget.style.color = T.muted2; e.currentTarget.style.borderColor = T.border; }}
+                >
+                  <ChevronRight size={16} />
+                </button>
+              </div>
+            </div>
+
+            {/* Testimonial cards */}
+            <div style={{ position:"relative", minHeight:"220px" }}>
+              {testimonials.map((t, i) => (
+                <div key={i} className="testimonial-slide glass" style={{
+                  position: i === testIdx ? "relative" : "absolute",
+                  top:0, left:0, right:0,
+                  padding:"2.5rem",
+                  opacity: i === testIdx ? 1 : 0,
+                  visibility: i === testIdx ? "visible" : "hidden",
+                  transform: i === testIdx ? "translateY(0) scale(1)" : "translateY(20px) scale(0.98)",
+                  boxShadow: i === testIdx ? "0 24px 80px rgba(0,0,0,0.4)" : "none",
+                }}>
+                  <div style={{ display:"flex", gap:"2rem", alignItems:"flex-start", flexWrap:"wrap" }}>
+                    {/* Avatar */}
+                    <div style={{
+                      width:"56px", height:"56px", minWidth:"56px",
+                      borderRadius:"16px",
+                      background:`linear-gradient(135deg, ${t.color}30, ${t.color}10)`,
+                      border:`2px solid ${t.color}40`,
+                      display:"flex", alignItems:"center", justifyContent:"center",
+                      fontSize:"1rem", fontWeight:700, color:t.color,
+                      fontFamily:"'DM Serif Display',serif",
+                    }}>
+                      {t.avatar}
+                    </div>
+
+                    {/* Content */}
+                    <div style={{ flex:1 }}>
+                      {/* Stars */}
+                      <div style={{ display:"flex", gap:"0.2rem", marginBottom:"1rem" }}>
+                        {[...Array(5)].map((_, si) => <Sparkles key={si} size={12} style={{ color:T.gold }} />)}
+                      </div>
+                      <blockquote style={{ fontSize:"1.05rem", lineHeight:1.75, color:T.muted2, marginBottom:"1.5rem", fontStyle:"italic", maxWidth:"700px" }}>
+                        "{t.quote}"
+                      </blockquote>
+                      <div>
+                        <div style={{ fontSize:"0.9rem", fontWeight:600, color:T.text }}>{t.name}</div>
+                        <div style={{ fontSize:"0.8rem", color:T.muted }}>{t.role}</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Indicator dots */}
+                  <div style={{ display:"flex", gap:"0.5rem", marginTop:"2rem", justifyContent:"flex-end" }}>
+                    {testimonials.map((_, di) => (
+                      <button key={di} onClick={() => setTestIdx(di)} style={{
+                        width: di === testIdx ? "24px" : "8px", height:"8px",
+                        borderRadius:"4px", border:"none", cursor:"pointer",
+                        background: di === testIdx ? t.color : T.border2,
+                        transition:"all 0.3s cubic-bezier(0.34,1.56,0.64,1)",
+                      }} />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────────── CTA ─────────────────── */}
+        <section ref={ctaRef} id="contact" style={{ padding:"6rem 0 8rem", position:"relative", zIndex:1 }}>
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem" }}>
+            <div style={{
+              borderRadius:"28px", padding:"4rem 3rem",
+              background:`linear-gradient(135deg, ${T.surface} 0%, rgba(91,127,255,0.05) 100%)`,
+              border:`1px solid ${T.border2}`,
+              position:"relative", overflow:"hidden",
+              opacity: ctaIn ? 1 : 0,
+              animation: ctaIn ? "fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both" : "none",
+            }}>
+              {/* BG orb */}
+              <div style={{
+                position:"absolute", right:"-10%", top:"-30%",
+                width:"400px", height:"400px", borderRadius:"50%",
+                background:`radial-gradient(circle, rgba(91,127,255,0.12), transparent 70%)`,
+                pointerEvents:"none",
+              }} />
+
+              <div style={{ position:"relative", zIndex:1, maxWidth:"680px" }}>
+                <span className="section-label" style={{ display:"block", marginBottom:"1.25rem" }}>
+                  Let's build something great
+                </span>
+                <h2 className="display-heading" style={{ fontSize:"clamp(2rem,4.5vw,3.2rem)", color:T.text, marginBottom:"1.25rem" }}>
+                  Ready to make an<br />
+                  <span style={{ color:T.accent }}>immediate impact</span>
+                </h2>
+                <p style={{ fontSize:"1rem", color:T.muted2, lineHeight:1.75, marginBottom:"2.5rem", maxWidth:"500px" }}>
+                  Seeking full-time engineering roles where I can ship AI-powered products, architect scalable systems, and grow alongside exceptional teams.
+                </p>
+
+                {/* CTA buttons */}
+                <div style={{ display:"flex", gap:"0.9rem", flexWrap:"wrap", marginBottom:"2.5rem" }}>
+                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" className="btn-primary">
+                    Schedule Interview <ArrowRight size={15} />
+                  </a>
+                  <button className="btn-ghost" onClick={() => navigate('/projects')}>
+                    View Portfolio <ExternalLink size={14} />
+                  </button>
+                </div>
+
+                {/* Contact info */}
+                <div style={{ display:"flex", gap:"2rem", flexWrap:"wrap", paddingTop:"2rem", borderTop:`1px solid ${T.border}` }}>
+                  <a href="mailto:g.sivasatyasaibhagavan@gmail.com" style={{ display:"flex", alignItems:"center", gap:"0.5rem", color:T.muted2, textDecoration:"none", fontSize:"0.875rem", transition:"color 0.2s" }}
+                    onMouseEnter={e => e.currentTarget.style.color = "#fff"}
+                    onMouseLeave={e => e.currentTarget.style.color = T.muted2}
+                  >
+                    <Mail size={15} style={{ color:T.accent }} /> g.sivasatyasaibhagavan@gmail.com
+                  </a>
+                  <a href="tel:+917569205626" style={{ display:"flex", alignItems:"center", gap:"0.5rem", color:T.muted2, textDecoration:"none", fontSize:"0.875rem", transition:"color 0.2s" }}
+                    onMouseEnter={e => e.currentTarget.style.color = "#fff"}
+                    onMouseLeave={e => e.currentTarget.style.color = T.muted2}
+                  >
+                    <Phone size={15} style={{ color:T.green }} /> +91 7569205626
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ─────────────────── FOOTER ─────────────────── */}
+        <footer style={{ borderTop:`1px solid ${T.border}`, padding:"2.5rem 0", position:"relative", zIndex:1 }}>
+          <div style={{ maxWidth:"1280px", margin:"0 auto", padding:"0 2rem", display:"flex", alignItems:"center", justifyContent:"space-between", flexWrap:"wrap", gap:"1rem" }}>
+            <div style={{ fontFamily:"'DM Serif Display',serif", fontSize:"1rem", color:T.muted }}>
+              Bhagavan<span style={{ color:T.accent }}>.</span>
+            </div>
+
+            <div className="footer-links" style={{ display:"flex", gap:"2rem", alignItems:"center" }}>
+              {[
+                { icon:Github,   href:"https://github.com/bhagavan444", label:"GitHub" },
+                { icon:Linkedin, href:"https://www.linkedin.com/in/gopalajosyula-siva-satya-sai-bhagavan-1624a027b/", label:"LinkedIn" },
+                { icon:Mail,     href:"mailto:g.sivasatyasaibhagavan@gmail.com", label:"Email" },
+              ].map((l, i) => (
+                <a key={i} href={l.href} target="_blank" rel="noopener noreferrer"
+                  style={{ display:"flex", alignItems:"center", gap:"0.4rem", color:T.muted, textDecoration:"none", fontSize:"0.8rem", transition:"color 0.2s" }}
+                  onMouseEnter={e => e.currentTarget.style.color = "#fff"}
+                  onMouseLeave={e => e.currentTarget.style.color = T.muted}
+                >
+                  <l.icon size={13} /> {l.label}
+                </a>
+              ))}
+            </div>
+
+            <div style={{ fontSize:"0.75rem", color:T.muted, fontFamily:"'JetBrains Mono',monospace" }}>
+              © 2026 · Built with precision
+            </div>
+          </div>
+        </footer>
+      </main>
     </>
   );
 }
