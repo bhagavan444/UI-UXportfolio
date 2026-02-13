@@ -43,7 +43,7 @@ const experiences = [
     accent: C.accent,
     accentDim: C.accentDim,
 
-    certPreview: "https://drive.google.com/uc?export=view&id=1bwbNlc9mdPYQOIyUpoiBIOhpyxaMBvbC",
+    certPreview: "/images/study.jpg",
 
     summary:
       "Worked on full-stack web applications using the MERN stack, implementing authentication systems and REST APIs while collaborating in a team environment.",
@@ -83,7 +83,7 @@ const experiences = [
     accent: C.purple,
     accentDim: C.purpleDim,
 
-    certPreview: "https://drive.google.com/uc?export=view&id=1-_8ZI8uZ3DcrFpfZ3pts7VSYrAqPN5Zw",
+    certPreview: "/images/intern.png",
 
     summary:
       "Developed and evaluated machine learning models for image classification and applied deployment using Flask APIs.",
@@ -123,7 +123,7 @@ const experiences = [
     accent: C.green,
     accentDim: C.greenDim,
 
-    certPreview: "https://drive.google.com/uc?export=view&id=18j3Go5VHISIf79vYic6-vcowNoEgg7SW",
+    certPreview: "/images/blackbucks.jpeg",
 
     summary:
       "Worked on data preprocessing, feature engineering, and supervised learning model development using Python-based ML libraries.",
@@ -151,6 +151,8 @@ const experiences = [
     },
   },
 ];
+
+
 
 
 /* ═══════════════════════════════════════════════════════════════
@@ -855,7 +857,7 @@ function ExperienceSection({ data, index, isLast }) {
 
             {/* Certificate button */}
             <div style={{ marginTop: "3rem" }}>
-              <MagneticButton href={`https://drive.google.com/file/d/${data.certId}/view`} accent={data.accent}>
+              <MagneticButton href={data.certPreview} accent={data.accent}>
                 <CheckCircle2 size={16} />
                 View Verified Certificate
               </MagneticButton>
@@ -990,7 +992,7 @@ function ExperienceSection({ data, index, isLast }) {
                   }}
                 >
                   <img
-                    src={`https://drive.google.com/thumbnail?id=${data.certId}&sz=w800`}
+                    src={data.certPreview}
                     alt={`${data.company} certificate`}
                     style={{
                       width: "100%",

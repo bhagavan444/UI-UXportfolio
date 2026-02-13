@@ -12,7 +12,7 @@ export default function HackathonCaseStudy() {
   const [selectedPhase, setSelectedPhase] = useState(null);
   const [showCert, setShowCert] = useState(false);
 
-  const certUrl = "https://drive.google.com/uc?export=view&id=1bkXJCzHQPbSSovbaLs4EPeKT1f9ERl5O"
+  const certUrl = "images/Brainovision-certificate.jpg";
 
   const executionPhases = [
     {

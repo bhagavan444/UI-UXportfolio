@@ -5,54 +5,54 @@ import {
   Zap, Server, Code2, Target, AlertCircle
 } from 'lucide-react';
 
+
 // All projects data
 const allProjects = [
-  {
-    id: 1,
-    title: "ATS-Based Resume Builder",
-    tagline: "Full-stack resume optimization platform",
-    subtitle: "Improving ATS compatibility using keyword analysis",
-    github: "https://github.com/bhagavan444/Resumebuilderwebapp",
-    live: null,
-    year: "2025",
-    duration: "3 months",
-    color: "#2563eb",
-    featured: true,
+ {
+  id: 1,
+  title: "ATS-Based Resume Builder",
+  tagline: "Full-stack resume optimization platform",
+  subtitle: "Improving ATS compatibility using keyword analysis",
+  github: "https://github.com/bhagavan444/Resumebuilderwebapp",
+  live: null,
+  year: "2025",
+  duration: "3 months",
+  color: "#2563eb",
+  featured: true,
 
-    problem:
-      "Many candidates lose job opportunities due to poorly formatted resumes and missing keywords required by Applicant Tracking Systems (ATS).",
+  problem:
+    "Many candidates lose job opportunities due to poorly formatted resumes and missing keywords required by Applicant Tracking Systems (ATS).",
 
-    solution:
-      "Built a MERN stack application that allows users to create structured resumes and analyze keyword relevance against job descriptions using backend parsing logic and scoring algorithms.",
+  solution:
+    "Built a MERN stack application that allows users to create structured resumes and analyze keyword relevance against job descriptions using backend parsing logic and scoring algorithms.",
 
-    impact: [
-      { label: "ATS Score Achieved", value: 90, suffix: "%+" },
-      { label: "Resume Templates", value: 5, suffix: "+" },
-      { label: "OAuth Providers", value: 2, suffix: "" }
-    ],
+  impact: [
+    { label: "ATS Score Achieved", value: 90, suffix: "%+" },
+    { label: "Resume Templates", value: 5, suffix: "+" },
+    { label: "OAuth Providers", value: 2, suffix: "" }
+  ],
 
-    architecture: [
-      { label: "Frontend", value: "React with Context API" },
-      { label: "Backend", value: "Node.js + Express REST APIs" },
-      { label: "Authentication", value: "Google & GitHub OAuth" },
-      { label: "Resume Scoring", value: "Keyword Matching + PDF Parsing" },
-      { label: "Database", value: "MongoDB Atlas" }
-    ],
+  architecture: [
+    { label: "Frontend", value: "React with Context API" },
+    { label: "Backend", value: "Node.js + Express REST APIs" },
+    { label: "Authentication", value: "Google & GitHub OAuth" },
+    { label: "Resume Scoring", value: "Keyword Matching + PDF Parsing" },
+    { label: "Database", value: "MongoDB Atlas" }
+  ],
 
-    techStack: {
-      Frontend: ["React", "HTML", "CSS"],
-      Backend: ["Node.js", "Express"],
-      Database: ["MongoDB"],
-      AI_Logic: ["Keyword Extraction", "PDF Parsing"],
-      Tools: ["Git", "Postman"]
-    },
-
-    learned:
-      "Strengthened full-stack development skills, authentication workflows, and backend parsing logic for real-world applications.",
-
-    screenshot:
-      "https://drive.google.com/uc?export=view&id=1ngApn37ig05YDXxCbA5mppeva_opwcUs"
+  techStack: {
+    Frontend: ["React", "HTML", "CSS"],
+    Backend: ["Node.js", "Express"],
+    Database: ["MongoDB"],
+    AI_Logic: ["Keyword Extraction", "PDF Parsing"],
+    Tools: ["Git", "Postman"]
   },
+
+  learned:
+    "Strengthened full-stack development skills, authentication workflows, and backend parsing logic for real-world applications.",
+
+  screenshot: "/images/resume.jpg"
+},
 
   {
     id: 2,
@@ -95,7 +95,7 @@ const allProjects = [
       "Improved understanding of API orchestration, async request handling, and frontend–backend communication.",
 
     screenshot:
-      "https://drive.google.com/uc?export=view&id=10gvXlgHCb__NAWBoLEbj6LglL9dT6Kew"
+      "/images/chatbot.jpg"
   },
 
   {
@@ -123,7 +123,7 @@ const allProjects = [
     tech: ["Python", "Scikit-learn", "Flask", "React"],
 
     screenshot:
-      "https://drive.google.com/uc?export=view&id=1pTnIysNCQgb3oHPOyofDKVkAe_acI2Bj"
+      "/images/carrer.jpg"
   },
 
   {
@@ -151,7 +151,7 @@ const allProjects = [
     tech: ["Python", "Scikit-learn", "NLP", "TF-IDF"],
 
     screenshot:
-      "https://drive.google.com/uc?export=view&id=17XFIpJvdtb-0KXi5cyW37FQyXXc1-iC9"
+      "/images/fake.jpg"
   },
 
   {
@@ -179,7 +179,7 @@ const allProjects = [
     tech: ["Python", "Scikit-learn", "Flask", "SQLite"],
 
     screenshot:
-      "https://drive.google.com/uc?export=view&id=1Uy1JiAFMcAwMD0LZgm0J-bYiWuHpRzqq"
+      "/images/heart.jpg"
   }
 ];
 
